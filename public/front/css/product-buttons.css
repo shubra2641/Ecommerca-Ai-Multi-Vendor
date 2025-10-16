@@ -1,0 +1,48 @@
+/* Button color overrides for product show */
+.btn-buy {
+    display      : inline-block;
+    padding      : 12px 16px;
+    border-radius: 8px;
+    border       : 1px solid transparent;
+    font-weight  : 700;
+    text-align   : center;
+    cursor       : pointer;
+}
+
+.btn-buy:not([disabled]) {
+    background: #c13b3b;
+    /* default red for add to cart */
+    color     : #fff;
+}
+
+.btn-buy[disabled],
+.btn-buy.disabled {
+    background  : #f0c200;
+    /* yellow when out of stock */
+    color       : #111;
+    border-color: #d9b400;
+    cursor      : not-allowed;
+    opacity     : 1; /* keep full opacity to match shape */
+}
+
+.btn-notify {
+    display      : inline-block;
+    padding      : 12px 16px;
+    border-radius: 8px;
+    border       : 1px solid transparent;
+    font-weight  : 700;
+    text-align   : center;
+    cursor       : pointer;
+    background   : #0a7a3a;
+    /* green notify button */
+    color        : #fff;
+}
+
+.btn-notify:disabled {
+    cursor : not-allowed;
+    opacity: .8;
+}
+
+.purchase-box .btn-add {
+    margin-top: 8px;
+}

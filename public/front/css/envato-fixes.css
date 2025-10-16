@@ -1,0 +1,1071 @@
+/* Envato fixes: centralize common inline styles found in views */
+
+/* Flash messages root position */
+.flash-root.position-fixed {
+    top    : 20px;
+    right  : 20px;
+    z-index: 1100;
+}
+
+/* Generic hidden helper for dynamic elements */
+.hidden-inline,
+.envato-hidden {
+    display: none !important;
+}
+
+/* Fixed thumb used in returns / galleries */
+.thumb-fixed {
+    width: 120px;
+    flex : 0 0 120px;
+}
+
+/* Empty state image sizing */
+.empty-img {
+    width     : 40px;
+    height    : 40px;
+    max-width : 120px;
+    max-height: 120px;
+}
+
+/* List reset for small inline lists */
+.list-reset {
+    margin      : 0;
+    padding-left: 1.1rem;
+}
+
+/* Order header right alignment */
+.order-header-right {
+    margin-left: auto;
+    text-align : right;
+}
+
+/* Utility for object-fit thumbnails */
+.obj-cover {
+    object-fit: cover;
+}
+
+/* Utility for small inline display none where Bootstrap may not be available */
+.d-none-important {
+    display: none !important;
+}
+
+/* Additional utilities for Envato compliance */
+.max-w-100 {
+    max-width: 100px !important;
+}
+
+.max-w-120 {
+    max-width: 120px !important;
+}
+
+.brand-logo {
+    height      : 32px;
+    width       : auto;
+    margin-right: 10px;
+}
+
+.gap-1rem {
+    gap: 1rem;
+}
+
+.mb-05rem {
+    margin-bottom: .5rem;
+}
+
+.profile-header {
+    display    : flex;
+    align-items: center;
+    gap        : 12px;
+}
+
+/* Vendor notifications block styling */
+.vendor-notifications {
+    max-width    : 360px;
+    background   : #fff;
+    border       : 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+    padding      : .5rem;
+}
+
+.vendor-notifications ul {
+    margin    : 0;
+    padding   : 0;
+    list-style: none;
+}
+
+.vendor-notifications li {
+    transition: background .12s ease;
+}
+
+.vendor-notifications li.bg-light {
+    background: #f8f9fa;
+}
+
+.vendor-notifications .small {
+    font-size: .75rem;
+}
+
+.vendor-notifications .text-body {
+    font-size: .9rem;
+}
+
+/* Payout proof image (replaces inline style) */
+.payout-proof-img {
+    max-width : 400px;
+    max-height: 300px;
+    object-fit: contain;
+    display   : block;
+}
+
+
+.progress-track {
+    height       : 10px;
+    border-radius: 6px;
+    overflow     : hidden;
+    background   : #f1f5f9;
+}
+
+.progress-fill {
+    display   : block;
+    height    : 100%;
+    width     : 0;
+    background: linear-gradient(90deg, #6366f1, #818cf8);
+}
+
+.small-badge {
+    font-size: .65rem;
+}
+
+/* Auto-generated utilities reintegrated (removed separate bundle to avoid Vite manifest dependency) */
+.h-120 {
+    height: 120px !important;
+}
+
+.w-120 {
+    width: 120px !important;
+}
+
+.w-70 {
+    width: 70px !important;
+}
+
+.w-36 {
+    width: 36px !important;
+}
+
+.w-180 {
+    width: 180px !important;
+}
+
+.h-380 {
+    height: 380px !important;
+}
+
+.h-400 {
+    height: 400px !important;
+}
+
+.h-340 {
+    height: 340px !important;
+}
+
+.h-300 {
+    height: 300px !important;
+}
+
+.h-320 {
+    height: 320px !important;
+}
+
+.w-200 {
+    width: 200px !important;
+}
+
+.w-34 {
+    width: 34px !important;
+}
+
+/* 404 role page extracted styles */
+body.role-404-page {
+    background : #f7f9fc;
+    color      : #222;
+    font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+.role-404-center {
+    min-height     : 100vh;
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+}
+
+.role-404-card {
+    background   : #fff;
+    border-radius: 12px;
+    padding      : 32px;
+    box-shadow   : 0 10px 30px rgba(16, 24, 40, 0.06);
+    max-width    : 920px;
+    width        : 100%;
+}
+
+.role-404-code {
+    font-weight: 700;
+    font-size  : 64px;
+    color      : #6b7280;
+}
+
+.role-404-title {
+    font-size  : 22px;
+    font-weight: 600;
+    margin-top : 8px;
+}
+
+.role-404-desc {
+    color     : #6b7280;
+    margin-top: 8px;
+}
+
+.role-404-actions {
+    margin-top: 20px;
+    display   : flex;
+    gap       : 12px;
+    flex-wrap : wrap;
+}
+
+.role-404-btn-primary {
+    background     : linear-gradient(90deg, #5b21b6, #7c3aed);
+    border         : none;
+    color          : #fff;
+    padding        : 10px 18px;
+    border-radius  : 8px;
+    display        : inline-block;
+    text-decoration: none;
+}
+
+.role-404-btn-secondary {
+    background     : #fff;
+    border         : 1px solid #e6e9ef;
+    color          : #374151;
+    padding        : 10px 18px;
+    border-radius  : 8px;
+    display        : inline-block;
+    text-decoration: none;
+}
+
+@media (max-width:640px) {
+    .role-404-code {
+        font-size: 48px;
+    }
+
+    .role-404-card {
+        padding: 18px;
+    }
+}
+
+.h-34 {
+    height: 34px !important;
+}
+
+.w-60 {
+    width: 60px !important;
+}
+
+.h-60 {
+    height: 60px !important;
+}
+
+.w-160 {
+    width: 160px !important;
+}
+
+.w-220 {
+    width: 220px !important;
+}
+
+.w-90 {
+    width: 90px !important;
+}
+
+.w-140 {
+    width: 140px !important;
+}
+
+.w-48 {
+    width: 48px !important;
+}
+
+.h-48 {
+    height: 48px !important;
+}
+
+.w-32 {
+    width: 32px !important;
+}
+
+.h-32 {
+    height: 32px !important;
+}
+
+.w-40 {
+    width: 40px !important;
+}
+
+.w-28 {
+    width: 28px !important;
+}
+
+.h-28 {
+    height: 28px !important;
+}
+
+.upload-box {
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    font-size      : 12px;
+    cursor         : pointer;
+    background     : #fafafa;
+}
+
+.overflow-auto {
+    overflow: auto !important;
+}
+
+.ws-pre-line {
+    white-space: pre-line !important;
+}
+
+.top-20 {
+    top: 20px !important;
+}
+
+.right-20 {
+    right: 20px !important;
+}
+
+.z-1100 {
+    z-index: 1100 !important;
+}
+
+.pos-relative {
+    position: relative !important;
+}
+
+.cursor-pointer {
+    cursor: pointer !important;
+}
+
+.fs-065 {
+    font-size: .65rem !important;
+}
+
+.self-end {
+    align-self: flex-end !important;
+}
+
+.min-w-0 {
+    min-width: 0 !important;
+}
+
+.fb-70 {
+    flex-basis: 70% !important;
+}
+
+.fb-30 {
+    flex-basis: 30% !important;
+}
+
+.border-ddd {
+    border: 1px solid #ddd !important;
+}
+
+.rounded-4 {
+    border-radius: 4px !important;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.flex-wrap {
+    flex-wrap: wrap !important;
+}
+
+.gap-8 {
+    gap: 8px !important;
+}
+
+.fs-16 {
+    font-size: 16px !important;
+}
+
+/* Appended styles moved from view-local <style> blocks to central file */
+
+.chart-area {
+    position: relative;
+    height  : 10rem;
+    width   : 100%;
+}
+
+.chart-pie {
+    position: relative;
+    height  : 15rem;
+    width   : 100%;
+}
+
+.chart-bar {
+    position: relative;
+    height  : 20rem;
+    width   : 100%;
+}
+
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+.progress {
+    background-color: #f8f9fc;
+}
+
+.list-group-item {
+    border: 1px solid #e3e6f0;
+}
+
+.icon-circle {
+    height         : 2.5rem;
+    width          : 2.5rem;
+    border-radius  : 100%;
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+}
+
+.btn-center {
+    display        : flex;
+    justify-content: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Stripe payment button + spinner moved from stripe view */
+#submit-button-stripe {
+    background   : #5469d4;
+    font-family  : Arial, sans-serif;
+    color        : #ffffff;
+    border-radius: 4px;
+    border       : 0;
+    padding      : 12px 16px;
+    font-size    : 16px;
+    font-weight  : 600;
+    cursor       : pointer;
+    display      : block;
+    transition   : all 0.2s ease;
+    box-shadow   : 0px 4px 5.5px 0px rgba(0, 0, 0, 0.07);
+    width        : 100%;
+}
+
+#submit-button-stripe:hover {
+    filter: contrast(115%);
+}
+
+#submit-button-stripe:disabled {
+    opacity: 0.5;
+    cursor : default;
+}
+
+#submit-button-stripe .spinner,
+#submit-button-stripe .spinner:before,
+#submit-button-stripe .spinner:after {
+    border-radius: 50%;
+}
+
+#submit-button-stripe .spinner {
+    color      : #ffffff;
+    font-size  : 22px;
+    text-indent: -99999px;
+    margin     : 0px auto;
+    position   : relative;
+    width      : 20px;
+    height     : 20px;
+    box-shadow : inset 0 0 0 2px;
+    transform  : translateZ(0);
+}
+
+#submit-button-stripe .spinner:before,
+#submit-button-stripe .spinner:after {
+    position: absolute;
+    content : "";
+}
+
+#submit-button-stripe .spinner:before {
+    width           : 10.4px;
+    height          : 20.4px;
+    background      : #5469d4;
+    border-radius   : 20.4px 0 0 20.4px;
+    top             : -0.2px;
+    left            : -0.2px;
+    transform-origin: 10.4px 10.2px;
+    animation       : envato-loading 2s infinite ease 1.5s;
+}
+
+#submit-button-stripe .spinner:after {
+    width           : 10.4px;
+    height          : 10.2px;
+    background      : #5469d4;
+    border-radius   : 0 10.2px 10.2px 0;
+    top             : -0.1px;
+    left            : 10.2px;
+    transform-origin: 0px 10.2px;
+    animation       : envato-loading 2s infinite ease;
+}
+
+@keyframes envato-loading {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Stripe helpful form selectors */
+#payment-message {
+    color      : rgb(105, 115, 134);
+    font-size  : 16px;
+    line-height: 20px;
+    padding-top: 12px;
+    text-align : center;
+}
+
+#payment-element {
+    margin-bottom: 24px;
+}
+
+/* iframe payment view migrated */
+html,
+body {
+    height    : 100%;
+    width     : 100%;
+    margin    : 0;
+    padding   : 0;
+    background: #fff;
+    overflow  : hidden;
+}
+
+iframe {
+    position: fixed;
+    top     : 0;
+    left    : 0;
+    width   : 100vw;
+    height  : 100vh;
+    border  : 0;
+    display : block;
+}
+
+.envato-iframe-center {
+    position   : fixed;
+    inset      : 0;
+    display    : grid;
+    place-items: center;
+    font       : 14px/1.4 -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color      : #555;
+}
+
+/* Payment success/failure card styles (moved from views) */
+.card {
+    border       : none;
+    box-shadow   : 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: 0.5rem;
+}
+
+.text-success {
+    color: #198754 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.btn {
+    border-radius: 0.375rem;
+    padding      : 0.5rem 1rem;
+}
+
+/* Account activation view */
+.envato-activation-body {
+    font-family    : Arial, sans-serif;
+    background     : #f5f7fb;
+    color          : #111;
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    height         : 100vh;
+}
+
+.envato-activation-card {
+    background   : white;
+    padding      : 28px;
+    border-radius: 8px;
+    box-shadow   : 0 8px 30px rgba(2, 6, 23, 0.08);
+    max-width    : 520px;
+    text-align   : center;
+}
+
+.envato-activation-btn {
+    display        : inline-block;
+    margin-top     : 18px;
+    padding        : 10px 18px;
+    background     : #0b63ff;
+    color          : white;
+    border-radius  : 6px;
+    text-decoration: none;
+}
+
+
+/* Envato migration utilities */
+.progress-sm {
+    height: 20px !important;
+}
+
+.error-note {
+    margin-top: 2rem;
+    font-size : .875rem;
+    color     : var(--text-muted);
+    text-align: center;
+}
+
+.toolbar-sticky-top {
+    top: 70px !important;
+}
+
+.envato-hidden {
+    display: none !important;
+}
+
+/* Styles migrated from admin/products/categories/_form.blade.php */
+.toolbar-spacer {
+    height: 0;
+}
+
+@media (min-width: 576px) {
+    .toolbar-spacer {
+        height: .25rem
+    }
+}
+
+@media (min-width: 992px) {
+    .toolbar-spacer {
+        height: .5rem
+    }
+}
+
+.inner-section .form-control,
+.inner-section .form-select {
+    min-height: 38px;
+}
+
+.inner-section .form-control.form-control-sm,
+.inner-section .form-select.form-select-sm {
+    min-height: 34px;
+}
+
+/* Payment vendor specific helpers */
+.payment-alerts {
+    padding   : 6px;
+    text-align: center;
+}
+
+.btn-center {
+    display        : flex !important;
+    justify-content: center !important;
+}
+
+.envato-redirect-body {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align : center;
+    padding    : 40px;
+}
+
+/* Checkout payment utilities moved from inline styles in payment_methods view */
+.spinner-large {
+    width : 3rem !important;
+    height: 3rem !important;
+}
+
+.envato-hidden {
+    display: none !important;
+}
+
+.payment-details {
+    transition: max-height 0.25s ease, opacity 0.25s ease;
+    overflow  : hidden;
+}
+
+.payment-details.show {
+    display: block !important;
+    opacity: 1;
+}
+
+.btn-loading {
+    display    : inline-flex;
+    align-items: center;
+    gap        : .5rem;
+}
+
+.fw-600 {
+    font-weight: 600 !important;
+}
+
+.fs-14 {
+    font-size: 14px !important;
+}
+
+.flex-fixed-36 {
+    flex: 0 0 36px !important;
+}
+
+.fs-12 {
+    font-size: 12px !important;
+}
+
+/* shipping option row (replaces inline style used previously) */
+.shipping-option-row {
+    display      : block;
+    margin-bottom: .5rem;
+}
+
+.z-6 {
+    z-index: 6 !important;
+}
+
+.bg-grad-user {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+}
+
+.bg-grad-approval {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+}
+
+.bg-grad-warn {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+
+.w-0p {
+    width: 0% !important;
+}
+
+.w-25p {
+    width: 25% !important;
+}
+
+.w-50p {
+    width: 50% !important;
+}
+
+.w-75p {
+    width: 75% !important;
+}
+
+.w-100p {
+    width: 100% !important;
+}
+
+.w-30p {
+    width: 30% !important;
+}
+
+/* Small fixes for moved inline styles from payment processing view */
+.spinner-large {
+    width : 4rem !important;
+    height: 4rem !important;
+}
+
+.card--lift {
+    transition: all 0.3s ease;
+}
+
+.card--lift:hover {
+    transform : translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08) !important;
+}
+
+.btn--rounded {
+    transition   : all 0.18s ease;
+    border-radius: 8px;
+    padding      : 12px 24px;
+    font-weight  : 500;
+}
+
+.btn--rounded:hover {
+    transform: translateY(-1px);
+}
+
+.alert--no-border {
+    border       : none;
+    border-radius: 8px;
+}
+
+.bg-light--rounded {
+    border-radius: 8px;
+}
+
+.w-10p {
+    width: 10% !important;
+}
+
+.d-block-init {
+    display: block !important;
+}
+
+.d-none-init {
+    display: none !important;
+}
+
+.lang-pane.lang-hidden-init {
+    display: none;
+}
+
+.lang-pane.is-active-lang {
+    display: block;
+}
+
+/* Admin width/height/max helpers migrated from inline styles */
+.max-w-220 {
+    max-width: 220px !important;
+}
+
+.max-h-60 {
+    max-height: 60px !important;
+}
+
+.d-inline-block {
+    display: inline-block !important;
+}
+
+.cursor-move {
+    cursor: move !important;
+}
+
+.rounded-6 {
+    border-radius: 6px !important;
+}
+
+.min-w-140 {
+    min-width: 140px !important;
+}
+
+/* Added helpers used to replace inline style attributes in Blade views */
+.align-items-center {
+    align-items: center !important;
+}
+
+.gap-24 {
+    gap: 24px !important;
+}
+
+.min-w-220 {
+    min-width: 220px !important;
+}
+
+.flex-1 {
+    flex: 1 !important;
+}
+
+.max-w-260 {
+    max-width: 260px !important;
+}
+
+/* 60/160 utilities used by media picker and product form */
+.w-60 {
+    width: 60px !important;
+}
+
+.h-60 {
+    height: 60px !important;
+}
+
+.max-w-60 {
+    max-width: 60px !important;
+}
+
+.max-w-160 {
+    max-width: 160px !important;
+}
+
+.pb-media-item-sm {
+    width: 60px;
+}
+
+.pb-media-item-sm img {
+    width        : 60px;
+    height       : 60px;
+    object-fit   : cover;
+    border       : 1px solid #ddd;
+    border-radius: 4px;
+    display      : block;
+}
+
+.mp-thumb-label {
+    max-width    : 60px;
+    display      : block;
+    overflow     : hidden;
+    text-overflow: ellipsis;
+    white-space  : nowrap;
+}
+
+/* CSP Note: All presentational styles consolidated here to eliminate inline CSS in front/admin views.
+    Emails retain inline styles (not constrained by page CSP). Keep this file lean & utility-focused. */
+
+/* Removed obsolete --selected-font (now using --font-family-primary from local-fonts.css) */
+
+
+/* Ensure Font Awesome weights preserved after reset */
+.fa,
+.fas,
+.fa-solid,
+.fa-regular,
+.fa-light,
+.fa-duotone,
+.fa-brands,
+.fab,
+[class*=" fa-"] {
+    font-family: 'Font Awesome 6 Free' !important;
+    font-weight: 900;
+}
+
+.fa-brands,
+.fab {
+    font-family: 'Font Awesome 6 Brands' !important;
+    font-weight: 400;
+}
+
+/* Cart layout & control tweaks */
+.cart-item {
+    display    : flex;
+    gap        : 16px;
+    align-items: flex-start;
+}
+
+.cart-thumb {
+    flex: 0 0 84px;
+}
+
+.cart-thumb img,
+.cart-thumb .no-image {
+    width        : 84px;
+    height       : 84px;
+    object-fit   : cover;
+    border-radius: 6px;
+}
+
+.meta {
+    flex: 1 1 auto;
+}
+
+.cart-actions {
+    margin-top : 8px;
+    display    : flex;
+    align-items: center;
+    gap        : 12px;
+}
+
+/* Qty pill */
+.qty-input-group {
+    display      : inline-flex;
+    align-items  : center;
+    border       : 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow     : hidden;
+    background   : #fff;
+}
+
+.qty-btn {
+    background : transparent;
+    border     : none;
+    padding    : 6px 10px;
+    font-size  : 16px;
+    line-height: 1;
+    cursor     : pointer;
+    color      : #374151;
+}
+
+.qty-input {
+    width      : 56px;
+    padding    : 6px 8px;
+    border     : none;
+    text-align : center;
+    font-weight: 600;
+}
+
+.qty-input:focus {
+    outline: none;
+}
+
+/* Circle icon buttons used for remove/wishlist */
+.circle-btn.icon-btn {
+    display        : inline-flex;
+    align-items    : center;
+    justify-content: center;
+    width          : 36px;
+    height         : 36px;
+    border-radius  : 50%;
+    background     : transparent;
+    border         : 1px solid transparent;
+    color          : #374151;
+    cursor         : pointer;
+}
+
+.circle-btn.icon-btn svg {
+    width : 18px;
+    height: 18px;
+}
+
+.circle-btn.icon-btn:hover {
+    color     : #111827;
+    background: rgba(0, 0, 0, 0.03);
+}
+
+/* action buttons group alignment */
+.action-buttons {
+    display    : flex;
+    gap        : 8px;
+    align-items: center;
+}
+
+/* Small responsive tweak */
+@media (max-width: 640px) {
+    .cart-item {
+        flex-direction: column;
+        align-items   : stretch;
+    }
+
+    .cart-thumb {
+        flex: 0 0 auto;
+    }
+}
+
+/* Helpers for migrated PayPal inline alerts */
+.envato-alert-spacer {
+    height : 60px;
+    display: block;
+}
+
+.envato-alert-title {
+    text-align : center;
+    font-weight: bold;
+}

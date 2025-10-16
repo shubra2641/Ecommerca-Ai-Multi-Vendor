@@ -1,0 +1,892 @@
+/* Admin Styles - Consolidated CSS for Admin Panel
+ * This file contains all CSS styles for the admin interface
+ * Following rules: No inline CSS, unified styling, responsive design
+ * Consolidated from: modern-admin.css, stats-cards.css, admin-layout.css, etc.
+ */
+
+/* CSS Variables (consolidated) */
+:root {
+    --admin-primary: #3b82f6;
+    --admin-primary-light: #dbeafe;
+    --admin-success: #10b981;
+    --admin-warning: #f59e0b;
+    --admin-danger: #ef4444;
+    --admin-bg: #f8fafc;
+    --admin-card-bg: #ffffff;
+    --admin-border: #e2e8f0;
+    --admin-text-primary: #1e293b;
+    --admin-text-secondary: #64748b;
+    --admin-sidebar-bg: #1e293b;
+    --admin-sidebar-text: #f1f5f9;
+    --admin-radius: 8px;
+    --admin-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --admin-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* sidebar */
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 80px;
+
+    /* stats cards */
+    --stats-card-bg: var(--admin-card-bg);
+    --stats-card-border: var(--admin-border);
+    --stats-card-radius: 12px;
+    --stats-card-padding: 1.5rem;
+    --stats-text-primary: var(--admin-text-primary);
+    --stats-text-secondary: var(--admin-text-secondary);
+    --stats-primary: var(--admin-primary);
+    --stats-primary-light: var(--admin-primary-light);
+    --stats-success: var(--admin-success);
+    --stats-warning: var(--admin-warning);
+    --stats-danger: var(--admin-danger);
+    --stats-info: #06b6d4;
+
+    /* small utility aliases (map older tokens to new ones) */
+    --radius-md: var(--admin-radius);
+    --transition-base: var(--admin-transition);
+    --text-primary: var(--admin-text-primary);
+    --text-secondary: var(--admin-text-secondary);
+    --bg-tertiary: rgba(0,0,0,0.02);
+    --danger-color: var(--admin-danger);
+    --primary-color: var(--admin-primary);
+}
+
+/* Global box-sizing and overflow guard to prevent horizontal scroll caused by layout calc() */
+html { box-sizing: border-box; }
+*, *:before, *:after { box-sizing: inherit; }
+body { overflow-x: hidden; }
+
+/* Dark Mode Variables */
+body.dark-mode {
+    --admin-bg: #0f172a;
+    --admin-card-bg: #1e293b;
+    --admin-border: #334155;
+    --admin-text-primary: #f1f5f9;
+    --admin-text-secondary: #94a3b8;
+}
+
+/* Base Admin Layout */
+.admin-layout,
+.modern-admin-layout {
+    font-family: var(--admin-font-family, 'Inter', sans-serif);
+    background-color: var(--admin-bg);
+    min-height: 100vh;
+    font-size: 14px;
+    color: var(--admin-text-primary);
+}
+
+/* Minimal Sidebar (extracted from modern-admin.css) */
+/* Sidebar uses --sidebar-width and --sidebar-collapsed-width (declared in top :root) */
+
+.modern-sidebar,
+.admin-sidebar {
+    background-color: var(--admin-sidebar-bg);
+    color: var(--admin-sidebar-text);
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transition: var(--admin-transition);
+    z-index: 1000;
+     /* make the sidebar a column flex container so header / content / footer stack properly
+         and the content area can scroll independently (prevents footer from being unreachable) */
+    display: flex;
+    flex-direction: column;
+     /* ensure the sidebar fills the viewport so flex children can size properly */
+     height: 100vh;
+     overflow: hidden; /* hide outer overflow; content area will scroll */
+}
+
+.modern-sidebar.collapsed ~ .main-content,
+.admin-sidebar.collapsed ~ .main-content {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh; /* grow as needed, use the page's scrollbar */
+    transition: var(--admin-transition);
+    /* occupy the remaining horizontal space after the fixed sidebar */
+    width: calc(100% - var(--sidebar-width));
+    max-width: calc(100% - var(--sidebar-width));
+    padding: 1.25rem 2.0rem; /* inner gutters instead of empty page margins */
+    overflow-x: hidden; /* avoid accidental horizontal overflow */
+}
+
+/* Sidebar structure */
+.sidebar-header {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand { display:flex; align-items:center; gap:0.75rem; color:var(--admin-sidebar-text); }
+.brand-text { font-size:1.25rem; font-weight:700; transition:var(--admin-transition); }
+
+.sidebar-toggle { background:none; border:none; color:var(--admin-sidebar-text); font-size:18px; padding:8px; border-radius:4px; cursor:pointer; }
+.sidebar-toggle:hover { background: rgba(255,255,255,0.05); }
+
+.sidebar-content { flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; padding:1rem 0; }
+.sidebar-content::-webkit-scrollbar { width:6px; }
+.sidebar-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius:3px; }
+
+.sidebar-search { padding: 0 1rem 1rem 1rem; }
+.search-box { position: relative; }
+.search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--admin-text-secondary); font-size:14px; z-index:1; }
+.search-input { width:100%; padding:10px 12px 10px 36px; background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.04); border-radius:8px; color:var(--admin-sidebar-text); font-size:14px; }
+
+.sidebar-nav { padding: 0 1rem; }
+.nav-section { margin-bottom: 2rem; }
+.nav-section-title { font-size:11px; font-weight:600; color:var(--admin-text-secondary); text-transform:uppercase; margin-bottom:0.75rem; padding:0 0.75rem; }
+
+.nav-item { display:flex; align-items:center; padding:0.75rem; margin-bottom:0.25rem; color:rgba(255,255,255,0.8); text-decoration:none; border-radius:8px; cursor:pointer; width:100%; position:relative; }
+.nav-item:hover { color:var(--admin-sidebar-text); background: rgba(255,255,255,0.03); transform: translateX(2px); }
+.nav-item.active { color:var(--admin-sidebar-text); background:var(--admin-primary); box-shadow:var(--admin-shadow); }
+.nav-item.active::before { content:''; position:absolute; left:-1rem; top:50%; transform:translateY(-50%); width:4px; height:20px; background:var(--admin-sidebar-text); border-radius:0 2px 2px 0; }
+.nav-icon { width:20px; height:20px; display:flex; align-items:center; justify-content:center; margin-right:0.75rem; font-size:16px; }
+.nav-text { flex:1; font-weight:500; }
+.dropdown-arrow { margin-left: auto; }
+/* NOTE: general dropdown styles are defined later in the file under 'Dropdowns' - keep a single canonical definition */
+
+.sidebar-footer { padding:1rem; border-top:1px solid rgba(255,255,255,0.05); flex-shrink:0; }
+
+/* Make dropdown menus inside the sidebar behave as in-flow submenu lists instead of floating panels
+   but keep them collapsed by default. They open when the parent has the `show` class. */
+.nav-dropdown .dropdown-menu {
+    position: static; /* in-flow */
+    display: none; /* collapsed by default */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    margin: 0;
+    padding: 0.25rem 0;
+}
+
+.nav-dropdown.show .dropdown-menu {
+    display: block; /* open when parent has `show` */
+}
+
+.nav-dropdown .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem 0.5rem 3rem; /* indent submenu items */
+    color: var(--admin-sidebar-text); /* match sidebar text for readability */
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+.nav-dropdown .dropdown-item:hover {
+    background: rgba(255,255,255,0.04);
+    color: var(--admin-sidebar-text);
+}
+
+.nav-dropdown .dropdown-item.active {
+    background: var(--admin-primary);
+    color: var(--admin-sidebar-text);
+}
+
+/* make sure dropdown arrows don't create layout issues when menus are expanded */
+.nav-dropdown > .nav-item .dropdown-arrow {
+    transition: transform 0.2s ease;
+}
+.nav-dropdown.show > .nav-item .dropdown-arrow {
+    transform: rotate(180deg);
+}
+.logout-btn {
+    width:100%;
+    justify-content:flex-start;
+    color: #ffffff;
+    background: var(--admin-danger);
+    border: none;
+    padding: 0.65rem 0.75rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: var(--admin-transition);
+    appearance: none;
+    -webkit-appearance: none;
+}
+.logout-btn:hover {
+    background: #c53030; /* slightly darker red */
+    color: #ffffff;
+}
+.logout-btn:focus {
+    outline: 3px solid rgba(239,68,68,0.15);
+    outline-offset: 0;
+}
+
+/* Top Header (extracted from modern-admin.css) */
+/* uses existing admin variables for colors/spacing */
+.top-header {
+    height: var(--header-height, 56px);
+    background: var(--admin-card-bg);
+    border-bottom: 1px solid var(--admin-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.header-left { display:flex; align-items:center; gap:1rem; }
+.header-right { display:flex; align-items:center; gap:0.75rem; }
+
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--admin-text-primary);
+    font-size: 18px;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--admin-transition);
+}
+
+.mobile-menu-toggle:hover {
+    background: rgba(0,0,0,0.02);
+}
+
+/* Page Header */
+.page-header {
+    display        : flex;
+    justify-content: space-between;
+    align-items    : center;
+    margin-bottom  : 2rem;
+    padding        : 1.5rem 0;
+    border-bottom  : 1px solid var(--admin-border);
+}
+
+.page-header-content h1.page-title {
+    font-size    : 2rem;
+    font-weight  : 700;
+    color        : var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.page-header-content .page-description {
+    color    : var(--text-secondary);
+    font-size: 1rem;
+    margin   : 0;
+}
+
+.page-actions {
+    display: flex;
+    gap    : 0.75rem;
+}
+
+
+/* Minimal Stats Cards (extracted from stats-cards.css) */
+/* Stats card variables are declared in the top :root for consistency */
+
+.stats-card {
+    background: var(--stats-card-bg);
+    border: 1px solid var(--stats-card-border);
+    border-radius: var(--stats-card-radius);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: var(--admin-transition);
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.stats-card:hover { transform: translateY(-4px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-color: var(--stats-primary); }
+.stats-card-body { padding: var(--stats-card-padding); flex:1; display:flex; align-items:center; gap:1rem; }
+.stats-card-content { flex:1; z-index:2; }
+.stats-number { font-size:2rem; font-weight:700; color:var(--stats-text-primary); margin-bottom:0.5rem; display:block; }
+.stats-label { font-size:0.875rem; color:var(--stats-text-secondary); font-weight:500; margin-bottom:0.5rem; display:block; }
+.stats-icon { width:3.5rem; height:3.5rem; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:white; }
+.stats-card-footer { padding:0.75rem var(--stats-card-padding); background: rgba(0,0,0,0.02); border-top:1px solid var(--stats-card-border); }
+.stats-link { display:flex; align-items:center; justify-content:space-between; color:var(--stats-text-secondary); text-decoration:none; font-size:0.875rem; font-weight:500; }
+.stats-link:hover { color:var(--stats-primary); }
+
+/* color variants (small subset) */
+.stats-card-primary { border-left:4px solid var(--stats-primary); }
+.stats-card-primary .stats-icon { background: linear-gradient(135deg, var(--stats-primary), #60a5fa); }
+.stats-card-success { border-left:4px solid var(--stats-success); }
+.stats-card-success .stats-icon { background: linear-gradient(135deg, var(--stats-success), #34d399); }
+.stats-card-warning { border-left:4px solid var(--stats-warning); }
+.stats-card-warning .stats-icon { background: linear-gradient(135deg, var(--stats-warning), #fbbf24); }
+.stats-card-danger { border-left:4px solid var(--stats-danger); }
+.stats-card-danger .stats-icon { background: linear-gradient(135deg, var(--stats-danger), #f87171); }
+.stats-card-info { border-left:4px solid var(--stats-info); }
+.stats-card-info .stats-icon { background: linear-gradient(135deg, var(--stats-info), #34d7e6); }
+
+
+/* Cards */
+.admin-card,
+.card {
+    background: var(--admin-card-bg);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    box-shadow: var(--admin-shadow);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--admin-border);
+    background-color: transparent;
+    font-weight: 600;
+    color: var(--admin-text-primary);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Tables */
+.admin-table,
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    color: var(--admin-text-primary);
+}
+
+.table thead th {
+    background-color: var(--admin-bg);
+    border-bottom: 2px solid var(--admin-border);
+    padding: 0.75rem;
+    font-weight: 600;
+    color: var(--admin-text-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.table tbody td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--admin-border);
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background-color: var(--admin-primary-light);
+}
+
+/* Buttons */
+.admin-btn,
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--admin-radius);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--admin-transition);
+    min-height: 2.5rem;
+}
+
+.btn-primary {
+    background-color: var(--admin-primary);
+    color: white;
+}
+
+/* Dashboard specific styles ------------------------------------------------- */
+/* Chart containers */
+.chart-container { position: relative; width: 100%; }
+.chart-container canvas { display: block; width: 100% !important; height: auto !important; }
+.h-400 { height: 400px !important; }
+.h-380 { height: 380px !important; }
+.pos-relative { position: relative; }
+.chart-fallback { color: var(--admin-text-secondary); }
+
+/* Chart controls */
+.chart-controls-wrapper { gap: 0.5rem; align-items: center; }
+.chart-period-buttons .chart-period-btn { min-width: 44px; padding: .35rem .6rem; font-size: .8rem; }
+.chart-period-buttons .chart-period-btn.active { background: rgba(0,0,0,0.04); border-color: var(--admin-border); }
+
+/* Loader / fallback states */
+.envato-hidden { display: none !important; }
+.chart-loading, .stats-loading, .activity-loading { display:flex; align-items:center; justify-content:center; padding:1rem; }
+.chart-error, .stats-error { color: var(--danger-color); padding: .75rem; border-radius: 6px; background: rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.08); }
+
+/* Activity list */
+.activity-list { display:flex; flex-direction:column; gap:.5rem; padding: .75rem; }
+.activity-item { display:flex; gap:.75rem; align-items:flex-start; padding:.75rem; border-bottom:1px solid var(--admin-border); }
+.activity-icon { width:44px; height:44px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; flex-shrink:0; }
+.activity-content { flex:1; }
+.activity-title { font-weight:700; color:var(--text-primary); }
+.activity-description { color:var(--text-secondary); font-size:.9rem; }
+.activity-time { color:var(--text-secondary); font-size:.8rem; }
+
+/* Top users */
+.user-list { display:flex; flex-direction:column; gap:.5rem; }
+.user-item { display:flex; gap:.75rem; align-items:center; padding:.6rem; border-bottom:1px solid var(--admin-border); }
+.user-avatar { width:48px; height:48px; border-radius:8px; overflow:hidden; display:inline-flex; align-items:center; justify-content:center; background:var(--admin-primary-light); color:var(--admin-primary); flex-shrink:0; }
+.user-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+.user-info { flex:1; }
+.user-name { font-weight:600; color:var(--text-primary); }
+.user-activity { color:var(--text-secondary); font-size:.85rem; }
+.user-badge .badge { padding:.35rem .5rem; border-radius:6px; font-size:.75rem; }
+
+/* Progress items (system overview) */
+.progress-item { padding:.5rem 0; }
+.progress-label { font-weight:600; color:var(--text-primary); }
+.progress-value { font-weight:700; }
+.progress { height:10px; background: rgba(0,0,0,0.04); border-radius:999px; overflow:hidden; }
+.progress-bar { height:100%; display:block; }
+.w-100p { width:100%; }
+.w-0p { width:0%; }
+.w-50p { width:50%; }
+
+/* Small helpers used by stats cards */
+.stats-trend { display:flex; align-items:center; gap:.5rem; color:var(--text-secondary); font-size:.85rem; }
+
+/* Responsive tweaks for smaller screens */
+@media (max-width: 992px) {
+    .main-content { width:100% !important; margin-left:0 !important; padding: .75rem 1rem; }
+    .chart-controls-wrapper { flex-wrap:wrap; gap:.5rem; }
+    .page-header { padding: .75rem 0; }
+}
+
+/* End dashboard specific styles ------------------------------------------- */
+
+/* Small additions: ensure modern-card mirrors .card and improve small-screen numbers */
+.modern-card { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: var(--admin-radius); box-shadow: var(--admin-shadow); }
+
+@media (max-width: 576px) {
+    .stats-number { font-size: 1.5rem; }
+    .h-400 { height: 260px !important; }
+    .h-380 { height: 240px !important; }
+    .chart-container canvas { height: 100% !important; }
+}
+
+.btn-primary:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background-color: var(--admin-success);
+    color: white;
+}
+
+.btn-warning {
+    background-color: var(--admin-warning);
+    color: white;
+}
+
+.btn-danger {
+    background-color: var(--admin-danger);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6b7280;
+    color: white;
+}
+
+.btn-outline-primary {
+    border: 1px solid var(--admin-primary);
+    background-color: transparent;
+    color: var(--admin-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--admin-primary);
+    color: white;
+}
+
+/* Forms */
+.form-control,
+.form-select {
+    padding: 0.75rem;
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    font-size: 0.875rem;
+    color: var(--admin-text-primary);
+    background-color: var(--admin-card-bg);
+    transition: var(--admin-transition);
+}
+
+.form-control:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--admin-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+/* Alerts */
+.alert {
+    padding: 1rem;
+    border-radius: var(--admin-radius);
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+}
+
+.alert-success {
+    background-color: var(--admin-success);
+    color: white;
+}
+
+.alert-warning {
+    background-color: var(--admin-warning);
+    color: white;
+}
+
+.alert-danger {
+    background-color: var(--admin-danger);
+    color: white;
+}
+
+.alert-info {
+    background-color: #06b6d4;
+    color: white;
+}
+
+/* Badges */
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.badge-primary { background-color: var(--admin-primary); color: white; }
+.badge-success { background-color: var(--admin-success); color: white; }
+.badge-warning { background-color: var(--admin-warning); color: white; }
+.badge-danger { background-color: var(--admin-danger); color: white; }
+
+/* Pagination */
+.pagination {
+    display: flex;
+    gap: 0.25rem;
+    margin: 1rem 0;
+}
+
+.page-link {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--admin-border);
+    color: var(--admin-text-primary);
+    text-decoration: none;
+    border-radius: var(--admin-radius);
+    transition: var(--admin-transition);
+}
+
+.page-link:hover,
+.page-item.active .page-link {
+    background-color: var(--admin-primary);
+    color: white;
+    border-color: var(--admin-primary);
+}
+
+/* Dropdowns */
+.dropdown-menu {
+    background-color: var(--admin-card-bg);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 0.5rem 0;
+    min-width: 160px;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    color: var(--admin-text-primary);
+    text-decoration: none;
+    display: block;
+    transition: var(--admin-transition);
+}
+
+.dropdown-item:hover {
+    background-color: var(--admin-primary-light);
+    color: var(--admin-primary);
+}
+
+/* Loading States */
+.loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+
+.d-flex { display: flex; }
+.d-block { display: block; }
+.d-none { display: none; }
+
+.align-items-center { align-items: center; }
+.justify-content-between { justify-content: space-between; }
+.justify-content-center { justify-content: center; }
+
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    /* Collapse sidebar into a slide-over on smaller screens */
+    .admin-sidebar,
+    .modern-sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 1100;
+        left: 0;
+        top: 0;
+        height: 100%;
+        transition: var(--admin-transition);
+    }
+
+    .admin-sidebar.active,
+    .modern-sidebar.active {
+        transform: translateX(0);
+    }
+
+    /* make main content full width when sidebar is hidden */
+    .main-content {
+        margin-left: 0 !important;
+        /* override desktop calc width and use full viewport minus any safe gutters */
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.75rem 0.9rem !important;
+        /* ensure content flows naturally (no forced full viewport height) */
+        min-height: auto;
+        overflow-x: hidden;
+    }
+
+    /* show mobile toggle in header */
+    .mobile-menu-toggle { display: inline-flex; }
+
+    /* overlay when sidebar opens */
+    .sidebar-overlay { display: none; position: fixed; inset:0; background: rgba(0,0,0,0.45); z-index:1050; }
+    .admin-sidebar.active + .sidebar-overlay,
+    .modern-sidebar.active + .sidebar-overlay,
+    .sidebar-overlay.active { display:block; }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .admin-layout {
+        background-color: #1a1a1a;
+        color: #ffffff;
+    }
+    
+    .admin-card {
+        background: #2d2d2d;
+        color: #ffffff;
+    }
+}
+
+
+/* Header Items */
+.header-item {
+    position: relative;
+}
+
+.header-btn {
+    background   : none;
+    border       : none;
+    padding      : 8px 12px;
+    border-radius: var(--radius-md);
+    cursor       : pointer;
+    transition   : var(--transition-base);
+    color        : var(--text-secondary);
+    font-size    : 14px;
+    display      : flex;
+    align-items  : center;
+    gap          : 0.5rem;
+}
+
+.header-btn:hover {
+    background: var(--bg-tertiary);
+    color     : var(--text-primary);
+}
+
+body.dark-mode .header-btn:hover {
+    background: rgba(59, 130, 246, 0.15) !important;
+    color     : var(--primary-color) !important;
+}
+
+.notification-btn {
+    position: relative;
+}
+
+.notification-badge {
+    position     : absolute;
+    top          : 4px;
+    right        : 4px;
+    background   : var(--danger-color);
+    color        : white;
+    font-size    : 10px;
+    font-weight  : 600;
+    padding      : 2px 6px;
+    border-radius: 10px;
+    min-width    : 18px;
+    text-align   : center;
+}
+
+/* User Menu */
+.user-menu-btn {
+    display      : flex;
+    align-items  : center;
+    gap          : 0.75rem;
+    padding      : 6px 12px;
+    background   : none;
+    border       : none;
+    border-radius: var(--radius-md);
+    cursor       : pointer;
+    transition   : var(--transition-base);
+}
+
+.user-menu-btn:hover {
+    background: var(--bg-tertiary);
+}
+
+body.dark-mode .user-menu-btn:hover {
+    background: rgba(59, 130, 246, 0.15) !important;
+}
+
+
+
+.user-name {
+    font-weight: 500;
+    color      : var(--text-primary);
+    font-size  : 14px;
+}
+
+
+.user-avatar {
+    width          : 28px;
+    height         : 28px;
+    border-radius  : 50%;
+    background     : linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    color          : white;
+    font-weight    : 700;
+    font-size      : 1rem;
+    margin-right   : 1rem;
+    flex-shrink    : 0;
+    border         : 3px solid white;
+    box-shadow     : 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition     : all 0.3s ease;
+}
+
+.user-avatar:hover {
+    transform : scale(1.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+
+
+/* ===== Modern Card ( from dashboard.css & admin-refinements.css) ===== */
+.modern-card {
+        background: var(--adm-surface, #ffffff);
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--adm-border, #e5e7eb);
+        transition: all 0.3s ease;
+}
+
+.modern-card .card-header {
+        background: var(--adm-surface-alt, #f1f5f9);
+        border-bottom: 1px solid var(--adm-border, #e5e7eb);
+        padding: 1.25rem 1.5rem;
+        border-radius: 16px 16px 0 0;
+}
+
+.modern-card .card-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--adm-text, #1e293b);
+        margin-bottom: 0;
+}
+
+.modern-card>.card-header {
+    background   : var(--adm-surface);
+    border-bottom: 1px solid var(--adm-border);
+    padding      : .9rem 1.1rem;
+}
+
+.modern-card>.card-body {
+    padding: 1.1rem 1.1rem;
+}
+
+.modern-card>.card-footer {
+    background: var(--adm-surface-alt);
+    border-top: 1px solid var(--adm-border);
+    padding   : .75rem 1.1rem;
+}
+
+body.dark-mode .modern-card {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+}
+
+/* ===== End modern-card ===== */
+
+/* -------------------------------------------------------------------------
+   User Balance page refinements
+   - Small, non-invasive rules to improve spacing, typography and avatars
+   - Kept here to follow the project's rule: no new CSS files
+------------------------------------------------------------------------- */
+.balance-overview { padding: 1rem 1.25rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.balance-overview .balance-amount { display:flex; flex-direction:column; }
+.balance-label { color: var(--text-secondary); font-weight:600; font-size:0.95rem; }
+.balance-value { font-size:2.25rem; font-weight:800; color:var(--text-primary); line-height:1; }
+.balance-value small { font-size:0.85rem; color:var(--text-secondary); margin-left:0.5rem; }
+
+.balance-actions .action-buttons .btn { min-width:130px; }
+.balance-actions .action-buttons .btn i { margin-right:0.5rem; }
+
+.history-placeholder .empty-state { padding:2rem; color:var(--text-secondary); }
+
+.user-profile { display:flex; gap:1rem; align-items:center; }
+.user-profile .user-avatar { width:64px; height:64px; border-radius:12px; background:var(--admin-primary-light); color:var(--admin-primary); font-weight:700; font-size:1.25rem; display:flex; align-items:center; justify-content:center; }
+.user-profile .user-info h4 { margin:0; font-size:1.05rem; font-weight:700; }
+.user-profile .user-info p { margin:0; color:var(--text-secondary); font-size:0.9rem; }
+
+.quick-actions .btn { text-align:left; }
+
+/* Make stats-number slightly larger on balance page cards for emphasis */
+.card .stats-number { font-size:1.6rem; }
+
+@media (max-width: 768px) {
+    .balance-overview { flex-direction:column; align-items:flex-start; }
+    .user-profile { align-items:flex-start; }
+}

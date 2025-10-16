@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<ruleset name="Project-Strict-Lines">
+  <description>Temporary ruleset: PSR-12 with line-length enforcement (120 chars)</description>
+  <rule ref="PSR12" />
+  <!-- Enforce line-length up to 120 -->
+  <rule ref="Generic.Files.LineLength">
+    <properties>
+      <property name="lineLimit" value="120"/>
+      <property name="absoluteLineLimit" value="160"/>
+    </properties>
+  </rule>
+  <file>app</file>
+  <file>routes</file>
+  <file>config</file>
+  <exclude-pattern>*/storage/*</exclude-pattern>
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+</ruleset>

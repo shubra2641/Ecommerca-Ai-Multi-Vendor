@@ -1,0 +1,11 @@
+/* Invoice/PDF styles moved from inline to external CSS for validation and Envato compliance */
+body{font-family:DejaVu Sans, Arial, sans-serif;font-size:12px;color:#222;margin:0;padding:0}
+h1{font-size:20px;margin:0 0 10px}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{border:1px solid #ccc;padding:6px 8px;text-align:left;font-size:12px}
+th{background:#f5f5f5}
+.totals td{font-weight:600}
+/* Utilities */
+.mt-15{margin-top:15px}
+.w-70{width:70%}
+.text-right{text-align:right}

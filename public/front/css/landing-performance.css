@@ -1,0 +1,510 @@
+/* ===== LANDING PAGE PERFORMANCE OPTIMIZATIONS ===== */
+
+/* Performance optimizations for landing page */
+:root {
+  /* Using main color variables from front.css */
+}
+
+/* Critical CSS for above-the-fold content */
+.critical-css {
+  /* Inline critical styles for faster initial render */
+}
+
+/* ===== PRELOAD OPTIMIZATIONS ===== */
+
+/* Hero section performance */
+.hero-section {
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+  color: white;
+  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2rem;
+  max-width: 600px;
+}
+
+/* Preload hints for better performance */
+.preload-hint {
+  /* Styles for preloaded content */
+}
+
+/* ===== LAZY LOADING ENHANCEMENTS ===== */
+
+/* Features section */
+.features-section {
+  padding: 4rem 0;
+  background: var(--bg-primary);
+}
+
+.feature-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-600);
+}
+
+.feature-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary-600), var(--warning-500));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.feature-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.feature-description {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Intersection Observer optimizations */
+.lazy-load {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.lazy-load.loaded {
+  opacity: 1;
+}
+
+/* Image placeholder styles */
+.image-placeholder {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ===== RESOURCE HINTS ===== */
+
+/* Categories section */
+.categories-section {
+  padding: 4rem 0;
+  background: var(--bg-secondary);
+}
+
+.category-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.category-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-600);
+  text-decoration: none;
+  color: inherit;
+}
+
+.category-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  display: block;
+}
+
+.category-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.category-count {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* DNS prefetch optimization */
+.dns-prefetch {
+  /* Styles for DNS prefetched resources */
+}
+
+/* Preconnect optimization */
+.preconnect {
+  /* Styles for preconnected resources */
+}
+
+/* ===== CRITICAL RENDERING PATH ===== */
+
+/* Blog section */
+.blog-section {
+  padding: 4rem 0;
+  background: var(--bg-primary);
+}
+
+.blog-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+}
+
+.blog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-600);
+  text-decoration: none;
+  color: inherit;
+}
+
+.blog-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.blog-content {
+  padding: 1.5rem;
+}
+
+.blog-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.blog-meta {
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.blog-excerpt {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.blog-category {
+  display: inline-block;
+  background: var(--primary-600);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.blog-category:hover {
+  background: var(--warning-500);
+  color: white;
+  text-decoration: none;
+}
+
+/* Above-the-fold optimization */
+.above-fold {
+  contain: layout style paint;
+  will-change: auto;
+}
+
+/* Below-the-fold optimization */
+.below-fold {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* ===== MEMORY MANAGEMENT ===== */
+
+/* CTA section */
+.cta-section {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--warning-500) 100%);
+  color: white;
+  text-align: center;
+}
+
+.cta-title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.cta-description {
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-button {
+  background: var(--bg-primary);
+  color: var(--primary-600);
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  color: var(--primary-600);
+  text-decoration: none;
+}
+
+/* Efficient animations */
+.efficient-animation {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Reduce memory usage */
+.memory-efficient {
+  will-change: auto;
+  contain: layout style;
+}
+
+/* ===== NETWORK OPTIMIZATIONS ===== */
+
+/* Resource loading priorities */
+.high-priority {
+  /* High priority resource styles */
+}
+
+.low-priority {
+  /* Low priority resource styles */
+  content-visibility: auto;
+}
+
+/* ===== BROWSER OPTIMIZATIONS ===== */
+
+/* Chrome optimizations */
+@supports (-webkit-appearance: none) {
+  .chrome-optimized {
+    /* Chrome-specific optimizations */
+  }
+}
+
+/* Firefox optimizations */
+@supports (-moz-appearance: none) {
+  .firefox-optimized {
+    /* Firefox-specific optimizations */
+  }
+}
+
+/* Safari optimizations */
+@supports (-webkit-touch-callout: none) {
+  .safari-optimized {
+    /* Safari-specific optimizations */
+  }
+}
+
+/* ===== PERFORMANCE MONITORING ===== */
+
+/* Performance markers */
+.perf-marker {
+  /* Styles for performance measurement points */
+}
+
+/* Loading states */
+.loading-state {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.loaded-state {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+/* Error states */
+.error-state {
+  /* Styles for error handling */
+}
+
+/* ===== ACCESSIBILITY PERFORMANCE ===== */
+
+/* Loading states */
+.loading-skeleton {
+  background: linear-gradient(90deg, var(--border-primary) 25%, rgba(255, 255, 255, 0.5) 50%, var(--border-primary) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+.loading-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: 200px;
+}
+
+.loading-text {
+  height: 1rem;
+  background: var(--border-primary);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.loading-text.short {
+  width: 60%;
+}
+
+.loading-text.medium {
+  width: 80%;
+}
+
+.loading-text.long {
+  width: 100%;
+}
+
+/* Reduced motion performance */
+@media (prefers-reduced-motion: reduce) {
+  .performance-animation {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* High contrast performance */
+@media (prefers-contrast: high) {
+  .performance-contrast {
+    /* High contrast optimizations */
+  }
+}
+
+/* ===== MOBILE PERFORMANCE ===== */
+
+/* Touch optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .touch-optimized {
+    /* Touch-specific performance optimizations */
+  }
+}
+
+/* Low-end device optimizations */
+@media (max-width: 480px) and (max-height: 800px) {
+  .low-end-optimized {
+    /* Optimizations for low-end devices */
+    will-change: auto;
+    transform: none;
+  }
+}
+
+/* ===== PROGRESSIVE ENHANCEMENT ===== */
+
+/* Base performance styles */
+.no-js .performance-enhanced {
+  /* Fallback styles for no JavaScript */
+}
+
+/* Enhanced performance with JavaScript */
+.js-enabled .performance-enhanced {
+  /* Enhanced styles with JavaScript */
+}
+
+/* ===== CACHING OPTIMIZATIONS ===== */
+
+/* Cache-friendly styles */
+.cache-optimized {
+  /* Styles optimized for browser caching */
+}
+
+/* Version-specific styles */
+.version-1-0-0 {
+  /* Version-specific optimizations */
+}
+
+/* ===== COMPRESSION OPTIMIZATIONS ===== */
+
+/* Gzip-friendly styles */
+.gzip-optimized {
+  /* Styles optimized for gzip compression */
+}
+
+/* Brotli-friendly styles */
+.brotli-optimized {
+  /* Styles optimized for brotli compression */
+}
+
+/* ===== FINAL OPTIMIZATIONS ===== */
+
+/* Overall performance container */
+.performance-container {
+  contain: layout style paint;
+  isolation: isolate;
+}
+
+/* Performance-critical elements */
+.performance-critical {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Performance-safe elements */
+.performance-safe {
+  will-change: auto;
+  contain: layout style;
+}

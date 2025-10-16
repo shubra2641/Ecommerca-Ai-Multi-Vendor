@@ -1,0 +1,7 @@
+/* Account order page extracted styles */
+.shipment-steps{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:.75rem;}
+.shipment-steps .step{position:relative;padding:.4rem .75rem;border-radius:20px;font-size:.75rem;background:#eee;color:#555;}
+.shipment-steps .step.done{background:#4caf50;color:#fff;}
+.shipment-steps .step.current{background:#2196f3;color:#fff;}
+.shipment-steps .step.cancelled{background:#e53935;color:#fff;}
+.shipment-steps .step.refunded{background:#6d4c41;color:#fff;}

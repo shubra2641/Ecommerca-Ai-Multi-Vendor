@@ -1,0 +1,36 @@
+/* Blog pages extracted from inline styles */
+.page-header .page-title { margin-top:.5rem; }
+.blog-post-section { padding:1rem 0; }
+.blog-post-section .container { max-width:1280px; }
+.blog-post-layout { display:grid; grid-template-columns:3fr 1fr; gap:2rem; align-items:start; }
+.blog-post { background:#fff; border:1px solid var(--border-primary); padding:1rem 1.25rem; border-radius:8px; }
+.blog-post .post-meta { display:flex; gap:1rem; font-size:12px; color:#555; margin-bottom:.75rem; flex-wrap:wrap; }
+.blog-post .post-featured-image { margin-bottom:1rem; }
+.blog-post .post-featured-image img { width:100%; border-radius:8px; max-height:420px; object-fit:cover; }
+.blog-post .post-content { line-height:1.55; font-size:.95rem; }
+.blog-post .post-tags { margin-top:1.25rem; display:flex; flex-wrap:wrap; gap:6px; }
+.blog-post .post-tags a { background:#f1f1f1; padding:4px 8px; border-radius:20px; font-size:11px; text-decoration:none; color:#111; }
+.post-sidebar { position:sticky; top:90px; align-self:start; display:flex; flex-direction:column; gap:1rem; }
+.post-sidebar > div { background:#fff; border:1px solid var(--border-primary); padding:.75rem .85rem; border-radius:8px; }
+.post-sidebar h3 { font-size:.85rem; font-weight:700; margin:0 0 .5rem; text-transform:uppercase; }
+.post-sidebar ul { list-style:none; margin:0; padding:0; font-size:.75rem; display:flex; flex-direction:column; gap:.35rem; }
+.post-sidebar ul a { text-decoration:none; color:#111; }
+
+/* Utility */
+.link-dark{ color:#111; text-decoration:none; }
+.link-dark:hover{ color:#000; }
+
+/* Post card image */
+.card .card-img-top{ height:160px; object-fit:cover; }
+
+/* Blog listing empty state */
+.pagination-wrapper { margin-top:1rem; }
+.empty-state { background:#fff; border:1px dashed var(--border-primary); padding:2rem 1rem; text-align:center; border-radius:8px; }
+.empty-state-title { margin:0 0 .5rem; }
+.empty-state-description { margin:0 0 1rem; }
+
+@media (max-width: 992px) {
+    .blog-post-layout { grid-template-columns:1fr; }
+    .post-sidebar { position:static; top:auto; }
+}
+

@@ -1,0 +1,11 @@
+/* Ensure admin UI uses the configured primary font variable from local-fonts.css */
+/* This file intentionally keeps rules minimal and CSP-safe. */
+
+body.modern-admin-layout {
+    font-family: var(--font-family-primary) !important;
+}
+
+/* Ensure form controls inherit the same font */
+input, textarea, select, button, .form-control {
+    font-family: inherit !important;
+}

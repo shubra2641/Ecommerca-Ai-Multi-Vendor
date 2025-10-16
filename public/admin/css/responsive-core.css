@@ -1,0 +1,125 @@
+/* Responsive Core (Mobile-first) */
+/* Phase 1: foundational responsive utilities & layout adjustments */
+:root {
+  --rc-break-sm: 576px;
+  --rc-break-md: 768px;
+  --rc-break-lg: 992px;
+  --rc-break-xl: 1200px;
+}
+
+/* Base spacing + typography adjustments for smallest viewports */
+.page-content {padding:1rem 1rem;}
+@media (min-width: var(--rc-break-md)) { .page-content {padding:1.25rem 1.25rem;} }
+@media (min-width: var(--rc-break-lg)) { .page-content {padding:1.5rem 1.5rem;} }
+
+/* Sidebar mobile off-canvas */
+@media (max-width: 991.98px) {
+  .modern-sidebar {transform:translateX(-100%) !important; width:260px;}
+  .modern-sidebar.show-mobile {transform:translateX(0) !important;}
+  .main-content {margin-left:0 !important;}
+  .sidebar-overlay {display:block;opacity:0;visibility:hidden;transition:opacity .3s ease;}
+  .sidebar-overlay.active {opacity:.4;visibility:visible;background:#0f172a;}
+  body.sidebar-open {overflow:hidden;}
+  .top-header {padding:0 .85rem;}
+  .header-search .search-box {width:180px;}
+  .header-right .header-item:nth-child(n+5) {display:none;} /* hide less-important items */
+
+  /* RTL mobile sidebar adjustments */
+  [dir="rtl"] .modern-sidebar {transform:translateX(100%) !important;}
+  [dir="rtl"] .modern-sidebar.show-mobile {transform:translateX(0) !important;}
+  [dir="rtl"] .main-content {margin-right:0 !important; margin-left:0 !important;}
+}
+
+/* Simple utilities */
+.rf-flex {display:flex;}
+.rf-inline-flex {display:inline-flex;}
+.rf-flex-col {flex-direction:column;}
+.rf-center {align-items:center;justify-content:center;}
+.rf-gap-xs {gap:.25rem;}
+.rf-gap-sm {gap:.5rem;}
+.rf-gap-md {gap:1rem;}
+.rf-w-100 {width:100%;}
+.rf-mt-sm {margin-top:.5rem;}
+.rf-mb-sm {margin-bottom:.5rem;}
+.rf-ml-sm {margin-left:.5rem;}
+.rf-mr-sm {margin-right:.5rem;}
+.rf-pl-sm {padding-left:.5rem;}
+.rf-pr-sm {padding-right:.5rem;}
+.rf-hide {display:none !important;}
+
+/* RTL spacing adjustments */
+[dir="rtl"] .rf-ml-sm {margin-left:0; margin-right:.5rem;}
+[dir="rtl"] .rf-mr-sm {margin-right:0; margin-left:.5rem;}
+[dir="rtl"] .rf-pl-sm {padding-left:0; padding-right:.5rem;}
+[dir="rtl"] .rf-pr-sm {padding-right:0; padding-left:.5rem;}
+
+/* Responsive utility variants (mobile-first -> enable at breakpoint) */
+@media (min-width: 576px){
+  .sm-flex-row {flex-direction:row !important;}
+  .sm-show {display:initial !important;}
+  .sm-hide {display:none !important;}
+}
+@media (min-width: 768px){
+  .md-flex-row {flex-direction:row !important;}
+  .md-grid-2 {display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;}
+  .md-show {display:initial !important;}
+  .md-hide {display:none !important;}
+}
+@media (min-width: 992px){
+  .lg-grid-3 {display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;}
+  .lg-flex-row {flex-direction:row !important;}
+}
+@media (min-width: 1200px){
+  .xl-grid-4 {display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;}
+}
+
+/* Tables: horizontal scroll container for narrow screens */
+.rf-table-wrapper {width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--adm-border,#e2e8f0);border-radius:8px;background:var(--adm-surface,#fff);}
+.rf-table-wrapper > table {margin:0;}
+.rf-table-wrapper::-webkit-scrollbar {height:8px;}
+.rf-table-wrapper::-webkit-scrollbar-track {background:transparent;}
+.rf-table-wrapper::-webkit-scrollbar-thumb {background:rgba(100,116,139,.35);border-radius:4px;}
+
+/* Stack certain two-column form rows on mobile */
+.rf-form-grid {display:grid;grid-template-columns:1fr;gap:1rem;}
+@media (min-width: 768px){.rf-form-grid {grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}}
+
+/* Card responsiveness: ensure full width below md */
+@media (max-width: 767.98px){
+  .card, .modern-card {border-radius:12px;}
+  .card-header, .card-body, .card-footer {padding:1rem 1rem !important;}
+}
+
+/* Image responsiveness */
+img.responsive {max-width:100%;height:auto;}
+
+/* Utility for horizontal scroll groups */
+.rf-scroll-x {display:flex;overflow-x:auto;gap:.75rem;padding-bottom:.25rem;}
+.rf-scroll-x::-webkit-scrollbar {height:6px;}
+.rf-scroll-x::-webkit-scrollbar-track {background:transparent;}
+.rf-scroll-x::-webkit-scrollbar-thumb {background:rgba(0,0,0,.2);border-radius:3px;}
+
+/* Collapse large spacing on mobile for metric/stat rows */
+@media (max-width: 575.98px){
+  .row [class*='col-'].mb-4 {margin-bottom:1rem !important;}
+}
+
+/* Prevent overflow issues inside narrow screens */
+.inner-section {overflow:hidden;}
+
+/* Dark mode support (inherits variables from admin-refinements) still applies */
+body.dark-mode .rf-table-wrapper {background:var(--adm-surface,#1e293b);border-color:var(--adm-border,#334155);}
+
+/* Phase 2: Table stacking (opt-in) use data-stack="enable" or class .rf-stack-opt */
+@media (max-width: 575.98px) {
+  .rf-stack-table {border:0;}
+  .rf-stack-table thead {display:none;}
+  .rf-stack-table tbody tr {display:block;border:1px solid var(--adm-border,#e2e8f0);border-radius:8px;margin-bottom:.75rem;padding:.5rem .75rem;background:var(--adm-surface,#fff);}
+  body.dark-mode .rf-stack-table tbody tr {background:var(--adm-surface,#1e293b);}
+  .rf-stack-table tbody tr:last-child {margin-bottom:0;}
+  .rf-stack-table tbody td {display:grid;grid-template-columns: 40% 1fr;align-items:start;padding:.4rem 0 !important;border:0 !important;font-size:.78rem;word-break:break-word;}
+  .rf-stack-table tbody td::before {content:attr(data-label);font-weight:600;color:var(--adm-text-muted,#64748b);padding-inline-end:.5rem;}
+  .rf-stack-table tbody td[data-label='']:before {content:'';}
+}
+
+

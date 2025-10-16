@@ -1,0 +1,5 @@
+/// Generated file. Do not edit.
+///
+/// Localization files for Vendor App
+/// 
+/// To regenerate, run: `flutter gen-l10n`

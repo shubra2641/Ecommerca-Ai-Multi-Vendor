@@ -1,0 +1,16 @@
+/* Unified inner section styling & animation */
+.inner-section {border:1px solid var(--bs-border-color,#e5e7eb);border-radius:.5rem;padding:1rem 1.1rem;background:var(--bs-body-bg,#fff);position:relative;}
+.inner-section + .inner-section {margin-top:1rem;}
+.inner-section-header {user-select:none;}
+.inner-section-header h6 {font-weight:600;letter-spacing:.5px;}
+.inner-section-body {transition:max-height .35s ease, opacity .25s ease, transform .25s ease;overflow:hidden;}
+.inner-section.collapsing-out .inner-section-body {opacity:0;transform:translateY(-4px);}
+.inner-section.collapsing-in .inner-section-body {opacity:0;}
+.inner-section:not(.collapsed) .inner-section-body {opacity:1;transform:translateY(0);}
+.inner-section.collapsed .inner-section-body {padding-top:0 !important;}
+.form-toolbar {position:sticky;top:70px;z-index:6;}
+.section-caret {transition:transform .25s ease;}
+.section-caret.fa-rotate-180 {transform:rotate(180deg);}
+@media (max-width: 767.98px){
+    .form-toolbar{top:60px;}
+}
