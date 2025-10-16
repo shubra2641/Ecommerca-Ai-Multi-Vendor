@@ -1,0 +1,59 @@
+name: vendor_app
+description: A minimal Flutter vendor dashboard scaffold for Multi‑Vendor Commerce platform.
+publish_to: 'none'
+version: 0.1.0+1
+environment:
+  sdk: '>=2.18.0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  http: ^1.5.0
+  flutter_secure_storage: ^8.0.0
+  provider: ^6.0.5
+  image_picker: ^1.0.4
+  shared_preferences: ^2.2.2
+  cached_network_image: ^3.3.0
+  pull_to_refresh: ^2.0.0
+  shimmer: ^3.0.0
+  fl_chart: ^0.68.0
+  flutter_local_notifications: ^19.4.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.10.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+
+  fonts:
+    - family: Cairo
+      fonts:
+        - asset: assets/fonts/Cairo-Regular.ttf
+        - asset: assets/fonts/Cairo-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Cairo-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Cairo-Bold.ttf
+          weight: 700
+
+# Launcher icon generation configuration (top-level)
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+
+# Note: Download the Cairo font files from Google Fonts (SIL Open Font License)
+# and place them into 'assets/fonts/' with the exact filenames above.
+# Then run: flutter pub get
+

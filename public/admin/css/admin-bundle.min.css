@@ -1,0 +1,13 @@
+/* Admin bundle (manual concatenation). For production regenerate via build script. */
+/* modern-admin.css */
+@import url('modern-admin.css');
+/* responsive-core.css */
+@import url('responsive-core.css');
+/* admin-refinements.css */
+@import url('admin-refinements.css');
+/* form-sections.css */
+@import url('form-sections.css');
+/* dashboard.css */
+@import url('dashboard.css');
+/* reports.css */
+@import url('reports.css');

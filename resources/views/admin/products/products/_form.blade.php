@@ -1,0 +1,440 @@
+{{-- Data supplied via AdminProductFormComposer (ProductFormBuilder) --}}
+
+<div class="row g-4" data-default-locale="{{ $defaultLocale }}">
+    <!-- Main Content -->
+    <div class="col-xl-8 col-lg-7">
+        <!-- Basic Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {{ __('Basic Information') }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {{-- languages provided: $pfLanguages --}}
+                    <div class="col-12">
+                        <div class="lang-tabs-wrapper" data-lang-tabs-variant="success">
+                            <ul class="nav nav-tabs small flex-nowrap overflow-auto gap-2 lang-tabs px-1" id="prodLangTabs" role="tablist">
+                                @php $activeLocale = $currentLocale ?? app()->getLocale(); @endphp
+                                @foreach($languages as $i => $lang)
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link py-1 px-3 @if($lang->code===$activeLocale) active @endif" id="prod-tab-{{ $lang->code }}"
+                                        data-bs-toggle="tab" data-bs-target="#prod-panel-{{ $lang->code }}" type="button"
+                                        role="tab">{{ strtoupper($lang->code) }}</button>
+                                </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <div class="tab-content border rounded-bottom p-3">
+                @foreach($languages as $i => $lang)
+                            <div class="tab-pane fade @if($lang->code===$activeLocale) show active @endif" id="prod-panel-{{ $lang->code }}"
+                                role="tabpanel">
+                <div class="mb-2">
+                                    <label class="form-label">{{ __('Name') }}</label>
+                    <input name="name[{{ $lang->code }}]" value="{{ $pfLangMeta[$lang->code]['name_val'] }}" class="form-control" @if($lang->code===$defaultLocale) required @endif placeholder="{{ $pfLangMeta[$lang->code]['ph_name'] }}">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">{{ __('Short Description') }}</label>
+                                        <textarea name="short_description[{{ $lang->code }}]" class="form-control" rows="3" placeholder="{{ $pfLangMeta[$lang->code]['ph_short'] }}">{{ $pfLangMeta[$lang->code]['short_val'] }}</textarea>
+                                </div>
+                                    <div class="mb-2">
+                                        <label class="form-label d-flex justify-content-between align-items-center">
+                                            <span>{{ __('Description') }}</span>
+                                            <button type="button" class="btn btn-sm btn-outline-primary js-ai-generate" data-lang="{{ $lang->code }}" data-loading="0">
+                                                <i class="fas fa-magic me-1"></i>{{ __('AI Generate') }}
+                                            </button>
+                                        </label>
+                                        <textarea name="description[{{ $lang->code }}]" class="form-control js-ai-description" rows="6" placeholder="{{ $pfLangMeta[$lang->code]['ph_desc'] }}">{{ $pfLangMeta[$lang->code]['desc_val'] }}</textarea>
+                                    </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Configuration -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cogs me-2"></i>
+                    {{ __('Product Configuration') }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">{{ __('Type') }}</label>
+                        <select name="type" class="form-select" id="type-select">
+                            <option value="simple" @selected(old('type',$m?->type ??
+                                'simple')==='simple')>{{ __('Simple') }}</option>
+                            <option value="variable" @selected(old('type',$m?->type ??
+                                '')==='variable')>{{ __('Variable') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">{{ __('Physical/Digital') }}</label>
+                        <select name="physical_type" class="form-select">
+                            <option value="physical" @selected(old('physical_type',$m?->physical_type ??
+                                'physical')==='physical')>{{ __('Physical') }}</option>
+                            <option value="digital" @selected(old('physical_type',$m?->physical_type ??
+                                '')==='digital')>{{ __('Digital') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">{{ __('SKU') }}</label>
+                        <input name="sku" value="{{ old('sku',$m?->sku) }}" class="form-control">
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">{{ __('Category') }}</label>
+                        <select name="product_category_id" class="form-select">
+                            @foreach($categories as $c)
+                            <option value="{{ $c->id }}" @selected(old('product_category_id',$m?->product_category_id ??
+                                '')==$c->id)>{{ $c->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Simple Product Pricing -->
+                <div class="row mt-4 g-3 simple-only">
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">{{ __('Price') }}</label>
+                        <input type="number" step="0.01" name="price" value="{{ old('price',$m?->price ?? 0) }}"
+                            class="form-control">
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">{{ __('Sale Price') }}</label>
+                        <input type="number" step="0.01" name="sale_price"
+                            value="{{ old('sale_price',$m?->sale_price) }}" class="form-control">
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">{{ __('Sale Start') }}</label>
+                        <input type="datetime-local" name="sale_start"
+                            value="{{ old('sale_start',optional($m?->sale_start)->format('Y-m-d\\TH:i')) }}"
+                            class="form-control">
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">{{ __('Sale End') }}</label>
+                        <input type="datetime-local" name="sale_end"
+                            value="{{ old('sale_end',optional($m?->sale_end)->format('Y-m-d\\TH:i')) }}"
+                            class="form-control">
+                    </div>
+                </div>
+
+                <!-- Variable Product Variations -->
+                <div class="variable-only mt-4 envato-hidden">
+                    <h6 class="fw-semibold mb-3">
+                        <i class="fas fa-layer-group me-1"></i>
+                        {{ __('Variations') }}
+                    </h6>
+                    @if($errors->has('variations') ||
+                    collect($errors->keys())->filter(fn($k)=>str_starts_with($k,'variations.'))->isNotEmpty())
+                    <div class="alert alert-danger small">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $e)
+                            @if(str_starts_with($e,'Duplicate attribute combination') || str_contains($e,'variations'))
+                            <li>{{ $e }}</li>
+                            @endif
+                            @endforeach
+                            @foreach($errors->keys() as $k)
+                            @if(str_starts_with($k,'variations.'))
+                            @foreach($errors->get($k) as $msg)
+                            <li>{{ $k }}: {{ $msg }}</li>
+                            @endforeach
+                            @endif
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+                    <div class="mb-3">
+                        <label class="form-label">{{ __('Variation Attributes') }}</label>
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            @foreach($pfAttrData ?? [] as $a)
+                            <label class="form-check form-check-inline">
+                                <input class="form-check-input used-attr-checkbox" type="checkbox" name="used_attributes[]" value="{{ $a['slug'] }}" @if(in_array($a['slug'],$pfUsedAttributes ?? [])) checked @endif>
+                                <span class="form-check-label">{{ $a['name'] }}</span>
+                            </label>
+                            @endforeach
+                        </div>
+                        <div class="form-text mb-3">{{ __('Select which attributes will be used to create variations. Unchecked attributes will not appear on each variation row.') }}</div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="variations-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center">{{ __('Active') }}</th>
+                                    <th>{{ __('Attributes / Name') }}</th>
+                                    <th class="d-none d-md-table-cell">{{ __('SKU') }}</th>
+                                    <th>{{ __('Price') }}</th>
+                                    <th class="d-none d-lg-table-cell">{{ __('Sale') }}</th>
+                                    <th class="d-none d-md-table-cell">{{ __('Stock') }}</th>
+                                    <th class="text-center">{{ __('Actions') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary" id="add-variation">
+                        <i class="fas fa-plus"></i>
+                        <span class="d-none d-sm-inline">{{ __('Add Variation') }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEO Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-search me-2"></i>
+                    {{ __('SEO Settings') }}
+                </h5>
+            </div>
+            <div class="card-body">
+                {{-- languages provided: $pfLanguages --}}
+                <div class="lang-tabs-wrapper mt-2" data-lang-tabs-variant="primary">
+                    <ul class="nav nav-tabs small flex-nowrap overflow-auto gap-2 lang-tabs px-1" role="tablist">
+                        @foreach($languages as $i=>$lang)
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link py-1 px-3 @if($lang->code===$activeLocale) active @endif" data-bs-toggle="tab" data-bs-target="#seo-tab-{{ $lang->code }}" type="button" role="tab">{{ strtoupper($lang->code) }}</button>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+                <div class="tab-content border rounded-bottom p-3">
+                    @foreach($languages as $i=>$lang)
+                    <div class="tab-pane fade @if($lang->code===$activeLocale) show active @endif" id="seo-tab-{{ $lang->code }}" role="tabpanel">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">{{ __('SEO Title') }}</label>
+                                <input name="seo_title[{{ $lang->code }}]" value="{{ $pfLangMeta[$lang->code]['seo_title'] }}" class="form-control" placeholder="{{ $pfLangMeta[$lang->code]['ph_seo_title'] }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">{{ __('SEO Keywords') }}</label>
+                                <input name="seo_keywords[{{ $lang->code }}]" value="{{ $pfLangMeta[$lang->code]['seo_keywords'] }}" class="form-control" placeholder="{{ $pfLangMeta[$lang->code]['ph_seo_keywords'] }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label d-flex justify-content-between align-items-center">
+                                    <span>{{ __('SEO Description') }}</span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary js-ai-generate-seo" data-lang="{{ $lang->code }}" data-loading="0">
+                                        <i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('AI Generate') }}
+                                    </button>
+                                </label>
+                                <textarea name="seo_description[{{ $lang->code }}]" class="form-control js-ai-seo-description" rows="3" placeholder="{{ $pfLangMeta[$lang->code]['ph_seo_description'] }}">{{ $pfLangMeta[$lang->code]['seo_description'] }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-xl-4 col-lg-5">
+        <!-- Media Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-images me-2"></i>
+                    {{ __('Media') }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">{{ __('Main Image') }}</label>
+                    <div class="input-group">
+                        <input name="main_image" value="{{ old('main_image',$m?->main_image) }}" class="form-control"
+                            placeholder="/storage/...">
+                        <button type="button" class="btn btn-outline-secondary" data-open-media="main_image">
+                            <i class="fas fa-folder-open"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="product-variation-meta" data-existing='{{ e(json_encode($pfClientVariations, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'
+                    data-attributes='{{ e(json_encode($pfAttrData, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'
+                    data-used='{{ e(json_encode($pfUsedAttributes, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'></div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ __('Gallery') }}</label>
+                    <div id="gallery-manager" class="d-flex flex-wrap gap-2 mb-2"></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="add-gallery-image">
+                        <i class="fas fa-plus"></i>
+                        {{ __('Add Image') }}
+                    </button>
+                    <input type="hidden" name="gallery" id="gallery-input"
+                        value="{{ old('gallery', json_encode($m?->gallery ?? [])) }}">
+                    <div class="form-text mt-2">
+                        {{ __('You can leave it empty. Click Add Image multiple times to append more.') }}
+                    </div>
+                </div>
+
+                <!-- Digital Download Settings (only shown for digital products) -->
+                <div class="mb-3 digital-only envato-hidden">
+                    <h6 class="mb-2">{{ __('Digital Download') }}</h6>
+                    <div class="mb-2">
+                        <label class="form-label small">{{ __('Download File (path)') }}</label>
+                        <div class="input-group">
+                            <input name="download_file" value="{{ old('download_file', $m?->download_file) }}"
+                                class="form-control" placeholder="/storage/downloads/file.zip">
+                            <button type="button" class="btn btn-outline-secondary" data-open-media="download_file">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            {{ __('If you upload a file ensure it is ZIP or PDF. Provide a storage path.') }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">{{ __('Download URL') }}</label>
+                        <input name="download_url" value="{{ old('download_url', $m?->download_url) }}"
+                            class="form-control" placeholder="https://...">
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="has_serials" value="1"
+                            @checked(old('has_serials', $m?->has_serials ?? false)) id="has_serials_checkbox">
+                        <label
+                            class="form-check-label">{{ __('This product uses serial codes (one per sale)') }}</label>
+                    </div>
+                    <div class="mb-2 serials-only {{ $pfHasSerials ? '' : 'envato-hidden' }}">
+                        <label class="form-label small">{{ __('Serials (one per line)') }}</label>
+                        <textarea name="serials" class="form-control" rows="4"
+                            placeholder="SERIAL1\nSERIAL2">{{ old('serials') }}</textarea>
+                        <div class="form-text">
+                            {{ __('Add serial codes here to seed stock; one code per line. When sold each serial is marked sold and won\'t be reused.') }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ __('Tags') }}</label>
+                    <select name="tag_ids[]" multiple class="form-select" size="6">
+                        @foreach($tags as $t)
+                        <option value="{{ $t->id }}" @selected(in_array($t->id,
+                            old('tag_ids',$m?->tags->pluck('id')->toArray() ?? [])))>{{ $t->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Flags -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-flag me-2"></i>
+                    {{ __('Product Flags') }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="is_featured" value="1"
+                        @checked(old('is_featured',$m?->is_featured ?? false))>
+                    <label class="form-check-label">{{ __('Featured Product') }}</label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="is_best_seller" value="1"
+                        @checked(old('is_best_seller',$m?->is_best_seller ?? false))>
+                    <label class="form-check-label">{{ __('Best Seller') }}</label>
+                </div>
+                @if($pfShowActive)
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="active" value="1"
+                        @checked(old('active',$m?->active ?? true))>
+                    <label class="form-check-label">{{ __('Active') }}</label>
+                </div>
+                @else
+                    <input type="hidden" name="active" value="0">
+                @endif
+            </div>
+        </div>
+
+        <!-- Inventory Management -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-boxes me-2"></i>
+                    {{ __('Inventory') }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="manage_stock" value="1"
+                        @checked(old('manage_stock',$m?->manage_stock ?? false))>
+                    <label class="form-check-label">{{ __('Manage Stock') }}</label>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label small">{{ __('Stock Qty') }}</label>
+                        <input type="number" name="stock_qty" value="{{ old('stock_qty',$m?->stock_qty ?? 0) }}"
+                            class="form-control">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small">{{ __('Reserved') }}</label>
+                        <input type="number" name="reserved_qty"
+                            value="{{ old('reserved_qty',$m?->reserved_qty ?? 0) }}" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label small">{{ __('Refund Days') }}</label>
+                        <input type="number" min="0" name="refund_days"
+                            value="{{ old('refund_days',$m?->refund_days ?? 0) }}" class="form-control">
+                        <div class="form-text small">
+                            {{ __('Number of days customers can request a refund; 0 = no refunds') }}</div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small">{{ __('Weight') }}</label>
+                        <input type="number" step="0.01" name="weight" value="{{ old('weight',$m?->weight) }}"
+                            class="form-control">
+                    </div>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <label class="form-label small">{{ __('Length') }}</label>
+                        <input type="number" step="0.01" name="length" value="{{ old('length',$m?->length) }}"
+                            class="form-control">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small">{{ __('Width') }}</label>
+                        <input type="number" step="0.01" name="width" value="{{ old('width',$m?->width) }}"
+                            class="form-control">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small">{{ __('Height') }}</label>
+                        <input type="number" step="0.01" name="height" value="{{ old('height',$m?->height) }}"
+                            class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="backorder" value="1"
+                        @checked(old('backorder',$m?->backorder ?? false))>
+                    <label class="form-check-label">{{ __('Allow Backorder') }}</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Variation Attributes Reference -->
+    <div class="card modern-card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {{ __('Variation Attributes') }}
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small text-muted">
+                    {{ __('Use attribute dropdown inside each variation row for variable products.') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

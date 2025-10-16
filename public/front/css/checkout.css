@@ -1,0 +1,258 @@
+/* Checkout specific styles extracted from template */
+.checkout-row {
+    display    : flex;
+    gap        : 24px;
+    align-items: flex-start;
+}
+
+.checkout-left {
+    flex: 1 1 65%;
+}
+
+.checkout-right {
+    width      : 35%;
+    flex-shrink: 0;
+}
+
+.panel-card {
+    background   : #fff;
+    border       : 1px solid #e6e9ef;
+    border-radius: 10px;
+    padding      : 18px;
+    margin-bottom: 18px;
+    box-shadow   : 0 6px 18px rgba(20, 30, 50, 0.04);
+}
+
+.panel-title {
+    font-size  : 18px;
+    margin     : 0 0 12px;
+    color      : #233;
+    font-weight: 600;
+}
+
+.address-card {
+    background   : #f7f9fb;
+    border-radius: 8px;
+    padding      : 12px 14px;
+    display      : flex;
+    align-items  : center;
+    gap          : 12px;
+    border       : 1px solid #e9eef5;
+}
+
+.address-left {
+    flex: 1;
+}
+
+.address-actions {
+    text-align: right;
+}
+
+.order-item {
+    display      : flex;
+    gap          : 12px;
+    align-items  : center;
+    padding      : 10px 0;
+    border-bottom: 1px solid #f1f4f8;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.order-item img {
+    width        : 56px;
+    height       : 56px;
+    object-fit   : cover;
+    border-radius: 6px;
+}
+
+.summary-box {
+    background   : #fff;
+    border       : 1px solid #e6e9ef;
+    border-radius: 10px;
+    padding      : 16px;
+}
+
+.summary-lines {
+    list-style: none;
+    padding   : 0;
+    margin    : 0 0 12px 0;
+}
+
+.summary-line {
+    display        : flex;
+    justify-content: space-between;
+    padding        : 8px 0;
+    color          : #4b5563;
+}
+
+/* product title + variant in summary (right column) */
+.summary-line .product-title {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 60ch;
+}
+.summary-line .product-title .title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.summary-line .product-title .title-text {
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.summary-line .product-title .qty {
+    color: #6b7280;
+    font-size: 13px;
+}
+.summary-line .product-title .product-meta {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+/* ensure price column is aligned and stands out */
+.order-item-price, .summary-line > span:last-child {
+    margin-left: auto;
+    font-weight: 600;
+    color: #111827;
+}
+
+.summary-total {
+    display        : flex;
+    justify-content: space-between;
+    font-weight    : 700;
+    padding-top    : 8px;
+    border-top     : 1px dashed #e8eef6;
+}
+
+.shipping-amount {
+    color      : #16a34a;
+    font-weight: 700;
+}
+
+.btn-place {
+    width        : 100%;
+    padding      : 12px 14px;
+    font-size    : 15px;
+    background   : #FFD400;
+    color        : #000;
+    border       : none;
+    border-radius: 8px;
+    font-weight  : 600;
+}
+
+.btn-place:hover {
+    background: #FFB800;
+}
+
+.gateway-item {
+    display      : block;
+    padding      : 10px;
+    border       : 1px solid #eef2f6;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.gateway-item input {
+    margin-right: 8px;
+}
+
+.small-muted {
+    color: #6b7280;
+}
+
+/* Form input improvements */
+.form-row {
+    display      : flex;
+    gap          : 12px;
+    margin-bottom: 12px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-control {
+    width        : 100%;
+    padding      : 10px 12px;
+    border       : 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size    : 14px;
+    transition   : border-color 0.2s;
+}
+
+.form-control:focus {
+    outline     : none;
+    border-color: #3b82f6;
+    box-shadow  : 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-label {
+    display      : block;
+    margin-bottom: 4px;
+    font-weight  : 500;
+    color        : #374151;
+}
+
+select.form-control {
+    background-image   : url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 8px center;
+    background-repeat  : no-repeat;
+    background-size    : 16px;
+    padding-right      : 40px;
+}
+
+@media(max-width:900px) {
+    .checkout-row {
+    flex-direction: column;
+    }
+
+    .checkout-right {
+    width: 100%;
+    }
+
+    .form-row {
+    flex-direction: column;
+    }
+}
+
+/* helper classes used by checkout Blade */
+.container--wide { max-width:1200px; margin:0 auto; padding:0 16px; }
+.address-title { font-weight:600; }
+
+/* Addresses grid on checkout: selectable address cards */
+.addresses-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: start;
+}
+.address-card-selectable {
+    display: block;
+    border: 1px solid #000000;
+    border-radius: 14px;
+    padding: 10px;
+    background: #fffac9;
+    cursor: pointer;
+    transition: box-shadow .12s ease, transform .08s ease, border-color .12s ease;
+}
+.address-card-selectable:hover { box-shadow: 0 6px 18px rgba(20,30,50,0.04); transform: translateY(-2px); }
+.address-card-selectable input[type="radio"] { display: none; }
+.address-card-selectable .address-card-body { display: flex; flex-direction: column; gap:6px; }
+.address-card-selectable .address-name { font-weight:600; color:#111827; }
+.address-card-selectable .small-muted { color: #6b7280; }
+.address-card-selectable .badge { background:#eef6ff; color:#2563eb; padding:2px 6px; border-radius:6px; font-size:12px; display:inline-block; }
+.address-card-selectable input[type="radio"]:checked + .address-card-body { border-color: #2563eb; box-shadow: 0 8px 22px rgba(37,99,235,0.06); }
+
+@media (max-width: 900px) {
+    .addresses-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+}
