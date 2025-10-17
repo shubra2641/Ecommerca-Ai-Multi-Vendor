@@ -20,7 +20,7 @@
     border-radius: 10px;
     padding      : 18px;
     margin-bottom: 18px;
-    box-shadow   : 0 6px 18px rgba(20, 30, 50, 0.04);
+    box-shadow   : 0 6px 18px rgb(20, 30, 50, 0.04);
 }
 
 .panel-title {
@@ -193,7 +193,7 @@
 .form-control:focus {
     outline     : none;
     border-color: #3b82f6;
-    box-shadow  : 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow  : 0 0 0 3px rgb(59, 130, 246, 0.1);
 }
 
 .form-label {
@@ -245,13 +245,13 @@ select.form-control {
     cursor: pointer;
     transition: box-shadow .12s ease, transform .08s ease, border-color .12s ease;
 }
-.address-card-selectable:hover { box-shadow: 0 6px 18px rgba(20,30,50,0.04); transform: translateY(-2px); }
+.address-card-selectable:hover { box-shadow: 0 6px 18px rgb(20,30,50,0.04); transform: translateY(-2px); }
 .address-card-selectable input[type="radio"] { display: none; }
 .address-card-selectable .address-card-body { display: flex; flex-direction: column; gap:6px; }
 .address-card-selectable .address-name { font-weight:600; color:#111827; }
 .address-card-selectable .small-muted { color: #6b7280; }
 .address-card-selectable .badge { background:#eef6ff; color:#2563eb; padding:2px 6px; border-radius:6px; font-size:12px; display:inline-block; }
-.address-card-selectable input[type="radio"]:checked + .address-card-body { border-color: #2563eb; box-shadow: 0 8px 22px rgba(37,99,235,0.06); }
+.address-card-selectable input[type="radio"]:checked + .address-card-body { border-color: #2563eb; box-shadow: 0 8px 22px rgb(37,99,235,0.06); }
 
 @media (max-width: 900px) {
     .addresses-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); }

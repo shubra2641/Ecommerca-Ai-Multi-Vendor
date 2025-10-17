@@ -1,4 +1,5 @@
 /* Ensure admin UI uses the configured primary font variable from local-fonts.css */
+
 /* This file intentionally keeps rules minimal and CSP-safe. */
 
 body.modern-admin-layout {

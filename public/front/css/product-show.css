@@ -33,6 +33,7 @@
     --btn-bg    : #e0e3e8;
     --btn-color : #6b7280;
     --btn-border: none;
+
     opacity     : 1;
     font-weight : 700;
 }
@@ -41,6 +42,7 @@
     --btn-bg    : #0a7a3a;
     --btn-color : #fff;
     --btn-border: none;
+
     font-weight : 700;
 }
 
@@ -82,7 +84,7 @@
     height       : auto;
     display      : block;
     border-radius: 6px;
-    box-shadow   : 0 10px 30px rgba(16, 24, 40, 0.06);
+    box-shadow   : 0 10px 30px rgb(16, 24, 40, 0.06);
 }
 
 .thumbnail-gallery {
@@ -113,14 +115,14 @@
 }
 
 .thumbnail.active {
-    box-shadow  : 0 0 0 4px rgba(11, 116, 222, 0.08);
-    border-color: rgba(11, 116, 222, 0.18);
+    box-shadow  : 0 0 0 4px rgb(11, 116, 222, 0.08);
+    border-color: rgb(11, 116, 222, 0.18);
 }
 
 .thumbnail:hover:not(.active),
 .thumbnail:focus-visible:not(.active) {
     transform   : translateY(-2px) scale(1.04);
-    box-shadow  : 0 6px 14px -4px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .06);
+    box-shadow  : 0 6px 14px -4px rgb(0, 0, 0, .12), 0 2px 4px rgb(0, 0, 0, .06);
     border-color: #cbd5e1;
 }
 
@@ -146,7 +148,7 @@
     border       : 1px solid #e5e7eb;
     border-radius: 12px;
     padding      : 22px 24px 28px;
-    box-shadow   : 0 2px 8px rgba(16, 24, 40, .05);
+    box-shadow   : 0 2px 8px rgb(16, 24, 40, .05);
 }
 
 .product-info-card .pi-meta-row {
@@ -323,7 +325,7 @@
 
 .divider-line {
     height    : 1px;
-    background: linear-gradient(90deg, rgba(0, 0, 0, .08), rgba(0, 0, 0, 0));
+    background: linear-gradient(90deg, rgb(0, 0, 0, .08), rgb(0, 0, 0, 0));
     margin    : 18px 0 10px;
 }
 
@@ -333,7 +335,7 @@
     border       : 1px solid #e2e8f0;
     border-radius: 14px;
     padding      : 18px 20px 22px;
-    box-shadow   : 0 1px 3px rgba(0, 0, 0, .06), 0 1px 2px rgba(0, 0, 0, .04);
+    box-shadow   : 0 1px 3px rgb(0, 0, 0, .06), 0 1px 2px rgb(0, 0, 0, .04);
 }
 
 .variation-card-title {
@@ -391,7 +393,7 @@
     background  : #2757ff;
     color       : #fff;
     border-color: #2757ff;
-    box-shadow  : 0 0 0 1px #1d4ed8, 0 2px 4px rgba(39, 87, 255, .25);
+    box-shadow  : 0 0 0 1px #1d4ed8, 0 2px 4px rgb(39, 87, 255, .25);
 }
 
 .variation-attr-block .option-btn.disabled {
@@ -456,7 +458,7 @@
 .delivery-eta-bar .eta-progress {
     margin-top   : 10px;
     height       : 5px;
-    background   : rgba(255, 255, 255, .25);
+    background   : rgb(255, 255, 255, .25);
     border-radius: 3px;
     overflow     : hidden;
 }
@@ -559,6 +561,7 @@
     gap            : .5rem;
     padding        : 8px 14px;
     border-radius  : 999px;
+
     /* pill shape */
     border         : var(--btn-border, none);
     background     : var(--btn-bg, #2757ff);
@@ -597,11 +600,13 @@
     --btn-bg    : #fff;
     --btn-color : inherit;
     --btn-border: 1px solid #e5e7eb;
+
     padding     : 8px 12px;
 }
 
 .tab-btn.active {
     --btn-border: 1px solid var(--accent);
+
     color       : var(--accent);
 }
 
@@ -635,7 +640,7 @@
 }
 
 .qty-trash {
-    background   : rgba(255, 255, 255, 0.12);
+    background   : rgb(255, 255, 255, 0.12);
     border-radius: 8px;
 }
 
@@ -729,7 +734,6 @@
 
 /* Responsive rules */
 @media(min-width:900px) {
-
     /* Use percentage columns: left 25%, center 50%, right 25% */
     .product-details-layout {
         grid-template-columns: 25% 50% 25%;
@@ -795,6 +799,7 @@
 
 .attr-option-btn {
     --swatch     : transparent;
+
     width        : 40px;
     height       : 40px;
     border-radius: 8px;
@@ -926,7 +931,7 @@
     border       : 1px solid #e2e8f0;
     border-radius: 12px;
     padding      : 20px 22px;
-    box-shadow   : 0 2px 4px rgba(0, 0, 0, 0.04);
+    box-shadow   : 0 2px 4px rgb(0, 0, 0, 0.04);
 }
 
 .reviews-section .write-title {
@@ -1057,6 +1062,7 @@
     .buyer-only-info.card-surface {
         --empty-border: #e2e8f0;
         --empty-bg    : linear-gradient(145deg, #f8fafc, #f1f5f9);
+
         position      : relative;
         background    : var(--empty-bg);
         border        : 1.5px dashed var(--empty-border);
@@ -1074,6 +1080,7 @@
         margin     : 0 auto 12px;
         color      : #64748b;
         max-width  : 120px;
+
         /* hard cap to prevent enormous render */
         max-height : 120px;
         display    : inline-block;

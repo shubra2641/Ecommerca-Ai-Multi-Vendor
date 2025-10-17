@@ -6,6 +6,7 @@
   --adm-radius-sm  : .35rem;
   --adm-radius-md  : .55rem;
   --adm-transition : .22s cubic-bezier(.4, 0, .2, 1);
+
   /* Light theme palette */
   --adm-bg         : #f1f5f9;
   --adm-surface    : #ffffff;
@@ -30,6 +31,7 @@ body.dark-mode {
   --adm-accent     : #3b82f6;
   --adm-accent-rgb : 59, 130, 246;
   --adm-focus-ring : 215 92% 65%;
+
   color-scheme     : dark;
 }
 
@@ -71,7 +73,7 @@ body.dark-mode .page-content {
 
 .stat-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 25px rgb(0, 0, 0, 0.15);
   border-color: var(--adm-accent);
 }
 
@@ -171,7 +173,7 @@ body.dark-mode .stat-card {
 .stats-card:hover,
 .metric-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 25px rgb(0, 0, 0, 0.15);
   border-color: var(--adm-accent);
 }
 
@@ -300,7 +302,7 @@ body.dark-mode .table-modern tbody tr:hover {
 .badge.bg-warning,
 .badge.bg-primary,
 .badge.bg-info {
-  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, .12);
+  box-shadow: 0 2px 4px -1px rgb(0, 0, 0, .12);
 }
 
 /* Modern-card tweaks */
@@ -308,7 +310,7 @@ body.dark-mode .table-modern tbody tr:hover {
   border       : 1px solid var(--adm-border);
   border-radius: var(--adm-radius-md);
   background   : var(--adm-surface);
-  box-shadow   : 0 1px 2px rgba(0, 0, 0, .03);
+  box-shadow   : 0 1px 2px rgb(0, 0, 0, .03);
 }
 
 .modern-card>.card-header {
@@ -328,7 +330,7 @@ body.dark-mode .table-modern tbody tr:hover {
 }
 
 body.dark-mode .modern-card {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+  box-shadow: 0 1px 2px rgb(0, 0, 0, .4);
 }
 
 /* Inner section refinements layering on existing form-sections */
@@ -443,7 +445,7 @@ a:focus:not(:focus-visible) {
 
 /* Section header button focus styling */
 .inner-section [data-toggle-section]:focus-visible {
-  background: rgba(var(--adm-accent-rgb), .08);
+  background: rgb(var(--adm-accent-rgb), .08);
 }
 
 /* Reduced padding for mobile-first small screens */
@@ -613,7 +615,7 @@ body.dark-mode .quick-report-card {
 }
 
 body.dark-mode .quick-report-badge {
-  background: rgba(var(--adm-accent-rgb, 37, 99, 235), .15);
+  background: rgb(var(--adm-accent-rgb, 37, 99, 235), .15);
 }
 
 body.dark-mode .activity-item {

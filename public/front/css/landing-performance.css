@@ -36,7 +36,7 @@
 
 .hero-subtitle {
   font-size: clamp(1rem, 2.5vw, 1.25rem);
-  color: rgba(255, 255, 255, 0.9);
+  color: rgb(255, 255, 255, 0.9);
   margin-bottom: 2rem;
   max-width: 600px;
 }
@@ -66,7 +66,7 @@
 
 .feature-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgb(0, 0, 0, 0.1);
   border-color: var(--primary-600);
 }
 
@@ -143,7 +143,7 @@
 
 .category-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgb(0, 0, 0, 0.1);
   border-color: var(--primary-600);
   text-decoration: none;
   color: inherit;
@@ -202,7 +202,7 @@
 
 .blog-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgb(0, 0, 0, 0.1);
   border-color: var(--primary-600);
   text-decoration: none;
   color: inherit;
@@ -307,7 +307,7 @@
 
 .cta-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 20px rgb(0, 0, 0, 0.2);
   color: var(--primary-600);
   text-decoration: none;
 }
@@ -387,7 +387,7 @@
 
 /* Loading states */
 .loading-skeleton {
-  background: linear-gradient(90deg, var(--border-primary) 25%, rgba(255, 255, 255, 0.5) 50%, var(--border-primary) 75%);
+  background: linear-gradient(90deg, var(--border-primary) 25%, rgb(255, 255, 255, 0.5) 50%, var(--border-primary) 75%);
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
 }

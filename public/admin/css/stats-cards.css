@@ -4,8 +4,8 @@
 :root {
     --stats-card-bg: #ffffff;
     --stats-card-border: #e2e8f0;
-    --stats-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    --stats-card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --stats-card-shadow: 0 1px 3px rgb(0, 0, 0, 0.1);
+    --stats-card-shadow-hover: 0 4px 12px rgb(0, 0, 0, 0.15);
     --stats-card-radius: 12px;
     --stats-card-padding: 1.5rem;
     --stats-text-primary: #1e293b;
@@ -29,8 +29,8 @@
 body.dark-mode {
     --stats-card-bg: #1e293b;
     --stats-card-border: #334155;
-    --stats-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --stats-card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --stats-card-shadow: 0 1px 3px rgb(0, 0, 0, 0.3);
+    --stats-card-shadow-hover: 0 4px 12px rgb(0, 0, 0, 0.4);
     --stats-text-primary: #f1f5f9;
     --stats-text-secondary: #94a3b8;
 }
@@ -124,12 +124,12 @@ body.dark-mode {
 /* Card Footer */
 .stats-card-footer {
     padding: 0.75rem var(--stats-card-padding);
-    background: rgba(0, 0, 0, 0.02);
+    background: rgb(0, 0, 0, 0.02);
     border-top: 1px solid var(--stats-card-border);
 }
 
 body.dark-mode .stats-card-footer {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgb(255, 255, 255, 0.05);
 }
 
 .stats-link {
@@ -349,6 +349,7 @@ body.dark-mode .stats-card-footer {
 }
 
 /* ===== LEGACY SUPPORT ===== */
+
 /* Support for existing Bootstrap grid classes */
 .row .stats-card {
     height: 100%;

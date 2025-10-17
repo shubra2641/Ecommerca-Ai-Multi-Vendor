@@ -15,7 +15,8 @@ class CheckInstalled
     public function handle(Request $request, Closure $next)
     {
         // Allow access to installer routes, assets and typical public files
-        if ($request->is('install*')
+        if (
+            $request->is('install*')
             || $request->is('storage/*')
             || $request->is('vendor/*')
             || $request->is('admin/install*')

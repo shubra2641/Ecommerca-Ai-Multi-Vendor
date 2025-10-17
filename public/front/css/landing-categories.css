@@ -90,7 +90,7 @@
 
 .cat-pill.active .icon-ring {
   border-color: var(--primary-600);
-  box-shadow  : 0 0 0 4px rgba(59, 130, 246, .25);
+  box-shadow  : 0 0 0 4px rgb(59, 130, 246, .25);
   transform   : translateY(-4px);
 }
 
@@ -129,7 +129,7 @@
 
 .subcat-card:hover {
   border-color: var(--primary-600);
-  box-shadow  : 0 4px 14px rgba(0, 0, 0, .08);
+  box-shadow  : 0 4px 14px rgb(0, 0, 0, .08);
   transform   : translateY(-3px);
 }
 
@@ -284,6 +284,7 @@
 
 .cat-main-list {
   --gap          : 32px;
+
   display        : flex;
   flex-wrap      : wrap;
   gap            : var(--gap);
@@ -312,7 +313,7 @@
 }
 
 .cat-pill:focus-visible {
-  outline       : 3px solid rgba(59, 130, 246, .45);
+  outline       : 3px solid rgb(59, 130, 246, .45);
   outline-offset: 4px;
   border-radius : 50%
 }
@@ -360,7 +361,7 @@
 .cat-pill:hover .icon-ring,
 .cat-pill.active .icon-ring {
   border-color: var(--error-500);
-  box-shadow  : 0 4px 18px -2px rgba(232, 243, 72, 0.35), 0 0 0 4px rgba(228, 239, 68, 0.08);
+  box-shadow  : 0 4px 18px -2px rgb(232, 243, 72, 0.35), 0 0 0 4px rgb(228, 239, 68, 0.08);
   transform   : translateY(-4px);
   background  : linear-gradient(135deg, var(--bg-primary), var(--bg-primary) 60%, var(--bg-primary))
 }
@@ -379,6 +380,7 @@
 
 .subcats-grid {
   --colSize            : 130px;
+
   display              : grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--colSize), 1fr));
   gap                  : 24px;
@@ -401,13 +403,13 @@
 }
 
 .subcat-card:focus-visible {
-  outline       : 3px solid rgba(59, 130, 246, .45);
+  outline       : 3px solid rgb(59, 130, 246, .45);
   outline-offset: 4px
 }
 
 .subcat-card:hover {
   transform : translateY(-6px);
-  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, .08)
+  box-shadow: 0 12px 30px -4px rgb(0, 0, 0, .08)
 }
 
 .subcat-card img {

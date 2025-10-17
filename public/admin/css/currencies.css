@@ -145,7 +145,7 @@ body.dark-mode .btn-outline-danger:hover {
     border-radius: 16px;
     padding: 1.5rem;
     border: 1px solid #e5e7eb;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 16px rgb(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     gap: 1rem;

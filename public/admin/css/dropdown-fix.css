@@ -1,4 +1,5 @@
 /* ===== Enhanced Sidebar Dropdown Integration ===== */
+
 /* تحسين تكامل القوائم الفرعية مع التصميم الأصلي للشريط الجانبي */
 
 /* تنسيق Bootstrap dropdown للشريط الجانبي - متطابق مع nav-item */
@@ -17,7 +18,7 @@
     text-align: left;
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgb(255, 255, 255, 0.8);
     padding: 0.875rem 1rem;
     text-decoration: none;
     border-radius: var(--radius-md);
@@ -30,7 +31,7 @@
 
 .modern-sidebar .dropdown-toggle:hover,
 .modern-sidebar .nav-dropdown > .nav-link:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(255, 255, 255, 0.1);
     color: white;
     transform: translateX(4px);
 }
@@ -39,7 +40,7 @@
 .modern-sidebar .nav-dropdown.active > .nav-link {
     background: var(--primary-color);
     color: white;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 4px 12px rgb(79, 70, 229, 0.3);
 }
 
 .modern-sidebar .dropdown-toggle::after,
@@ -62,11 +63,11 @@
 
 /* تنسيق قائمة Bootstrap dropdown - متطابق تماماً مع التصميم الأصلي */
 .modern-sidebar .dropdown-menu {
-    background: rgba(15, 23, 42, 0.95);
+    background: rgb(15, 23, 42, 0.95);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(255, 255, 255, 0.1);
     border-radius: var(--radius-md);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 25px rgb(0, 0, 0, 0.3);
     margin: 0.5rem 0 0 1.5rem;
     position: static;
     transform: none;
@@ -77,7 +78,7 @@
 }
 
 .modern-sidebar .dropdown-item {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgb(255, 255, 255, 0.7);
     padding: 0.625rem 1.25rem;
     text-decoration: none;
     display: flex;
@@ -105,14 +106,14 @@
 }
 
 .modern-sidebar .dropdown-item:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(255, 255, 255, 0.1);
     color: white;
     transform: translateX(6px);
 }
 
 /* Dark mode fix for dropdown hover */
 body.dark-mode .modern-sidebar .dropdown-item:hover {
-    background: rgba(59, 130, 246, 0.15) !important;
+    background: rgb(59, 130, 246, 0.15) !important;
     color: var(--text-primary) !important;
 }
 
@@ -123,12 +124,12 @@ body.dark-mode .modern-sidebar .dropdown-item:hover {
 .modern-sidebar .dropdown-item.active {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     color: white;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+    box-shadow: 0 4px 12px rgb(79, 70, 229, 0.4);
 }
 
 .modern-sidebar .dropdown-item.active::before {
     height: 100%;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgb(255, 255, 255, 0.3);
 }
 
 /* تنسيق الأيقونات في عناصر القائمة - متطابق مع التصميم الأصلي */
@@ -160,10 +161,10 @@ body.dark-mode .modern-sidebar .dropdown-item:hover {
     top: auto;
     opacity: 1;
     visibility: visible;
-    background: rgba(15, 23, 42, 0.98);
+    background: rgb(15, 23, 42, 0.98);
     backdrop-filter: blur(15px);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgb(0, 0, 0, 0.5);
+    border: 1px solid rgb(255, 255, 255, 0.1);
     border-radius: var(--radius-lg);
     min-width: 220px;
     z-index: 1050;
@@ -233,19 +234,19 @@ body.dark-mode .modern-sidebar .dropdown-item:hover {
 }
 
 .modern-sidebar .dropdown-menu::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgb(255, 255, 255, 0.2);
     border-radius: 2px;
 }
 
 .modern-sidebar .dropdown-menu::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgb(255, 255, 255, 0.3);
 }
 
 /* Dark mode fix for scrollbar */
 body.dark-mode .modern-sidebar .dropdown-menu::-webkit-scrollbar-thumb {
-    background: rgba(59, 130, 246, 0.3) !important;
+    background: rgb(59, 130, 246, 0.3) !important;
 }
 
 body.dark-mode .modern-sidebar .dropdown-menu::-webkit-scrollbar-thumb:hover {
-    background: rgba(59, 130, 246, 0.5) !important;
+    background: rgb(59, 130, 246, 0.5) !important;
 }

@@ -1,5 +1,5 @@
 /* THEMED ACCOUNT AREA */
-:root { --account-bg:#f4f6fa; --account-card-bg:#fff; --account-card-border:#e5e7eb; --account-card-radius:14px; --account-shadow:0 1px 2px rgba(0,0,0,.04),0 4px 12px -2px rgba(0,0,0,.06); --account-shadow-soft:0 1px 3px rgba(0,0,0,.06); --account-accent:#ffeb3b; --account-nav-active-bg:#fff9cf; --account-progress-track:#eceff3; --account-progress-bar:#111827; }
+:root { --account-bg:#f4f6fa; --account-card-bg:#fff; --account-card-border:#e5e7eb; --account-card-radius:14px; --account-shadow:0 1px 2px rgb(0,0,0,.04),0 4px 12px -2px rgb(0,0,0,.06); --account-shadow-soft:0 1px 3px rgb(0,0,0,.06); --account-accent:#ffeb3b; --account-nav-active-bg:#fff9cf; --account-progress-track:#eceff3; --account-progress-bar:#111827; }
 body.account-body { background:var(--account-bg); }
 .account-section { padding:1.75rem 0 2.5rem; }
 .account-grid { display:flex; gap:1.75rem; align-items:flex-start; }
@@ -13,6 +13,7 @@ body.account-body { background:var(--account-bg); }
 }
 .account-main { flex:1 1 auto; min-width:0; }
 .account-sidebar { width:275px; flex:0 0 275px; }
+
 /* make nav groups visually match the user card above */
 .account-nav-groups { background:var(--account-card-bg); border:1px solid var(--account-card-border); border-radius:var(--account-card-radius); padding:1rem; box-shadow:var(--account-shadow-soft); }
 .account-user-card, .account-nav-groups { background:var(--account-card-bg); }
@@ -63,6 +64,7 @@ body.account-body { background:var(--account-bg); }
 .address-list li { font-size:12px; line-height:1.4; }
 .address-list .badge { margin-left:4px; }
 .manage-addresses { margin-top:.65rem; }
+
 /* invoices */
 .invoices-wrapper { background:#fff; border:1px solid #eee; border-radius:var(--account-card-radius); padding:1rem; }
 .invoices-wrapper h3 { margin:0 0 1rem; font-size:18px; font-weight:600; }
@@ -71,6 +73,7 @@ body.account-body { background:var(--account-bg); }
 .invoices-table thead tr { background:#fafafa; }
 .invoices-table th, .invoices-table td { padding:6px 8px; text-align:left; }
 .invoices-table tbody td { border-bottom:1px solid #f2f2f2; }
+
 /* profile */
 .profile-panels h1.page-title { margin:0 0 .5rem; font-size:1.25rem; font-weight:600; }
 .profile-panels .page-sub { margin:0 0 1.25rem; font-size:.85rem; color:var(--text-secondary); }
@@ -106,13 +109,14 @@ body.account-body { background:var(--account-bg); }
     .profile-side { order: -1; }
     .profile-form .two-cols { grid-template-columns:repeat(1,minmax(0,1fr)); }
 }
+
 /* orders */
 .orders-page .order-filters { display:flex; gap:.75rem; margin:0 0 1.25rem; }
 .orders-page .order-filters input,.orders-page .order-filters select { background:#fff; border:1px solid var(--account-card-border); padding:.55rem .7rem; font-size:.75rem; border-radius:8px; width:200px; box-shadow:var(--account-shadow-soft); }
 .orders-page .order-filters select { width:110px; }
 .orders-list { display:flex; flex-direction:column; gap:1rem; }
 .order-card { background:#fff; border:1px solid var(--border-primary); border-radius:var(--account-card-radius); padding:.95rem 1.05rem; display:flex; flex-direction:column; gap:.75rem; position:relative; box-shadow:var(--account-shadow); }
-.order-card:hover { box-shadow:0 4px 14px -2px rgba(0,0,0,.12); }
+.order-card:hover { box-shadow:0 4px 14px -2px rgb(0,0,0,.12); }
 .order-status-line { display:flex; align-items:center; gap:.6rem; }
 .status-dot { width:10px; height:10px; border-radius:50%; background:#9ca3af; }
 .status-pending { background:#f59e0b; }
@@ -124,6 +128,7 @@ body.account-body { background:var(--account-bg); }
 .order-summary .details .title { font-size:.8rem; font-weight:600; }
 .order-summary .details .meta { font-size:.65rem; color:var(--text-secondary); margin-top:2px; }
 .order-summary .badges { display:flex; gap:.4rem; }
+
 /* order detail */
 .order-detail-page .order-head { margin:0 0 1rem; }
 .order-detail-page .order-head .page-title { margin:.25rem 0 .4rem; font-size:1.05rem; }
@@ -140,6 +145,7 @@ body.account-body { background:var(--account-bg); }
 .order-detail-page .summary-line.total { font-weight:700; }
 .order-detail-page .summary-actions { display:flex; gap:.5rem; margin-top:.6rem; }
 .order-detail-page .panel.sticky { position:sticky; top:90px; }
+
 /* addresses */
 .addresses-page .card { background:#fff; border:1px solid var(--border-primary); border-radius:var(--account-card-radius); margin-bottom:1.5rem; box-shadow:var(--account-shadow); }
 .addresses-page .card-header { padding:1rem 1.1rem; border-bottom:1px solid var(--border-primary); }
@@ -147,7 +153,7 @@ body.account-body { background:var(--account-bg); }
 .addresses-page .card-body { padding:1rem 1.1rem; }
 .address-groups { display:flex; flex-direction:column; gap:1.25rem; }
 .address-card { background:#fff; border:1px solid var(--border-primary); border-radius:12px; padding:1rem; display:flex; flex-direction:column; gap:.6rem; transition:box-shadow .18s ease, transform .12s ease; }
-.address-card.is-default { border-color:#2563eb; box-shadow:0 6px 20px rgba(37,99,235,.06); }
+.address-card.is-default { border-color:#2563eb; box-shadow:0 6px 20px rgb(37,99,235,.06); }
 .address-card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem; }
 .address-card .label { font-size:.85rem; font-weight:700; color:#111827; }
 .address-card .body .line { font-size:.82rem; margin-bottom:4px; color:#374151; }
@@ -157,14 +163,16 @@ body.account-body { background:var(--account-bg); }
 .address-card-head .head-actions { display:flex; align-items:center; gap:.5rem; }
 .address-card .small.muted { font-size:12px; color:var(--text-secondary); }
 .address-card .card-footer .link { font-size:.85rem; color:#2563eb; cursor:pointer; background:none; border:0; padding:0; }
-.address-card:hover { box-shadow:0 10px 30px rgba(2,6,23,.06); transform:translateY(-4px); }
+.address-card:hover { box-shadow:0 10px 30px rgb(2,6,23,.06); transform:translateY(-4px); }
 
 /* Add New Address form inputs: 3 columns on large screens, responsive down to 1 */
 .addresses-page .card-body .two-cols { grid-template-columns: repeat(3, minmax(220px,1fr)); }
 .addresses-page .card-body .two-cols .field { min-width:0; }
+
 @media (max-width: 992px) {
     .addresses-page .card-body .two-cols { grid-template-columns: repeat(2, minmax(180px,1fr)); }
 }
+
 @media (max-width: 576px) {
     .addresses-page .card-body .two-cols { grid-template-columns: repeat(1, minmax(0,1fr)); }
 }
@@ -172,6 +180,7 @@ body.account-body { background:var(--account-bg); }
 /* Saved addresses: 2 columns on desktop, 1 column on small screens. Page-specific and !important to override accidental global edits. */
 .addresses-page .address-cards { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:1rem !important; align-items:start !important; }
 .addresses-page .address-cards .address-card { width:90% !important; margin:0 !important; }
+
 @media (max-width: 992px) {
     .addresses-page .address-cards { grid-template-columns:repeat(1,minmax(0,1fr)) !important; }
 }
@@ -180,19 +189,23 @@ body.account-body { background:var(--account-bg); }
 .address-card-head .head-actions .inline-form { margin:0; }
 .address-card-head .head-actions .link.danger { padding:.25rem .45rem; border:1px solid #f1f5f9; border-radius:8px; background:#fff; color:#b91c1c; font-size:.82rem; }
 .address-group h4 { margin:0 0 .6rem; font-size:.8rem; font-weight:600; text-transform:uppercase; }
+
 /* address modal */
-.modal { position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:var(--z-modal); }
+.modal { position:fixed; inset:0; background:rgb(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:var(--z-modal); }
 .modal-dialog { width:100%; max-width:640px; }
 .modal-content { background:#fff; border-radius:10px; overflow:hidden; }
 .modal-header { display:flex; justify-content:space-between; align-items:center; padding:.75rem 1rem; border-bottom:1px solid var(--border-primary); }
 .modal-title { margin:0; font-size:.85rem; font-weight:600; }
 .modal-close { background:none; border:0; font-size:1.2rem; line-height:1; cursor:pointer; }
 .modal-body { padding:1rem 1.1rem; }
+
 /* utilities */
 .ml-3 { margin-left:.75rem; }
 .m-0 { margin:0 !important; }
 .d-none{display:none !important;}
+
 @media (max-width: 992px) { .account-grid { flex-direction:column; } .account-sidebar { width:100%; display:flex; flex-direction:row; gap:1rem; } .account-nav-groups { flex:1; display:flex; flex-wrap:wrap; gap:1rem 1.25rem; } .account-nav-groups .nav-group { margin:0; min-width:140px; } .flex-cols, .order-detail-page .flex-cols { flex-direction:column; } }
+
 @media (max-width: 768px) { .order-detail-page .flex-cols { flex-direction:column; } .address-cards .address-card { width:90%; } }
 .modal-close { background:none; border:0; font-size:1.2rem; line-height:1; cursor:pointer; }
 
