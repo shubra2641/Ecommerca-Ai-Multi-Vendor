@@ -5,7 +5,9 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "vendor:sync": "node scripts/copy-vendor-assets.js"
+        "vendor:sync": "node scripts/copy-vendor-assets.js",
+        "lint": "eslint public/**/*.js",
+        "lint:fix": "eslint public/**/*.js --fix"
     },
     "devDependencies": {
         "@fontsource/cairo": "^5.0.12",
@@ -19,6 +21,7 @@
         "bootstrap": "^5.3.3",
         "chart.js": "^4.4.0",
         "concurrently": "^9.0.1",
+        "eslint": "^9.38.0",
         "intl-tel-input": "^18.5.3",
         "jquery": "^3.7.1",
         "laravel-vite-plugin": "^2.0.0",
