@@ -22,6 +22,9 @@
     <!-- Unified Admin CSS - All styles consolidated -->
     <link rel="preload" href="{{ asset('assets/admin/css/admin.css') }}" as="style">
     <link href="{{ asset('assets/admin/css/admin.css') }}" rel="stylesheet">
+
+
+    
     @stack('styles')
 </head>
 
