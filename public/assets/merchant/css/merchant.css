@@ -14,7 +14,7 @@
     background-color: var(--merchant-primary, #4f46e5);
     color: white;
     padding: 1rem 2rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgb(0,0,0,0.1);
 }
 
 /* Merchant Navigation */
@@ -62,7 +62,7 @@
     background: #ffffff;
     border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgb(0,0,0,0.1);
     border: 1px solid #e5e7eb;
 }
 
@@ -128,13 +128,13 @@
     background: #ffffff;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgb(0,0,0,0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .merchant-product-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgb(0,0,0,0.15);
 }
 
 .merchant-product-image {
@@ -168,7 +168,7 @@
     background: #ffffff;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgb(0,0,0,0.1);
 }
 
 .merchant-orders-table th {
@@ -223,7 +223,7 @@
     background: #ffffff;
     border-radius: 8px;
     padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgb(0,0,0,0.1);
 }
 
 .merchant-form-group {
@@ -249,7 +249,7 @@
 .merchant-form-input:focus {
     outline: none;
     border-color: var(--merchant-primary, #4f46e5);
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    box-shadow: 0 0 0 3px rgb(79, 70, 229, 0.1);
 }
 
 .merchant-form-textarea {

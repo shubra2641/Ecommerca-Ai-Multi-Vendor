@@ -4,19 +4,24 @@
 .lang-tabs .nav-link { white-space:nowrap; border:1px solid var(--bs-border-color); border-radius:50rem; background:#f8f9fa; transition:.15s; font-weight:500; }
 .lang-tabs .nav-link:not(.active):hover { background:#eef2f5; }
 .lang-tabs .nav-link.active { background:var(--bs-primary); color:#fff; border-color:var(--bs-primary); }
+
 /* Allow variant color override via data attribute */
 [data-lang-tabs-variant="success"] .lang-tabs .nav-link.active { background:var(--bs-success); border-color:var(--bs-success); }
 [data-lang-tabs-variant="success"] .lang-tabs .nav-link:not(.active):hover { background:#e6f7ef; }
 .lang-tabs::-webkit-scrollbar { height:6px; }
 .lang-tabs::-webkit-scrollbar-track { background:transparent; }
-.lang-tabs::-webkit-scrollbar-thumb { background:rgba(0,0,0,.25); border-radius:3px; }
+.lang-tabs::-webkit-scrollbar-thumb { background:rgb(0,0,0,.25); border-radius:3px; }
+
 @media (max-width: 992px){
   .lang-tabs .nav-link { font-size:.7rem; padding:.35rem .75rem; }
 }
+
 /* Vertical rhythm adjustments */
 .tab-content .row.g-3 > [class*='col-'] .form-label { margin-bottom:.25rem; }
 .tab-content textarea.form-control-sm { min-height:70px; }
 .tab-content input.form-control-sm, .tab-content textarea.form-control-sm { margin-bottom:2px; }
+
 /* Optional highlight for AI-filled fields (used elsewhere) */
 .ai-filled { animation:aiPulse 2.5s ease-in-out;background:#e8f7ff!important; }
-@keyframes aiPulse {0%{box-shadow:0 0 0 0 rgba(13,110,253,.4);}50%{box-shadow:0 0 0 4px rgba(13,110,253,.15);}100%{box-shadow:0 0 0 0 rgba(13,110,253,0);} }
+
+@keyframes aiPulse {0%{box-shadow:0 0 0 0 rgb(13,110,253,.4);}50%{box-shadow:0 0 0 4px rgb(13,110,253,.15);}100%{box-shadow:0 0 0 0 rgb(13,110,253,0);} }

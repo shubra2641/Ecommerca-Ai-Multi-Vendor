@@ -6,15 +6,15 @@
     --es-muted  : #6b7280;
     --es-accent : #f59e0b;
     --es-border : #e5e7eb;
-    --es-shadow : 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --es-shadow-lg : 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --es-shadow : 0 4px 6px -1px rgb(0, 0, 0, 0.1), 0 2px 4px -1px rgb(0, 0, 0, 0.06);
+    --es-shadow-lg : 0 10px 15px -3px rgb(0, 0, 0, 0.1), 0 4px 6px -2px rgb(0, 0, 0, 0.05);
     --es-radius: 12px;
     --es-radius-sm: 8px;
 }
 
 .orders-success-hero {
-    background   : linear-gradient(135deg, var(--es-success-light) 0%, rgba(16, 185, 129, 0.05) 100%);
-    border       : 1px solid rgba(16, 185, 129, 0.2);
+    background   : linear-gradient(135deg, var(--es-success-light) 0%, rgb(16, 185, 129, 0.05) 100%);
+    border       : 1px solid rgb(16, 185, 129, 0.2);
     border-left  : 4px solid var(--es-success);
     padding      : 2rem;
     border-radius: var(--es-radius);
@@ -35,7 +35,7 @@
     right: 0;
     width: 100px;
     height: 100px;
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgb(16, 185, 129, 0.1) 0%, transparent 70%);
     border-radius: 50%;
     transform: translate(30px, -30px);
 }
@@ -220,7 +220,7 @@
     padding      : .6rem 1rem;
     border-radius: 6px;
     z-index      : 1200;
-    box-shadow   : 0 6px 18px rgba(12, 18, 31, 0.12);
+    box-shadow   : 0 6px 18px rgb(12, 18, 31, 0.12);
     opacity      : 0;
     transform    : translateY(-6px);
     transition   : opacity .3s ease, transform .3s ease;

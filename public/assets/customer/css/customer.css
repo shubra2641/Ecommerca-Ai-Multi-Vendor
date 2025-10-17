@@ -13,7 +13,7 @@
 /* Customer Header */
 .customer-header {
     background-color: #ffffff;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgb(0,0,0,0.1);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -87,7 +87,7 @@
 .customer-search-input:focus {
     outline: none;
     border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgb(37, 99, 235, 0.1);
 }
 
 .customer-search-icon {
@@ -172,7 +172,7 @@
 
 .customer-hero-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 25px rgb(0,0,0,0.2);
 }
 
 /* Product Grid */
@@ -239,14 +239,14 @@
     background-color: #ffffff;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgb(0,0,0,0.05);
     transition: all 0.3s ease;
     border: 1px solid #f3f4f6;
 }
 
 .customer-product-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 20px 25px rgb(0,0,0,0.1);
 }
 
 .customer-product-image {
@@ -381,7 +381,7 @@
     border-radius: 12px;
     padding: 1rem;
     margin-bottom: 2rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgb(0,0,0,0.1);
 }
 
 .customer-account-nav ul {
@@ -411,7 +411,7 @@
     background-color: #ffffff;
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgb(0,0,0,0.1);
 }
 
 /* Order History */
@@ -428,7 +428,7 @@
 }
 
 .customer-order-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgb(0,0,0,0.1);
 }
 
 .customer-order-header {
@@ -543,7 +543,7 @@
 .customer-form-input:focus {
     outline: none;
     border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgb(37, 99, 235, 0.1);
 }
 
 .customer-form-textarea {

@@ -2,17 +2,21 @@
     Drop .woff2 files under /public/fonts/<Family>/ matching the src urls below.
     After adding files, clear your browser cache to see the new fonts.
 */
+
 /* Removed placeholder @font-face rules for families without actual files (only .gitkeep present)
     Families removed: Montserrat, Open Sans, Lato, Nunito, Work Sans */
 
 /* Arabic-capable fonts */
+
 /* Removed Arabic families without actual font files present: Noto Sans Arabic, Tajawal, Almarai, Changa, El Messiri */
 
 /* Data attribute mappings for runtime activation */
+
 /* Removed data-font-active mappings for deleted families */
+
 /* Fonts (minified) - regenerated */
 @font-face {
-    font-family : 'Inter';
+    font-family : Inter;
     font-style  : normal;
     font-weight : 100;
     font-display: swap;
@@ -20,7 +24,7 @@
 }
 
 @font-face {
-    font-family : 'Inter';
+    font-family : Inter;
     font-style  : normal;
     font-weight : 300;
     font-display: swap;
@@ -28,7 +32,7 @@
 }
 
 @font-face {
-    font-family : 'Inter';
+    font-family : Inter;
     font-style  : normal;
     font-weight : 400;
     font-display: swap;
@@ -36,7 +40,7 @@
 }
 
 @font-face {
-    font-family : 'Inter';
+    font-family : Inter;
     font-style  : normal;
     font-weight : 500;
     font-display: swap;
@@ -44,7 +48,7 @@
 }
 
 @font-face {
-    font-family : 'Inter';
+    font-family : Inter;
     font-style  : normal;
     font-weight : 600;
     font-display: swap;
@@ -52,7 +56,7 @@
 }
 
 @font-face {
-    font-family : 'Inter';
+    font-family : Inter;
     font-style  : normal;
     font-weight : 700;
     font-display: swap;
@@ -60,7 +64,7 @@
 }
 
 @font-face {
-    font-family : 'Inter';
+    font-family : Inter;
     font-style  : normal;
     font-weight : 800;
     font-display: swap;
@@ -68,7 +72,7 @@
 }
 
 @font-face {
-    font-family : 'Inter';
+    font-family : Inter;
     font-style  : normal;
     font-weight : 900;
     font-display: swap;
@@ -76,7 +80,7 @@
 }
 
 @font-face {
-    font-family : 'Cairo';
+    font-family : Cairo;
     font-style  : normal;
     font-weight : 200;
     font-display: swap;
@@ -84,7 +88,7 @@
 }
 
 @font-face {
-    font-family : 'Cairo';
+    font-family : Cairo;
     font-style  : normal;
     font-weight : 300;
     font-display: swap;
@@ -92,7 +96,7 @@
 }
 
 @font-face {
-    font-family : 'Cairo';
+    font-family : Cairo;
     font-style  : normal;
     font-weight : 400;
     font-display: swap;
@@ -100,7 +104,7 @@
 }
 
 @font-face {
-    font-family : 'Cairo';
+    font-family : Cairo;
     font-style  : normal;
     font-weight : 500;
     font-display: swap;
@@ -108,7 +112,7 @@
 }
 
 @font-face {
-    font-family : 'Cairo';
+    font-family : Cairo;
     font-style  : normal;
     font-weight : 600;
     font-display: swap;
@@ -116,7 +120,7 @@
 }
 
 @font-face {
-    font-family : 'Cairo';
+    font-family : Cairo;
     font-style  : normal;
     font-weight : 700;
     font-display: swap;
@@ -124,7 +128,7 @@
 }
 
 @font-face {
-    font-family : 'Cairo';
+    font-family : Cairo;
     font-style  : normal;
     font-weight : 800;
     font-display: swap;
@@ -132,7 +136,7 @@
 }
 
 @font-face {
-    font-family : 'Cairo';
+    font-family : Cairo;
     font-style  : normal;
     font-weight : 900;
     font-display: swap;
@@ -140,7 +144,7 @@
 }
 
 @font-face {
-    font-family : 'Poppins';
+    font-family : Poppins;
     font-style  : normal;
     font-weight : 400;
     font-display: swap;
@@ -148,7 +152,7 @@
 }
 
 @font-face {
-    font-family : 'Poppins';
+    font-family : Poppins;
     font-style  : normal;
     font-weight : 500;
     font-display: swap;
@@ -156,7 +160,7 @@
 }
 
 @font-face {
-    font-family : 'Poppins';
+    font-family : Poppins;
     font-style  : normal;
     font-weight : 600;
     font-display: swap;
@@ -164,7 +168,7 @@
 }
 
 @font-face {
-    font-family : 'Poppins';
+    font-family : Poppins;
     font-style  : normal;
     font-weight : 700;
     font-display: swap;
@@ -201,5 +205,5 @@ body[data-font-active='Poppins'] {
 }
 
 [data-font-fragment='cairo'] {
-    font-family: 'Cairo', 'Inter', system-ui, sans-serif
+    font-family: Cairo, Inter, system-ui, sans-serif
 }

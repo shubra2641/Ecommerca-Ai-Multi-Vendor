@@ -14,8 +14,8 @@
     --light-color: #f8f9fc;
     --dark-color: #5a5c69;
     --border-color: #e3e6f0;
-    --shadow-light: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-    --shadow-hover: 0 0.25rem 2rem 0 rgba(58, 59, 69, 0.2);
+    --shadow-light: 0 0.15rem 1.75rem 0 rgb(58, 59, 69, 0.15);
+    --shadow-hover: 0 0.25rem 2rem 0 rgb(58, 59, 69, 0.2);
     --border-radius: 0.35rem;
     --transition: all 0.3s ease;
 }
@@ -49,7 +49,7 @@
 
 .settings-main-card {
     border: none;
-    box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.1);
+    box-shadow: 0 0.5rem 2rem 0 rgb(58, 59, 69, 0.1);
     overflow: hidden;
 }
 
@@ -146,7 +146,7 @@
 
 .form-control:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    box-shadow: 0 0 0 0.2rem rgb(78, 115, 223, 0.25);
     outline: none;
 }
 
@@ -381,7 +381,7 @@ select.form-control {
     background: white;
     border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgb(0,0,0,0.1);
     transition: font-family 0.3s ease;
 }
 

@@ -85,11 +85,11 @@
 }
 
 .translation-item:hover {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgb(0, 0, 0, 0.1);
 }
 
 body.dark-mode .translation-item:hover {
-    box-shadow      : 0 2px 4px rgba(59, 130, 246, 0.2) !important;
+    box-shadow      : 0 2px 4px rgb(59, 130, 246, 0.2) !important;
     background-color: var(--bg-secondary) !important;
 }
 

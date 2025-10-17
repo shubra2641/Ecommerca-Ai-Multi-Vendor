@@ -1,5 +1,5 @@
 /* Contact Builder (extracted from manage.blade.php) */
-#blocksContainer .builder-block{border:1px solid #d1d5db;border-radius:10px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.04);}
+#blocksContainer .builder-block{border:1px solid #d1d5db;border-radius:10px;background:#fff;box-shadow:0 2px 4px rgb(0,0,0,.04);}
 #blocksContainer .builder-block.dragging{opacity:.6;}
 .builder-block-header{cursor:move;display:flex;align-items:center;justify-content:space-between;padding:.55rem .85rem;border-bottom:1px solid #e5e7eb;background:#f8fafc;border-radius:10px 10px 0 0;}
 .builder-block-body{padding:.85rem .9rem;}

@@ -49,7 +49,7 @@
   padding      : 6px 12px;
   border       : 1px solid #ffe500;
   border-radius: var(--radius-lg, 8px);
-  box-shadow   : var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, .05));
+  box-shadow   : var(--shadow-sm, 0 2px 4px rgb(0, 0, 0, .05));
 }
 
 .flash-countdown .cd-label {
@@ -103,7 +103,7 @@
   background: var(--surface-raised, #ffffff);
   border: 1px solid var(--border-subtle, #ececec);
   border-radius: var(--radius-lg, 12px);
-  box-shadow: var(--shadow-xs, 0 1px 2px rgba(0,0,0,.05));
+  box-shadow: var(--shadow-xs, 0 1px 2px rgb(0,0,0,.05));
   overflow: hidden;
   position: relative;
   transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
@@ -112,7 +112,7 @@
 .blog-card:focus-within,
 .blog-card:hover {
   border-color: var(--primary-300, #ffe066);
-  box-shadow: var(--shadow-sm, 0 2px 6px rgba(0,0,0,.08));
+  box-shadow: var(--shadow-sm, 0 2px 6px rgb(0,0,0,.08));
   transform: translateY(-2px);
 }
 

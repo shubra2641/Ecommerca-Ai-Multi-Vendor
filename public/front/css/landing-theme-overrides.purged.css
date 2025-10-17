@@ -21,7 +21,7 @@
 .mini-meta { flex:1; min-width:0; }
 .mini-name { display:block; font-size:13px; font-weight:var(--font-weight-medium); color:var(--text-primary); text-decoration:none; line-height:1.25; margin-bottom:var(--space-1); }
 .mini-price { font-size:12px; display:flex; align-items:center; gap:6px; color:var(--text-primary); }
-.mini-rating { background:rgba(245,158,11,0.1); color:var(--warning-500); font-size:11px; padding:2px 6px; border-radius:10px; font-weight:var(--font-weight-semibold); }
+.mini-rating { background:rgb(245,158,11,0.1); color:var(--warning-500); font-size:11px; padding:2px 6px; border-radius:10px; font-weight:var(--font-weight-semibold); }
 .mini-empty { font-size:12px; color:var(--text-secondary); }
 .brands-row { border-top:1px solid var(--border-primary); padding-top:var(--space-8); }
 .brands-title { font-size:14px; font-weight:var(--font-weight-bold); letter-spacing:.5px; text-transform:uppercase; margin:0 0 var(--space-4); position:relative; padding-bottom:6px; color:var(--text-primary); }
@@ -29,4 +29,5 @@
 .brand-item { display:flex; align-items:center; justify-content:center; min-height:92px; background:var(--bg-primary); border:1px solid var(--border-secondary); border-radius:var(--radius-lg); text-decoration:none; position:relative; overflow:hidden; transition: box-shadow var(--transition-normal), transform var(--transition-normal); }
 .brand-name { font-size:13px; font-weight:var(--font-weight-semibold); color:var(--text-primary); letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; }
 .brand-empty { font-size:12px; color:var(--text-secondary); }
+
 /* Purged removed selectors: 5 */

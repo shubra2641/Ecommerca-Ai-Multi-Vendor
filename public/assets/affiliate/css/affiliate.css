@@ -31,7 +31,7 @@
 /* Affiliate Navigation */
 .affiliate-nav {
     background: #ffffff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgb(0,0,0,0.1);
     padding: 0;
 }
 
@@ -83,7 +83,7 @@
     background: #ffffff;
     padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgb(0,0,0,0.05);
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -146,7 +146,7 @@
     background: #ffffff;
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgb(0,0,0,0.05);
     margin-bottom: 2rem;
 }
 
@@ -213,7 +213,7 @@
     background: #ffffff;
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgb(0,0,0,0.05);
     margin-bottom: 2rem;
 }
 
@@ -266,7 +266,7 @@
     background: #ffffff;
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgb(0,0,0,0.05);
 }
 
 .referral-card {
@@ -337,7 +337,7 @@
 
 .affiliate-btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 15px rgb(102, 126, 234, 0.3);
 }
 
 .affiliate-btn-secondary {

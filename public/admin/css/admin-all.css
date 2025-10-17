@@ -11,8 +11,11 @@
 @import url('form-sections.css');
 
 /* Optional: place purgecss safelist hints here */
+
 /* purgecss start ignore */
+
 /* (Add any dynamic classes that might be stripped by a future purge process) */
+
 /* purgecss end ignore */
 
 /* Production Recommendation: Replace @import with concatenation & minification. */

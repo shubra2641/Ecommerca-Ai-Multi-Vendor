@@ -11,6 +11,7 @@
 .form-toolbar {position:sticky;top:70px;z-index:6;}
 .section-caret {transition:transform .25s ease;}
 .section-caret.fa-rotate-180 {transform:rotate(180deg);}
+
 @media (max-width: 767.98px){
     .form-toolbar{top:60px;}
 }

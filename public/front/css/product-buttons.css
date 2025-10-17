@@ -11,6 +11,7 @@
 
 .btn-buy:not([disabled]) {
     background: #c13b3b;
+
     /* default red for add to cart */
     color     : #fff;
 }
@@ -18,6 +19,7 @@
 .btn-buy[disabled],
 .btn-buy.disabled {
     background  : #f0c200;
+
     /* yellow when out of stock */
     color       : #111;
     border-color: #d9b400;
@@ -34,6 +36,7 @@
     text-align   : center;
     cursor       : pointer;
     background   : #0a7a3a;
+
     /* green notify button */
     color        : #fff;
 }

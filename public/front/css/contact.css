@@ -16,13 +16,13 @@
 .email-list a{text-decoration:none;color:#2563eb;}
 .email-list a:hover{text-decoration:underline;}
 
-.modern-contact-form{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1.25rem 1.4rem;box-shadow:0 2px 4px rgba(0,0,0,.04);}
+.modern-contact-form{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1.25rem 1.4rem;box-shadow:0 2px 4px rgb(0,0,0,.04);}
 .modern-contact-form .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem .9rem;}
 .modern-contact-form .field{display:flex;flex-direction:column;gap:.4rem;}
 .modern-contact-form .field.full{grid-column:1/-1;}
 .modern-contact-form label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#475569;}
 .modern-contact-form input,.modern-contact-form textarea{border:1px solid #d7dde3;border-radius:8px;padding:.6rem .7rem;font-size:.8rem;background:#f8fafc;transition:.15s;}
-.modern-contact-form input:focus,.modern-contact-form textarea:focus{outline:none;border-color:#2563eb;background:#fff;box-shadow:0 0 0 2px rgba(37,99,235,.12);}
+.modern-contact-form input:focus,.modern-contact-form textarea:focus{outline:none;border-color:#2563eb;background:#fff;box-shadow:0 0 0 2px rgb(37,99,235,.12);}
 .modern-contact-form .error{color:#dc2626;font-size:.65rem;}
 .modern-contact-form .submit-btn{background:#2563eb;color:#fff;border:0;padding:.65rem 1.15rem;font-size:.75rem;font-weight:600;border-radius:8px;display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;transition:.18s;}
 .modern-contact-form .submit-btn:hover{background:#1d4ed8;}

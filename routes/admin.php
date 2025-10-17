@@ -316,7 +316,7 @@ Route::middleware(['auth', 'role:admin', 'can:access-admin', \App\Http\Middlewar
         Route::get('config-fields/{driver}', [PaymentGatewayManagementController::class, 'getConfigFields'])->name('config-fields');
         Route::post('{paymentGateway}/update-config', [PaymentGatewayManagementController::class, 'updateConfig'])->name('update-config');
         Route::get('{paymentGateway}/analytics', [PaymentGatewayManagementController::class, 'getAnalytics'])->name('analytics');
-    Route::get('transaction/{payment}', [PaymentGatewayManagementController::class, 'getTransaction'])->name('transaction');
+        Route::get('transaction/{payment}', [PaymentGatewayManagementController::class, 'getTransaction'])->name('transaction');
         Route::post('sync', [PaymentGatewayManagementController::class, 'syncGateways'])->name('sync');
     });
 

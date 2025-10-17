@@ -1,5 +1,5 @@
 /* Dashboard specific styles (user area) */
-:root{--dash-accent:#6366f1;--dash-card-bg:#fff;--dash-border:#eef2ff;--dash-radius:12px;--dash-shadow:0 8px 24px rgba(2,6,23,.04);}
+:root{--dash-accent:#6366f1;--dash-card-bg:#fff;--dash-border:#eef2ff;--dash-radius:12px;--dash-shadow:0 8px 24px rgb(2,6,23,.04);}
 .dashboard-page { grid-template-columns: 1fr 320px; gap:1.25rem; }
 .dashboard-overview { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
 .dash-card { flex:1 1 180px; min-width:160px; background:var(--dash-card-bg); border:1px solid var(--dash-border); border-radius:var(--dash-radius); padding:.85rem; box-shadow:var(--dash-shadow); display:flex; align-items:center; justify-content:space-between; }
@@ -15,4 +15,5 @@
 .dashboard-side { display:flex; flex-direction:column; gap:1rem; }
 .addresses-compact { padding:.8rem; }
 .addresses-compact .muted{font-size:.85rem;}
+
 @media (max-width: 992px){ .dashboard-page{grid-template-columns:1fr;} }

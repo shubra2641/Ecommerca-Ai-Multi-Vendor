@@ -12,6 +12,7 @@
     left          : 8px;
     display       : flex;
     flex-direction: column;
+
     /* stack vertically */
     gap           : 6px;
     align-items   : flex-start;
@@ -169,6 +170,7 @@
     display       : flex;
     flex-direction: column;
     height        : 100%;
+
     /* allow grid items to stretch uniformly */
     background    : var(--surface, #fff);
     border-radius : 8px;
@@ -178,6 +180,7 @@
 .product-card .product-image {
     width           : 100%;
     height          : 220px;
+
     /* fixed image box height for uniformity */
     background-color: var(--surface-2, #f8f8f8);
 }
@@ -213,6 +216,7 @@
     margin-top        : 6px;
     display           : -webkit-box;
     -webkit-line-clamp: 3;
+
     /* show max 3 lines */
     line-clamp        : 3;
     -webkit-box-orient: vertical;
@@ -222,6 +226,7 @@
 
 .product-card .product-footer {
     margin-top     : auto;
+
     /* push footer actions to bottom */
     display        : flex;
     align-items    : center;
@@ -268,7 +273,7 @@
 .product-card .notify-btn.subscribed {
     border-color: var(--success, #28a745);
     color       : var(--success, #28a745);
-    background  : rgba(40, 167, 69, 0.08);
+    background  : rgb(40, 167, 69, 0.08);
 }
 
 /* Small card specific tweaks */
@@ -293,10 +298,12 @@
 .product-card .badges-inline {
     display       : flex !important;
     flex-direction: column !important;
+
     /* stack vertically */
     align-items   : flex-start !important;
     gap           : 6px !important;
     white-space   : normal !important;
+
     /* allow wrapping / new lines */
     overflow      : visible !important;
     top           : 8px !important;

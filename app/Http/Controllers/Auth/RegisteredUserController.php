@@ -79,9 +79,9 @@ class RegisteredUserController extends Controller
 
     // Authenticate user before firing Registered event so listeners that send
     // notifications or render mail views do not interrupt the login flow.
-    Auth::login($user);
+        Auth::login($user);
 
-    event(new Registered($user));
+        event(new Registered($user));
 
         return redirect(route('dashboard', absolute: false))->with('refresh_admin_notifications', true);
     }
