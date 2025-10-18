@@ -1,108 +1,78 @@
 /**
- * Service Worker for E-Commerce PWA
- * Provides offline functionality, caching, and performance optimization
+ * Simple Service Worker for E-Commerce PWA
+ * Optimized for performance, security, and simplicity
  */
 
-const CACHE_NAME = 'ecommerce-v1.0.0';
-const STATIC_CACHE = 'static-v1.0.0';
-const DYNAMIC_CACHE = 'dynamic-v1.0.0';
-const IMAGE_CACHE = 'images-v1.0.0';
+const CACHE_NAME = 'ecommerce-v2.0.0';
+const STATIC_CACHE = 'static-v2.0.0';
+const DYNAMIC_CACHE = 'dynamic-v2.0.0';
 
-// Files to cache immediately
-const STATIC_FILES = [
+// Essential files to cache
+const ESSENTIAL_FILES = [
     '/',
-    '/front/css/front.css',
-    '/front/js/front-lite.js',
-    '/manifest.json',
-    '/offline.html'
+    '/offline.html',
+    '/manifest.json'
 ];
 
-// API endpoints to cache
-const API_CACHE_PATTERNS = [
-    /\/api\//,
-    /\/search/,
-    /\/products/,
-    /\/categories/
-];
+// Cache strategies
+const CACHE_STRATEGIES = {
+    static: ['css', 'js', 'woff', 'woff2'],
+    images: ['png', 'jpg', 'jpeg', 'svg', 'gif', 'webp'],
+    api: ['/api/', '/search', '/products', '/categories']
+};
 
-// Image patterns to cache
-const IMAGE_PATTERNS = [
-    /\.(?:png|jpg|jpeg|svg|gif|webp)$/i
-];
-
-// Install event - cache static files
+// Install event - cache essential files
 self.addEventListener('install', (event) => {
     console.log('Service Worker installing...');
 
     event.waitUntil(
         caches.open(STATIC_CACHE)
-            .then((cache) => {
-                console.log('Caching static files');
-                return cache.addAll(STATIC_FILES);
-            })
-            .then(() => {
-                return self.skipWaiting();
-            })
-            .catch((error) => {
-                console.error('Failed to cache static files:', error);
-            })
+            .then(cache => cache.addAll(ESSENTIAL_FILES))
+            .then(() => self.skipWaiting())
+            .catch(error => console.error('Install failed:', error))
     );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean old caches
 self.addEventListener('activate', (event) => {
     console.log('Service Worker activating...');
 
     event.waitUntil(
         caches.keys()
-            .then((cacheNames) => {
-                return Promise.all(
-                    cacheNames.map((cacheName) => {
-                        if (cacheName !== STATIC_CACHE &&
-                            cacheName !== DYNAMIC_CACHE &&
-                            cacheName !== IMAGE_CACHE) {
-                            console.log('Deleting old cache:', cacheName);
-                            return caches.delete(cacheName);
-                        }
-                    })
-                );
-            })
-            .then(() => {
-                return self.clients.claim();
-            })
+            .then(cacheNames =>
+                Promise.all(
+                    cacheNames
+                        .filter(name => name !== STATIC_CACHE && name !== DYNAMIC_CACHE)
+                        .map(name => caches.delete(name))
+                )
+            )
+            .then(() => self.clients.claim())
     );
 });
 
-// Fetch event - handle requests with caching strategies
+// Fetch event - handle all requests
 self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
 
-    // Skip non-GET requests
-    if (request.method !== 'GET') {
+    // Skip non-GET requests and non-HTTP requests
+    if (request.method !== 'GET' || !request.url.startsWith('http')) {
         return;
     }
 
-    // Skip chrome-extension and other non-http requests
-    if (!request.url.startsWith('http')) {
-        return;
-    }
-
-    // Handle different types of requests
+    // Determine cache strategy based on request type
     if (isStaticFile(request)) {
         event.respondWith(cacheFirst(request, STATIC_CACHE));
-    } else if (isImageRequest(request)) {
-        event.respondWith(cacheFirst(request, IMAGE_CACHE));
+    } else if (isImageFile(request)) {
+        event.respondWith(cacheFirst(request, DYNAMIC_CACHE));
     } else if (isAPIRequest(request)) {
         event.respondWith(networkFirst(request, DYNAMIC_CACHE));
     } else {
-        event.respondWith(staleWhileRevalidate(request, DYNAMIC_CACHE));
+        event.respondWith(networkFirst(request, DYNAMIC_CACHE));
     }
 });
 
-// Cache strategies
-
-// Cache First - for static files
+// Cache First Strategy - for static files
 async function cacheFirst(request, cacheName) {
     try {
         const cache = await caches.open(cacheName);
@@ -120,19 +90,12 @@ async function cacheFirst(request, cacheName) {
 
         return networkResponse;
     } catch (error) {
-        console.error('Cache first strategy failed:', error);
-
-        // Return offline page for navigation requests
-        if (request.mode === 'navigate') {
-            const cache = await caches.open(STATIC_CACHE);
-            return cache.match('/offline.html');
-        }
-
-        throw error;
+        console.error('Cache first failed:', error);
+        return handleOffline(request);
     }
 }
 
-// Network First - for API requests
+// Network First Strategy - for dynamic content
 async function networkFirst(request, cacheName) {
     try {
         const networkResponse = await fetch(request);
@@ -144,7 +107,7 @@ async function networkFirst(request, cacheName) {
 
         return networkResponse;
     } catch (error) {
-        console.log('Network failed, trying cache:', error);
+        console.log('Network failed, trying cache...');
 
         const cache = await caches.open(cacheName);
         const cachedResponse = await cache.match(request);
@@ -153,67 +116,52 @@ async function networkFirst(request, cacheName) {
             return cachedResponse;
         }
 
-        throw error;
+        return handleOffline(request);
     }
 }
 
-// Stale While Revalidate - for dynamic content
-async function staleWhileRevalidate(request, cacheName) {
-    const cache = await caches.open(cacheName);
-    const cachedResponse = await cache.match(request);
+// Handle offline requests
+async function handleOffline(request) {
+    if (request.mode === 'navigate') {
+        const cache = await caches.open(STATIC_CACHE);
+        return cache.match('/offline.html') || new Response('Offline', { status: 503 });
+    }
 
-    const fetchPromise = fetch(request)
-        .then((networkResponse) => {
-            if (networkResponse.ok) {
-                cache.put(request, networkResponse.clone());
-            }
-            return networkResponse;
-        })
-        .catch((error) => {
-            console.error('Network request failed:', error);
-            return cachedResponse;
-        });
-
-    return cachedResponse || fetchPromise;
+    return new Response('Offline', { status: 503 });
 }
 
 // Helper functions
-
 function isStaticFile(request) {
     const url = new URL(request.url);
-    return STATIC_FILES.some(file => url.pathname === file) ||
-        url.pathname.includes('/front/css/') ||
-        url.pathname.includes('/front/js/') ||
-        url.pathname.endsWith('.css') ||
-        url.pathname.endsWith('.js');
+    return CACHE_STRATEGIES.static.some(ext => url.pathname.endsWith('.' + ext));
 }
 
-function isImageRequest(request) {
-    return IMAGE_PATTERNS.some(pattern => pattern.test(request.url));
+function isImageFile(request) {
+    const url = new URL(request.url);
+    return CACHE_STRATEGIES.images.some(ext => url.pathname.endsWith('.' + ext));
 }
 
 function isAPIRequest(request) {
-    return API_CACHE_PATTERNS.some(pattern => pattern.test(request.url));
+    const url = new URL(request.url);
+    return CACHE_STRATEGIES.api.some(pattern => url.pathname.includes(pattern));
 }
 
 // Background sync for offline actions
 self.addEventListener('sync', (event) => {
-    console.log('Background sync triggered:', event.tag);
-
     if (event.tag === 'cart-sync') {
-        event.waitUntil(syncCartData());
+        event.waitUntil(syncOfflineData('cart'));
     } else if (event.tag === 'wishlist-sync') {
-        event.waitUntil(syncWishlistData());
+        event.waitUntil(syncOfflineData('wishlist'));
     }
 });
 
-// Sync cart data when back online
-async function syncCartData() {
+// Sync offline data when back online
+async function syncOfflineData(type) {
     try {
-        const cartData = await getStoredData('pending-cart-actions');
+        const data = await getStoredData(`pending-${type}-actions`);
 
-        if (cartData && cartData.length > 0) {
-            for (const action of cartData) {
+        if (data && data.length > 0) {
+            for (const action of data) {
                 await fetch(action.url, {
                     method: action.method,
                     headers: action.headers,
@@ -221,71 +169,27 @@ async function syncCartData() {
                 });
             }
 
-            // Clear pending actions
-            await clearStoredData('pending-cart-actions');
-
-            // Notify all clients
-            const clients = await self.clients.matchAll();
-            clients.forEach(client => {
-                client.postMessage({
-                    type: 'CART_SYNCED',
-                    message: 'Cart data synchronized'
-                });
-            });
+            await clearStoredData(`pending-${type}-actions`);
+            notifyClients(`${type.toUpperCase()}_SYNCED`, `${type} data synchronized`);
         }
     } catch (error) {
-        console.error('Cart sync failed:', error);
+        console.error(`${type} sync failed:`, error);
     }
 }
 
-// Sync wishlist data when back online
-async function syncWishlistData() {
-    try {
-        const wishlistData = await getStoredData('pending-wishlist-actions');
-
-        if (wishlistData && wishlistData.length > 0) {
-            for (const action of wishlistData) {
-                await fetch(action.url, {
-                    method: action.method,
-                    headers: action.headers,
-                    body: action.body
-                });
-            }
-
-            // Clear pending actions
-            await clearStoredData('pending-wishlist-actions');
-
-            // Notify all clients
-            const clients = await self.clients.matchAll();
-            clients.forEach(client => {
-                client.postMessage({
-                    type: 'WISHLIST_SYNCED',
-                    message: 'Wishlist data synchronized'
-                });
-            });
-        }
-    } catch (error) {
-        console.error('Wishlist sync failed:', error);
-    }
-}
-
-// IndexedDB helpers for storing offline data
+// IndexedDB helpers
 async function getStoredData(key) {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open('ECommerceOffline', 1);
 
         request.onerror = () => reject(request.error);
-
         request.onsuccess = () => {
             const db = request.result;
             const transaction = db.transaction(['offline-data'], 'readonly');
             const store = transaction.objectStore('offline-data');
             const getRequest = store.get(key);
 
-            getRequest.onsuccess = () => {
-                resolve(getRequest.result ? getRequest.result.data : null);
-            };
-
+            getRequest.onsuccess = () => resolve(getRequest.result?.data || null);
             getRequest.onerror = () => reject(getRequest.error);
         };
 
@@ -303,7 +207,6 @@ async function clearStoredData(key) {
         const request = indexedDB.open('ECommerceOffline', 1);
 
         request.onerror = () => reject(request.error);
-
         request.onsuccess = () => {
             const db = request.result;
             const transaction = db.transaction(['offline-data'], 'readwrite');
@@ -316,140 +219,68 @@ async function clearStoredData(key) {
     });
 }
 
-// Push notification handling
-self.addEventListener('push', (event) => {
-    console.log('Push notification received:', event);
+// Notify all clients
+async function notifyClients(type, message) {
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+        client.postMessage({ type, message });
+    });
+}
 
-    let notificationData = {
+// Push notifications
+self.addEventListener('push', (event) => {
+    const options = {
         title: 'E-Commerce Store',
         body: 'You have a new notification',
-        icon: '/front/images/icon-192x192.png',
-        badge: '/front/images/badge-72x72.png',
+        icon: '/manifest.json',
+        badge: '/manifest.json',
         tag: 'general',
-        requireInteraction: false,
-        actions: [
-            {
-                action: 'view',
-                title: 'View',
-                icon: '/front/images/view-icon.png'
-            },
-            {
-                action: 'dismiss',
-                title: 'Dismiss',
-                icon: '/front/images/dismiss-icon.png'
-            }
-        ]
+        requireInteraction: false
     };
 
     if (event.data) {
         try {
             const data = event.data.json();
-            notificationData = { ...notificationData, ...data };
+            Object.assign(options, data);
         } catch (error) {
             console.error('Failed to parse push data:', error);
         }
     }
 
     event.waitUntil(
-        self.registration.showNotification(notificationData.title, notificationData)
+        self.registration.showNotification(options.title, options)
     );
 });
 
 // Notification click handling
 self.addEventListener('notificationclick', (event) => {
-    console.log('Notification clicked:', event);
-
     event.notification.close();
 
     if (event.action === 'view') {
         event.waitUntil(
             clients.openWindow(event.notification.data?.url || '/')
         );
-    } else if (event.action === 'dismiss') {
-        // Just close the notification
-        return;
     } else {
-        // Default action - open the app
         event.waitUntil(
             clients.matchAll({ type: 'window' })
-                .then((clientList) => {
-                    // If app is already open, focus it
+                .then(clientList => {
                     for (const client of clientList) {
                         if (client.url === '/' && 'focus' in client) {
                             return client.focus();
                         }
                     }
-
-                    // Otherwise open new window
-                    if (clients.openWindow) {
-                        return clients.openWindow('/');
-                    }
+                    return clients.openWindow('/');
                 })
         );
     }
 });
 
-// Message handling from main thread
+// Message handling
 self.addEventListener('message', (event) => {
-    console.log('Service Worker received message:', event.data);
-
-    if (event.data && event.data.type === 'SKIP_WAITING') {
+    if (event.data?.type === 'SKIP_WAITING') {
         self.skipWaiting();
-    } else if (event.data && event.data.type === 'CACHE_URLS') {
-        event.waitUntil(
-            cacheUrls(event.data.urls)
-        );
     }
 });
-
-// Cache specific URLs on demand
-async function cacheUrls(urls) {
-    try {
-        const cache = await caches.open(DYNAMIC_CACHE);
-        await cache.addAll(urls);
-        console.log('URLs cached successfully:', urls);
-    } catch (error) {
-        console.error('Failed to cache URLs:', error);
-    }
-}
-
-// Periodic background sync for cache cleanup
-self.addEventListener('periodicsync', (event) => {
-    if (event.tag === 'cache-cleanup') {
-        event.waitUntil(cleanupOldCaches());
-    }
-});
-
-// Clean up old cache entries
-async function cleanupOldCaches() {
-    try {
-        const cacheNames = await caches.keys();
-
-        for (const cacheName of cacheNames) {
-            const cache = await caches.open(cacheName);
-            const requests = await cache.keys();
-
-            // Remove entries older than 7 days
-            const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-
-            for (const request of requests) {
-                const response = await cache.match(request);
-                const dateHeader = response.headers.get('date');
-
-                if (dateHeader) {
-                    const responseDate = new Date(dateHeader).getTime();
-                    if (responseDate < oneWeekAgo) {
-                        await cache.delete(request);
-                    }
-                }
-            }
-        }
-
-        console.log('Cache cleanup completed');
-    } catch (error) {
-        console.error('Cache cleanup failed:', error);
-    }
-}
 
 // Error handling
 self.addEventListener('error', (event) => {
