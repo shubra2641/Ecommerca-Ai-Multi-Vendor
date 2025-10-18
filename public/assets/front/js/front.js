@@ -94,17 +94,18 @@
         }
     }
 
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            initDropdowns();
-            initCurrencySwitch();
-            initCompareBadge();
+        document.addEventListener('DOMContentLoaded', () => { 
+            initDropdowns(); 
+            initCurrencySwitch(); 
+            initCompareBadge(); 
             initLoader();
         });
     } else {
-        initDropdowns();
-        initCurrencySwitch();
-        initCompareBadge();
+        initDropdowns(); 
+        initCurrencySwitch(); 
+        initCompareBadge(); 
         initLoader();
     }
 })();

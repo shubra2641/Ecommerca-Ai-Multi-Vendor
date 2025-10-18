@@ -5684,8 +5684,6 @@ select.form-control {
 .hero-nav.prev { left:12px; }
 .hero-nav.next { right:12px; }
 .hero-dots { position:absolute; left:50%; bottom:12px; transform:translateX(-50%); display:flex; gap:8px; }
-.hero-dots button { width:12px; height:12px; padding:0; border-radius:50%; border:2px solid #fff; background:transparent; cursor:pointer; opacity:.6; transition:.3s; }
-.hero-dots button[aria-current="true"], .hero-dots button:hover { background:#fff; opacity:1; }
 
 /* Banners */
 .homepage-banners { margin:var(--space-10,72px) 0; }
@@ -7158,6 +7156,19 @@ select.form-control {
     max-width: 100%;
     margin: 0 auto;
     padding: 0 var(--space-4, 1rem);
+    width: 100%;
+  }
+  
+  /* Specific overrides for combined classes */
+  .products-grid.flash-sale-grid,
+  .products-grid.latest-products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+    justify-content: center !important;
+    align-items: start !important;
+    margin: 0 auto !important;
+    padding: 0 var(--space-4, 1rem) !important;
+    width: 100% !important;
   }
   
   /* Container wrapper for consistent content alignment */
@@ -7202,23 +7213,59 @@ select.form-control {
     direction: ltr;
   }
   
+  /* Force center alignment for all grid containers */
+  .flash-sale-section .container,
+  .latest-products-section .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .flash-sale-section .products-grid,
+  .latest-products-section .products-grid {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--space-6, 1.5rem);
+    justify-content: center;
+    align-items: start;
+    justify-items: center;
+  }
+  
+  /* Force center alignment for all grid items */
+  .flash-sale-section .products-grid .product-card,
+  .latest-products-section .products-grid .product-card {
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+  
   /* Responsive adjustments */
   @media (max-width: 1200px) {
-    .flash-sale-grid, .latest-products-grid, .products-grid {
+    .flash-sale-grid, .latest-products-grid, .products-grid,
+    .flash-sale-section .products-grid,
+    .latest-products-section .products-grid {
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: var(--space-5, 1.25rem);
     }
   }
   
   @media (max-width: 900px) {
-    .flash-sale-grid, .latest-products-grid, .products-grid {
+    .flash-sale-grid, .latest-products-grid, .products-grid,
+    .flash-sale-section .products-grid,
+    .latest-products-section .products-grid {
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: var(--space-4, 1rem);
     }
   }
   
   @media (max-width: 640px) {
-    .flash-sale-grid, .latest-products-grid, .products-grid {
+    .flash-sale-grid, .latest-products-grid, .products-grid,
+    .flash-sale-section .products-grid,
+    .latest-products-section .products-grid {
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
       gap: var(--space-3, 0.75rem);
       padding: 0 var(--space-3, 0.75rem);
@@ -7226,7 +7273,9 @@ select.form-control {
   }
   
   @media (max-width: 480px) {
-    .flash-sale-grid, .latest-products-grid, .products-grid {
+    .flash-sale-grid, .latest-products-grid, .products-grid,
+    .flash-sale-section .products-grid,
+    .latest-products-section .products-grid {
       grid-template-columns: repeat(2, 1fr);
       gap: var(--space-2, 0.5rem);
       padding: 0 var(--space-2, 0.5rem);
