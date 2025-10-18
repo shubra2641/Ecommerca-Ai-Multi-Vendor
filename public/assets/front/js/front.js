@@ -75,36 +75,36 @@
         if (!loader) {
             return;
         }
-        
+
         // Hide loader when page is fully loaded
         function hideLoader() {
             loader.classList.add('hidden');
             loader.setAttribute('aria-hidden', 'true');
         }
-        
+
         // Hide loader immediately if page is already loaded
         if (document.readyState === 'complete') {
             hideLoader();
         } else {
             // Hide loader when page finishes loading
             window.addEventListener('load', hideLoader);
-            
+
             // Fallback: hide loader after 3 seconds maximum
             setTimeout(hideLoader, 3000);
         }
     }
-    
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => { 
-            initDropdowns(); 
-            initCurrencySwitch(); 
-            initCompareBadge(); 
+        document.addEventListener('DOMContentLoaded', () => {
+            initDropdowns();
+            initCurrencySwitch();
+            initCompareBadge();
             initLoader();
         });
     } else {
-        initDropdowns(); 
-        initCurrencySwitch(); 
-        initCompareBadge(); 
+        initDropdowns();
+        initCurrencySwitch();
+        initCompareBadge();
         initLoader();
     }
 })();

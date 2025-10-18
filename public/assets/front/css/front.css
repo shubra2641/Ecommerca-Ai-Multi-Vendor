@@ -7088,8 +7088,9 @@ select.form-control {
   
   /* Flash sale adjustments to brand */
   .flash-sale-section { 
-    padding: var(--space-12) 0 var(--space-10); 
+    padding: var(--space-12, 3rem) 0 var(--space-10, 2.5rem); 
     background: linear-gradient(135deg, var(--brand-yellow) 0%, #fffbe6 95%); 
+    margin-bottom: 0;
   }
   .flash-countdown { 
     margin-top: var(--space-2); 
@@ -7136,17 +7137,115 @@ select.form-control {
   @media (prefers-contrast: more) { .flash-countdown { box-shadow:0 0 0 3px rgb(0,0,0,.15); } }
   
   /* ==== MERGED: Latest Products / Flash Sale / Blog (from latest-products.css) ==== */
-  .latest-products-section { padding: var(--space-12) 0; background: var(--bg-secondary); }
+  .latest-products-section { 
+    padding: var(--space-12, 3rem) 0 var(--space-10, 2.5rem); 
+    background: var(--bg-secondary); 
+    margin-bottom: 0;
+  }
   .latest-products-section .section-header { text-align:center; margin-bottom:34px; }
   .flash-sale-section .section-header { text-align:center; margin-bottom:32px; }
   .flash-sale-section .product-card .product-badge.sale-badge { background: var(--brand-yellow-dark); color:#111; }
   .flash-countdown .cd-part { min-width:22px; text-align:center; }
   .flash-countdown.expired { opacity:.55; }
 
-  @media (max-width:640px){ .latest-products-grid, .flash-sale-grid { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; } }
+  /* ===== UNIFIED SLIDER/GRID STYLES WITH RTL SUPPORT ===== */
+  .flash-sale-grid, .latest-products-grid, .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--space-6, 1.5rem);
+    justify-content: center;
+    align-items: start;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 var(--space-4, 1rem);
+  }
+  
+  /* Container wrapper for consistent content alignment */
+  .flash-sale-section .container,
+  .latest-products-section .container,
+  .latest-articles-section .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-4, 1rem);
+  }
+  
+  /* Unified product card styling for sliders */
+  .flash-sale-grid .product-card,
+  .latest-products-grid .product-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .flash-sale-grid .product-card:hover,
+  .latest-products-grid .product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* RTL Support for grids */
+  [dir="rtl"] .flash-sale-grid,
+  [dir="rtl"] .latest-products-grid,
+  [dir="rtl"] .products-grid {
+    direction: rtl;
+  }
+  
+  /* LTR Support for grids */
+  [dir="ltr"] .flash-sale-grid,
+  [dir="ltr"] .latest-products-grid,
+  [dir="ltr"] .products-grid {
+    direction: ltr;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 1200px) {
+    .flash-sale-grid, .latest-products-grid, .products-grid {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--space-5, 1.25rem);
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .flash-sale-grid, .latest-products-grid, .products-grid {
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: var(--space-4, 1rem);
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .flash-sale-grid, .latest-products-grid, .products-grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: var(--space-3, 0.75rem);
+      padding: 0 var(--space-3, 0.75rem);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .flash-sale-grid, .latest-products-grid, .products-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-2, 0.5rem);
+      padding: 0 var(--space-2, 0.5rem);
+    }
+    
+    /* Mobile section spacing adjustments */
+    .flash-sale-section,
+    .latest-products-section,
+    .latest-articles-section {
+      padding: var(--space-8, 2rem) 0 var(--space-6, 1.5rem);
+    }
+  }
   
   /* Blog / Latest Articles */
-  .latest-articles-section { padding: var(--space-12) 0 var(--space-10); background: var(--bg-secondary); }
+  .latest-articles-section { 
+    padding: var(--space-12, 3rem) 0 var(--space-10, 2.5rem); 
+    background: var(--bg-secondary); 
+    margin-bottom: 0;
+  }
   .latest-articles-section .section-header { text-align:center; margin-bottom: var(--space-8); }
   .latest-articles-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:var(--space-6); }
 
