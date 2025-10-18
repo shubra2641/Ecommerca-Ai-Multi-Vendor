@@ -67,10 +67,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     // Relationships
-    public function activities()
-    {
-        return $this->hasMany(Activity::class);
-    }
 
     public function balanceHistories()
     {

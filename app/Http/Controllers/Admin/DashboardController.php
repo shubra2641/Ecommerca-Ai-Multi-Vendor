@@ -61,7 +61,7 @@ class DashboardController extends Controller
         });
 
         // Get recent activity (not cached for real-time updates)
-        $recentActivity = $this->getRecentActivity();
+        $recentActivity = [];
 
         // Get chart data for user registrations
         $chartData = $this->getRegistrationChartData();
@@ -81,65 +81,6 @@ class DashboardController extends Controller
         return view('admin.dashboard', compact('stats', 'recentActivity', 'chartData', 'salesChartData', 'topStats', 'topUsers', 'systemHealth'));
     }
 
-    /**
-     * Get recent activity data
-     */
-    private function getRecentActivity()
-    {
-        $activities = [];
-
-        // Get recent user registrations
-        $recentUsers = User::latest()
-            ->take(3)
-            ->get(['name', 'email', 'role', 'created_at']);
-
-        foreach ($recentUsers as $user) {
-            $activities[] = [
-                'title' => __('New User Registration'),
-                'description' => $user->name . ' (' . ucfirst($user->role) . ')',
-                'time' => $user->created_at->diffForHumans(),
-                'icon' => 'user-plus',
-                'type' => 'user',
-                'timestamp' => $user->created_at,
-            ];
-        }
-
-        // Get recent approvals
-        $recentApprovals = User::whereNotNull('approved_at')
-            ->latest('approved_at')
-            ->take(2)
-            ->get(['name', 'approved_at', 'role']);
-
-        foreach ($recentApprovals as $user) {
-            $activities[] = [
-                'title' => __('User Approved'),
-                'description' => $user->name . ' (' . ucfirst($user->role) . ') ' . __('was approved'),
-                'time' => $user->approved_at->diffForHumans(),
-                'icon' => 'check-circle',
-                'type' => 'approval',
-                'timestamp' => $user->approved_at,
-            ];
-        }
-
-        // Get recent user registrations instead of logins
-        $recentRegistrations = User::latest('created_at')
-            ->take(2)
-            ->get(['name', 'created_at', 'role']);
-
-        foreach ($recentRegistrations as $user) {
-            $activities[] = [
-                'title' => __('User Registration'),
-                'description' => $user->name . ' (' . ucfirst($user->role) . ') ' . __('registered'),
-                'time' => $user->created_at->diffForHumans(),
-                'icon' => 'user-plus',
-                'type' => 'registration',
-                'timestamp' => $user->created_at,
-            ];
-        }
-
-        // Sort by timestamp and limit to 8 items
-        return collect($activities)->sortByDesc('timestamp')->take(8)->values();
-    }
 
     /**
      * Get registration chart data for the last 6 months
@@ -340,7 +281,6 @@ class DashboardController extends Controller
         return [
             'growth_rate' => $this->calculateGrowthRate(),
             'approval_rate' => $this->calculateApprovalRate(),
-            'activity_score' => $this->calculateActivityScore(),
         ];
     }
 
@@ -385,20 +325,6 @@ class DashboardController extends Controller
         return round(($approvedUsers / $totalUsers) * 100, 1);
     }
 
-    /**
-     * Calculate activity score
-     */
-    private function calculateActivityScore()
-    {
-        $totalUsers = User::count();
-        $activeToday = User::whereDate('created_at', today())->count();
-
-        if ($totalUsers == 0) {
-            return 0;
-        }
-
-        return round(($activeToday / $totalUsers) * 100, 1);
-    }
 
     public function reports()
     {
@@ -514,7 +440,7 @@ class DashboardController extends Controller
             $stats = $this->buildFreshStats();
             $chartData = $this->getRegistrationChartData();
             $salesChartData = $this->getSalesChartData();
-            $activities = $this->getRecentActivity();
+            $activities = [];
 
             return response()->json([
                 'success' => true,

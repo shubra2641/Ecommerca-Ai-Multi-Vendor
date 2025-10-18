@@ -69,7 +69,6 @@ Route::middleware(['auth', 'role:admin', 'can:access-admin', \App\Http\Middlewar
         Route::post('/refresh', [ReportsController::class, 'refresh'])->name('refresh');
         Route::get('/export', [ReportsController::class, 'exportData'])->name('export');
         Route::post('/generate', [ReportsController::class, 'generateReport'])->name('generate');
-        Route::get('/activity', [ReportsController::class, 'getActivity'])->name('activity');
     });
 
     // Notify interests management
@@ -123,7 +122,6 @@ Route::middleware(['auth', 'role:admin', 'can:access-admin', \App\Http\Middlewar
         Route::get('/{user}/balance/stats', [UserController::class, 'getBalanceStats'])->name('balance.stats');
         Route::get('/{user}/balance/history', [UserController::class, 'getBalanceHistory'])->name('balance.history');
         Route::post('/{user}/balance/refresh', [UserController::class, 'refreshBalance'])->name('balance.refresh');
-        Route::get('/{user}/activity', [UserController::class, 'activity'])->name('activity');
     });
 
     // Balance exports

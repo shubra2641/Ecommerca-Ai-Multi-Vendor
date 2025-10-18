@@ -702,7 +702,7 @@ body.dark-mode {
 
 .chart-loading,
 .stats-loading,
-.activity-loading {
+.loading {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -718,51 +718,6 @@ body.dark-mode {
     border: 1px solid rgb(239, 68, 68, 0.08);
 }
 
-/* Activity list */
-.activity-list {
-    display: flex;
-    flex-direction: column;
-    gap: .5rem;
-    padding: .75rem;
-}
-
-.activity-item {
-    display: flex;
-    gap: .75rem;
-    align-items: flex-start;
-    padding: .75rem;
-    border-bottom: 1px solid var(--admin-border);
-}
-
-.activity-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 18px;
-    flex-shrink: 0;
-}
-.activity-content {
-    flex: 1;
-}
-
-.activity-title {
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.activity-description {
-    color: var(--text-secondary);
-    font-size: .9rem;
-}
-
-.activity-time {
-    color: var(--text-secondary);
-    font-size: .8rem;
-}
 
 /* Top users */
 .user-list {
@@ -781,10 +736,6 @@ body.dark-mode {
 
 .user-info {
     flex: 1;
-}
-.user-activity {
-    color:var(--text-secondary);
-    font-size:.85rem;
 }
 .user-badge .badge {
     padding:.35rem .5rem;

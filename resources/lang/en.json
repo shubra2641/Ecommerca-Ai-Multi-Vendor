@@ -62,12 +62,10 @@
     "User Registration Trends": "User Registration Trends",
     "Last 6 months overview": "Last 6 months overview",
     "All": "All",
-    "Recent Activity": "Recent Activity",
     "New user registered": "New user registered",
     "User approved": "User approved",
     "Currency rate updated": "Currency rate updated",
     "Language added": "Language added",
-    "View All Activities": "View All Activities",
     "System Overview": "System Overview",
     "Storage Usage": "Storage Usage",
     "Memory Usage": "Memory Usage",
@@ -111,7 +109,6 @@
     "Create User": "Create User",
     "Pending Users": "Pending Users",
     "User Balances": "User Balances",
-    
     "Create New User": "Create New User",
     "Update user information and settings": "Update user information and settings",
     "Add a new user to the system": "Add a new user to the system",
@@ -231,7 +228,6 @@
     "Updated At": "Updated At",
     "Deleted At": "Deleted At",
     "Last Login": "Last Login",
-    "Last Activity": "Last Activity",
     "IP Address": "IP Address",
     "User Agent": "User Agent",
     "Device": "Device",
@@ -506,7 +502,6 @@
     "User Profile": "User Profile",
     "Edit Profile": "Edit Profile",
     "Manage Balance": "Manage Balance",
-    "View Activity": "View Activity",
     "Vendor Details": "Vendor Details",
     "Personal Information": "Personal Information",
     "Full Name": "Full Name",
@@ -515,13 +510,6 @@
     "Account Balance": "Account Balance",
     "Member Since": "Member Since",
     "Approve User": "Approve User",
-    "User Activity": "User Activity",
-    "View user activity history and logs": "View user activity history and logs",
-    "Activity Timeline": "Activity Timeline",
-    "No Activity Found": "No Activity Found",
-    "This user has no recorded activity yet.": "This user has no recorded activity yet.",
-    "Activity Summary": "Activity Summary",
-    "Total Activities": "Total Activities",
     "No recent activity": "No recent activity",
     "User Since": "User Since",
     "Account Status": "Account Status",
@@ -532,11 +520,9 @@
     "Verified on": "Verified on",
     "Email not verified": "Email not verified",
     "View All": "View All",
-    "No Recent Activity": "No Recent Activity",
     "Pending Approval Users": "Pending Approval Users",
     "Review and approve pending user registrations": "Review and approve pending user registrations",
     "Users Pending Approval": "Users Pending Approval",
-    
     "Registered": "Registered",
     "Review & Approve": "Review & Approve",
     "No Pending Users": "No Pending Users",
@@ -563,7 +549,6 @@
     "View Balance History": "View Balance History",
     "User Balance": "User Balance",
     "Seed / ensure system pages?": "Seed / ensure system pages?",
-    
     "Order :id": "Order :id",
     "Back to Orders": "Back to Orders",
     "Order details, payments and management": "Order details, payments and management",
@@ -589,12 +574,10 @@
     "more": "more",
     "Create Gateway": "Create Gateway",
     "Edit Gateway": "Edit Gateway",
-    
     "Offline / Bank Transfer": "Offline / Bank Transfer",
     "Publishable Key": "Publishable Key",
     "Secret Key": "Secret Key",
     "Webhook Secret": "Webhook Secret",
-    
     "Transfer Instructions (HTML allowed)": "Transfer Instructions (HTML allowed)",
     "Require transfer image (for offline payments)": "Require transfer image (for offline payments)",
     "Transfer Instructions (shown to customer)": "Transfer Instructions (shown to customer)",
@@ -615,7 +598,6 @@
     "Financial Report": "Financial Report",
     "Comprehensive system reports and detailed analytics": "Comprehensive system reports and detailed analytics",
     "Refresh reports data": "Refresh reports data",
-    
     "Export to Excel": "Export to Excel",
     "Export to PDF": "Export to PDF",
     "Export to CSV": "Export to CSV",
@@ -625,20 +607,13 @@
     "Detailed user analytics and statistics": "Detailed user analytics and statistics",
     "users": "users",
     "Vendors Report": "Vendors Report",
-    "Vendor performance and activity": "Vendor performance and activity",
     "vendors": "vendors",
     "Revenue, transactions and balances": "Revenue, transactions and balances",
     "System Report": "System Report",
     "System health and performance metrics": "System health and performance metrics",
     "Live monitoring": "Live monitoring",
-    "Recent Activities": "Recent Activities",
-    "Activity": "Activity",
-    "No recent activities": "No recent activities",
     "System Health": "System Health",
-    
     "Healthy": "Healthy",
-    
-    
     "System health data not available": "System health data not available",
     "Delete this user?": "Delete this user?",
     "Showing": "Showing",
@@ -650,23 +625,18 @@
     "Add First User": "Add First User",
     "Create Brand": "Create Brand",
     "Are you sure you want to delete this currency?": "Are you sure you want to delete this currency?",
-    
     "Manage contact messages and inquiries": "Manage contact messages and inquiries",
     "Search...": "Search...",
     "Message Details": "Message Details",
     "Delete this message?": "Delete this message?",
     "IP": "IP",
-    
     "Message": "Message",
     "Message #": "Message #",
     "Product ID": "Product ID",
     "Mark": "Mark",
     "No interests": "No interests",
     "Title": "Title",
-    
     "Update User": "Update User",
-    
-    
     "Basic Information": "Basic Information",
     "Password Information": "Password Information",
     "Contact Information": "Contact Information",
@@ -681,14 +651,8 @@
     "Enter balance": "Enter balance",
     "Leave blank to keep current password": "Leave blank to keep current password",
     "Select Role": "Select Role",
-    
-    
-    
     "View User": "View User",
-    
-    
     "Approved User": "Approved User",
-    
     "Product Notifications": "Product Notifications",
     "All Interests": "All Interests",
     "Top Products": "Top Products",
@@ -711,7 +675,6 @@
     "Payout executed for withdrawal #:id (funds were previously held)": "Payout executed for withdrawal #:id (funds were previously held)",
     "Held At": "Held At",
     "Commission (Exact)": "Commission (Exact)",
-    
     "Vendor Dashboard": "Vendor Dashboard",
     "Welcome back! Here's what's happening with your store.": "Welcome back! Here's what's happening with your store.",
     "Total Sales": "Total Sales",
@@ -730,23 +693,17 @@
     "Update your store information and preferences": "Update your store information and preferences",
     "New order": "New order",
     "Your recent orders and activities will appear here": "Your recent orders and activities will appear here",
-    
-    
     "Orders for my Products": "Orders for my Products",
     "Request Export (email)": "Request Export (email)",
     "Search order id...": "Search order id...",
     "All statuses": "All statuses",
     "No orders found for your products yet.": "No orders found for your products yet.",
-    
-    
     "Update product information": "Update product information",
     "Update the product details below": "Update the product details below",
     "Product Information": "Product Information",
     "Fill in the product details below": "Fill in the product details below",
     "Back to Products": "Back to Products",
     "Save Product": "Save Product",
-    
-    
     "vendor.withdrawals.title": "Withdrawals",
     "vendor.withdrawals.heading": "Withdrawals",
     "vendor.withdrawals.subtitle": "Manage and request withdrawals of your earnings",
@@ -801,7 +758,6 @@
     "Vendor Withdrawals": "Vendor Withdrawals",
     "Vendor Exports": "Vendor Exports",
     "Payouts": "Payouts",
-    
     "Added to cart": "Added to cart",
     "Failed to add to cart": "Failed to add to cart",
     "Please select product options first.": "Please select product options first.",

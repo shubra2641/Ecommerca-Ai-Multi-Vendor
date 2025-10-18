@@ -36,16 +36,16 @@
                             <span class="nav-text">{{ __('Dashboard') }}</span>
                         </a>
 
-                        <div class="nav-dropdown dropdown {{ request()->routeIs('admin.reports*') || request()->routeIs('admin.activity*') || request()->routeIs('admin.performance.*') ? 'show' : '' }}">
+                        <div class="nav-dropdown dropdown {{ request()->routeIs('admin.reports*') || request()->routeIs('admin.performance.*') ? 'show' : '' }}">
                             <a href="#" class="nav-item dropdown-toggle" data-bs-toggle="dropdown"
-                                aria-expanded="{{ (request()->routeIs('admin.reports*') || request()->routeIs('admin.activity*') || request()->routeIs('admin.performance.*')) ? 'true' : 'false' }}">
+                                aria-expanded="{{ (request()->routeIs('admin.reports*') || request()->routeIs('admin.performance.*')) ? 'true' : 'false' }}">
                                 <div class="nav-icon">
                                     <i class="fas fa-chart-line"></i>
                                 </div>
                                 <span class="nav-text">{{ __('Reports') }}</span>
                                 <i class="fas fa-chevron-down dropdown-arrow"></i>
                             </a>
-                            <ul class="dropdown-menu {{ request()->routeIs('admin.reports*') || request()->routeIs('admin.activity*') || request()->routeIs('admin.performance.*') ? 'show' : '' }}">
+                            <ul class="dropdown-menu {{ request()->routeIs('admin.reports*') || request()->routeIs('admin.performance.*') ? 'show' : '' }}">
                                 <li><a href="{{ route('admin.reports.index') }}"
                                         class="dropdown-item {{ request()->routeIs('admin.reports.index') ? 'active' : '' }}"><i
                                             class="fas fa-list"></i> {{ __('Reports') }}</a></li>
