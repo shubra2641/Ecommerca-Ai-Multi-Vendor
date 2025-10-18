@@ -23,7 +23,7 @@
     <!-- Unified Customer CSS - All styles consolidated -->
     <link href="{{ asset('assets/customer/css/customer.css') }}" rel="stylesheet">
 
-    @stack('styles')
+    @yield('styles')
     <script src="{{ asset('admin/js/loading-fallback.js') }}" defer></script>
 </head>
 
@@ -167,7 +167,7 @@
     <div class="notification-container"></div>
 
     <!-- Scripts -->
-    @stack('scripts')
+    @yield('scripts')
     @yield('scripts')
 
     <!-- Essential Dependencies -->

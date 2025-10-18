@@ -33,7 +33,7 @@
 
 
 
-    @stack('styles')
+    @yield('styles')
 </head>
 
 <body class="modern-admin-layout" data-font-active="{{ $selectedFont }}" @if(session()->pull('refresh_admin_notifications')) data-refresh-admin-notifications="1" @endif>
@@ -48,7 +48,7 @@
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <!-- Scripts -->
-    @stack('scripts')
+    @yield('scripts')
     @yield('scripts')
 
     <!-- Essential Dependencies -->

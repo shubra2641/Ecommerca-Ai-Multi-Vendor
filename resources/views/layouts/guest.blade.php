@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', config('app.name', 'Easy'))</title>
-    @stack('meta')
+    @yield('meta')
 
     <!-- Modern Fonts -->
     {{-- Provided by SiteBrandingComposer: $setting, $selectedFont, $siteName, $logoPath --}}

@@ -16,7 +16,7 @@
     <!-- Unified Admin CSS - All styles consolidated -->
     <link rel="preload" href="{{ asset('assets/admin/css/admin.css') }}" as="style">
     <link href="{{ asset('assets/admin/css/admin.css') }}" rel="stylesheet">
-    @stack('styles')
+    @yield('styles')
 </head>
 <body class="body" data-font-active="{{ $selectedFont }}" data-admin-base="{{ url('') }}" @if(session()->pull('refresh_admin_notifications')) data-refresh-admin-notifications="1" @endif>
     @include('components.noscript-warning')
@@ -37,7 +37,7 @@
     <script src="{{ asset('vendor/jquery/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('vendor/chart.js/chart.min.js') }}"></script>
     <script src="{{ asset('assets/admin/js/countup.js') }}" defer></script>
-    @stack('scripts')
+    @yield('scripts')
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
 
     <!-- Unified Admin JS - All functionality consolidated -->

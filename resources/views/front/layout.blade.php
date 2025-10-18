@@ -18,7 +18,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    @stack('meta')
+    @yield('meta')
     <meta name="selected-font" content="{{ $selectedFont }}">
     {{-- Set to '1' to allow loading external Google Fonts; keep '0' for strict CSP environments --}}
     <meta name="allow-google-fonts" content="0">
@@ -34,7 +34,7 @@
     <!-- Unified Customer CSS - All styles consolidated -->
     <link href="{{ asset('assets/customer/css/customer.css') }}" rel="stylesheet">
     <!-- Critical CSS is now in external file -->
-    @stack('styles')
+    @yield('styles')
     {{-- Load pattern sanitizer early for checkout pages to avoid invalid RegExp compile-time errors --}}
     @if(request()->is('checkout*') || request()->routeIs('checkout.*'))
     <script src="{{ asset('front/js/checkout-pattern-sanitizer.js') }}"></script>
@@ -71,7 +71,7 @@
         ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}</template>
     <main class="site-main">@yield('content')</main>
     @includeWhen(View::exists('front.partials.footer_extended'),'front.partials.footer_extended')
-    @stack('modals')
+    @yield('modals')
     @if(request()->routeIs('products.index') || request()->routeIs('products.category') ||
     request()->routeIs('products.tag'))
     @include('front.partials.notify-modal')
@@ -83,7 +83,7 @@
     <!-- Unified Customer JS - All functionality consolidated -->
     <script src="{{ asset('assets/customer/js/customer.js') }}"></script>
 
-    @stack('scripts')
+    @yield('scripts')
 
     <!-- Font Loader Script -->
     <script>
