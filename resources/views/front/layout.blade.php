@@ -55,6 +55,8 @@
     
     <!-- Unified Customer JS - All functionality consolidated -->
     <script src="{{ asset('assets/front/js/front.js') }}"></script>
+    <script src="{{ asset('assets/front/js/font-loader.js') }}"></script>
+    <script src="{{ asset('assets/front/js/pwa.js') }}"></script>
 
     @yield('scripts')
 </body>
