@@ -50,7 +50,7 @@ class CheckoutController extends Controller
         }
 
         try {
-            // Process checkout using the new service
+            // Simple checkout processing
             $checkoutProcessor = app(CheckoutProcessor::class);
             $checkoutData = $checkoutProcessor->processCheckout($request, $cart, $request->validated());
 
@@ -58,7 +58,7 @@ class CheckoutController extends Controller
             $order = $checkoutProcessor->createOrder($checkoutData, $request);
 
             // Process payment
-            $paymentResult = $checkoutProcessor->processPayment($order, $checkoutData['gateway'], $request, $checkoutData['couponData']['coupon']);
+            $paymentResult = $checkoutProcessor->processPayment($order, $checkoutData['gateway'], $request);
 
             // Handle different payment types
             return $this->handlePaymentResult($paymentResult, $request);
