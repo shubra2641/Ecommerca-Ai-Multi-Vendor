@@ -289,10 +289,15 @@ body.dark-mode {
     box-shadow: none;
     margin: 0;
     padding: 0.25rem 0;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .nav-dropdown.show .dropdown-menu {
     display: block; /* open when parent has `show` */
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .nav-dropdown .dropdown-item {

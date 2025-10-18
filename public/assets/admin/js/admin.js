@@ -4,6 +4,8 @@
  * Features: Progressive enhancement, no inline JS, unified structure
  */
 
+/* global window, document, fetch, URL, FormData, setTimeout, clearTimeout, console, Intl, AdminPanel, requestAnimationFrame */
+
 (function () {
     'use strict';
 
@@ -85,8 +87,8 @@
         createOverlay() {
             let overlay = Utils.select('.sidebar-overlay');
             if (!overlay && this.sidebar?.parentNode) {
-                overlay = document.createElement('div');
-                overlay.className = 'sidebar-overlay';
+            overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
                 this.sidebar.parentNode.insertBefore(overlay, this.sidebar.nextSibling);
             }
             return overlay;
@@ -125,6 +127,95 @@
         }
     };
 
+    // Dropdown Manager - Simple dropdown functionality
+    const DropdownManager = {
+        init() {
+            this.dropdowns = Utils.selectAll('.dropdown');
+            this.bindEvents();
+        },
+
+        bindEvents() {
+            this.dropdowns.forEach(dropdown => {
+                const toggle = Utils.select('.dropdown-toggle', dropdown);
+                const menu = Utils.select('.dropdown-menu', dropdown);
+                
+                if (toggle && menu) {
+                    Utils.on(toggle, 'click', (e) => this.handleToggle(e, dropdown, toggle, menu));
+                }
+            });
+
+            // Close dropdowns when clicking outside
+            Utils.on(document, 'click', (e) => this.handleOutsideClick(e));
+        },
+
+        handleToggle(e, dropdown, toggle, menu) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Close other dropdowns
+            this.closeAllDropdowns(dropdown);
+
+            // Toggle current dropdown
+            const isOpen = Utils.hasClass(dropdown, 'show');
+            if (isOpen) {
+                this.closeDropdown(dropdown, toggle, menu);
+            } else {
+                this.openDropdown(dropdown, toggle, menu);
+            }
+        },
+
+        openDropdown(dropdown, toggle, menu) {
+            Utils.addClass(dropdown, 'show');
+            Utils.addClass(menu, 'show');
+            toggle.setAttribute('aria-expanded', 'true');
+            
+            // Add animation
+            menu.style.opacity = '0';
+            menu.style.transform = 'translateY(-10px)';
+            menu.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+            
+            if (typeof requestAnimationFrame !== 'undefined') {
+                requestAnimationFrame(() => {
+                    menu.style.opacity = '1';
+                    menu.style.transform = 'translateY(0)';
+                });
+            } else {
+                menu.style.opacity = '1';
+                menu.style.transform = 'translateY(0)';
+            }
+        },
+
+        closeDropdown(dropdown, toggle, menu) {
+            Utils.removeClass(dropdown, 'show');
+            Utils.removeClass(menu, 'show');
+            toggle.setAttribute('aria-expanded', 'false');
+            
+            // Reset styles
+            menu.style.opacity = '';
+            menu.style.transform = '';
+            menu.style.transition = '';
+        },
+
+        closeAllDropdowns(excludeDropdown = null) {
+            this.dropdowns.forEach(dropdown => {
+                if (dropdown !== excludeDropdown) {
+                    const toggle = Utils.select('.dropdown-toggle', dropdown);
+                    const menu = Utils.select('.dropdown-menu', dropdown);
+                    if (toggle && menu) {
+                        this.closeDropdown(dropdown, toggle, menu);
+                    }
+                }
+            });
+        },
+
+        handleOutsideClick(e) {
+            const clickedDropdown = e.target.closest('.dropdown');
+            if (!clickedDropdown) {
+                this.closeAllDropdowns();
+            }
+        }
+    };
+
     // Table Manager
     const TableManager = {
         init() {
@@ -144,13 +235,13 @@
         },
 
         sortTable(table, header) {
-            const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+        const columnIndex = Array.from(header.parentNode.children).indexOf(header);
             const rows = Array.from(Utils.selectAll('tbody tr', table));
             const isAscending = !Utils.hasClass(header, 'sort-asc');
 
             rows.sort((a, b) => {
-                const aText = a.children[columnIndex].textContent.trim();
-                const bText = b.children[columnIndex].textContent.trim();
+            const aText = a.children[columnIndex].textContent.trim();
+            const bText = b.children[columnIndex].textContent.trim();
                 return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
             });
 
@@ -161,7 +252,7 @@
             });
             Utils.addClass(header, isAscending ? 'sort-asc' : 'sort-desc');
 
-            // Reorder rows
+        // Reorder rows
             const tbody = Utils.select('tbody', table);
             rows.forEach(row => tbody.appendChild(row));
         },
@@ -170,25 +261,25 @@
             const selectAll = Utils.select('thead input[type="checkbox"]', table);
             const rowCheckboxes = Utils.selectAll('tbody input[type="checkbox"]', table);
 
-            if (selectAll) {
+        if (selectAll) {
                 Utils.on(selectAll, 'change', () => {
                     rowCheckboxes.forEach(checkbox => {
-                        checkbox.checked = selectAll.checked;
+                    checkbox.checked = selectAll.checked;
                         this.updateRowSelection(checkbox);
-                    });
                 });
-            }
+            });
+        }
 
             rowCheckboxes.forEach(checkbox => {
                 Utils.on(checkbox, 'change', () => {
                     this.updateRowSelection(checkbox);
                     this.updateSelectAll(table);
-                });
             });
+        });
         },
 
         updateRowSelection(checkbox) {
-            const row = checkbox.closest('tr');
+        const row = checkbox.closest('tr');
             Utils.toggleClass(row, 'selected', checkbox.checked);
         },
 
@@ -197,9 +288,9 @@
             const rowCheckboxes = Utils.selectAll('tbody input[type="checkbox"]', table);
             const checkedBoxes = Utils.selectAll('tbody input[type="checkbox"]:checked', table);
 
-            if (selectAll) {
-                selectAll.checked = checkedBoxes.length === rowCheckboxes.length;
-                selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < rowCheckboxes.length;
+        if (selectAll) {
+            selectAll.checked = checkedBoxes.length === rowCheckboxes.length;
+            selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < rowCheckboxes.length;
             }
         }
     };
@@ -225,28 +316,28 @@
         },
 
         validateForm(form) {
-            let isValid = true;
+        let isValid = true;
             const requiredFields = Utils.selectAll('[required]', form);
 
             requiredFields.forEach(field => {
-                if (!field.value.trim()) {
+            if (!field.value.trim()) {
                     this.showFieldError(field, 'This field is required');
-                    isValid = false;
-                } else {
+                isValid = false;
+            } else {
                     this.clearFieldError(field);
-                }
-            });
+            }
+        });
 
-            return isValid;
+        return isValid;
         },
 
         showFieldError(field, message) {
             this.clearFieldError(field);
             Utils.addClass(field, 'error');
-
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'field-error';
-            errorDiv.textContent = message;
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error';
+        errorDiv.textContent = message;
             field.parentNode.appendChild(errorDiv);
         },
 
@@ -296,11 +387,11 @@
             const triggers = Utils.selectAll('[data-modal]');
             triggers.forEach(trigger => {
                 Utils.on(trigger, 'click', (e) => {
-                    e.preventDefault();
-                    const modalId = trigger.getAttribute('data-modal');
+                e.preventDefault();
+                const modalId = trigger.getAttribute('data-modal');
                     this.open(modalId);
-                });
             });
+        });
         },
 
         bindCloseHandlers() {
@@ -311,23 +402,23 @@
             });
 
             Utils.on(document, 'keydown', (e) => {
-                if (e.key === 'Escape') {
+            if (e.key === 'Escape') {
                     this.close();
-                }
-            });
+            }
+        });
         },
 
         open(modalId) {
             const modal = Utils.select(`#${modalId}`);
-            if (modal) {
+        if (modal) {
                 Utils.addClass(modal, 'active');
                 Utils.addClass(document.body, 'modal-open');
-            }
+        }
         },
 
         close() {
             const activeModal = Utils.select('.modal.active');
-            if (activeModal) {
+        if (activeModal) {
                 Utils.removeClass(activeModal, 'active');
                 Utils.removeClass(document.body, 'modal-open');
             }
@@ -344,7 +435,7 @@
         initAutoHide() {
             const notifications = Utils.selectAll('.notification');
             notifications.forEach(notification => {
-                if (notification.hasAttribute('data-auto-hide')) {
+            if (notification.hasAttribute('data-auto-hide')) {
                     setTimeout(() => this.hide(notification), CONFIG.NOTIFICATION_DURATION);
                 }
             });
@@ -353,7 +444,7 @@
         bindCloseHandlers() {
             Utils.on(document, 'click', (e) => {
                 if (Utils.hasClass(e.target, 'notification-close')) {
-                    const notification = e.target.closest('.notification');
+                const notification = e.target.closest('.notification');
                     this.hide(notification);
                 }
             });
@@ -424,8 +515,8 @@
 
             try {
                 return JSON.parse(tpl.textContent || tpl.innerText || '{}');
-            } catch (e) {
-                console.error('user-balance-config JSON parse error', e);
+        } catch (e) {
+            console.error('user-balance-config JSON parse error', e);
                 return null;
             }
         },
@@ -488,10 +579,10 @@
         updateBalanceDisplay(data) {
             const balanceEls = Utils.selectAll('[data-countup][data-target]');
             balanceEls.forEach(el => {
-                const key = el.getAttribute('data-stat') || el.getAttribute('data-key');
-                if (key && data.hasOwnProperty(key)) {
+                    const key = el.getAttribute('data-stat') || el.getAttribute('data-key');
+                    if (key && data && key in data) {
                     el.textContent = Utils.formatCurrency(data[key], this.config.currency);
-                    el.dataset.target = Number(data[key]);
+                        el.dataset.target = Number(data[key]);
                     delete el.dataset.counted;
                 }
             });
@@ -542,13 +633,13 @@
                     emptyDiv.textContent = this.config.i18n?.no_history_desc || 'No previous transactions found';
                     container.appendChild(emptyDiv);
                 }
-            } catch (err) {
-                console.error('Failed to load history', err);
+                } catch (err) {
+                    console.error('Failed to load history', err);
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'alert alert-danger';
                 errorDiv.textContent = this.config.i18n?.error_history || 'Failed to load balance history';
                 container.appendChild(errorDiv);
-            }
+                }
         },
 
         wireForm(formId, urlKey, successMessageKey) {
@@ -561,7 +652,7 @@
                 if (submitBtn) submitBtn.disabled = true;
 
                 try {
-                    const formData = new FormData(form);
+                const formData = new FormData(form);
                     const response = await Utils.fetch(this.config.urls[urlKey], {
                         method: 'POST',
                         body: formData
@@ -604,29 +695,30 @@
         bindFormConfirmations() {
             Utils.selectAll('form.js-confirm, form.js-confirm-delete').forEach(form => {
                 Utils.on(form, 'submit', (e) => {
-                    const msg = form.dataset.confirm || form.getAttribute('data-confirm') || 'Are you sure?';
-                    if (!window.confirm(msg)) {
-                        e.preventDefault();
-                    }
-                });
+                const msg = form.dataset.confirm || form.getAttribute('data-confirm') || 'Are you sure?';
+                if (!window.confirm(msg)) {
+                    e.preventDefault();
+                }
             });
+        });
         },
 
         bindElementConfirmations() {
             Utils.selectAll('[data-confirm]').forEach(element => {
                 Utils.on(element, 'click', (e) => {
                     const msg = element.getAttribute('data-confirm');
-                    if (!window.confirm(msg)) {
-                        e.preventDefault();
-                    }
-                });
+                if (!window.confirm(msg)) {
+                    e.preventDefault();
+                }
             });
+        });
         }
     };
 
     // Main initialization
     AdminPanel.init = function () {
         SidebarManager.init();
+        DropdownManager.init();
         TableManager.init();
         FormManager.init();
         ModalManager.init();
