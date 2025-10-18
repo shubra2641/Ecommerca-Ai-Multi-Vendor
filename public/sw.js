@@ -1,150 +1,238 @@
 /**
- * Simple Service Worker for E-Commerce PWA
- * Optimized for performance, security, and simplicity
+ * Simple and reliable Service Worker
+ * For PWA - E-commerce Store
  */
 
-const STATIC_CACHE = 'static-v2.0.0';
-const DYNAMIC_CACHE = 'dynamic-v2.0.0';
+const CACHE_NAME = 'ecommerce-store-v1';
+const OFFLINE_URL = '/offline.html';
 
-// Essential files to cache
+// Essential files for caching
 const ESSENTIAL_FILES = [
     '/',
     '/offline.html',
-    '/manifest.json'
+    '/manifest.json',
+    '/assets/front/css/front.css',
+    '/assets/front/js/front-lite.js'
 ];
 
-// Install event - cache essential files
+// Install Service Worker
 self.addEventListener('install', (event) => {
+    console.log('[SW] Installing Service Worker');
+
     event.waitUntil(
-        caches.open(STATIC_CACHE)
-            .then(cache => cache.addAll(ESSENTIAL_FILES))
-            .then(() => self.skipWaiting())
+        caches.open(CACHE_NAME)
+            .then(cache => {
+                console.log('[SW] Caching essential files');
+                return cache.addAll(ESSENTIAL_FILES);
+            })
+            .then(() => {
+                console.log('[SW] Service Worker installed successfully');
+                return self.skipWaiting();
+            })
+            .catch(error => {
+                console.error('[SW] Installation error:', error);
+            })
     );
 });
 
-// Activate event - clean old caches
+// Activate Service Worker
 self.addEventListener('activate', (event) => {
+    console.log('[SW] Activating Service Worker');
+
     event.waitUntil(
         caches.keys()
-            .then(cacheNames =>
-                Promise.all(
+            .then(cacheNames => {
+                return Promise.all(
                     cacheNames
-                        .filter(name => name !== STATIC_CACHE && name !== DYNAMIC_CACHE)
-                        .map(name => caches.delete(name))
-                )
-            )
-            .then(() => self.clients.claim())
+                        .filter(cacheName => cacheName !== CACHE_NAME)
+                        .map(cacheName => {
+                            console.log('[SW] Deleting old cache:', cacheName);
+                            return caches.delete(cacheName);
+                        })
+                );
+            })
+            .then(() => {
+                console.log('[SW] Service Worker activated');
+                return self.clients.claim();
+            })
     );
 });
 
-// Fetch event - handle all requests
+// Handle requests
 self.addEventListener('fetch', (event) => {
     const { request } = event;
 
-    // Skip non-GET requests and non-HTTP requests
-    if (request.method !== 'GET' || !request.url.startsWith('http')) {
+    // Skip non-GET requests
+    if (request.method !== 'GET') {
         return;
     }
 
-    // Determine cache strategy based on request type
-    if (isStaticFile(request)) {
-        event.respondWith(cacheFirst(request, STATIC_CACHE));
-    } else if (isImageFile(request)) {
-        event.respondWith(cacheFirst(request, DYNAMIC_CACHE));
-    } else if (isAPIRequest(request)) {
-        event.respondWith(networkFirst(request, DYNAMIC_CACHE));
-    } else {
-        event.respondWith(networkFirst(request, DYNAMIC_CACHE));
+    // Skip non-HTTP/HTTPS requests
+    if (!request.url.startsWith('http')) {
+        return;
     }
+
+    event.respondWith(
+        handleRequest(request)
+    );
 });
 
-// Cache First Strategy - for static files
-async function cacheFirst(request, cacheName) {
+// Handle requests
+async function handleRequest(request) {
+    const url = new URL(request.url);
+
     try {
-        const cache = await caches.open(cacheName);
+        // Network First strategy for pages
+        if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
+            return await networkFirst(request);
+        }
+
+        // Cache First strategy for static files
+        if (isStaticFile(request)) {
+            return await cacheFirst(request);
+        }
+
+        // Network First strategy for API
+        if (url.pathname.startsWith('/api/')) {
+            return await networkFirst(request);
+        }
+
+        // Cache First strategy for images
+        if (isImageFile(request)) {
+            return await cacheFirst(request);
+        }
+
+        // Default: Network First
+        return await networkFirst(request);
+
+    } catch (error) {
+        console.error('[SW] Error handling request:', error);
+        return await handleOffline(request);
+    }
+}
+
+// Cache First strategy
+async function cacheFirst(request) {
+    const cache = await caches.open(CACHE_NAME);
+    const cachedResponse = await cache.match(request);
+
+    if (cachedResponse) {
+        console.log('[SW] Returning from cache:', request.url);
+        return cachedResponse;
+    }
+
+    try {
+        const networkResponse = await fetch(request);
+
+        if (networkResponse.ok) {
+            cache.put(request, networkResponse.clone());
+            console.log('[SW] Caching new resource:', request.url);
+        }
+
+        return networkResponse;
+    } catch (error) {
+        console.log('[SW] Network failed:', request.url);
+        return await handleOffline(request);
+    }
+}
+
+// Network First strategy
+async function networkFirst(request) {
+    try {
+        const networkResponse = await fetch(request);
+
+        if (networkResponse.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, networkResponse.clone());
+            console.log('[SW] Updating cache:', request.url);
+        }
+
+        return networkResponse;
+    } catch (error) {
+        console.log('[SW] Network failed, checking cache:', request.url);
+
+        const cache = await caches.open(CACHE_NAME);
         const cachedResponse = await cache.match(request);
 
         if (cachedResponse) {
             return cachedResponse;
         }
 
-        const networkResponse = await safeFetch(request);
-
-        if (networkResponse && networkResponse.ok) {
-            cache.put(request, networkResponse.clone());
-        }
-
-        return networkResponse || handleOffline(request);
-    } catch (error) {
-        return handleOffline(request);
+        return await handleOffline(request);
     }
 }
 
-// Network First Strategy - for dynamic content
-async function networkFirst(request, cacheName) {
-    try {
-        const networkResponse = await safeFetch(request);
-
-        if (networkResponse && networkResponse.ok) {
-            const cache = await caches.open(cacheName);
-            cache.put(request, networkResponse.clone());
-        }
-
-        return networkResponse || handleOffline(request);
-    } catch (error) {
-        const cache = await caches.open(cacheName);
-        const cachedResponse = await cache.match(request);
-
-        return cachedResponse || handleOffline(request);
-    }
-}
-
-// Safe fetch with URL validation
-async function safeFetch(request) {
-    try {
-        const url = new URL(request.url);
-
-        // Only allow same-origin requests or trusted domains
-        if (url.origin !== location.origin && !isTrustedDomain(url.hostname)) {
-            throw new Error('Untrusted domain');
-        }
-
-        return await fetch(request);
-    } catch (error) {
-        throw error;
-    }
-}
-
-// Check if domain is trusted
-function isTrustedDomain(hostname) {
-    const trustedDomains = [
-        'localhost',
-        '127.0.0.1',
-        'cdnjs.cloudflare.com',
-        'fonts.googleapis.com',
-        'fonts.gstatic.com'
-    ];
-
-    return trustedDomains.includes(hostname);
-}
-
-// Handle offline requests
+// Handle offline state
 async function handleOffline(request) {
     if (request.mode === 'navigate') {
-        const cache = await caches.open(STATIC_CACHE);
-        return cache.match('/offline.html') || new Response('Offline', { status: 503 });
+        const cache = await caches.open(CACHE_NAME);
+        const offlinePage = await cache.match(OFFLINE_URL);
+
+        if (offlinePage) {
+            return offlinePage;
+        }
+
+        return new Response(
+            `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Offline - E-Commerce Store</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 50px; 
+            background: #f5f5f5;
+          }
+          .offline-message {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 0 auto;
+          }
+          .retry-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="offline-message">
+          <h2>You're Offline</h2>
+          <p>Please check your internet connection and try again</p>
+          <button class="retry-btn" onclick="window.location.reload()">Try Again</button>
+        </div>
+      </body>
+      </html>
+      `,
+            {
+                status: 503,
+                headers: { 'Content-Type': 'text/html; charset=utf-8' }
+            }
+        );
     }
 
     return new Response('Offline', { status: 503 });
 }
 
-// Helper functions
+// Check file type
 function isStaticFile(request) {
     const url = new URL(request.url);
     return url.pathname.endsWith('.css') ||
         url.pathname.endsWith('.js') ||
         url.pathname.endsWith('.woff') ||
-        url.pathname.endsWith('.woff2');
+        url.pathname.endsWith('.woff2') ||
+        url.pathname.endsWith('.ttf');
 }
 
 function isImageFile(request) {
@@ -157,155 +245,21 @@ function isImageFile(request) {
         url.pathname.endsWith('.webp');
 }
 
-function isAPIRequest(request) {
-    const url = new URL(request.url);
-    return url.pathname.includes('/api/') ||
-        url.pathname.includes('/search') ||
-        url.pathname.includes('/products') ||
-        url.pathname.includes('/categories');
-}
-
-// Background sync for offline actions
-self.addEventListener('sync', (event) => {
-    if (event.tag === 'cart-sync') {
-        event.waitUntil(syncOfflineData('cart'));
-    } else if (event.tag === 'wishlist-sync') {
-        event.waitUntil(syncOfflineData('wishlist'));
-    }
-});
-
-// Sync offline data when back online
-async function syncOfflineData(type) {
-    try {
-        const data = await getStoredData(`pending-${type}-actions`);
-
-        if (data && data.length > 0) {
-            for (const action of data) {
-                await safeFetch(new Request(action.url, {
-                    method: action.method,
-                    headers: action.headers,
-                    body: action.body
-                }));
-            }
-
-            await clearStoredData(`pending-${type}-actions`);
-            notifyClients(`${type.toUpperCase()}_SYNCED`, `${type} data synchronized`);
-        }
-    } catch (error) {
-        // Silent error handling
-    }
-}
-
-// IndexedDB helpers
-async function getStoredData(key) {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open('ECommerceOffline', 1);
-
-        request.onerror = () => reject(request.error);
-        request.onsuccess = () => {
-            const db = request.result;
-            const transaction = db.transaction(['offline-data'], 'readonly');
-            const store = transaction.objectStore('offline-data');
-            const getRequest = store.get(key);
-
-            getRequest.onsuccess = () => resolve(getRequest.result?.data || null);
-            getRequest.onerror = () => reject(getRequest.error);
-        };
-
-        request.onupgradeneeded = () => {
-            const db = request.result;
-            if (!db.objectStoreNames.contains('offline-data')) {
-                db.createObjectStore('offline-data', { keyPath: 'key' });
-            }
-        };
-    });
-}
-
-async function clearStoredData(key) {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open('ECommerceOffline', 1);
-
-        request.onerror = () => reject(request.error);
-        request.onsuccess = () => {
-            const db = request.result;
-            const transaction = db.transaction(['offline-data'], 'readwrite');
-            const store = transaction.objectStore('offline-data');
-            const deleteRequest = store.delete(key);
-
-            deleteRequest.onsuccess = () => resolve();
-            deleteRequest.onerror = () => reject(deleteRequest.error);
-        };
-    });
-}
-
-// Notify all clients
-async function notifyClients(type, message) {
-    const clients = await self.clients.matchAll();
-    clients.forEach(client => {
-        client.postMessage({ type, message });
-    });
-}
-
-// Push notifications
-self.addEventListener('push', (event) => {
-    const options = {
-        title: 'E-Commerce Store',
-        body: 'You have a new notification',
-        icon: '/manifest.json',
-        badge: '/manifest.json',
-        tag: 'general',
-        requireInteraction: false
-    };
-
-    if (event.data) {
-        try {
-            const data = event.data.json();
-            Object.assign(options, data);
-        } catch (error) {
-            // Silent error handling
-        }
-    }
-
-    event.waitUntil(
-        self.registration.showNotification(options.title, options)
-    );
-});
-
-// Notification click handling
-self.addEventListener('notificationclick', (event) => {
-    event.notification.close();
-
-    if (event.action === 'view') {
-        event.waitUntil(
-            self.clients.openWindow(event.notification.data?.url || '/')
-        );
-    } else {
-        event.waitUntil(
-            self.clients.matchAll({ type: 'window' })
-                .then(clientList => {
-                    for (const client of clientList) {
-                        if (client.url === '/' && 'focus' in client) {
-                            return client.focus();
-                        }
-                    }
-                    return self.clients.openWindow('/');
-                })
-        );
-    }
-});
-
-// Message handling
+// Handle messages
 self.addEventListener('message', (event) => {
-    if (event.data?.type === 'SKIP_WAITING') {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
     }
 });
 
-// Error handling
-self.addEventListener('error', () => {
-    // Silent error handling
+// Handle errors
+self.addEventListener('error', (event) => {
+    console.error('[SW] Service Worker error:', event.error);
 });
 
 self.addEventListener('unhandledrejection', (event) => {
+    console.error('[SW] Unhandled rejection:', event.reason);
     event.preventDefault();
 });
+
+console.log('[SW] Service Worker loaded');

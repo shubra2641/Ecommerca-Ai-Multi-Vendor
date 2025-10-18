@@ -1,7 +1,7 @@
 {
   "name": "E-Commerce Store",
   "short_name": "E-Store",
-  "description": "Modern responsive e-commerce store with PWA capabilities",
+  "description": "Modern e-commerce store with PWA capabilities",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -10,71 +10,58 @@
   "background_color": "#ffffff",
   "lang": "en",
   "dir": "ltr",
-  "categories": ["shopping", "business", "lifestyle"],
+  "categories": [
+    "shopping",
+    "business"
+  ],
   "icons": [
     {
-      "src": "/front/images/icon-72x72.png",
+      "src": "/images/icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/front/images/icon-96x96.png",
+      "src": "/images/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/front/images/icon-128x128.png",
+      "src": "/images/icon-128x128.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/front/images/icon-144x144.png",
+      "src": "/images/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/front/images/icon-152x152.png",
+      "src": "/images/icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/front/images/icon-192x192.png",
+      "src": "/images/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/front/images/icon-384x384.png",
+      "src": "/images/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/front/images/icon-512x512.png",
+      "src": "/images/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/front/images/screenshot-wide.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Desktop view of the e-commerce store"
-    },
-    {
-      "src": "/front/images/screenshot-narrow.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile view of the e-commerce store"
     }
   ],
   "shortcuts": [
@@ -85,7 +72,7 @@
       "url": "/products",
       "icons": [
         {
-          "src": "/front/images/shortcut-products.png",
+          "src": "/images/icon-96x96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -98,33 +85,7 @@
       "url": "/cart",
       "icons": [
         {
-          "src": "/front/images/shortcut-cart.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Wishlist",
-      "short_name": "Wishlist",
-      "description": "View wishlist",
-      "url": "/wishlist",
-      "icons": [
-        {
-          "src": "/front/images/shortcut-wishlist.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Account",
-      "short_name": "Account",
-      "description": "Manage account",
-      "url": "/account",
-      "icons": [
-        {
-          "src": "/front/images/shortcut-account.png",
+          "src": "/images/icon-96x96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -133,49 +94,9 @@
   ],
   "related_applications": [],
   "prefer_related_applications": false,
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  },
-  "handle_links": "preferred",
-  "capture_links": "existing-client-navigate",
-  "protocol_handlers": [
-    {
-      "protocol": "web+ecommerce",
-      "url": "/product/%s"
-    }
+  "display_override": [
+    "standalone",
+    "minimal-ui"
   ],
-  "file_handlers": [
-    {
-      "action": "/import",
-      "accept": {
-        "text/csv": [".csv"],
-        "application/json": [".json"]
-      }
-    }
-  ],
-  "share_target": {
-    "action": "/share",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url",
-      "files": [
-        {
-          "name": "images",
-          "accept": ["image/*"]
-        }
-      ]
-    }
-  },
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
-  "id": "ecommerce-store-pwa",
-  "iarc_rating_id": "",
-  "note_taking": {
-    "new_note_url": "/notes/new"
-  }
+  "id": "ecommerce-store-pwa"
 }
