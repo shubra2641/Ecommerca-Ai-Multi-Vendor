@@ -299,7 +299,6 @@
     </div>
 </section>
 @endsection
-@endpush
 
 @push('modals')
 @include('front.partials.notify-modal')
