@@ -48,7 +48,3 @@
 </table>
 
 @endsection
-
-@push('scripts')
-<script src="{{ asset('admin/js/payment-gateways.js') }}"></script>
-@endpush

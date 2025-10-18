@@ -79,9 +79,6 @@
     </div>
   </div>
 </div>
-@push('styles')
-<link rel="stylesheet" href="{{ asset('admin/css/lang-tabs.css') }}">
-@endpush
 <div class="card mb-4">
   <div class="card-header"><h5 class="mb-0"><i class="fas fa-cogs me-2 text-primary"></i>{{ __('Post Settings') }}</h5></div>
   <div class="card-body">

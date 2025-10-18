@@ -14,8 +14,10 @@
                         <div class="stats-card-content">
                             <div class="stats-number font-mono" data-metric="{{ $metric }}" data-field="sum">{{ $row['sum'] }}</div>
                             <div class="stats-label text-sm">{{ str_replace('_',' ', $metric) }}</div>
-                            <div class="text-xs text-gray-500 mt-2">{{ __('Count') }}: <span class="font-mono" data-metric="{{ $metric }}" data-field="count">{{ $row['count'] }}</span></div>
-                            <div class="text-xs text-gray-500">{{ __('Avg (ms)') }}: <span class="font-mono" data-metric="{{ $metric }}" data-field="avg_time_ms">{{ $row['avg_time_ms'] }}</span></div>
+                            <div class="stats-trend">
+                                <i class="fas fa-tachometer-alt text-primary"></i>
+                                <span class="text-primary">{{ __('Performance metric') }}</span>
+                            </div>
                         </div>
                         <div class="stats-icon"><i class="fas fa-tachometer-alt"></i></div>
                     </div>

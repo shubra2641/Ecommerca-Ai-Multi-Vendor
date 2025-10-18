@@ -247,11 +247,3 @@
     </div>
 </div>
 @endsection
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/languages.css') }}">
-@endpush
-
-@push('scripts')
-<script src="{{ asset('js/languages.js') }}"></script>
-@endpush

@@ -63,8 +63,4 @@
     <span v-else-if="allLoaded" class="text-muted small">{{ __('All loaded') }}</span>
   </div>
 </div>
-
-@push('scripts')
-<script src="{{ asset('admin/js/activity-center.js') }}" defer></script>
-@endpush
 @endsection

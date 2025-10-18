@@ -137,7 +137,3 @@
         </div>
     </div>
 </div>
-
-@push('scripts')
-<script src="{{ asset('admin/js/slugify.js') }}" defer></script>
-@endpush

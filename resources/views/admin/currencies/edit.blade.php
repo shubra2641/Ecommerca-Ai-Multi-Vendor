@@ -197,11 +197,3 @@
 </form>
 @endif
 @endsection
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('admin/css/currencies.css') }}">
-@endpush
-
-@push('scripts')
-<script src="{{ asset('admin/js/currencies-edit.js') }}"></script>
-@endpush

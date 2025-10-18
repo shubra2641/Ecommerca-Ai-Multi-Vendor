@@ -62,14 +62,14 @@ class ReportsController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(50);
 
-        $stats = [
-            'total' => User::count(),
-            'active' => User::whereNotNull('approved_at')->count(),
-            'pending' => User::whereNull('approved_at')->count(),
-            'approved' => User::whereNotNull('approved_at')->count(),
+        $usersData = [
+            'total_users' => User::count(),
+            'active_users' => User::whereNotNull('approved_at')->count(),
+            'pending_users' => User::whereNull('approved_at')->count(),
+            'new_this_month' => User::whereMonth('created_at', now()->month)->count(),
         ];
 
-        return view('admin.reports.users', compact('users', 'stats'));
+        return view('admin.reports.users', compact('users', 'usersData'));
     }
 
     /**

@@ -475,16 +475,4 @@
         </div>
     </div>
 </div>
-
-
-
 @endsection
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('admin/css/settings.css') }}">
-@endpush
-
-@push('scripts')
-<script src="{{ asset('admin/js/settings.js') }}"></script>
-<script src="{{ asset('admin/js/font-manager.js') }}"></script>
-@endpush

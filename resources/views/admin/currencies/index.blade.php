@@ -6,51 +6,67 @@
    @include('admin.partials.page-header', ['title'=>__('Currencies'),'subtitle'=>__('Manage system currencies and exchange rates'),'actions'=>'<a href="'.route('admin.currencies.create').'" class="btn btn-primary"><i class="fas fa-plus"></i> '.__('Add Currency').'</a>'])
 
    <!-- Statistics Cards -->
-   <div class="row mb-4 mb-4">
-    <div class="stats-card stats-card-danger">
-           <div class="stats-card-body">
-               <div class="stats-icon">
-                   <i class="fas fa-coins"></i>
-               </div>
-               <div class="stats-card-content">
-                   <div class="stats-label">{{ __('Total Currencies') }}</div>
-                   <div class="stats-number">{{ $currencies->count() }}</div>
-               </div>
-           </div>
-       </div>
-
-    <div class="stats-card stats-card-success">
-           <div class="stats-card-body">
-               <div class="stats-icon">
-                   <i class="fas fa-check-circle"></i>
-               </div>
-               <div class="stats-card-content">
-                   <div class="stats-label">{{ __('Active Currencies') }}</div>
-                   <div class="stats-number">{{ $currencies->where('is_active', true)->count() }}</div>
-               </div>
-           </div>
-       </div>
-
-    <div class="stats-card stats-card-primary">
-           <div class="stats-card-body">
-               <div class="stats-icon">
-                   <i class="fas fa-star"></i>
-               </div>
-               <div class="stats-card-content">
-                   <div class="stats-label">{{ __('Default Currency') }}</div>
-                   <div class="stats-number">{{ $currencies->where('is_default', true)->first()->code ?? __('N/A') }}</div>
+   <div class="row mb-4">
+       <div class="col-xl-3 col-md-6 mb-4">
+           <div class="card modern-card stats-card stats-card-primary h-100">
+               <div class="stats-card-body">
+                   <div class="stats-card-content">
+                       <div class="stats-number" data-countup data-target="{{ (int)$currencies->count() }}">{{ $currencies->count() }}</div>
+                       <div class="stats-label">{{ __('Total Currencies') }}</div>
+                       <div class="stats-trend">
+                           <i class="fas fa-coins text-primary"></i>
+                           <span class="text-primary">{{ __('System Currencies') }}</span>
+                       </div>
+                   </div>
+                   <div class="stats-icon"><i class="fas fa-coins"></i></div>
                </div>
            </div>
        </div>
 
        <div class="col-xl-3 col-md-6 mb-4">
-           <div class="stats-card-body">
-               <div class="stats-icon">
-                   <i class="fas fa-clock"></i>
+           <div class="card modern-card stats-card stats-card-success h-100">
+               <div class="stats-card-body">
+                   <div class="stats-card-content">
+                       <div class="stats-number" data-countup data-target="{{ (int)$currencies->where('is_active', true)->count() }}">{{ $currencies->where('is_active', true)->count() }}</div>
+                       <div class="stats-label">{{ __('Active Currencies') }}</div>
+                       <div class="stats-trend">
+                           <i class="fas fa-arrow-up text-success"></i>
+                           <span class="text-success">{{ number_format((($currencies->where('is_active', true)->count() / max($currencies->count(), 1)) * 100), 1) }}% {{ __('active') }}</span>
+                       </div>
+                   </div>
+                   <div class="stats-icon"><i class="fas fa-check-circle"></i></div>
                </div>
-               <div class="stats-card-content">
-                   <div class="stats-label">{{ __('Last Updated') }}</div>
-                   <div class="stats-number">{{ $currencies->max('updated_at')?->diffForHumans() ?? __('N/A') }}</div>
+           </div>
+       </div>
+
+       <div class="col-xl-3 col-md-6 mb-4">
+           <div class="card modern-card stats-card stats-card-warning h-100">
+               <div class="stats-card-body">
+                   <div class="stats-card-content">
+                       <div class="stats-number">{{ $currencies->where('is_default', true)->first()->code ?? __('N/A') }}</div>
+                       <div class="stats-label">{{ __('Default Currency') }}</div>
+                       <div class="stats-trend">
+                           <i class="fas fa-star text-warning"></i>
+                           <span class="text-warning">{{ __('Primary currency') }}</span>
+                       </div>
+                   </div>
+                   <div class="stats-icon"><i class="fas fa-star"></i></div>
+               </div>
+           </div>
+       </div>
+
+       <div class="col-xl-3 col-md-6 mb-4">
+           <div class="card modern-card stats-card stats-card-info h-100">
+               <div class="stats-card-body">
+                   <div class="stats-card-content">
+                       <div class="stats-number">{{ $currencies->max('updated_at')?->diffForHumans() ?? __('N/A') }}</div>
+                       <div class="stats-label">{{ __('Last Updated') }}</div>
+                       <div class="stats-trend">
+                           <i class="fas fa-clock text-info"></i>
+                           <span class="text-info">{{ __('Recent activity') }}</span>
+                       </div>
+                   </div>
+                   <div class="stats-icon"><i class="fas fa-clock"></i></div>
                </div>
            </div>
        </div>
@@ -248,12 +264,3 @@
        </div>
    </div>
    @endsection
-
-   @push('styles')
-   <link rel="stylesheet" href="{{ asset('admin/css/currencies.css') }}">
-   @endpush
-
-   @push('scripts')
-   <script src="{{ asset('admin/js/currencies.js') }}"></script>
-   <script src="{{ asset('admin/js/dropdown-debug.js') }}"></script>
-   @endpush

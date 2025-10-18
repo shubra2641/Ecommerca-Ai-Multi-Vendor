@@ -137,8 +137,3 @@
         </div>
     </div>
 </div>
-
-{{-- Unified scripts removed; handled by form-sections.js --}}
-@push('styles')
-<link rel="stylesheet" href="{{ asset('admin/css/lang-tabs.css') }}">
-@endpush

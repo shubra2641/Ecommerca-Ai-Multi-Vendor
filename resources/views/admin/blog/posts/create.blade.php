@@ -13,8 +13,4 @@
         <a href="{{ route('admin.blog.posts.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
     </div>
 </form>
-@push('scripts')
-    <script src="{{ asset('admin/js/product-form.js') }}?v={{ asset_modified_time('admin/js/product-form.js') }}" defer></script>
-    <script src="{{ asset('admin/js/blog-post-form.js') }}?v={{ asset_modified_time('admin/js/blog-post-form.js') }}" defer></script>
-@endpush
 @endsection

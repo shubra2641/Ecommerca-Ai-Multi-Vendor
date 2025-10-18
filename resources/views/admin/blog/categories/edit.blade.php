@@ -5,11 +5,6 @@
 <li class="breadcrumb-item"><a href="{{ route('admin.blog.categories.index') }}">{{ __('Categories') }}</a></li>
 <li class="breadcrumb-item active">{{ __('Edit') }}</li>
 @endsection
-@push('scripts')
-<script src="{{ asset('admin/js/slug-auto.js') }}" defer></script>
-<script src="{{ asset('admin/js/product-form.js') }}" defer></script>
-<script src="{{ asset('admin/js/blog-category-form.js') }}" defer></script>
-@endpush
 @section('content')
 <form method="POST" action="{{ route('admin.blog.categories.update',$category) }}" class="category-form-enhanced">
   @csrf @method('PUT')

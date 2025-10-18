@@ -7,47 +7,66 @@
 
 <!-- Stats Cards -->
 <div class="row mb-4">
-    <div class="card modern-card stats-card">
-        <div class="stats-card-body">
-            <div class="stats-icon">
-                <i class="fas fa-language"></i>
-            </div>
-            <div class="stats-card-content">
-                <div class="stats-number">{{ $languages->count() }}</div>
-                <div class="stats-label">{{ __('Total Languages') }}</div>
-            </div>
-        </div>
-    </div>
-    <div class="card modern-card stats-card">
-        <div class="stats-card-body">
-            <div class="stats-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="stats-card-content">
-                <div class="stats-number">{{ $languages->where('active', true)->count() }}</div>
-                <div class="stats-label">{{ __('Active Languages') }}</div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card modern-card stats-card stats-card-primary h-100">
+            <div class="stats-card-body">
+                <div class="stats-card-content">
+                    <div class="stats-number" data-countup data-target="{{ (int)$languages->count() }}">{{ $languages->count() }}</div>
+                    <div class="stats-label">{{ __('Total Languages') }}</div>
+                    <div class="stats-trend">
+                        <i class="fas fa-language text-primary"></i>
+                        <span class="text-primary">{{ __('System Languages') }}</span>
+                    </div>
+                </div>
+                <div class="stats-icon"><i class="fas fa-language"></i></div>
             </div>
         </div>
     </div>
-    <div class="card modern-card stats-card">
-        <div class="stats-card-body">
-            <div class="stats-icon">
-                <i class="fas fa-star"></i>
-            </div>
-            <div class="stats-card-content">
-                <div class="stats-number">{{ $languages->where('is_default', true)->count() }}</div>
-                <div class="stats-label">{{ __('Default Language') }}</div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card modern-card stats-card stats-card-success h-100">
+            <div class="stats-card-body">
+                <div class="stats-card-content">
+                    <div class="stats-number" data-countup data-target="{{ (int)$languages->where('active', true)->count() }}">{{ $languages->where('active', true)->count() }}</div>
+                    <div class="stats-label">{{ __('Active Languages') }}</div>
+                    <div class="stats-trend">
+                        <i class="fas fa-arrow-up text-success"></i>
+                        <span class="text-success">{{ number_format((($languages->where('active', true)->count() / max($languages->count(), 1)) * 100), 1) }}% {{ __('active') }}</span>
+                    </div>
+                </div>
+                <div class="stats-icon"><i class="fas fa-check-circle"></i></div>
             </div>
         </div>
     </div>
-    <div class="card modern-card stats-card">
-        <div class="stats-card-body">
-            <div class="stats-icon">
-                <i class="fas fa-file-alt"></i>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card modern-card stats-card stats-card-warning h-100">
+            <div class="stats-card-body">
+                <div class="stats-card-content">
+                    <div class="stats-number" data-countup data-target="{{ (int)$languages->where('is_default', true)->count() }}">{{ $languages->where('is_default', true)->count() }}</div>
+                    <div class="stats-label">{{ __('Default Language') }}</div>
+                    <div class="stats-trend">
+                        <i class="fas fa-star text-warning"></i>
+                        <span class="text-warning">{{ __('Primary language') }}</span>
+                    </div>
+                </div>
+                <div class="stats-icon"><i class="fas fa-star"></i></div>
             </div>
-            <div class="stats-card-content">
-                <div class="stats-number">{{ $totalTranslations ?? 0 }}</div>
-                <div class="stats-label">{{ __('Total Translations') }}</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card modern-card stats-card stats-card-info h-100">
+            <div class="stats-card-body">
+                <div class="stats-card-content">
+                    <div class="stats-number" data-countup data-target="{{ (int)($totalTranslations ?? 0) }}">{{ $totalTranslations ?? 0 }}</div>
+                    <div class="stats-label">{{ __('Total Translations') }}</div>
+                    <div class="stats-trend">
+                        <i class="fas fa-file-alt text-info"></i>
+                        <span class="text-info">{{ __('Translation keys') }}</span>
+                    </div>
+                </div>
+                <div class="stats-icon"><i class="fas fa-file-alt"></i></div>
             </div>
         </div>
     </div>
@@ -227,11 +246,3 @@
     </div>
 </div>
 @endsection
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('admin/css/languages.css') }}">
-@endpush
-
-@push('scripts')
-<script src="{{ asset('admin/js/languages.js') }}"></script>
-@endpush

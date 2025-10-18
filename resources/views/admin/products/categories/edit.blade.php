@@ -24,8 +24,3 @@
     </form>
 </div>
 @endsection
-@push('scripts')
-<script src="{{ asset('admin/js/media-picker.js') }}" defer></script>
-<script src="{{ asset('admin/js/media-picker-init.js') }}" defer></script>
-<script src="{{ asset('admin/js/product-form.js') }}" defer></script>
-@endpush

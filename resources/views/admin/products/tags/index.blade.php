@@ -237,7 +237,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-{{-- Inline script removed in favor of delegated handlers --}}
-@endpush

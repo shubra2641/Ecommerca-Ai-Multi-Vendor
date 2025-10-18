@@ -228,14 +228,4 @@
         </div>
     </div>
 </div>
-
-
 @endsection
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('admin/css/currencies.css') }}">
-@endpush
-
-@push('scripts')
-<script src="{{ asset('admin/js/currencies.js') }}"></script>
-@endpush

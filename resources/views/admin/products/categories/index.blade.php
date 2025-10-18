@@ -218,7 +218,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script src="{{ asset('admin/js/categories-toggle.js') }}" defer></script>
-@endpush

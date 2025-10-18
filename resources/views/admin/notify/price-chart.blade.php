@@ -107,28 +107,4 @@
         </table>
     </div>
 </div>
-@push('scripts')
-<script id="price-chart-data" type="application/json">{!! json_encode([
-    'productId'=>$product->id,
-    'labels'=>$changes->pluck('created_at')->map(fn($d)=>$d->format('Y-m-d H:i')),
-    'dataNew'=>$changes->pluck('new_price'),
-    'percent'=>$changes->pluck('percent'),
-    'interestCounts'=>$interestSeries->pluck('c'),
-    'sma'=>array_values($sma),
-    'ema'=>array_values($ema),
-    'window'=>$window,
-    'showSma'=>$showSma,
-    'showEma'=>$showEma,
-    'threshold'=>$threshold,
-    'raw'=>$changes->map(fn($c)=>['date'=>$c->created_at->format('Y-m-d H:i'),'old'=>number_format($c->old_price,2),'new'=>number_format($c->new_price,2),'percent'=>number_format($c->percent,2)]),
-    'i18n'=>[
-        'priceLabel'=>__('Price'),
-        'changeLabel'=>__('Change'),
-        'interestLabel'=>__('Active Interests'),
-        'interestsLabel'=>__('Interests')
-    ]
-], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)</script>
-<script src="{{ asset('vendor/chart.js/chart.min.js') }}" defer></script>
-<script src="{{ asset('admin/js/price-chart.js') }}" defer></script>
-@endpush
 @endsection

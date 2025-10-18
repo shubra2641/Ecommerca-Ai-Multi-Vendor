@@ -6,12 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Easy') }} - @yield('title')</title>
-
-    <script src="{{ asset('admin/js/config-flags.js') }}"></script>
-
-    <!-- Modern Fonts -->
-    {{-- Provided by SiteBrandingComposer (site settings, selectedFont, siteName, logoPath) --}}
-
     <!-- Selected Font Meta -->
     <meta name="selected-font" content="{{ $selectedFont }}">
     <!-- Local font-face (Google Fonts removed for CSP) -->
@@ -22,29 +16,19 @@
     <!-- Unified Admin CSS - All styles consolidated -->
     <link rel="preload" href="{{ asset('assets/admin/css/admin.css') }}" as="style">
     <link href="{{ asset('assets/admin/css/admin.css') }}" rel="stylesheet">
-
-
-    
     @stack('styles')
 </head>
-
 <body class="body" data-font-active="{{ $selectedFont }}" data-admin-base="{{ url('') }}" @if(session()->pull('refresh_admin_notifications')) data-refresh-admin-notifications="1" @endif>
     @include('components.noscript-warning')
-
     <!-- Sidebar -->
     @include('layouts.navigation')
-
-
     <!-- Main Content -->
-
-
         <main class="main-content">
                 @include('admin.top-header')
                 <div class="page-content">
                     @yield('content')
                 </div>
         </div>
-
     <!-- Overlay for mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 

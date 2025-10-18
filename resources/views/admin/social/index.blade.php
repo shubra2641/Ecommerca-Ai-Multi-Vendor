@@ -83,7 +83,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script src="{{ asset('admin/js/social-links.js') }}" defer></script>
-@endpush

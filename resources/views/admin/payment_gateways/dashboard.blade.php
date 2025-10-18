@@ -25,77 +25,66 @@
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
-        <div class="col-12 col-sm-6 col-md-3 mb-3">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                {{ __('Total Gateways') }}
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total_gateways'] }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-credit-card fa-2x text-gray-300"></i>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card modern-card stats-card stats-card-primary h-100">
+                <div class="stats-card-body">
+                    <div class="stats-card-content">
+                        <div class="stats-number" data-countup data-target="{{ (int)$stats['total_gateways'] }}">{{ $stats['total_gateways'] }}</div>
+                        <div class="stats-label">{{ __('Total Gateways') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-credit-card text-primary"></i>
+                            <span class="text-primary">{{ __('Payment Methods') }}</span>
                         </div>
                     </div>
+                    <div class="stats-icon"><i class="fas fa-credit-card"></i></div>
                 </div>
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-md-3 mb-3">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                {{ __('Active Gateways') }}
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['enabled_gateways'] }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card modern-card stats-card stats-card-success h-100">
+                <div class="stats-card-body">
+                    <div class="stats-card-content">
+                        <div class="stats-number" data-countup data-target="{{ (int)$stats['enabled_gateways'] }}">{{ $stats['enabled_gateways'] }}</div>
+                        <div class="stats-label">{{ __('Active Gateways') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-arrow-up text-success"></i>
+                            <span class="text-success">{{ number_format((($stats['enabled_gateways'] / max($stats['total_gateways'], 1)) * 100), 1) }}% {{ __('active') }}</span>
                         </div>
                     </div>
+                    <div class="stats-icon"><i class="fas fa-check-circle"></i></div>
                 </div>
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-md-3 mb-3">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                {{ __('Transactions (30d)') }}
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ number_format($stats['total_transactions']) }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-exchange-alt fa-2x text-gray-300"></i>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card modern-card stats-card stats-card-info h-100">
+                <div class="stats-card-body">
+                    <div class="stats-card-content">
+                        <div class="stats-number" data-countup data-target="{{ (int)$stats['total_transactions'] }}">{{ number_format($stats['total_transactions']) }}</div>
+                        <div class="stats-label">{{ __('Transactions (30d)') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-exchange-alt text-info"></i>
+                            <span class="text-info">{{ __('Last 30 days') }}</span>
                         </div>
                     </div>
+                    <div class="stats-icon"><i class="fas fa-exchange-alt"></i></div>
                 </div>
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-md-3 mb-3">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                {{ __('Revenue (30d)') }}
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                ${{ number_format($stats['total_revenue'], 2) }}
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card modern-card stats-card stats-card-warning h-100">
+                <div class="stats-card-body">
+                    <div class="stats-card-content">
+                        <div class="stats-number">${{ number_format($stats['total_revenue'], 2) }}</div>
+                        <div class="stats-label">{{ __('Revenue (30d)') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-dollar-sign text-warning"></i>
+                            <span class="text-warning">{{ __('Total earnings') }}</span>
                         </div>
                     </div>
+                    <div class="stats-icon"><i class="fas fa-dollar-sign"></i></div>
                 </div>
             </div>
         </div>

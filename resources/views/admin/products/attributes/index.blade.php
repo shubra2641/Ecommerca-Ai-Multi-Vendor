@@ -212,7 +212,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-{{-- Inline deletion script removed; handled via delegated js-confirm listener --}}
-@endpush

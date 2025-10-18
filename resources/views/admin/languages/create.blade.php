@@ -87,7 +87,3 @@
     </div>
 </div>
 @endsection
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('admin/css/languages.css') }}">
-@endpush

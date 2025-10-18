@@ -51,13 +51,3 @@
     </div>
 </div>
 @endsection
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('admin/css/lang-tabs.css') }}">
-@endpush
-
-@push('scripts')
-<script src="{{ asset('admin/js/media-picker.js') }}"></script>
-<script src="{{ asset('admin/js/product-form.js') }}"></script>
-<script src="{{ asset('admin/js/media-inputs.js') }}"></script>
-@endpush

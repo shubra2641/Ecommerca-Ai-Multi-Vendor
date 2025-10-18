@@ -43,6 +43,10 @@
                             @endif
                         </div>
                         <div class="stats-label">{{ __('System Status') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-heartbeat text-success"></i>
+                            <span class="text-success">{{ __('System health') }}</span>
+                        </div>
                     </div>
                     <div class="stats-icon"><i class="fas fa-heartbeat"></i></div>
                 </div>
@@ -55,6 +59,10 @@
                     <div class="stats-card-content">
                         <div class="stats-number">{{ PHP_VERSION }}</div>
                         <div class="stats-label">{{ __('PHP Version') }}</div>
+                        <div class="stats-trend">
+                            <i class="fab fa-php text-info"></i>
+                            <span class="text-info">{{ __('Server version') }}</span>
+                        </div>
                     </div>
                     <div class="stats-icon"><i class="fab fa-php"></i></div>
                 </div>
@@ -67,6 +75,10 @@
                     <div class="stats-card-content">
                         <div class="stats-number">{{ app()->version() }}</div>
                         <div class="stats-label">{{ __('Laravel Version') }}</div>
+                        <div class="stats-trend">
+                            <i class="fab fa-laravel text-warning"></i>
+                            <span class="text-warning">{{ __('Framework version') }}</span>
+                        </div>
                     </div>
                     <div class="stats-icon"><i class="fab fa-laravel"></i></div>
                 </div>
@@ -360,7 +372,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-{{-- Inline handlers removed; refresh and export handled via delegated JS in inline-cleanup.js --}}
-@endpush

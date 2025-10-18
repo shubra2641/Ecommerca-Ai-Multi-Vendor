@@ -39,6 +39,10 @@
                             {{ isset($usersData['total_users']) ? number_format($usersData['total_users']) : '0' }}
                         </div>
                         <div class="stats-label">{{ __('Total Users') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-users text-primary"></i>
+                            <span class="text-primary">{{ __('All registered users') }}</span>
+                        </div>
                     </div>
                     <div class="stats-icon">
                         <i class="fas fa-users"></i>
@@ -55,6 +59,10 @@
                             {{ isset($usersData['active_users']) ? number_format($usersData['active_users']) : '0' }}
                         </div>
                         <div class="stats-label">{{ __('Active Users') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-arrow-up text-success"></i>
+                            <span class="text-success">{{ number_format((($usersData['active_users'] / max($usersData['total_users'], 1)) * 100), 1) }}% {{ __('active') }}</span>
+                        </div>
                     </div>
                     <div class="stats-icon">
                         <i class="fas fa-user-check"></i>
@@ -71,6 +79,10 @@
                             {{ isset($usersData['pending_users']) ? number_format($usersData['pending_users']) : '0' }}
                         </div>
                         <div class="stats-label">{{ __('Pending Users') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-clock text-warning"></i>
+                            <span class="text-warning">{{ __('Awaiting approval') }}</span>
+                        </div>
                     </div>
                     <div class="stats-icon">
                         <i class="fas fa-user-clock"></i>
@@ -87,6 +99,10 @@
                             {{ isset($usersData['new_this_month']) ? number_format($usersData['new_this_month']) : '0' }}
                         </div>
                         <div class="stats-label">{{ __('New This Month') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-user-plus text-info"></i>
+                            <span class="text-info">{{ __('Recent registrations') }}</span>
+                        </div>
                     </div>
                     <div class="stats-icon">
                         <i class="fas fa-user-plus"></i>
@@ -298,19 +314,3 @@
     @endif
 </div>
 @endsection
-
-@push('scripts')
-<script id="report-users-data" type="application/json">{!! json_encode([
-    'charts'=>[
-        'registration'=> isset($usersData['registration_chart']) ? [
-            'labels'=>array_keys($usersData['registration_chart']),
-            'values'=>array_values($usersData['registration_chart']),
-            'label'=>__('New Users')
-        ]: null,
-        'roles'=> isset($usersData['role_distribution']) ? [
-            'labels'=>array_map('ucfirst', array_keys($usersData['role_distribution'])),
-            'values'=>array_values($usersData['role_distribution'])
-        ]: null,
-    ]
-], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}</script>
-@endpush

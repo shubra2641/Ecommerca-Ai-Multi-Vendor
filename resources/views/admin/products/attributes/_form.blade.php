@@ -142,9 +142,3 @@
         </div>
     </div>
 </div>
-
-{{-- Form sections handled by form-sections.js --}}
-
-@push('scripts')
-<script src="{{ asset('admin/js/slugify.js') }}" defer></script>
-@endpush

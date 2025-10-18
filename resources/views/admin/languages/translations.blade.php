@@ -160,15 +160,3 @@
     <input type="hidden" name="key" id="deleteKey">
 </form>
 @endsection
-
-@push('scripts')
-<script id="languages-translations-data" type="application/json">{!! json_encode([
-    'i18n'=>[
-        'confirmDelete'=>__('Are you sure you want to delete this translation ?'),
-        'confirmReset'=>__('Are you sure you want to reset all changes ?'),
-        'fillBoth'=>__('Please fill in both key and value fields.')
-    ]
-], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}</script>
-<script src="{{ asset('js/languages.js') }}" defer></script>
-<script src="{{ asset('admin/js/languages-translations.js') }}" defer></script>
-@endpush

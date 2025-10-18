@@ -37,6 +37,10 @@
                     <div class="stats-card-content">
                         <div class="stats-number" id="financial-total-balance" data-countup data-decimals="2" data-target="{{ number_format($financialData['totalBalance'], 2, '.', '') }}">${{ number_format($financialData['totalBalance'], 2) }}</div>
                         <div class="stats-label">{{ __('Total Balance') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-dollar-sign text-success"></i>
+                            <span class="text-success">{{ __('System total') }}</span>
+                        </div>
                     </div>
                     <div class="stats-icon"><i class="fas fa-dollar-sign"></i></div>
                 </div>
@@ -49,6 +53,10 @@
                     <div class="stats-card-content">
                         <div class="stats-number" id="financial-vendor-balance" data-countup data-decimals="2" data-target="{{ number_format($financialData['vendorBalance'], 2, '.', '') }}">${{ number_format($financialData['vendorBalance'], 2) }}</div>
                         <div class="stats-label">{{ __('Vendor Balance') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-store text-primary"></i>
+                            <span class="text-primary">{{ __('Vendor earnings') }}</span>
+                        </div>
                     </div>
                     <div class="stats-icon"><i class="fas fa-store"></i></div>
                 </div>
@@ -61,6 +69,10 @@
                     <div class="stats-card-content">
                         <div class="stats-number" id="financial-customer-balance" data-countup data-decimals="2" data-target="{{ number_format($financialData['customerBalance'], 2, '.', '') }}">${{ number_format($financialData['customerBalance'], 2) }}</div>
                         <div class="stats-label">{{ __('Customer Balance') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-users text-info"></i>
+                            <span class="text-info">{{ __('Customer deposits') }}</span>
+                        </div>
                     </div>
                     <div class="stats-icon"><i class="fas fa-users"></i></div>
                 </div>
@@ -73,6 +85,10 @@
                     <div class="stats-card-content">
                         <div class="stats-number" id="financial-average-balance" data-countup data-decimals="2" data-target="{{ number_format($financialData['averageBalance'], 2, '.', '') }}">${{ number_format($financialData['averageBalance'], 2) }}</div>
                         <div class="stats-label">{{ __('Average Balance') }}</div>
+                        <div class="stats-trend">
+                            <i class="fas fa-chart-line text-warning"></i>
+                            <span class="text-warning">{{ __('Per account') }}</span>
+                        </div>
                     </div>
                     <div class="stats-icon"><i class="fas fa-chart-line"></i></div>
                 </div>
@@ -200,22 +216,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-@if(!empty($financialData))
-<script id="report-financial-data" type="application/json">{!! json_encode([
-    'charts'=>[
-        'balanceDistribution'=> isset($financialData['balanceDistribution']) && count($financialData['balanceDistribution']) ? [
-                'labels'=>array_keys($financialData['balanceDistribution']),
-                'values'=>array_values($financialData['balanceDistribution'])
-        ]: null,
-        'monthlyTrends'=> isset($financialData['monthlyTrends']) && count($financialData['monthlyTrends']) ? [
-                'labels'=>array_keys($financialData['monthlyTrends']),
-                'values'=>array_values($financialData['monthlyTrends']),
-                'label'=>__('Monthly Financial Trends')
-        ]: null,
-    ]
-], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}</script>
-@endif
-@endpush
-

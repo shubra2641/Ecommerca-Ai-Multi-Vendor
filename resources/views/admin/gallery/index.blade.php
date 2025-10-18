@@ -141,8 +141,4 @@
         </div>
     </div>
 </div>
-
-@push('scripts')
-<script src="{{ asset('admin/js/gallery.js') }}" defer></script>
-@endpush
 @endsection
