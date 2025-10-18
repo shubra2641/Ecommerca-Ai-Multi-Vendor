@@ -20,14 +20,25 @@
             {{-- right-top controls (wishlist, compare, quick cart) --}}
             <div class="top-controls" aria-hidden="false">
                 <div class="top-controls-row">
-                    <button class="circle-btn icon-btn fav-btn {{ $cardWishActive ? 'active' : '' }}"
-                        aria-pressed="{{ $cardWishActive ? 'true' : 'false' }}" aria-label="Toggle wishlist" data-product="{{ $product->id }}">
-                        <i class="fas fa-heart" aria-hidden="true"></i>
-                    </button>
-                    <button class="circle-btn icon-btn compare-btn {{ $cardCmpActive ? 'is-active' : '' }}" title="Compare"
-                        aria-label="Compare product" data-product="{{ $product->id }}">
-                        <i class="fas fa-chart-bar" aria-hidden="true"></i>
-                    </button>
+                    {{-- Wishlist Button Form --}}
+                    <form action="{{ route('wishlist.toggle') }}" method="POST" class="wishlist-form">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <button class="circle-btn icon-btn fav-btn {{ $cardWishActive ? 'active' : '' }}"
+                            aria-pressed="{{ $cardWishActive ? 'true' : 'false' }}" aria-label="Toggle wishlist" type="submit">
+                            <i class="fas fa-heart" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                    
+                    {{-- Compare Button Form --}}
+                    <form action="{{ route('compare.toggle') }}" method="POST" class="compare-form">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <button class="circle-btn icon-btn compare-btn {{ $cardCmpActive ? 'is-active' : '' }}" title="Compare"
+                            aria-label="Compare product" type="submit">
+                            <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                        </button>
+                    </form>
                 </div>
                 <div class="top-controls-col">
                     <button class="circle-btn icon-btn cart-quick"

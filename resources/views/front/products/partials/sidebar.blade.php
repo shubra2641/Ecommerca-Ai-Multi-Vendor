@@ -1,18 +1,31 @@
 <aside class="catalog-sidebar">
     <div class="sidebar-block">
         <h4>{{ __('Price') }}</h4>
-        <div class="price-range">
-            <div class="value-row">
-                <span>{{ __('Min') }}: <strong id="prMinVal">{{ request('min_price') ?: 0 }}</strong></span>
-                <span>{{ __('Max') }}: <strong id="prMaxVal">{{ request('max_price') ?: 1000 }}</strong></span>
+        <form method="GET" action="{{ request()->url() }}" class="filter-form">
+            @foreach(request()->except(['min_price', 'max_price']) as $key => $value)
+                @if(is_array($value))
+                    @foreach($value as $val)
+                        <input type="hidden" name="{{ $key }}[]" value="{{ $val }}">
+                    @endforeach
+                @else
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                @endif
+            @endforeach
+            <div class="price-range">
+                <div class="value-row">
+                    <span>{{ __('Min') }}: <strong>{{ request('min_price') ?: 0 }}</strong></span>
+                    <span>{{ __('Max') }}: <strong>{{ request('max_price') ?: 1000 }}</strong></span>
+                </div>
+                <div class="price-inputs">
+                    <input type="number" name="min_price" min="0" max="1000" step="10" 
+                           value="{{ request('min_price') ?: 0 }}" placeholder="{{ __('Min') }}" class="price-input">
+                    <span class="price-separator">-</span>
+                    <input type="number" name="max_price" min="0" max="1000" step="10" 
+                           value="{{ request('max_price') ?: 1000 }}" placeholder="{{ __('Max') }}" class="price-input">
+                </div>
             </div>
-            <div class="range-wrapper">
-                <input type="range" min="0" max="1000" step="10" value="{{ request('min_price') ?: 0 }}" id="prMin">
-                <input type="range" min="0" max="1000" step="10" value="{{ request('max_price') ?: 1000 }}" id="prMax">
-            </div>
-            <input type="hidden" form="catalogFilters" name="min_price" id="prMinHidden" value="{{ request('min_price') }}">
-            <input type="hidden" form="catalogFilters" name="max_price" id="prMaxHidden" value="{{ request('max_price') }}">
-        </div>
+            <button type="submit" class="btn btn-primary btn-sm filter-apply-btn">{{ __('Apply') }}</button>
+        </form>
     </div>
     <div class="sidebar-block">
         <h4>{{ __('Category') }}</h4>
@@ -33,17 +46,31 @@
     </div>
     <div class="sidebar-block">
         <h4>{{ __('Brand') }}</h4>
-        <div class="brand-search"><input type="search" placeholder="{{ __('Search') }}" disabled></div>
-        <div class="brand-list">
-            @if(isset($brandList) && $brandList->count())
-            @foreach($brandList as $b)
-            <label class="brand-item">
-                <input type="checkbox" form="catalogFilters" name="brand[]" value="{{ $b->slug }}" {{ in_array($b->slug,$csSelectedBrands ?? [])?'checked':'' }}>
-                <span>{{ $b->name }}</span>
-                <span class="count">{{ $b->products_count }}</span>
-            </label>
+        <form method="GET" action="{{ request()->url() }}" class="filter-form">
+            @foreach(request()->except(['brand']) as $key => $value)
+                @if(is_array($value))
+                    @foreach($value as $val)
+                        <input type="hidden" name="{{ $key }}[]" value="{{ $val }}">
+                    @endforeach
+                @else
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                @endif
             @endforeach
-            @endif
-        </div>
+            <div class="brand-search">
+                <input type="search" name="brand_search" placeholder="{{ __('Search') }}" value="{{ request('brand_search') }}">
+            </div>
+            <div class="brand-list">
+                @if(isset($brandList) && $brandList->count())
+                @foreach($brandList as $b)
+                <label class="filter-brand-item">
+                    <input type="checkbox" name="brand[]" value="{{ $b->slug }}" {{ in_array($b->slug,$csSelectedBrands ?? [])?'checked':'' }}>
+                    <span class="filter-brand-name">{{ $b->name }}</span>
+                    <span class="filter-brand-count">{{ $b->products_count }}</span>
+                </label>
+                @endforeach
+                @endif
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm filter-apply-btn">{{ __('Apply') }}</button>
+        </form>
     </div>
 </aside>
