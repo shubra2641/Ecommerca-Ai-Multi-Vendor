@@ -1,791 +1,620 @@
-/* Admin JavaScript - Consolidated JS for Admin Panel
- * This file contains all JavaScript functionality for the admin interface
- * Following rules: Progressive enhancement, no inline JS, unified structure
+/**
+ * Admin JavaScript - Optimized and Simplified
+ * Consolidated JS for Admin Panel with improved maintainability
+ * Features: Progressive enhancement, no inline JS, unified structure
  */
 
-(function() {
+(function () {
     'use strict';
 
     // Admin namespace
     window.AdminPanel = window.AdminPanel || {};
 
-    // Initialize admin functionality
-    AdminPanel.init = function() {
-        this.initSidebar();
-        this.initTables();
-        this.initForms();
-        this.initModals();
-        this.initUserBalance();
-        this.initConfirmations();
-        this.initNotifications();
+    // Configuration constants
+    const CONFIG = {
+        AUTO_SAVE_DELAY: 2000,
+        NOTIFICATION_DURATION: 5000,
+        SIDEBAR_BREAKPOINT: 992
     };
 
-    // Sidebar functionality
-    AdminPanel.initSidebar = function() {
-        // Find sidebar element across admin/vendor layouts
-        const sidebar = document.querySelector('.admin-sidebar, .modern-sidebar, .vendor-sidebar, #sidebar');
-        // Support multiple toggles (desktop compact, mobile toggle)
-        const toggles = Array.from(document.querySelectorAll('.sidebar-toggle, .mobile-menu-toggle'));
-        let overlay = document.querySelector('.sidebar-overlay');
+    // Utility functions
+    const Utils = {
+        // Safe element selection
+        select: (selector, context = document) => context.querySelector(selector),
+        selectAll: (selector, context = document) => Array.from(context.querySelectorAll(selector)),
 
-        // If overlay missing, create one and append after sidebar to keep markup consistent
-        if (!overlay && sidebar && sidebar.parentNode) {
-            overlay = document.createElement('div');
-            overlay.className = 'sidebar-overlay';
-            sidebar.parentNode.insertBefore(overlay, sidebar.nextSibling);
+        // Event handling
+        on: (element, event, handler) => element?.addEventListener(event, handler),
+        off: (element, event, handler) => element?.removeEventListener(event, handler),
+
+        // DOM manipulation
+        addClass: (element, className) => element?.classList.add(className),
+        removeClass: (element, className) => element?.classList.remove(className),
+        toggleClass: (element, className) => element?.classList.toggle(className),
+        hasClass: (element, className) => element?.classList.contains(className),
+
+        // AJAX helpers
+        fetch: async (url, options = {}) => {
+            const defaultOptions = {
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': Utils.getCSRFToken()
+                }
+            };
+            return fetch(url, { ...defaultOptions, ...options });
+        },
+
+        getCSRFToken: () => {
+            const meta = Utils.select('meta[name="csrf-token"]');
+            return meta?.getAttribute('content') || '';
+        },
+
+        // Format currency
+        formatCurrency: (amount, currency = { symbol: '$', code: 'USD' }) => {
+            try {
+                return new Intl.NumberFormat(document.documentElement.lang || 'en', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(parseFloat(amount || 0)) + ' ' + currency.symbol;
+            } catch (e) {
+                return (parseFloat(amount || 0).toFixed(2) + ' ' + currency.symbol);
+            }
         }
+    };
 
-        // toggle handler
-        function toggleSidebar(e) {
-            e && e.preventDefault();
-            if (!sidebar) return;
-            sidebar.classList.toggle('active');
-            if (overlay) overlay.classList.toggle('active');
-        }
+    // Sidebar Manager
+    const SidebarManager = {
+        init() {
+            this.sidebar = Utils.select('.admin-sidebar, .modern-sidebar, .vendor-sidebar, #sidebar');
+            this.toggles = Utils.selectAll('.sidebar-toggle, .mobile-menu-toggle');
+            this.overlay = this.createOverlay();
+            this.bindEvents();
+        },
 
-        // attach to all toggles
-        toggles.forEach(function(t) {
-            t.addEventListener('click', toggleSidebar);
-        });
+        createOverlay() {
+            let overlay = Utils.select('.sidebar-overlay');
+            if (!overlay && this.sidebar?.parentNode) {
+                overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
+                this.sidebar.parentNode.insertBefore(overlay, this.sidebar.nextSibling);
+            }
+            return overlay;
+        },
 
-        // Close sidebar when clicking overlay
-        if (overlay) {
-            overlay.addEventListener('click', function() {
-                if (!sidebar) return;
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
+        bindEvents() {
+            this.toggles.forEach(toggle => {
+                Utils.on(toggle, 'click', this.toggle.bind(this));
             });
-        }
 
-        // Close sidebar when clicking a nav item on small screens
-        document.addEventListener('click', function(e) {
-            if (!sidebar) return;
+            Utils.on(this.overlay, 'click', this.close.bind(this));
+            Utils.on(document, 'click', this.handleNavClick.bind(this));
+        },
+
+        toggle(e) {
+            e?.preventDefault();
+            if (!this.sidebar) return;
+            Utils.toggleClass(this.sidebar, 'active');
+            Utils.toggleClass(this.overlay, 'active');
+        },
+
+        close() {
+            if (!this.sidebar) return;
+            Utils.removeClass(this.sidebar, 'active');
+            Utils.removeClass(this.overlay, 'active');
+        },
+
+        handleNavClick(e) {
+            if (!this.sidebar) return;
             const navItem = e.target.closest('.sidebar-nav a, .nav-item');
             if (!navItem) return;
-            // only auto-close for narrower viewports where sidebar overlays content
-            if (window.innerWidth <= 992 && sidebar.classList.contains('active')) {
-                sidebar.classList.remove('active');
-                if (overlay) overlay.classList.remove('active');
+
+            if (window.innerWidth <= CONFIG.SIDEBAR_BREAKPOINT && Utils.hasClass(this.sidebar, 'active')) {
+                this.close();
             }
-        });
+        }
     };
 
-    // Enhanced table functionality
-    AdminPanel.initTables = function() {
-        const tables = document.querySelectorAll('.admin-table');
-        
-        tables.forEach(function(table) {
-            // Add sorting functionality
-            const headers = table.querySelectorAll('th[data-sortable]');
-            headers.forEach(function(header) {
+    // Table Manager
+    const TableManager = {
+        init() {
+            const tables = Utils.selectAll('.admin-table');
+            tables.forEach(table => {
+                this.initSorting(table);
+                this.initSelection(table);
+            });
+        },
+
+        initSorting(table) {
+            const headers = Utils.selectAll('th[data-sortable]', table);
+            headers.forEach(header => {
                 header.style.cursor = 'pointer';
-                header.addEventListener('click', function() {
-                    AdminPanel.sortTable(table, header);
+                Utils.on(header, 'click', () => this.sortTable(table, header));
+            });
+        },
+
+        sortTable(table, header) {
+            const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+            const rows = Array.from(Utils.selectAll('tbody tr', table));
+            const isAscending = !Utils.hasClass(header, 'sort-asc');
+
+            rows.sort((a, b) => {
+                const aText = a.children[columnIndex].textContent.trim();
+                const bText = b.children[columnIndex].textContent.trim();
+                return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+            });
+
+            // Update sort classes
+            Utils.selectAll('th', table).forEach(th => {
+                Utils.removeClass(th, 'sort-asc');
+                Utils.removeClass(th, 'sort-desc');
+            });
+            Utils.addClass(header, isAscending ? 'sort-asc' : 'sort-desc');
+
+            // Reorder rows
+            const tbody = Utils.select('tbody', table);
+            rows.forEach(row => tbody.appendChild(row));
+        },
+
+        initSelection(table) {
+            const selectAll = Utils.select('thead input[type="checkbox"]', table);
+            const rowCheckboxes = Utils.selectAll('tbody input[type="checkbox"]', table);
+
+            if (selectAll) {
+                Utils.on(selectAll, 'change', () => {
+                    rowCheckboxes.forEach(checkbox => {
+                        checkbox.checked = selectAll.checked;
+                        this.updateRowSelection(checkbox);
+                    });
+                });
+            }
+
+            rowCheckboxes.forEach(checkbox => {
+                Utils.on(checkbox, 'change', () => {
+                    this.updateRowSelection(checkbox);
+                    this.updateSelectAll(table);
                 });
             });
+        },
 
-            // Add row selection
-            const checkboxes = table.querySelectorAll('input[type="checkbox"]');
-            if (checkboxes.length > 0) {
-                AdminPanel.initTableSelection(table);
+        updateRowSelection(checkbox) {
+            const row = checkbox.closest('tr');
+            Utils.toggleClass(row, 'selected', checkbox.checked);
+        },
+
+        updateSelectAll(table) {
+            const selectAll = Utils.select('thead input[type="checkbox"]', table);
+            const rowCheckboxes = Utils.selectAll('tbody input[type="checkbox"]', table);
+            const checkedBoxes = Utils.selectAll('tbody input[type="checkbox"]:checked', table);
+
+            if (selectAll) {
+                selectAll.checked = checkedBoxes.length === rowCheckboxes.length;
+                selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < rowCheckboxes.length;
             }
-        });
+        }
     };
 
-    // Table sorting
-    AdminPanel.sortTable = function(table, header) {
-        const columnIndex = Array.from(header.parentNode.children).indexOf(header);
-        const rows = Array.from(table.querySelectorAll('tbody tr'));
-        const isAscending = !header.classList.contains('sort-asc');
-
-        rows.sort(function(a, b) {
-            const aText = a.children[columnIndex].textContent.trim();
-            const bText = b.children[columnIndex].textContent.trim();
-            
-            if (isAscending) {
-                return aText.localeCompare(bText);
-            } else {
-                return bText.localeCompare(aText);
-            }
-        });
-
-        // Remove existing sort classes
-        table.querySelectorAll('th').forEach(function(th) {
-            th.classList.remove('sort-asc', 'sort-desc');
-        });
-
-        // Add sort class to current header
-        header.classList.add(isAscending ? 'sort-asc' : 'sort-desc');
-
-        // Reorder rows
-        const tbody = table.querySelector('tbody');
-        rows.forEach(function(row) {
-            tbody.appendChild(row);
-        });
-    };
-
-    // Table selection functionality
-    AdminPanel.initTableSelection = function(table) {
-        const selectAll = table.querySelector('thead input[type="checkbox"]');
-        const rowCheckboxes = table.querySelectorAll('tbody input[type="checkbox"]');
-
-        if (selectAll) {
-            selectAll.addEventListener('change', function() {
-                rowCheckboxes.forEach(function(checkbox) {
-                    checkbox.checked = selectAll.checked;
-                    AdminPanel.updateRowSelection(checkbox);
-                });
+    // Form Manager
+    const FormManager = {
+        init() {
+            const forms = Utils.selectAll('.admin-form');
+            forms.forEach(form => {
+                this.initValidation(form);
+                if (form.hasAttribute('data-auto-save')) {
+                    this.initAutoSave(form);
+                }
             });
-        }
+        },
 
-        rowCheckboxes.forEach(function(checkbox) {
-            checkbox.addEventListener('change', function() {
-                AdminPanel.updateRowSelection(checkbox);
-                AdminPanel.updateSelectAll(table);
-            });
-        });
-    };
-
-    // Update row selection visual state
-    AdminPanel.updateRowSelection = function(checkbox) {
-        const row = checkbox.closest('tr');
-        if (checkbox.checked) {
-            row.classList.add('selected');
-        } else {
-            row.classList.remove('selected');
-        }
-    };
-
-    // Update select all checkbox state
-    AdminPanel.updateSelectAll = function(table) {
-        const selectAll = table.querySelector('thead input[type="checkbox"]');
-        const rowCheckboxes = table.querySelectorAll('tbody input[type="checkbox"]');
-        const checkedBoxes = table.querySelectorAll('tbody input[type="checkbox"]:checked');
-
-        if (selectAll) {
-            selectAll.checked = checkedBoxes.length === rowCheckboxes.length;
-            selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < rowCheckboxes.length;
-        }
-    };
-
-    // Form enhancements
-    AdminPanel.initForms = function() {
-        const forms = document.querySelectorAll('.admin-form');
-        
-        forms.forEach(function(form) {
-            // Add form validation
-            form.addEventListener('submit', function(e) {
-                if (!AdminPanel.validateForm(form)) {
+        initValidation(form) {
+            Utils.on(form, 'submit', (e) => {
+                if (!this.validateForm(form)) {
                     e.preventDefault();
                 }
             });
+        },
 
-            // Auto-save functionality
-            if (form.hasAttribute('data-auto-save')) {
-                AdminPanel.initAutoSave(form);
-            }
-        });
-    };
+        validateForm(form) {
+            let isValid = true;
+            const requiredFields = Utils.selectAll('[required]', form);
 
-    // Form validation
-    AdminPanel.validateForm = function(form) {
-        let isValid = true;
-        const requiredFields = form.querySelectorAll('[required]');
-
-        requiredFields.forEach(function(field) {
-            if (!field.value.trim()) {
-                AdminPanel.showFieldError(field, 'This field is required');
-                isValid = false;
-            } else {
-                AdminPanel.clearFieldError(field);
-            }
-        });
-
-        return isValid;
-    };
-
-    // Show field error
-    AdminPanel.showFieldError = function(field, message) {
-        AdminPanel.clearFieldError(field);
-        
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'field-error';
-        errorDiv.textContent = message;
-        
-        field.classList.add('error');
-        field.parentNode.appendChild(errorDiv);
-    };
-
-    // Clear field error
-    AdminPanel.clearFieldError = function(field) {
-        field.classList.remove('error');
-        const existingError = field.parentNode.querySelector('.field-error');
-        if (existingError) {
-            existingError.remove();
-        }
-    };
-
-    // Modal functionality
-    AdminPanel.initModals = function() {
-        const modalTriggers = document.querySelectorAll('[data-modal]');
-        
-        modalTriggers.forEach(function(trigger) {
-            trigger.addEventListener('click', function(e) {
-                e.preventDefault();
-                const modalId = trigger.getAttribute('data-modal');
-                AdminPanel.openModal(modalId);
-            });
-        });
-
-        // Close modal functionality
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
-                AdminPanel.closeModal();
-            }
-        });
-
-        // Escape key to close modal
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                AdminPanel.closeModal();
-            }
-        });
-    };
-
-    // Open modal
-    AdminPanel.openModal = function(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.add('active');
-            document.body.classList.add('modal-open');
-        }
-    };
-
-    // Close modal
-    AdminPanel.closeModal = function() {
-        const activeModal = document.querySelector('.modal.active');
-        if (activeModal) {
-            activeModal.classList.remove('active');
-            document.body.classList.remove('modal-open');
-        }
-    };
-
-    // Notification system
-    AdminPanel.initNotifications = function() {
-        // Auto-hide notifications
-        const notifications = document.querySelectorAll('.notification');
-        notifications.forEach(function(notification) {
-            if (notification.hasAttribute('data-auto-hide')) {
-                setTimeout(function() {
-                    AdminPanel.hideNotification(notification);
-                }, 5000);
-            }
-        });
-
-        // Close notification buttons
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('notification-close')) {
-                const notification = e.target.closest('.notification');
-                AdminPanel.hideNotification(notification);
-            }
-        });
-    };
-
-    // User Balance page adapter
-    AdminPanel.initUserBalance = function() {
-        // Look for the config template inserted by the Blade view
-        const tpl = document.getElementById('user-balance-config');
-        if (!tpl) return; // not present on this page
-
-        let cfg = {};
-        try {
-            cfg = JSON.parse(tpl.textContent || tpl.innerText || '{}');
-        } catch (e) {
-            console.error('user-balance-config JSON parse error', e);
-            return;
-        }
-
-        const urls = (cfg.urls) ? cfg.urls : {};
-        const currency = (cfg.currency) ? cfg.currency : { code: 'USD', symbol: '$' };
-
-        function fmtAmount(v) {
-            try {
-                return new Intl.NumberFormat(document.documentElement.lang || 'en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(v || 0)) + ' ' + (currency.symbol || '$');
-            } catch (e) { return (parseFloat(v || 0).toFixed(2) + ' ' + (currency.symbol || '$')); }
-        }
-
-        // Refresh stats from server and update DOM
-        async function refreshStats() {
-            if (!urls.stats) return;
-            try {
-                const res = await fetch(urls.stats, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-                if (!res.ok) throw new Error('Network response not ok');
-                const data = await res.json();
-
-                // Update balance display
-                const balanceEls = document.querySelectorAll('[data-countup][data-target]');
-                balanceEls.forEach(function(el) {
-                    const key = el.getAttribute('data-stat') || el.getAttribute('data-key');
-                    if (key && data.hasOwnProperty(key)) {
-                        el.textContent = fmtAmount(data[key]);
-                        // update dataset target for potential CountUp observers
-                        el.dataset.target = Number(data[key]);
-                        delete el.dataset.counted; // allow re-animate if CountUp observes again
-                    }
-                });
-
-                // Fallback: update elements with specific data-stat attributes
-                ['total_added','total_deducted','net_balance_change','balance'].forEach(function(k){
-                    const sel = document.querySelector('[data-stat="' + k + '"]');
-                    if (sel && data.hasOwnProperty(k)) sel.textContent = fmtAmount(data[k]);
-                });
-
-                AdminPanel.showNotification(cfg.i18n && cfg.i18n.balance_refreshed ? cfg.i18n.balance_refreshed : 'Data refreshed', 'success');
-            } catch (err) {
-                console.error('Failed to refresh balance stats', err);
-                AdminPanel.showNotification(cfg.i18n && cfg.i18n.error_refresh ? cfg.i18n.error_refresh : 'Failed to refresh', 'danger');
-            }
-        }
-
-        // Wire refresh buttons
-        document.querySelectorAll('.btn-refresh-balance').forEach(function(btn){
-            btn.addEventListener('click', function(e){ e.preventDefault(); refreshStats(); });
-        });
-
-        // Open modals for add / deduct
-        document.querySelectorAll('.btn-add-balance').forEach(function(btn){
-            btn.addEventListener('click', function(e){ e.preventDefault(); AdminPanel.openModal('addBalanceModal'); });
-        });
-        document.querySelectorAll('.btn-deduct-balance').forEach(function(btn){
-            btn.addEventListener('click', function(e){ e.preventDefault(); AdminPanel.openModal('deductBalanceModal'); });
-        });
-
-        // View history
-        document.querySelectorAll('.btn-view-history').forEach(function(btn){
-            btn.addEventListener('click', async function(e){
-                e.preventDefault();
-                AdminPanel.openModal('balanceHistoryModal');
-                const container = document.getElementById('balanceHistoryContainer');
-                if (!container || !urls.history) return;
-                // show loading
-                container.innerHTML = '<div class="text-center p-4"><div class="loading-spinner mx-auto"></div><p class="mt-2">' + (cfg.i18n && cfg.i18n.loading_history ? cfg.i18n.loading_history : 'Loading history...') + '</p></div>';
-                try {
-                    const res = await fetch(urls.history, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-                    if (!res.ok) throw new Error('Network response not ok');
-                    const html = await res.text();
-                    container.innerHTML = html || ('<div class="empty-state text-center p-4">' + (cfg.i18n && cfg.i18n.no_history_desc ? cfg.i18n.no_history_desc : 'No previous transactions found') + '</div>');
-                } catch (err) {
-                    console.error('Failed to load history', err);
-                    container.innerHTML = '<div class="alert alert-danger">' + (cfg.i18n && cfg.i18n.error_history ? cfg.i18n.error_history : 'Failed to load balance history') + '</div>';
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    this.showFieldError(field, 'This field is required');
+                    isValid = false;
+                } else {
+                    this.clearFieldError(field);
                 }
             });
-        });
 
-        // AJAX form submit for add/deduct
-        function wireForm(formId, urlKey, successMessageKey) {
-            const form = document.getElementById(formId);
+            return isValid;
+        },
+
+        showFieldError(field, message) {
+            this.clearFieldError(field);
+            Utils.addClass(field, 'error');
+
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'field-error';
+            errorDiv.textContent = message;
+            field.parentNode.appendChild(errorDiv);
+        },
+
+        clearFieldError(field) {
+            Utils.removeClass(field, 'error');
+            const existingError = Utils.select('.field-error', field.parentNode);
+            existingError?.remove();
+        },
+
+        initAutoSave(form) {
+            const fields = Utils.selectAll('input, textarea, select', form);
+            let saveTimeout;
+
+            fields.forEach(field => {
+                Utils.on(field, 'input', () => {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => this.autoSave(form), CONFIG.AUTO_SAVE_DELAY);
+                });
+            });
+        },
+
+        autoSave(form) {
+            const formData = new FormData(form);
+            const autoSaveUrl = form.getAttribute('data-auto-save-url');
+
+            if (autoSaveUrl) {
+                Utils.fetch(autoSaveUrl, {
+                    method: 'POST',
+                    body: formData
+                }).then(response => {
+                    if (response.ok) {
+                        NotificationManager.show('Changes saved automatically', 'success');
+                    }
+                }).catch(error => console.error('Auto-save failed:', error));
+            }
+        }
+    };
+
+    // Modal Manager
+    const ModalManager = {
+        init() {
+            this.bindTriggers();
+            this.bindCloseHandlers();
+        },
+
+        bindTriggers() {
+            const triggers = Utils.selectAll('[data-modal]');
+            triggers.forEach(trigger => {
+                Utils.on(trigger, 'click', (e) => {
+                    e.preventDefault();
+                    const modalId = trigger.getAttribute('data-modal');
+                    this.open(modalId);
+                });
+            });
+        },
+
+        bindCloseHandlers() {
+            Utils.on(document, 'click', (e) => {
+                if (Utils.hasClass(e.target, 'modal-overlay') || Utils.hasClass(e.target, 'modal-close')) {
+                    this.close();
+                }
+            });
+
+            Utils.on(document, 'keydown', (e) => {
+                if (e.key === 'Escape') {
+                    this.close();
+                }
+            });
+        },
+
+        open(modalId) {
+            const modal = Utils.select(`#${modalId}`);
+            if (modal) {
+                Utils.addClass(modal, 'active');
+                Utils.addClass(document.body, 'modal-open');
+            }
+        },
+
+        close() {
+            const activeModal = Utils.select('.modal.active');
+            if (activeModal) {
+                Utils.removeClass(activeModal, 'active');
+                Utils.removeClass(document.body, 'modal-open');
+            }
+        }
+    };
+
+    // Notification Manager
+    const NotificationManager = {
+        init() {
+            this.initAutoHide();
+            this.bindCloseHandlers();
+        },
+
+        initAutoHide() {
+            const notifications = Utils.selectAll('.notification');
+            notifications.forEach(notification => {
+                if (notification.hasAttribute('data-auto-hide')) {
+                    setTimeout(() => this.hide(notification), CONFIG.NOTIFICATION_DURATION);
+                }
+            });
+        },
+
+        bindCloseHandlers() {
+            Utils.on(document, 'click', (e) => {
+                if (Utils.hasClass(e.target, 'notification-close')) {
+                    const notification = e.target.closest('.notification');
+                    this.hide(notification);
+                }
+            });
+        },
+
+        show(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-message">${message}</div>
+                    <button class="notification-close" type="button" aria-label="Close notification">&times;</button>
+                </div>
+            `;
+
+            let container = Utils.select('.notification-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'notification-container';
+                document.body.appendChild(container);
+            }
+
+            container.appendChild(notification);
+
+            const autoHide = setTimeout(() => this.hide(notification), CONFIG.NOTIFICATION_DURATION);
+
+            const closeBtn = Utils.select('.notification-close', notification);
+            if (closeBtn) {
+                Utils.on(closeBtn, 'click', () => {
+                    clearTimeout(autoHide);
+                    this.hide(notification);
+                });
+            }
+        },
+
+        hide(notification) {
+            if (notification) {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }
+    };
+
+    // User Balance Manager
+    const UserBalanceManager = {
+        init() {
+            const config = this.getConfig();
+            if (!config) return;
+
+            this.config = config;
+            this.bindEvents();
+            setTimeout(() => this.refreshStats(), 400);
+        },
+
+        getConfig() {
+            const tpl = Utils.select('#user-balance-config');
+            if (!tpl) return null;
+
+            try {
+                return JSON.parse(tpl.textContent || tpl.innerText || '{}');
+            } catch (e) {
+                console.error('user-balance-config JSON parse error', e);
+                return null;
+            }
+        },
+
+        bindEvents() {
+            Utils.selectAll('.btn-refresh-balance').forEach(btn => {
+                Utils.on(btn, 'click', (e) => {
+                    e.preventDefault();
+                    this.refreshStats();
+                });
+            });
+
+            Utils.selectAll('.btn-add-balance').forEach(btn => {
+                Utils.on(btn, 'click', (e) => {
+                    e.preventDefault();
+                    ModalManager.open('addBalanceModal');
+                });
+            });
+
+            Utils.selectAll('.btn-deduct-balance').forEach(btn => {
+                Utils.on(btn, 'click', (e) => {
+                    e.preventDefault();
+                    ModalManager.open('deductBalanceModal');
+                });
+            });
+
+            Utils.selectAll('.btn-view-history').forEach(btn => {
+                Utils.on(btn, 'click', (e) => {
+                    e.preventDefault();
+                    this.viewHistory();
+                });
+            });
+
+            this.wireForm('addBalanceForm', 'add', 'balance_added');
+            this.wireForm('deductBalanceForm', 'deduct', 'balance_deducted');
+        },
+
+        async refreshStats() {
+            if (!this.config.urls?.stats) return;
+
+            try {
+                const response = await Utils.fetch(this.config.urls.stats);
+                if (!response.ok) throw new Error('Network response not ok');
+                const data = await response.json();
+
+                this.updateBalanceDisplay(data);
+                NotificationManager.show(
+                    this.config.i18n?.balance_refreshed || 'Data refreshed',
+                    'success'
+                );
+            } catch (err) {
+                console.error('Failed to refresh balance stats', err);
+                NotificationManager.show(
+                    this.config.i18n?.error_refresh || 'Failed to refresh',
+                    'danger'
+                );
+            }
+        },
+
+        updateBalanceDisplay(data) {
+            const balanceEls = Utils.selectAll('[data-countup][data-target]');
+            balanceEls.forEach(el => {
+                const key = el.getAttribute('data-stat') || el.getAttribute('data-key');
+                if (key && data.hasOwnProperty(key)) {
+                    el.textContent = Utils.formatCurrency(data[key], this.config.currency);
+                    el.dataset.target = Number(data[key]);
+                    delete el.dataset.counted;
+                }
+            });
+
+            ['total_added', 'total_deducted', 'net_balance_change', 'balance'].forEach(key => {
+                const element = Utils.select(`[data-stat="${key}"]`);
+                if (element && data.hasOwnProperty(key)) {
+                    element.textContent = Utils.formatCurrency(data[key], this.config.currency);
+                }
+            });
+        },
+
+        async viewHistory() {
+            ModalManager.open('balanceHistoryModal');
+            const container = Utils.select('#balanceHistoryContainer');
+            if (!container || !this.config.urls?.history) return;
+
+            container.innerHTML = `
+                <div class="text-center p-4">
+                    <div class="loading-spinner mx-auto"></div>
+                    <p class="mt-2">${this.config.i18n?.loading_history || 'Loading history...'}</p>
+                </div>
+            `;
+
+            try {
+                const response = await Utils.fetch(this.config.urls.history);
+                if (!response.ok) throw new Error('Network response not ok');
+                const html = await response.text();
+                container.innerHTML = html || `
+                    <div class="empty-state text-center p-4">
+                        ${this.config.i18n?.no_history_desc || 'No previous transactions found'}
+                    </div>
+                `;
+            } catch (err) {
+                console.error('Failed to load history', err);
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        ${this.config.i18n?.error_history || 'Failed to load balance history'}
+                    </div>
+                `;
+            }
+        },
+
+        wireForm(formId, urlKey, successMessageKey) {
+            const form = Utils.select(`#${formId}`);
             if (!form) return;
-            form.addEventListener('submit', async function(e){
+
+            Utils.on(form, 'submit', async (e) => {
                 e.preventDefault();
-                const submitBtn = form.querySelector('button[type="submit"]');
+                const submitBtn = Utils.select('button[type="submit"]', form);
                 if (submitBtn) submitBtn.disabled = true;
-                const formData = new FormData(form);
-                const url = urls[urlKey];
+
                 try {
-                    const res = await fetch(url, {
+                    const formData = new FormData(form);
+                    const response = await Utils.fetch(this.config.urls[urlKey], {
                         method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
-                        }
+                        body: formData
                     });
-                    const json = await res.json();
-                    if (res.ok) {
-                        AdminPanel.showNotification((cfg.i18n && cfg.i18n[successMessageKey]) || 'Success', 'success');
-                        // close modal
-                        AdminPanel.closeModal();
-                        // refresh stats
-                        refreshStats();
+                    const json = await response.json();
+
+                    if (response.ok) {
+                        NotificationManager.show(
+                            this.config.i18n?.[successMessageKey] || 'Success',
+                            'success'
+                        );
+                        ModalManager.close();
+                        this.refreshStats();
                     } else {
-                        AdminPanel.showNotification(json.message || (cfg.i18n && cfg.i18n.error_server) || 'Error', 'danger');
+                        NotificationManager.show(
+                            json.message || this.config.i18n?.error_server || 'Error',
+                            'danger'
+                        );
                     }
                 } catch (err) {
                     console.error('Form submit failed', err);
-                    AdminPanel.showNotification((cfg.i18n && cfg.i18n.error_server) || 'Server error', 'danger');
+                    NotificationManager.show(
+                        this.config.i18n?.error_server || 'Server error',
+                        'danger'
+                    );
                 } finally {
                     if (submitBtn) submitBtn.disabled = false;
                 }
             });
         }
-
-        wireForm('addBalanceForm', 'add', 'balance_added');
-        wireForm('deductBalanceForm', 'deduct', 'balance_deducted');
-
-        // initial refresh to populate numbers if needed
-        setTimeout(refreshStats, 400);
     };
 
-    // Centralized confirm handlers for forms and links
-    AdminPanel.initConfirmations = function() {
-        // Forms with js-confirm or js-confirm-delete
-        document.querySelectorAll('form.js-confirm, form.js-confirm-delete').forEach(function(form){
-            form.addEventListener('submit', function(e){
-                const msg = form.dataset.confirm || form.getAttribute('data-confirm') || 'Are you sure?';
-                if (!window.confirm(msg)) {
-                    e.preventDefault();
-                }
+    // Confirmation Manager
+    const ConfirmationManager = {
+        init() {
+            this.bindFormConfirmations();
+            this.bindElementConfirmations();
+        },
+
+        bindFormConfirmations() {
+            Utils.selectAll('form.js-confirm, form.js-confirm-delete').forEach(form => {
+                Utils.on(form, 'submit', (e) => {
+                    const msg = form.dataset.confirm || form.getAttribute('data-confirm') || 'Are you sure?';
+                    if (!window.confirm(msg)) {
+                        e.preventDefault();
+                    }
+                });
             });
-        });
+        },
 
-        // Links/buttons with data-confirm attribute
-        document.querySelectorAll('[data-confirm]').forEach(function(el){
-            // only handle anchors or buttons that navigate or submit forms
-            el.addEventListener('click', function(e){
-                const msg = el.getAttribute('data-confirm');
-                if (!window.confirm(msg)) {
-                    e.preventDefault();
-                }
-            });
-        });
-    };
-
-    // Hide notification
-    AdminPanel.hideNotification = function(notification) {
-        if (notification) {
-            notification.style.opacity = '0';
-            setTimeout(function() {
-                notification.remove();
-            }, 300);
-        }
-    };
-
-    // Show notification
-    AdminPanel.showNotification = function(message, type) {
-        type = type || 'info';
-        const notification = document.createElement('div');
-        notification.className = 'notification notification-' + type;
-        notification.innerHTML = '<div class="notification-content"><div class="notification-message">' + message + '</div><button class="notification-close" type="button" aria-label="Close notification">&times;</button></div>';
-
-        // Ensure a dedicated container exists
-        let container = document.querySelector('.notification-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.className = 'notification-container';
-            // Prefer a top-right position via CSS; append to body
-            document.body.appendChild(container);
-        }
-
-        container.appendChild(notification);
-
-        // Auto-hide after 5 seconds
-        const autoHide = setTimeout(function() {
-            AdminPanel.hideNotification(notification);
-        }, 5000);
-
-        // Close handler
-        const closeBtn = notification.querySelector('.notification-close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', function() {
-                clearTimeout(autoHide);
-                AdminPanel.hideNotification(notification);
+        bindElementConfirmations() {
+            Utils.selectAll('[data-confirm]').forEach(element => {
+                Utils.on(element, 'click', (e) => {
+                    const msg = element.getAttribute('data-confirm');
+                    if (!window.confirm(msg)) {
+                        e.preventDefault();
+                    }
+                });
             });
         }
     };
 
-    // Auto-save functionality
-    AdminPanel.initAutoSave = function(form) {
-        const fields = form.querySelectorAll('input, textarea, select');
-        let saveTimeout;
-
-        fields.forEach(function(field) {
-            field.addEventListener('input', function() {
-                clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(function() {
-                    AdminPanel.autoSave(form);
-                }, 2000);
-            });
-        });
+    // Main initialization
+    AdminPanel.init = function () {
+        SidebarManager.init();
+        TableManager.init();
+        FormManager.init();
+        ModalManager.init();
+        UserBalanceManager.init();
+        ConfirmationManager.init();
+        NotificationManager.init();
     };
 
-    // Auto-save implementation
-    AdminPanel.autoSave = function(form) {
-        const formData = new FormData(form);
-        const autoSaveUrl = form.getAttribute('data-auto-save-url');
-
-        if (autoSaveUrl) {
-            fetch(autoSaveUrl, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(function(response) {
-                if (response.ok) {
-                    AdminPanel.showNotification('Changes saved automatically', 'success');
-                }
-            })
-            .catch(function(error) {
-                console.error('Auto-save failed:', error);
-            });
-        }
-    };
-
-    // Initialize when DOM is loaded (ensure correct `this` binding)
-    function _adminInit() {
-        // Call init with AdminPanel as `this` to ensure methods referenced via `this` are found
+    // Initialize when DOM is ready
+    function initAdmin() {
         if (typeof AdminPanel.init === 'function') {
             AdminPanel.init();
         }
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', _adminInit);
+        document.addEventListener('DOMContentLoaded', initAdmin);
     } else {
-        _adminInit();
+        initAdmin();
     }
 
-        /* ===== Admin Notifications Loader (migrated from admin-notifications.js) ===== */
-        (function () {
-            // Defer execution until DOM ready
-            function initNotificationsLoader() {
-                const badge = document.getElementById('adminNotificationBadge');
-                const menu = document.getElementById('adminNotificationsMenu');
-                const placeholder = document.getElementById('adminNotificationsPlaceholder');
-                if (!badge || !menu || !placeholder) {
-                    return; // markup missing on this page
-                }
-
-                function showBadge(count) {
-                    if (count > 0) {
-                        badge.textContent = count > 99 ? '99+' : count;
-                        badge.style.display = 'inline-block';
-                        badge.classList.remove('envato-hidden');
-                    } else {
-                        badge.textContent = '';
-                        badge.style.display = 'none';
-                    }
-                }
-
-                // Build base URL using body[data-admin-base] when present. This helps when app is hosted
-                // in a subdirectory (e.g., http://localhost/easy) so fetch('/admin/...') would otherwise miss.
-                const baseEl = document.querySelector('body') || document.documentElement;
-                const rawBase = (baseEl && baseEl.getAttribute) ? (baseEl.getAttribute('data-admin-base') || '') : '';
-                // Ensure no trailing slash
-                let baseUrl = rawBase.replace(/\/$/, '');
-                // If data-admin-base is not accurate or empty, derive base from current location by
-                // finding the first '/admin' segment in the pathname. This handles deployments
-                // where the app is served from a subdirectory (e.g., /easy) but APP_URL was not set.
-                if (!baseUrl) {
-                    try {
-                        const loc = window.location;
-                        const idx = loc.pathname.indexOf('/admin');
-                        const prefix = idx !== -1 ? loc.pathname.slice(0, idx) : '';
-                        baseUrl = loc.origin + prefix;
-                    } catch (e) {
-                        baseUrl = ''; // fallback to absolute-root-style paths
-                    }
-                }
-
-                async function preflightUnread() {
-                    try {
-                        const url = (baseUrl ? (baseUrl + '/admin/notifications/unread-count') : '/admin/notifications/unread-count');
-                        const res = await fetch(url, { credentials: 'same-origin' });
-                        if (!res.ok) return;
-                        const j = await res.json().catch(() => ({}));
-                        if (j && typeof j.unread === 'number') showBadge(j.unread);
-                    } catch (e) {
-                        /* ignore network error */
-                    }
-                }
-
-                async function loadNotifications() {
-                    try {
-                        const url = (baseUrl ? (baseUrl + '/admin/notifications/latest') : '/admin/notifications/latest');
-                        const res = await fetch(url, { credentials: 'same-origin' });
-                        if (!res.ok) {
-                            placeholder.innerHTML = '<div class="px-3 py-2 text-muted">Could not load (status: ' + res.status + ')</div>';
-                            return;
-                        }
-                        let json;
-                        try { json = await res.json(); } catch (e) { placeholder.innerHTML = '<div class="px-3 py-2 text-muted">Could not parse response</div>'; return; }
-                        if (!json.ok) { placeholder.innerHTML = '<div class="px-3 py-2 text-muted">No notifications</div>'; return; }
-                        const items = json.notifications || [];
-                        const unread = (json.unread ?? items.filter(i => !i.read_at).length) || 0;
-                        showBadge(unread);
-                        if (items.length === 0) {
-                            placeholder.innerHTML = '<div class="px-3 py-2 text-muted">' + ((window.__t && typeof window.__t === 'function') ? window.__t('No notifications') : 'No notifications') + '</div>';
-                            return;
-                        }
-                        placeholder.innerHTML = '';
-                        items.forEach(n => {
-                            const a = document.createElement('a');
-                            a.className = 'dropdown-item d-flex align-items-start';
-                            a.href = n.data.url || '#';
-                            a.dataset.notificationId = n.id;
-                            const icon = document.createElement('div');
-                            icon.className = 'me-2';
-                            icon.innerHTML = '<i class="fas fa-' + (n.data.icon || 'bell') + ' fa-lg text-primary"></i>';
-                            const body = document.createElement('div');
-                            body.style.flex = '1';
-                            const title = document.createElement('div');
-                            title.className = 'fw-semibold';
-                            function humanizeType(t) { if (!t) return ''; return t.replace(/_/g,' ').replace(/\b\w/g,c => c.toUpperCase()); }
-                            const titleText = (n.data?.title) || ((typeof window.__t === 'function') ? (window.__t(n.data?.type || '') || '') : '') || humanizeType(n.data?.type) || (n.data?.type || 'Notification');
-                            title.textContent = titleText;
-                            const subtitle = document.createElement('div');
-                            subtitle.className = 'small text-muted';
-                            subtitle.textContent = n.data?.message || n.data?.text || '';
-                            const ts = document.createElement('div');
-                            ts.className = 'small text-muted ms-2';
-                            ts.textContent = n.created_at;
-                            body.appendChild(title);
-                            body.appendChild(subtitle);
-                            a.appendChild(icon);
-                            a.appendChild(body);
-                            a.appendChild(ts);
-
-                            a.addEventListener('click', async function (ev) {
-                                ev.preventDefault();
-                                const id = this.dataset.notificationId;
-                                let ok = false; let msg = '';
-                                try {
-                                    const readUrl = (baseUrl ? (baseUrl + '/admin/notifications/' + encodeURIComponent(id) + '/read') : ('/admin/notifications/' + encodeURIComponent(id) + '/read'));
-                                    const res = await fetch(readUrl, {
-                                        method: 'POST', credentials: 'same-origin',
-                                        headers: { 'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')) || '', 'Accept': 'application/json' },
-                                    });
-                                    const j = await res.json().catch(() => ({}));
-                                    ok = j.ok || res.ok;
-                                    msg = j.message || (ok ? ((typeof window.__t === 'function' && window.__t('Marked read')) || 'Marked read') : (j.error || ((typeof window.__t === 'function' && window.__t('Failed')) || 'Failed')));
-                                } catch (e) { msg = ((typeof window.__t === 'function') ? window.__t('Network error') : 'Network error'); }
-
-                                // show toast feedback via AdminPanel or fallback
-                                if (window.AdminPanel && typeof window.AdminPanel.showNotification === 'function') {
-                                    window.AdminPanel.showNotification(msg, ok ? 'success' : 'error');
-                                } else if (window.alert) {
-                                    alert(msg);
-                                }
-
-                                try {
-                                    if (!this.classList.contains('text-muted')) this.classList.add('text-muted');
-                                    const current = parseInt((badge.textContent || '0').replace('+',''),10) || 0;
-                                    const next = Math.max(0, current - 1);
-                                    showBadge(next);
-                                } catch (e) { /* ignore */ }
-
-                                loadNotifications().catch(() => {});
-                                const url = this.getAttribute('href');
-                                if (url && url !== '#') { window.location.href = url; }
-                            });
-
-                            placeholder.appendChild(a);
-                        });
-                    } catch (e) {
-                        placeholder.innerHTML = '<div class="px-3 py-2 text-muted">Could not load</div>';
-                    }
-                }
-
-                window.refreshAdminNotifications = loadNotifications;
-
-                const markAllBtn = document.getElementById('adminMarkAllReadBtn');
-                if (markAllBtn) {
-                    markAllBtn.addEventListener('click', async function (ev) {
-                        ev.preventDefault();
-                        try {
-                            const markAllUrl = (baseUrl ? (baseUrl + '/admin/notifications/mark-all-read') : '/admin/notifications/mark-all-read');
-                            const res = await fetch(markAllUrl, { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')) || '' } });
-                            const j = await res.json().catch(() => ({}));
-                            if (j.ok || res.ok) {
-                                if (window.AdminPanel && window.AdminPanel.showNotification) window.AdminPanel.showNotification((typeof window.__t === 'function') ? window.__t('All marked read') : 'All marked read', 'success');
-                                showBadge(0);
-                                loadNotifications().catch(() => {});
-                            } else {
-                                if (window.AdminPanel && window.AdminPanel.showNotification) window.AdminPanel.showNotification(j.message || ((typeof window.__t === 'function') ? window.__t('Failed') : 'Failed'), 'error');
-                            }
-                        } catch (e) {
-                            if (window.AdminPanel && window.AdminPanel.showNotification) window.AdminPanel.showNotification((typeof window.__t === 'function') ? window.__t('Network error') : 'Network error', 'error');
-                        }
-                    });
-                }
-
-                preflightUnread().finally(loadNotifications);
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initNotificationsLoader);
-            } else {
-                initNotificationsLoader();
-            }
-        })();
-
-    // Sidebar submenu toggle fallback (robust)
-    // - removes data-bs-toggle to avoid Bootstrap interference
-    // - toggles .show on the parent .nav-dropdown
-    // - closes other open nav-dropdowns when opening a new one
-    // - updates aria-expanded on toggles
-    AdminPanel.initSidebarSubmenus = function() {
-        // remove bootstrap data attribute to prevent popper/bootstrap from hijacking behavior
-        document.querySelectorAll('.nav-item.dropdown-toggle').forEach(function(el) {
-            try { el.removeAttribute('data-bs-toggle'); } catch (e) { /* ignore */ }
-            // ensure aria-expanded is present
-            const p = el.closest('.nav-dropdown');
-            if (p && p.classList.contains('show')) {
-                el.setAttribute('aria-expanded', 'true');
-            } else {
-                el.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        // delegate clicks for toggles
-        document.addEventListener('click', function(e) {
-            const toggle = e.target.closest('.nav-item.dropdown-toggle');
-            if (!toggle) return;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            const parent = toggle.closest('.nav-dropdown');
-            if (!parent) return;
-
-            const willOpen = !parent.classList.contains('show');
-
-            // close all other open dropdowns
-            document.querySelectorAll('.nav-dropdown.show').forEach(function(openEl) {
-                if (openEl !== parent) {
-                    openEl.classList.remove('show');
-                    const t = openEl.querySelector('.nav-item.dropdown-toggle');
-                    if (t) t.setAttribute('aria-expanded', 'false');
-                }
-            });
-
-            // toggle the clicked dropdown
-            if (willOpen) {
-                parent.classList.add('show');
-                toggle.setAttribute('aria-expanded', 'true');
-            } else {
-                parent.classList.remove('show');
-                toggle.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        // close dropdowns when clicking outside the sidebar
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.modern-sidebar') && !e.target.closest('.admin-sidebar')) {
-                document.querySelectorAll('.nav-dropdown.show').forEach(function(openEl) {
-                    openEl.classList.remove('show');
-                    const t = openEl.querySelector('.nav-item.dropdown-toggle');
-                    if (t) t.setAttribute('aria-expanded', 'false');
-                });
-            }
-        }, true);
-    };
-
-    // call submenu init on DOM ready
-    if (typeof AdminPanel.initSidebarSubmenus === 'function') {
-        AdminPanel.initSidebarSubmenus();
-    }
-
+    // Expose utility functions for external use
+    AdminPanel.Utils = Utils;
+    AdminPanel.NotificationManager = NotificationManager;
+    AdminPanel.ModalManager = ModalManager;
 
 })();
