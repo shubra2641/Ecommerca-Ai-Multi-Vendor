@@ -3,7 +3,6 @@
  * Optimized for performance, security, and simplicity
  */
 
-const CACHE_NAME = 'ecommerce-v2.0.0';
 const STATIC_CACHE = 'static-v2.0.0';
 const DYNAMIC_CACHE = 'dynamic-v2.0.0';
 
@@ -14,29 +13,17 @@ const ESSENTIAL_FILES = [
     '/manifest.json'
 ];
 
-// Cache strategies
-const CACHE_STRATEGIES = {
-    static: ['css', 'js', 'woff', 'woff2'],
-    images: ['png', 'jpg', 'jpeg', 'svg', 'gif', 'webp'],
-    api: ['/api/', '/search', '/products', '/categories']
-};
-
 // Install event - cache essential files
 self.addEventListener('install', (event) => {
-    console.log('Service Worker installing...');
-
     event.waitUntil(
         caches.open(STATIC_CACHE)
             .then(cache => cache.addAll(ESSENTIAL_FILES))
             .then(() => self.skipWaiting())
-            .catch(error => console.error('Install failed:', error))
     );
 });
 
 // Activate event - clean old caches
 self.addEventListener('activate', (event) => {
-    console.log('Service Worker activating...');
-
     event.waitUntil(
         caches.keys()
             .then(cacheNames =>
@@ -53,7 +40,6 @@ self.addEventListener('activate', (event) => {
 // Fetch event - handle all requests
 self.addEventListener('fetch', (event) => {
     const { request } = event;
-    const url = new URL(request.url);
 
     // Skip non-GET requests and non-HTTP requests
     if (request.method !== 'GET' || !request.url.startsWith('http')) {
@@ -90,7 +76,6 @@ async function cacheFirst(request, cacheName) {
 
         return networkResponse;
     } catch (error) {
-        console.error('Cache first failed:', error);
         return handleOffline(request);
     }
 }
@@ -107,8 +92,6 @@ async function networkFirst(request, cacheName) {
 
         return networkResponse;
     } catch (error) {
-        console.log('Network failed, trying cache...');
-
         const cache = await caches.open(cacheName);
         const cachedResponse = await cache.match(request);
 
@@ -133,17 +116,28 @@ async function handleOffline(request) {
 // Helper functions
 function isStaticFile(request) {
     const url = new URL(request.url);
-    return CACHE_STRATEGIES.static.some(ext => url.pathname.endsWith('.' + ext));
+    return url.pathname.endsWith('.css') ||
+        url.pathname.endsWith('.js') ||
+        url.pathname.endsWith('.woff') ||
+        url.pathname.endsWith('.woff2');
 }
 
 function isImageFile(request) {
     const url = new URL(request.url);
-    return CACHE_STRATEGIES.images.some(ext => url.pathname.endsWith('.' + ext));
+    return url.pathname.endsWith('.png') ||
+        url.pathname.endsWith('.jpg') ||
+        url.pathname.endsWith('.jpeg') ||
+        url.pathname.endsWith('.svg') ||
+        url.pathname.endsWith('.gif') ||
+        url.pathname.endsWith('.webp');
 }
 
 function isAPIRequest(request) {
     const url = new URL(request.url);
-    return CACHE_STRATEGIES.api.some(pattern => url.pathname.includes(pattern));
+    return url.pathname.includes('/api/') ||
+        url.pathname.includes('/search') ||
+        url.pathname.includes('/products') ||
+        url.pathname.includes('/categories');
 }
 
 // Background sync for offline actions
@@ -173,7 +167,7 @@ async function syncOfflineData(type) {
             notifyClients(`${type.toUpperCase()}_SYNCED`, `${type} data synchronized`);
         }
     } catch (error) {
-        console.error(`${type} sync failed:`, error);
+        // Silent error handling
     }
 }
 
@@ -243,7 +237,7 @@ self.addEventListener('push', (event) => {
             const data = event.data.json();
             Object.assign(options, data);
         } catch (error) {
-            console.error('Failed to parse push data:', error);
+            // Silent error handling
         }
     }
 
@@ -258,18 +252,18 @@ self.addEventListener('notificationclick', (event) => {
 
     if (event.action === 'view') {
         event.waitUntil(
-            clients.openWindow(event.notification.data?.url || '/')
+            self.clients.openWindow(event.notification.data?.url || '/')
         );
     } else {
         event.waitUntil(
-            clients.matchAll({ type: 'window' })
+            self.clients.matchAll({ type: 'window' })
                 .then(clientList => {
                     for (const client of clientList) {
                         if (client.url === '/' && 'focus' in client) {
                             return client.focus();
                         }
                     }
-                    return clients.openWindow('/');
+                    return self.clients.openWindow('/');
                 })
         );
     }
@@ -284,12 +278,9 @@ self.addEventListener('message', (event) => {
 
 // Error handling
 self.addEventListener('error', (event) => {
-    console.error('Service Worker error:', event.error);
+    // Silent error handling
 });
 
 self.addEventListener('unhandledrejection', (event) => {
-    console.error('Service Worker unhandled rejection:', event.reason);
     event.preventDefault();
 });
-
-console.log('Service Worker loaded successfully');
