@@ -133,8 +133,7 @@
             this.dropdowns = Utils.selectAll('.dropdown, .nav-dropdown');
             this.bindEvents();
 
-            // Debug: Log found dropdowns
-            console.log('Found dropdowns:', this.dropdowns.length);
+            // Initialize dropdowns
 
             // Initialize all dropdowns as closed
             this.dropdowns.forEach(dropdown => {
@@ -154,7 +153,7 @@
                     // Handle both data-bs-toggle and regular dropdowns
                     if (toggle.hasAttribute('data-bs-toggle') || toggle.classList.contains('dropdown-toggle')) {
                         Utils.on(toggle, 'click', (e) => this.handleToggle(e, dropdown, toggle, menu));
-                        console.log('Bound dropdown:', dropdown.className);
+                        // Dropdown bound
                     }
                 }
             });
@@ -167,7 +166,7 @@
             e.preventDefault();
             e.stopPropagation();
 
-            console.log('Dropdown clicked:', dropdown.className);
+            // Dropdown clicked
 
             // Close other dropdowns
             this.closeAllDropdowns(dropdown);
@@ -186,7 +185,7 @@
             Utils.addClass(menu, 'show');
             toggle.setAttribute('aria-expanded', 'true');
 
-            console.log('Opening dropdown:', dropdown.className);
+            // Opening dropdown
 
             // Force display and remove inline styles that might conflict
             menu.style.display = 'block';
@@ -200,7 +199,7 @@
             Utils.removeClass(menu, 'show');
             toggle.setAttribute('aria-expanded', 'false');
 
-            console.log('Closing dropdown:', dropdown.className);
+            // Closing dropdown
 
             // Force hide
             menu.style.display = 'none';
@@ -529,7 +528,7 @@
             try {
                 return JSON.parse(tpl.textContent || tpl.innerText || '{}');
             } catch (e) {
-                console.error('user-balance-config JSON parse error', e);
+                // JSON parse error handled silently
                 return null;
             }
         },
@@ -581,7 +580,7 @@
                     'success'
                 );
             } catch (err) {
-                console.error('Failed to refresh balance stats', err);
+                // Failed to refresh balance stats
                 NotificationManager.show(
                     this.config.i18n?.error_refresh || 'Failed to refresh',
                     'danger'
@@ -647,7 +646,7 @@
                     container.appendChild(emptyDiv);
                 }
             } catch (err) {
-                console.error('Failed to load history', err);
+                    // Failed to load history
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'alert alert-danger';
                 errorDiv.textContent = this.config.i18n?.error_history || 'Failed to load balance history';
@@ -686,7 +685,7 @@
                         );
                     }
                 } catch (err) {
-                    console.error('Form submit failed', err);
+                    // Form submit failed
                     NotificationManager.show(
                         this.config.i18n?.error_server || 'Server error',
                         'danger'

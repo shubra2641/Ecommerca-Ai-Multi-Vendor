@@ -130,9 +130,7 @@
             effective = SUPPORTED.includes(savedFont)
                 ? savedFont
                 : (ARABIC_FONTS.includes(savedFont) ? 'Cairo' : 'Inter');
-            if (effective !== savedFont && window && window.console) {
-                console.warn('[FontLoader] Saved font "' + savedFont + '" not locally available. Fallback -> ' + effective);
-            }
+            // Font fallback applied silently
         } else {
             const pageContent = document.body.textContent || document.body.innerText || '';
             effective = getAppropriateFont(pageContent);
