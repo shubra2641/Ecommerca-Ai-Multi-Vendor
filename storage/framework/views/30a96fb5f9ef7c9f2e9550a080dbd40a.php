@@ -16,7 +16,7 @@
     <!-- Unified Admin CSS - All styles consolidated -->
     <link rel="preload" href="<?php echo e(asset('assets/admin/css/admin.css')); ?>" as="style">
     <link href="<?php echo e(asset('assets/admin/css/admin.css')); ?>" rel="stylesheet">
-    <?php echo $__env->yieldPushContent('styles'); ?>
+    <?php echo $__env->yieldContent('styles'); ?>
 </head>
 <body class="body" data-font-active="<?php echo e($selectedFont); ?>" data-admin-base="<?php echo e(url('')); ?>" <?php if(session()->pull('refresh_admin_notifications')): ?> data-refresh-admin-notifications="1" <?php endif; ?>>
     <?php echo $__env->make('components.noscript-warning', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
@@ -37,7 +37,7 @@
     <script src="<?php echo e(asset('vendor/jquery/jquery-3.7.1.min.js')); ?>"></script>
     <script src="<?php echo e(asset('vendor/chart.js/chart.min.js')); ?>"></script>
     <script src="<?php echo e(asset('assets/admin/js/countup.js')); ?>" defer></script>
-    <?php echo $__env->yieldPushContent('scripts'); ?>
+    <?php echo $__env->yieldContent('scripts'); ?>
     <script src="<?php echo e(asset('vendor/bootstrap/bootstrap.bundle.min.js')); ?>" defer></script>
 
     <!-- Unified Admin JS - All functionality consolidated -->

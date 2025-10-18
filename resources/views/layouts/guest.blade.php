@@ -5,30 +5,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <title>@yield('title', config('app.name', 'Easy'))</title>
     @yield('meta')
-
-    <!-- Modern Fonts -->
-    {{-- Provided by SiteBrandingComposer: $setting, $selectedFont, $siteName, $logoPath --}}
-
     <!-- Selected Font Meta -->
     <meta name="selected-font" content="{{ $selectedFont }}">
-
-    <!-- Local fonts instead of Google Fonts -->
-    <link rel="stylesheet" href="{{ asset('css/local-fonts.css') }}">
-
     <!-- Bootstrap -->
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('front/css/envato-fixes.css') }}">
-    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
-
-    <!-- Unified Customer CSS - All styles consolidated -->
-    <link href="{{ asset('assets/customer/css/customer.css') }}" rel="stylesheet">
-
-    <!-- Dynamic font variable script moved to external CSS (local-fonts.css). Optional inline removal for CSP strictness. -->
 </head>
 
 <body class="guest-layout">
@@ -123,20 +107,8 @@
 
     <!-- Essential Dependencies -->
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
-    
     <!-- Unified Customer JS - All functionality consolidated -->
     <script src="{{ asset('assets/customer/js/customer.js') }}"></script>
-
-    <!-- Font Loader Script -->
-    <script>
-        // Load selected font
-        document.addEventListener('DOMContentLoaded', function() {
-            const fontName = document.querySelector('meta[name="selected-font"]').getAttribute('content');
-            if (fontName && fontName !== 'Inter') {
-                document.body.style.fontFamily = fontName + ', sans-serif';
-            }
-        });
-    </script>
 </body>
 
 </html>
