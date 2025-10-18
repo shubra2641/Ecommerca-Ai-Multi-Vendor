@@ -33,7 +33,7 @@
 </head>
 
 <body class="@if(request()->routeIs('user.*')) account-body @endif">
-    <div id="app-loader" class="app-loader hidden" aria-hidden="true">
+    <div id="app-loader" class="app-loader" aria-hidden="false">
         <div class="loader-core">
             <div class="spinner"></div>
             <div class="loader-brand">{{ config('app.name') }}</div>

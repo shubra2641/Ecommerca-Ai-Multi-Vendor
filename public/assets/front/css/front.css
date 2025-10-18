@@ -7038,13 +7038,33 @@ select.form-control {
 
 /* Enhanced loader styling */
 .app-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: radial-gradient(circle at 35% 35%, var(--brand-yellow) 0%, var(--brand-yellow-dark) 55%, #111111 140%);
     color: #111;
     font-weight: 600;
     letter-spacing: .5px;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
   }
   .app-loader .loader-core { display:flex; flex-direction:column; align-items:center; gap:18px; }
-  .app-loader .spinner { width:68px; height:68px; border-width:6px; border-color: rgb(0,0,0,.18); border-top-color:#111; position:relative; }
+  .app-loader .spinner { 
+    width:68px; 
+    height:68px; 
+    border: 6px solid rgb(0,0,0,.18); 
+    border-top-color:#111; 
+    border-radius: 50%;
+    position:relative;
+    animation: spin 1s linear infinite;
+  }
   .app-loader .spinner::after { content:""; position:absolute; inset:4px; border-radius:50%; border:3px solid rgb(0,0,0,.12); border-right-color:transparent; animation: spin 1.4s linear infinite reverse; }
   .app-loader .loader-brand { font-size:.9rem; font-weight:700; text-transform:uppercase; background: linear-gradient(90deg,#111,var(--brand-black),#111); background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:1px; }
   .app-loader .loader-progress { width:160px; height:6px; background:rgb(0,0,0,.25); border-radius:4px; overflow:hidden; position:relative; box-shadow:0 2px 4px rgb(0,0,0,.25) inset; }
@@ -7052,8 +7072,17 @@ select.form-control {
   
   @keyframes loaderStripe { to { background-position: -400% 0; } }
   
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
   /* Smooth hide */
-  .app-loader.hidden { transition: opacity .55s ease, visibility .55s step-end; }
+  .app-loader.hidden { 
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
   
   /* Section title accent bar & brand focus */
   

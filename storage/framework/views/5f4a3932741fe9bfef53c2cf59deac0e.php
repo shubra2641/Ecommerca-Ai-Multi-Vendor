@@ -2,13 +2,34 @@
 <?php $__env->startSection('content'); ?>
 <section class="products-section products-section--checkout">
     <div class="container container--wide">
-        <nav class="breadcrumb">
-            <a href="<?php echo e(route('home')); ?>" class="breadcrumb-item"><?php echo e(__('Home')); ?></a>
-            <span class="breadcrumb-separator">/</span>
-            <a href="<?php echo e(route('cart.index')); ?>" class="breadcrumb-item"><?php echo e(__('Cart')); ?></a>
-            <span class="breadcrumb-separator">/</span>
-            <span class="breadcrumb-item active"><?php echo e(__('Checkout')); ?></span>
-        </nav>
+        <?php if (isset($component)) { $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.breadcrumb','data' => ['items' => [
+            ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
+            ['title' => __('Cart'), 'url' => route('cart.index'), 'icon' => 'fas fa-shopping-cart'],
+            ['title' => __('Checkout'), 'url' => '#']
+        ]]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('breadcrumb'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['items' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute([
+            ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
+            ['title' => __('Cart'), 'url' => route('cart.index'), 'icon' => 'fas fa-shopping-cart'],
+            ['title' => __('Checkout'), 'url' => '#']
+        ])]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $attributes = $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $component = $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
     </div>
 </section>
 <section class="checkout-section">
