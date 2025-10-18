@@ -138,7 +138,7 @@ Route::middleware(\App\Http\Middleware\CheckMaintenanceMode::class)->group(funct
         '/product/notify',
         [ProductNotificationController::class, 'store']
     )->middleware('throttle:30,1')->name('product.notify');
-    Route::get('/compare', [CompareController::class, 'page'])->name('compare.page');
+    Route::get('/compare', [CompareController::class, 'index'])->name('compare.page');
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.page');
 
     // Currency switch endpoint (AJAX)
