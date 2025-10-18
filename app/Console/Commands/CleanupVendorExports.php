@@ -8,69 +8,23 @@ use Illuminate\Support\Facades\Storage;
 
 class CleanupVendorExports extends Command
 {
-    protected $signature = 'vendor_exports:cleanup {--days=7 : Number of days to keep exports}';
+    protected $signature = 'vendor_exports:cleanup {--days=7}';
 
-    protected $description = 'Remove vendor export files and DB rows older than specified days';
+    protected $description = 'Remove vendor export files and DB rows older than X days';
 
-    public function handle(): int
-    {
-        $days = $this->getValidDays();
-        $cutoff = now()->subDays($days);
-        
-        $this->info("Cleaning up exports older than {$days} days...");
-        
-        $exports = VendorExport::where('created_at', '<', $cutoff)->get();
-        
-        if ($exports->isEmpty()) {
-            $this->info('No exports found to clean up.');
-            return self::SUCCESS;
-        }
-
-        $this->processExports($exports);
-        $this->info("Cleaned up {$exports->count()} exports older than {$days} days");
-
-        return self::SUCCESS;
-    }
-
-    private function getValidDays(): int
+    public function handle()
     {
         $days = (int) $this->option('days');
-        
-        if ($days < 1) {
-            $this->warn('Days must be at least 1. Using default value of 7.');
-            return 7;
-        }
-        
-        return $days;
-    }
-
-    private function processExports($exports): void
-    {
-        $bar = $this->output->createProgressBar($exports->count());
-        $bar->start();
-
-        foreach ($exports as $export) {
-            $this->deleteExportFile($export);
-            $export->delete();
-            $bar->advance();
-        }
-
-        $bar->finish();
-        $this->newLine();
-    }
-
-    private function deleteExportFile($export): void
-    {
-        if (!$export->path) {
-            return;
-        }
-
-        try {
-            if (Storage::disk('local')->exists($export->path)) {
-                Storage::disk('local')->delete($export->path);
+        $cutoff = now()->subDays($days);
+        $exports = VendorExport::where('created_at', '<', $cutoff)->get();
+        foreach ($exports as $e) {
+            if ($e->path && Storage::disk('local')->exists($e->path)) {
+                Storage::disk('local')->delete($e->path);
             }
-        } catch (\Exception $e) {
-            $this->warn("Failed to delete file: {$export->path}");
+            $e->delete();
         }
+        $this->info('Cleaned up ' . count($exports) . ' exports older than ' . $days . ' days');
+
+        return 0;
     }
 }
