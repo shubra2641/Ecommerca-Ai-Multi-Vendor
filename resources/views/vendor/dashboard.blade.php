@@ -152,22 +152,22 @@
         </div>
     </div>
 
-    <!-- Recent Activity -->
-    <div class="recent-activity">
-        <h2 class="section-title">{{ __('Recent Activity') }}</h2>
-    <div class="card modern-card activity-card">
+    <!-- Recent Orders -->
+    <div class="recent-orders">
+        <h2 class="section-title">{{ __('Recent Orders') }}</h2>
+        <div class="card modern-card">
             @if(isset($recentOrders) && $recentOrders->count() > 0)
-                <div class="activity-list">
+                <div class="order-list">
                     @foreach($recentOrders->take(5) as $order)
-                        <div class="activity-item">
-                            <div class="activity-icon">
+                        <div class="order-item">
+                            <div class="order-icon">
                                 <i class="fas fa-shopping-cart"></i>
                             </div>
-                            <div class="activity-content">
-                                <p class="activity-title">{{ __('New order') }} #{{ $order->id }}</p>
-                                <p class="activity-meta">${{ number_format($order->total, 2) }} • {{ $order->created_at->diffForHumans() }}</p>
+                            <div class="order-content">
+                                <p class="order-title">{{ __('Order') }} #{{ $order->id }}</p>
+                                <p class="order-meta">${{ number_format($order->total, 2) }} • {{ $order->created_at->diffForHumans() }}</p>
                             </div>
-                            <div class="activity-status">
+                            <div class="order-status">
                                 <span class="badge badge-{{ $order->status === 'completed' ? 'success' : 'warning' }}">
                                     {{ ucfirst($order->status) }}
                                 </span>
@@ -178,8 +178,8 @@
             @else
                 <div class="empty-state">
                     <i class="fas fa-chart-line"></i>
-                    <h3>{{ __('No recent activity') }}</h3>
-                    <p>{{ __('Your recent orders and activities will appear here') }}</p>
+                    <h3>{{ __('No recent orders') }}</h3>
+                    <p>{{ __('Your recent orders will appear here') }}</p>
                 </div>
             @endif
         </div>

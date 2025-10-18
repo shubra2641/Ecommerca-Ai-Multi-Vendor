@@ -44,13 +44,11 @@ class ReportsController extends Controller
         // Get chart data for user registrations
         $chartData = $this->getRegistrationChartData();
 
-        // Get recent activity
-        $recentActivity = $this->getRecentActivity();
 
         // Get system health
         $systemHealth = $this->getSystemHealth();
 
-        return view('admin.reports', compact('stats', 'chartData', 'recentActivity', 'systemHealth'));
+        return view('admin.reports', compact('stats', 'chartData', 'systemHealth'));
     }
 
     /**
@@ -261,45 +259,6 @@ class ReportsController extends Controller
         ];
     }
 
-    /**
-     * Get recent activity
-     */
-    private function getRecentActivity()
-    {
-        $activities = [];
-
-        // Recent registrations
-        $recentUsers = User::latest()->take(5)->get();
-        foreach ($recentUsers as $user) {
-            $activities[] = [
-                'title' => __('New User Registration'),
-                'description' => $user->name . ' (' . ucfirst($user->role) . ')',
-                'time' => $user->created_at->diffForHumans(),
-                'icon' => 'user-plus',
-                'type' => 'registration',
-                'timestamp' => $user->created_at,
-            ];
-        }
-
-        // Recent approvals
-        $recentApprovals = User::whereNotNull('approved_at')
-            ->latest('approved_at')
-            ->take(3)
-            ->get();
-
-        foreach ($recentApprovals as $user) {
-            $activities[] = [
-                'title' => __('User Approved'),
-                'description' => $user->name . ' was approved',
-                'time' => $user->approved_at->diffForHumans(),
-                'icon' => 'check-circle',
-                'type' => 'approval',
-                'timestamp' => $user->approved_at,
-            ];
-        }
-
-        return collect($activities)->sortByDesc('timestamp')->take(10)->values();
-    }
 
     /**
      * Get system health status

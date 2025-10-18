@@ -81,7 +81,7 @@
 
         // Hide loading elements
         hideLoaders() {
-            const loaderIds = ['reports-loading', 'stats-loading', 'chart-loading', 'activity-loading'];
+            const loaderIds = ['reports-loading', 'stats-loading', 'chart-loading'];
             const errorIds = ['stats-error', 'chart-error', 'reports-error'];
 
             loaderIds.forEach(id => {

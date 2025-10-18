@@ -58,7 +58,7 @@ class DashboardController extends Controller
             $vendor->update(['balance' => $actualBalance]);
         }
 
-        // Recent orders (last 5) for activity list
+        // Recent orders (last 5)
         $recentOrders = Order::whereHas('items.product', fn ($q) => $q->where('vendor_id', $vendorId))
             ->latest('created_at')
             ->limit(5)

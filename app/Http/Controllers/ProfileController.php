@@ -48,7 +48,7 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        // Delete user first to avoid foreign key constraint issues with activity logging
+        // Delete user first to avoid foreign key constraint issues
         \DB::transaction(function () use ($user) {
             $user->delete();
         });

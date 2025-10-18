@@ -24,8 +24,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // Run activity pruning once daily. Uses config('activity.prune_days').
-        $schedule->command('activity:prune')->daily();
         // cleanup vendor export files older than 30 days
         $schedule->command('vendor_exports:cleanup --days=30')->daily();
     }

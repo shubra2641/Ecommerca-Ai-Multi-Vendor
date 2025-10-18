@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Artisan;
 if (app()->runningInConsole()) {
     app()->booted(function () {
         $schedule = app(Schedule::class);
-        $schedule->command('activity:prune')->daily();
     });
 }
 

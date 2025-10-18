@@ -60,8 +60,6 @@ class DashboardController extends Controller
             return array_merge($dbInfo, $base, $ordersAgg);
         });
 
-        // Get recent activity (not cached for real-time updates)
-        $recentActivity = [];
 
         // Get chart data for user registrations
         $chartData = $this->getRegistrationChartData();
@@ -78,7 +76,7 @@ class DashboardController extends Controller
         // Get system health data
         $systemHealth = $this->getSystemHealth();
 
-        return view('admin.dashboard', compact('stats', 'recentActivity', 'chartData', 'salesChartData', 'topStats', 'topUsers', 'systemHealth'));
+        return view('admin.dashboard', compact('stats', 'chartData', 'salesChartData', 'topStats', 'topUsers', 'systemHealth'));
     }
 
 
@@ -333,12 +331,6 @@ class DashboardController extends Controller
         $pendingUsers = User::whereNull('approved_at')->count();
         $totalBalance = User::sum('balance');
 
-        // Recent activity - sample data
-        $recentActivity = [
-            ['title' => 'New User Registration', 'description' => 'John Doe registered as a vendor', 'time' => '2 minutes ago', 'icon' => 'user-plus'],
-            ['title' => 'User Approved', 'description' => 'Jane Smith was approved as vendor', 'time' => '15 minutes ago', 'icon' => 'check'],
-            ['title' => 'Balance Updated', 'description' => 'Balance updated for 5 users', 'time' => '1 hour ago', 'icon' => 'wallet'],
-        ];
 
         // Registration trends
         $registrationsToday = User::whereDate('created_at', today())->count();
@@ -350,7 +342,6 @@ class DashboardController extends Controller
             'totalVendors',
             'pendingUsers',
             'totalBalance',
-            'recentActivity',
             'registrationsToday',
             'registrationsWeek',
             'registrationsMonth'
@@ -440,7 +431,6 @@ class DashboardController extends Controller
             $stats = $this->buildFreshStats();
             $chartData = $this->getRegistrationChartData();
             $salesChartData = $this->getSalesChartData();
-            $activities = [];
 
             return response()->json([
                 'success' => true,
