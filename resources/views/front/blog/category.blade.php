@@ -9,13 +9,11 @@
 @section('content')
 <section class="page-header">
     <div class="container">
-        <nav class="breadcrumb">
-            <a href="{{ route('home') }}" class="breadcrumb-item">{{ __('Home') }}</a>
-            <span class="breadcrumb-separator">/</span>
-            <a href="{{ route('blog.index') }}" class="breadcrumb-item">{{ __('Blog') }}</a>
-            <span class="breadcrumb-separator">/</span>
-            <span class="breadcrumb-item active">{{ $category->name }}</span>
-        </nav>
+        <x-breadcrumb :items="[
+            ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
+            ['title' => __('Blog'), 'url' => route('blog.index'), 'icon' => 'fas fa-blog'],
+            ['title' => $category->name, 'url' => '#']
+        ]" />
         <h1 class="page-title">{{ $category->name }}</h1>
     </div>
 </section>

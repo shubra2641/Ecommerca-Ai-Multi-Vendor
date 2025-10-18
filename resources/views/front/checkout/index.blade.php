@@ -3,13 +3,11 @@
 @section('content')
 <section class="products-section products-section--checkout">
     <div class="container container--wide">
-        <nav class="breadcrumb">
-            <a href="{{ route('home') }}" class="breadcrumb-item">{{ __('Home') }}</a>
-            <span class="breadcrumb-separator">/</span>
-            <a href="{{ route('cart.index') }}" class="breadcrumb-item">{{ __('Cart') }}</a>
-            <span class="breadcrumb-separator">/</span>
-            <span class="breadcrumb-item active">{{ __('Checkout') }}</span>
-        </nav>
+        <x-breadcrumb :items="[
+            ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
+            ['title' => __('Cart'), 'url' => route('cart.index'), 'icon' => 'fas fa-shopping-cart'],
+            ['title' => __('Checkout'), 'url' => '#']
+        ]" />
     </div>
 </section>
 <section class="checkout-section">

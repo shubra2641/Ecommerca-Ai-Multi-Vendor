@@ -14,12 +14,13 @@
 @section('content')
 <section class="products-section">
     <div class="container container-wide">
-        <nav aria-label="breadcrumb" class="breadcrumbs">
-            <a href="{{ route('home') }}" class="breadcrumbs-link">{{ __('Home') }}</a>
-            <span>/</span>
-            <span>{{ __('Products') }}</span>
-            @if(request('category'))<span>/</span><span>{{ request('category') }}</span>@endif
-        </nav>
+        <x-breadcrumb :items="[
+            ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
+            ['title' => __('Products'), 'url' => route('products.index')],
+            @if(request('category'))
+            ['title' => request('category'), 'url' => '#']
+            @endif
+        ]" />
     <h1 class="results-title">{{ method_exists($products, 'total') ? $products->total() : $products->count() }} {{ __('Results') }}
             @if(request('q')) {{ __('for') }} "{{ request('q') }}" @endif</h1>
         <div class="catalog-layout">

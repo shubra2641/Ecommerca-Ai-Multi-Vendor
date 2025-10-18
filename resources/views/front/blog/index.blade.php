@@ -3,11 +3,10 @@
 @section('content')
 <section class="page-header">
     <div class="container">
-        <nav class="breadcrumb">
-            <a href="{{ route('home') }}" class="breadcrumb-item">{{ __('Home') }}</a>
-            <span class="breadcrumb-separator">/</span>
-            <span class="breadcrumb-item active">{{ __('Blog') }}</span>
-        </nav>
+        <x-breadcrumb :items="[
+            ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
+            ['title' => __('Blog'), 'url' => '#']
+        ]" />
         <h1 class="page-title">{{ __('Blog') }}</h1>
         <p class="page-description">{{ __('Stay updated with our latest news and insights') }}</p>
     </div>

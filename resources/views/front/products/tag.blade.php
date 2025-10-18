@@ -4,13 +4,11 @@
 <section class="products-section">
 
     <div class="container container-wide">
-        <nav class="breadcrumb">
-            <a href="{{ route('home') }}" class="breadcrumb-item">{{ __('Home') }}</a>
-            <span class="breadcrumb-separator">/</span>
-            <a href="{{ route('products.index') }}" class="breadcrumb-item">{{ __('Products') }}</a>
-            <span class="breadcrumb-separator">/</span>
-            <span class="breadcrumb-item active">#{{ $tag->name }}</span>
-        </nav>
+        <x-breadcrumb :items="[
+            ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
+            ['title' => __('Products'), 'url' => route('products.index')],
+            ['title' => '#' . $tag->name, 'url' => '#']
+        ]" />
         <h1 class="results-title">{{ method_exists($products, 'total') ? $products->total() : $products->count() }} {{ __('Results') }} -
             #{{ $tag->name }}</h1>
         <div class="catalog-layout">

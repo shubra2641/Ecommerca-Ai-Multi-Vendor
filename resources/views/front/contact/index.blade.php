@@ -6,11 +6,10 @@
 <section class="page-header">
     <div class="container">
         <div class="page-header-content">
-            <nav class="breadcrumb">
-                <a href="{{ route('home') }}" class="breadcrumb-item">{{ __('Home') }}</a>
-                <span class="breadcrumb-separator">/</span>
-                <span class="breadcrumb-item active">{{ __('Contact Us') }}</span>
-            </nav>
+            <x-breadcrumb :items="[
+                ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
+                ['title' => __('Contact Us'), 'url' => '#']
+            ]" />
             <h1 class="page-title">{{ __('Contact Us') }}</h1>
             <p class="page-description">{{ __('Get in touch with us. We\'d love to hear from you.') }}</p>
         </div>

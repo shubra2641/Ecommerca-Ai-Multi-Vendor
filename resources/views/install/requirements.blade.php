@@ -29,27 +29,4 @@
         </div>
     </div>
  </div>
-
-@push('scripts')
-<script>
-document.getElementById('checkPerms').addEventListener('click', function(){
-    var btn = this; btn.disabled = true; btn.innerText = 'Checking...';
-    fetch('{{ route('install.permissions') }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), 'Accept': 'application/json' }})
-    .then(res => res.json())
-    .then(json => {
-        btn.disabled = false; btn.innerText = 'Check Permissions';
-        var out = '<ul class="list-group">';
-        json.paths.forEach(function(p){
-            out += '<li class="list-group-item d-flex justify-content-between align-items-center">';
-            out += '<div><strong>'+p.path+'</strong><div class="small text-muted">exists: '+p.exists+', writable: '+p.writable+'</div></div>';
-            out += '<span class="badge '+(p.writable? 'bg-success':'bg-danger')+'">'+(p.writable? 'Writable':'Not writable')+'</span>';
-            out += '</li>';
-        });
-        out += '</ul>';
-        document.getElementById('permResults').innerHTML = out;
-    }).catch(err=>{ btn.disabled=false; btn.innerText='Check Permissions'; alert('Error checking permissions: '+err.message) });
-});
-</script>
-@endpush
-
 @endsection

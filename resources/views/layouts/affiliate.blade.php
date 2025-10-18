@@ -115,16 +115,5 @@
     
     <!-- Unified Affiliate JS - All functionality consolidated -->
     <script src="{{ asset('assets/affiliate/js/affiliate.js') }}"></script>
-
-    <!-- Font Loader Script -->
-    <script>
-        // Load selected font
-        document.addEventListener('DOMContentLoaded', function() {
-            const fontName = document.querySelector('meta[name="selected-font"]').getAttribute('content');
-            if (fontName && fontName !== 'Inter') {
-                document.body.style.fontFamily = fontName + ', sans-serif';
-            }
-        });
-    </script>
 </body>
 </html>

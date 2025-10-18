@@ -9,13 +9,11 @@
 @section('content')
 <section class="products-section">
     <div class="container container-wide">
-        <nav aria-label="breadcrumb" class="breadcrumbs">
-            <a href="{{ route('home') }}" class="breadcrumbs-link">{{ __('Home') }}</a>
-            <span>/</span>
-            <a href="{{ route('products.index') }}" class="breadcrumbs-link">{{ __('Products') }}</a>
-            <span>/</span>
-            <span>{{ $category->name }}</span>
-        </nav>
+        <x-breadcrumb :items="[
+            ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
+            ['title' => __('Products'), 'url' => route('products.index')],
+            ['title' => $category->name, 'url' => '#']
+        ]" />
     <h1 class="results-title">{{ method_exists($products, 'total') ? $products->total() : $products->count() }} {{ __('Results') }} - {{ $category->name }}</h1>
         <div class="catalog-layout">
             @include('front.products.partials.sidebar')
