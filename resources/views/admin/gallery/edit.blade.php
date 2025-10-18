@@ -2,8 +2,6 @@
 @section('title', __('Edit Image'))
 @section('content')
 <h1 class="h3 mb-3">@lang('Edit Image')</h1>
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-@if($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
 <div class="card p-3 mb-3">
     <div class="row g-3">
         <div class="col-md-4">

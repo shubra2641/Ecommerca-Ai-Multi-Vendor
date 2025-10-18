@@ -459,42 +459,6 @@ class DashboardController extends Controller
         return response()->json(['message' => 'Report generated successfully', 'filename' => $filename]);
     }
 
-    public function getActivity()
-    {
-        $limit = (int) request()->get('limit', 10);
-        $as = request()->get('as'); // 'toast' or 'page'
-        $query = \App\Models\Activity::with('user')->latest();
-        if ($type = request()->get('type')) {
-            $query->where('type', $type);
-        }
-        $activities = $query->limit($limit)->get()->map(function ($a) {
-            return [
-                'id' => $a->id,
-                'type' => $a->type,
-                'description' => $a->description,
-                'user' => $a->user?->name,
-                'time' => $a->created_at->diffForHumans(),
-                'data' => $a->data,
-                'ip' => $a->ip_address,
-            ];
-        });
-
-        if ($as === 'toast') {
-            // Return only the last one for toast display
-            $last = $activities->first();
-
-            return response()->json([
-                'success' => true,
-                'toast' => $last ? [
-                    'title' => ucfirst(str_replace('.', ' ', $last['type'])),
-                    'message' => $last['description'],
-                    'time' => $last['time'],
-                ] : null,
-            ]);
-        }
-
-        return response()->json(['success' => true, 'activities' => $activities]);
-    }
 
     public function clearCache()
     {

@@ -80,11 +80,6 @@
                 </div>
                 <div class="contact-form-section">
                     <h3 class="form-title">{{ __('Send us a message') }}</h3>
-                    @if(session('success'))
-                    <noscript>
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    </noscript>
-                    @endif
                     <form method="POST" action="{{ route('contact.submit') }}" class="contact-form">
                         @csrf
                         <div class="form-grid">

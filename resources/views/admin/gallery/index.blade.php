@@ -42,8 +42,6 @@
         </div>
     </div>
 </form>
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-@if(session('warning'))<div class="alert alert-warning">{{ session('warning') }}</div>@endif
 @if(!$images->count())
     <div class="alert alert-info mb-0">@lang('No images yet.')</div>
 @else

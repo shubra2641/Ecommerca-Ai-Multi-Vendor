@@ -4,7 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>{{ __('Maintenance') }}</title>
-    <link rel="stylesheet" href="{{ asset('front/css/maintenance-inline-extracted.css') }}">
+
+    <link href="{{ asset('assets/front/css/maintenance.css') }}" rel="stylesheet">
+
 </head>
 <body>
     <div class="card">
@@ -20,7 +22,7 @@
         <footer>&copy; {{ date('Y') }} {{ config('app.name') }}</footer>
     </div>
     @if(!empty($reopenAt))
-        <script src="{{ asset('front/js/maintenance-countdown.js') }}" defer></script>
+        <script src="{{ asset('assets/front/js/maintenance-countdown.js') }}" defer></script>
     @endif
 </body>
 </html>

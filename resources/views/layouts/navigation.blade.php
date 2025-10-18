@@ -62,8 +62,6 @@
                                 <li><a href="{{ route('admin.reports.system') }}" class="dropdown-item {{ request()->routeIs('admin.reports.system') ? 'active' : '' }}"><i class="fas fa-server"></i> {{ __('System') }}</a></li>
                                 <li><a href="{{ route('admin.performance.index') }}" class="dropdown-item {{ request()->routeIs('admin.performance.*') ? 'active' : '' }}"><i class="fas fa-gauge-high"></i> {{ __('Performance') }}</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a href="{{ route('admin.activity.center') }}" class="dropdown-item {{ request()->routeIs('admin.activity.center') ? 'active' : '' }}"><i class="fas fa-list-ul"></i> {{ __('Activity Center') }}</a></li>
-                                <li><a href="{{ route('admin.activity') }}" class="dropdown-item {{ request()->routeIs('admin.activity') ? 'active' : '' }}"><i class="fas fa-stream"></i> {{ __('Activity API') }}</a></li>
                             </ul>
                         </div>
                     </div>

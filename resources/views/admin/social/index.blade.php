@@ -12,11 +12,6 @@
         <a href="{{ route('admin.social.create') }}" class="btn btn-primary">@lang('Add Link')</a>
     </div>
 </div>
-
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-@endif
-
 <div class="card modern-card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">@lang('Social Links')</h5>

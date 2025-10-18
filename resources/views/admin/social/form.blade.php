@@ -5,16 +5,6 @@
 @section('content')
 @include('admin.partials.page-header', ['title'=>$link->exists ? __('Edit Social Link') : __('Add Social Link'),'actions'=>'<a href="'.route('admin.social.index').'" class="btn btn-secondary">'.__('Back').'</a>'])
 
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
 <form method="post" action="{{ $link->exists ? route('admin.social.update', $link) : route('admin.social.store') }}" novalidate>
     @csrf
     @if($link->exists)

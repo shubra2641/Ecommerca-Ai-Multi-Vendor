@@ -62,9 +62,6 @@ class NotifyController extends Controller
             }
         }
 
-        \App\Models\Activity::log('interest', 'User subscribed for product interest', [
-            'product_id' => $data['product_id'], 'type' => $data['type'],
-        ]);
 
         // Queue confirmation email
         dispatch(new \App\Jobs\SendInterestConfirmationJob($interest->id))->afterResponse();

@@ -3,8 +3,6 @@
 @section('content')
 <div class="container py-4">
   <h1 class="h4 mb-3">{{ __('Homepage Sections') }}</h1>
-  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-  @if($errors->any())<div class="alert alert-danger"><ul class="mb-0 small">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
   <form method="POST" action="{{ route('admin.homepage.sections.update') }}" class="card shadow-sm p-3">
     @csrf
     <div class="table-responsive mb-3">

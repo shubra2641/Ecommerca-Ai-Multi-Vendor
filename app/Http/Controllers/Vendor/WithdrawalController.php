@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\WithdrawalRequest;
-use App\Models\Activity;
 use App\Models\BalanceHistory;
 use App\Models\VendorWithdrawal;
 use Illuminate\Http\Request;
@@ -209,22 +208,6 @@ class WithdrawalController extends Controller
                 logger()->warning('Failed logging withdrawal hold: '.$e->getMessage());
             }
 
-            // Activity log (recent activity feed)
-            try {
-                Activity::log(
-                    'withdrawal.request',
-                    'Vendor created withdrawal request #'.$w->id,
-                    [
-                        'withdrawal_id' => $w->id,
-                        'amount' => $w->amount,
-                        'gross_amount' => $w->gross_amount,
-                        'currency' => $w->currency,
-                        'commission' => $w->commission_amount,
-                    ],
-                    $user->id
-                );
-            } catch (\Throwable $e) {
-            }
 
             \DB::commit();
         } catch (\Throwable $e) {

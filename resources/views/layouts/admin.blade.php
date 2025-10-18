@@ -23,9 +23,11 @@
     <!-- Sidebar -->
     @include('layouts.navigation')
     <!-- Main Content -->
+
         <main class="main-content">
                 @include('admin.top-header')
                 <div class="page-content">
+                @include('front.partials.flash')
                     @yield('content')
                 </div>
         </div>
@@ -43,9 +45,8 @@
     <!-- Unified Admin JS - All functionality consolidated -->
     <link rel="preload" href="{{ asset('assets/admin/js/admin.js') }}" as="script">
     <script src="{{ asset('assets/admin/js/admin.js') }}"></script>
+    <script src="{{ asset('assets/front/js/flash.js') }}"></script>
     <script src="{{ asset('assets/admin/js/admin-charts.js') }}" defer></script>
-    <!-- Font Loader Script -->
-
 </body>
 
 </html>

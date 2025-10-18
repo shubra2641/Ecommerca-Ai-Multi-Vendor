@@ -21,21 +21,6 @@
 </div>
 
 <div class="container-fluid">
-
-    @if(session('success'))
-    <div class="alert alert-success">
-        <i class="fas fa-check-circle"></i>
-        {{ session('success') }}
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div class="alert alert-error">
-        <i class="fas fa-exclamation-triangle"></i>
-        {{ session('error') }}
-    </div>
-    @endif
-
     <div class="row">
         <div class="col-md-8">
             <div class="card modern-card">

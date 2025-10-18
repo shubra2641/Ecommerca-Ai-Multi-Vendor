@@ -2126,8 +2126,9 @@ button[type="submit"] {
     display         : flex;
     flex-direction  : column;
     gap             : 8px;
-    z-index         : 3000;
+    z-index         : 9999;
     max-width       : 280px;
+    pointer-events  : none;
 }
 
 [dir='rtl'] .toast-stack {
@@ -2140,12 +2141,17 @@ button[type="submit"] {
     color        : #ffe500;
     padding      : .7rem .85rem;
     border-radius: 10px;
-    font-size    : .6rem;
-    font-weight  : 700;
+    font-size    : .8rem;
+    font-weight  : 500;
     box-shadow   : 0 6px 18px rgb(0, 0, 0, .3);
     opacity      : 0;
     transform    : translateY(-6px);
     transition   : .35s cubic-bezier(.4, .2, .3, 1);
+    cursor       : pointer;
+    user-select  : none;
+    position     : relative;
+    z-index      : 10000;
+    pointer-events: auto;
 }
 
 .toast.in {

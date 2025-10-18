@@ -5,25 +5,6 @@
 @section('content')
 <div class="container py-4">
   <h1 class="h4 mb-3">{{ $footerSettingsTitle ?? __('Footer Settings') }}</h1>
-  @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-  @endif
-  @if(session('info'))
-    <div class="alert alert-info">{{ session('info') }}</div>
-  @endif
-  @if(session('error'))
-    <div class="alert alert-danger">{{ session('error') }}</div>
-  @endif
-  @if($errors->any())
-    <div class="alert alert-danger">
-      <strong>{{ __('Please fix the following errors:') }}</strong>
-      <ul class="mb-0 small">
-        @foreach($errors->all() as $err)
-          <li>{{ $err }}</li>
-        @endforeach
-      </ul>
-    </div>
-  @endif
   <form method="POST" action="{{ route('admin.footer-settings.update') }}" enctype="multipart/form-data" class="card p-3 shadow-sm">
     @csrf
     @method('PUT')

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Activity;
 use App\Models\BalanceHistory;
 use App\Models\Payout;
 use App\Models\VendorWithdrawal;
@@ -117,15 +116,6 @@ class VendorWithdrawalController extends Controller
         } catch (\Throwable $e) {
             logger()->warning('Failed to log approval transaction: ' . $e->getMessage());
         }
-        // Activity log
-        try {
-            Activity::log('withdrawal.approved', 'Withdrawal #' . $withdrawal->id . ' approved', [
-                'withdrawal_id' => $withdrawal->id,
-                'amount' => $withdrawal->amount,
-                'currency' => $withdrawal->currency,
-            ], $user->id);
-        } catch (\Throwable $e) {
-        }
 
         // Notify vendor via DB notification
         try {
@@ -167,14 +157,6 @@ class VendorWithdrawalController extends Controller
                 );
             } catch (\Throwable $e) {
                 logger()->warning('Failed to log rejection transaction: ' . $e->getMessage());
-            }
-            try {
-                Activity::log('withdrawal.rejected', 'Withdrawal #' . $withdrawal->id . ' rejected', [
-                    'withdrawal_id' => $withdrawal->id,
-                    'amount' => $withdrawal->amount,
-                    'currency' => $withdrawal->currency,
-                ], $withdrawal->user_id);
-            } catch (\Throwable $e) {
             }
         }
 
@@ -224,15 +206,6 @@ class VendorWithdrawalController extends Controller
                 $withdrawal->user->notify(new \App\Notifications\VendorWithdrawalStatusUpdated($withdrawal, 'executed'));
             } catch (\Throwable $e) {
                 logger()->warning('Vendor notification failed: ' . $e->getMessage());
-            }
-            // Activity log for completion
-            try {
-                Activity::log('withdrawal.executed', 'Withdrawal #' . $withdrawal->id . ' executed', [
-                    'withdrawal_id' => $withdrawal->id,
-                    'amount' => $withdrawal->amount,
-                    'currency' => $withdrawal->currency,
-                ], $withdrawal->user_id);
-            } catch (\Throwable $e) {
             }
         }
         try {

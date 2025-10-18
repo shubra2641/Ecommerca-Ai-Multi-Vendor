@@ -2,9 +2,6 @@
 @section('title','Edit Shipping Group')
 @section('content')
 @include('admin.partials.page-header', ['title'=>__('Edit Shipping Group')])
-@if(session('warning'))
- <div class="alert alert-warning">{{ session('warning') }}</div>
-@endif
 <div class="card modern-card">
     <div class="card-header d-flex align-items-center gap-2">
         <h3 class="card-title mb-0">{{ __('Edit Shipping Group') }}</h3>

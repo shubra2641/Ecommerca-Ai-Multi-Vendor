@@ -40,6 +40,7 @@
         </div>
     </div>
     @include('front.partials.header')
+    @include('front.partials.flash')
      <main class="site-main">
         @yield('content')
     </main>
@@ -57,6 +58,7 @@
     <script src="{{ asset('assets/front/js/front.js') }}"></script>
     <script src="{{ asset('assets/front/js/font-loader.js') }}"></script>
     <script src="{{ asset('assets/front/js/pwa.js') }}"></script>
+    <script src="{{ asset('assets/front/js/flash.js') }}"></script>
 
     @yield('scripts')
 </body>

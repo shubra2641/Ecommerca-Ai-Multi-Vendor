@@ -9,11 +9,6 @@
             <div class="profile-panels">
                 <h1 class="page-title">{{ __('Profile') }}</h1>
                 <p class="page-sub">{{ __('View & Update Your Personal and Contact Information') }}</p>
-                @if(session('success'))
-                <noscript>
-                    <div class="alert alert-success small">{{ session('success') }}</div>
-                </noscript>
-                @endif
                 <div class="profile-layout">
                     <div class="profile-main">
                         <form method="post" action="{{ route('user.profile.update') }}" class="profile-form">

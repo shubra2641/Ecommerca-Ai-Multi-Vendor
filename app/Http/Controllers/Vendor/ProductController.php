@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\ProductRequest;
 use App\Mail\ProductPendingForReview;
-use App\Models\Activity;
 use App\Models\Product;
 use App\Models\ProductAttribute;
 use App\Models\ProductCategory;
@@ -83,15 +82,6 @@ class ProductController extends Controller
             \Log::error('Product pending email failed: '.$e->getMessage());
         }
 
-        // Activity log for product creation
-        try {
-            Activity::log('product.create', 'Vendor created product #'.$product->id, [
-                'product_id' => $product->id,
-                'name' => $product->name,
-                'type' => $product->type,
-            ], auth()->id());
-        } catch (\Throwable $e) {
-        }
 
         return redirect()->route('vendor.products.index')->with('success', __('Product submitted for review.'));
     }
@@ -151,14 +141,6 @@ class ProductController extends Controller
             \Log::error('Product pending email failed: '.$e->getMessage());
         }
 
-        // Activity log for product update
-        try {
-            Activity::log('product.update', 'Vendor updated product #'.$product->id, [
-                'product_id' => $product->id,
-                'name' => $product->name,
-            ], auth()->id());
-        } catch (\Throwable $e) {
-        }
 
         return redirect()->route('vendor.products.index')->with('success', __('Product updated and resubmitted for review.'));
     }
@@ -168,12 +150,6 @@ class ProductController extends Controller
         $this->authorize('delete', $product);
         $product->delete();
 
-        try {
-            Activity::log('product.delete', 'Vendor deleted product #'.$product->id, [
-                'product_id' => $product->id,
-            ], auth()->id());
-        } catch (\Throwable $e) {
-        }
 
         return back()->with('success', __('Product deleted.'));
     }

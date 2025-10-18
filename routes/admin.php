@@ -227,12 +227,6 @@ Route::middleware(['auth', 'role:admin', 'can:access-admin', \App\Http\Middlewar
         });
     });
 
-    // Activity route
-    Route::get('/activity', [AdminDashboardController::class, 'getActivity'])->name('admin.activity');
-    // Activity Center page view
-    Route::get('/activity-center', function () {
-        return view('admin.activity.index');
-    })->name('admin.activity.center');
 
     // Performance dashboard
     Route::get('/performance', [PerformanceController::class, 'index'])->name('admin.performance.index');

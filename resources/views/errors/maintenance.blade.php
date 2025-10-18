@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ __('Maintenance') }}</title>
-    <link rel="stylesheet" href="{{ asset('front/css/maintenance.css') }}">
+    <link href="{{ asset('assets/front/css/maintenance.css') }}" rel="stylesheet">
 </head>
 <body>
     <main id="maintenance" role="main" aria-labelledby="maintenance-title" @if($reopen_at) data-reopen="{{ $reopen_at }}"@endif>
@@ -24,7 +24,6 @@
             @endif
         </div>
     </main>
-
-    <script src="{{ asset('front/js/maintenance.js') }}" defer></script>
-</body>
+    <script src="{{ asset('assets/front/js/maintenance-countdown.js') }}"></script>
+    </body>
 </html>

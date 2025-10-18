@@ -3,8 +3,6 @@
 @section('content')
 <div class="container py-4">
   <h1 class="h4 mb-3">{{ __('Homepage Slides') }}</h1>
-  @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-  @if($errors->any())<div class="alert alert-danger"><ul class="mb-0 small">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
   <div class="row g-4">
     <div class="col-lg-8 order-2 order-lg-1">
       <div class="card shadow-sm">

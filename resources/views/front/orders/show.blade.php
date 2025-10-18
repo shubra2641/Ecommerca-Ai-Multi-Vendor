@@ -5,31 +5,6 @@
 @section('content')
 <section class="orders-section">
     <div class="container">
-        {{-- Success / Info hero (render only when flash exists) --}}
-        @if(session('success') || session('info'))
-        <div id="es-order-success" class="orders-success-hero es-fade-in" data-order-id="{{ $order->id }}">
-            <div>
-                <h3>{{ session('success') ? __('Order created successfully!') : __('Payment update') }}</h3>
-                <p>{{ __('Thank you for your purchase. Your order is being processed.') }}</p>
-                <div class="small-muted mt-1">
-                    {{ __('Order #:') }} <strong>#{{ $order->id }}</strong> • 
-                    {{ __('Payment status:') }} <strong class="text-success">{{ ucfirst($order->payment_status) }}</strong>
-                </div>
-            </div>
-            <div class="order-header-right">
-                <a href="{{ route('user.orders.invoice.pdf', $order->id) }}"
-                    class="btn btn-primary">📄 {{ __('Download Invoice') }}</a>
-            </div>
-        </div>
-        {{-- confetti layer and toast --}}
-        <div id="es-confetti-layer" aria-hidden="true"></div>
-        <div id="es-order-toast" class="es-toast">{{ session('success') ?? session('info') }}</div>
-        @endif
-        {{-- Errors still show as inline alerts --}}
-        @if(session('error'))
-    <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
-
         <div class="panel-card">
             <h2 class="panel-title">{{ __('Order Details') }}</h2>
             <div class="row mb-3">

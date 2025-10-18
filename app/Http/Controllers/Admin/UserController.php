@@ -255,64 +255,6 @@ class UserController extends Controller
         return view('admin.users.balance', compact('user', 'defaultCurrency'));
     }
 
-    public function activity(User $user)
-    {
-        $activities = \App\Models\Activity::where('user_id', $user->id)
-            ->latest()
-            ->paginate(25);
-
-        // Prepare human-friendly data rendering to avoid raw JSON in the UI
-        $activities->getCollection()->transform(function ($act) {
-            $html = null;
-            $data = $act->data;
-            if (is_array($data) && count($data)) {
-                $lines = [];
-                foreach ($data as $k => $v) {
-                    // determine a friendly label for the key
-                    if (str_ends_with($k, '_id')) {
-                        $base = substr($k, 0, -3); // remove trailing _id
-                        $label = ucfirst(str_replace(['_', '-'], ' ', $base)) . ' id';
-                    } elseif ($k === 'id') {
-                        $label = 'id';
-                    } else {
-                        $label = ucfirst(str_replace(['_', '-'], ' ', $k));
-                    }
-
-                    // resolve common foreign keys for nicer values
-                    if (str_contains($k, 'product')) {
-                        $p = \App\Models\Product::find($v);
-                        $val = $p ? e($p->name) : e($v);
-                    } elseif (str_contains($k, 'order')) {
-                        $o = \App\Models\Order::find($v);
-                        if ($o) {
-                            $val = '<a href="' . route('admin.orders.show', $o->id) . '">#' . e($o->id) . '</a>';
-                        } else {
-                            $val = e($v);
-                        }
-                    } elseif (str_contains($k, 'country')) {
-                        $c = \App\Models\Country::find($v);
-                        $val = $c ? e($c->name) : e($v);
-                    } elseif (str_contains($k, 'governorate')) {
-                        $g = \App\Models\Governorate::find($v);
-                        $val = $g ? e($g->name) : e($v);
-                    } elseif (str_contains($k, 'city')) {
-                        $ci = \App\Models\City::find($v);
-                        $val = $ci ? e($ci->name) : e($v);
-                    } else {
-                        $val = e($v);
-                    }
-
-                    $lines[] = '<li><strong>' . e($label) . ':</strong> ' . $val . '</li>';
-                }
-                $html = '<ul class="mb-0">' . implode('', $lines) . '</ul>';
-            }
-            $act->data_html = $html;
-
-            return $act;
-        });
-
-        return view('admin.users.activity', compact('user', 'activities'));
-    }
 
     public function addBalance(AdjustBalanceRequest $request, User $user)
     {

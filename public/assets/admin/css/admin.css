@@ -1480,3 +1480,69 @@ body.dark-mode .modern-card {
     align-items:flex-start;
 }
 }
+
+/* Toast system for admin */
+.toast-stack {
+    position        : fixed;
+    top             : 80px;
+    inset-inline-end: 20px;
+    display         : flex;
+    flex-direction  : column;
+    gap             : 8px;
+    z-index         : 9999;
+    max-width       : 280px;
+    pointer-events  : none;
+}
+
+[dir='rtl'] .toast-stack {
+    inset-inline-end  : auto;
+    inset-inline-start: 20px;
+}
+
+.toast {
+    background   : #111;
+    color        : #ffe500;
+    padding      : .7rem .85rem;
+    border-radius: 10px;
+    font-size    : .8rem;
+    font-weight  : 500;
+    box-shadow   : 0 6px 18px rgb(0, 0, 0, .3);
+    opacity      : 0;
+    transform    : translateY(-6px);
+    transition   : .35s cubic-bezier(.4, .2, .3, 1);
+    cursor       : pointer;
+    user-select  : none;
+    position     : relative;
+    z-index      : 10000;
+    pointer-events: auto;
+}
+
+.toast.in {
+    opacity  : 1;
+    transform: translateY(0);
+}
+
+.toast.out {
+    opacity  : 0;
+    transform: translateY(-6px);
+}
+
+.toast-success {
+    background: #0a8a3f;
+    color     : #fff;
+}
+
+.toast-error {
+    background: #c62828;
+    color     : #fff;
+}
+
+.toast-info {
+    background: #0055d4;
+    color     : #fff;
+}
+
+.toast-warning {
+    background: #ff9800;
+    color     : #111;
+}
