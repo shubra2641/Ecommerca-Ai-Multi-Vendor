@@ -135,13 +135,21 @@
             
             // Debug: Log found dropdowns
             console.log('Found dropdowns:', this.dropdowns.length);
+            
+            // Initialize all dropdowns as closed
+            this.dropdowns.forEach(dropdown => {
+                const menu = Utils.select('.dropdown-menu', dropdown);
+                if (menu) {
+                    menu.style.display = 'none';
+                }
+            });
         },
 
         bindEvents() {
             this.dropdowns.forEach(dropdown => {
                 const toggle = Utils.select('.dropdown-toggle, .nav-item.dropdown-toggle', dropdown);
                 const menu = Utils.select('.dropdown-menu', dropdown);
-                
+
                 if (toggle && menu) {
                     // Handle both data-bs-toggle and regular dropdowns
                     if (toggle.hasAttribute('data-bs-toggle') || toggle.classList.contains('dropdown-toggle')) {
@@ -180,20 +188,11 @@
             
             console.log('Opening dropdown:', dropdown.className);
             
-            // Add animation
-            menu.style.opacity = '0';
-            menu.style.transform = 'translateY(-10px)';
-            menu.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
-            
-            if (typeof requestAnimationFrame !== 'undefined') {
-                requestAnimationFrame(() => {
-                    menu.style.opacity = '1';
-                    menu.style.transform = 'translateY(0)';
-                });
-            } else {
-                menu.style.opacity = '1';
-                menu.style.transform = 'translateY(0)';
-            }
+            // Force display and remove inline styles that might conflict
+            menu.style.display = 'block';
+            menu.style.opacity = '1';
+            menu.style.transform = 'translateY(0)';
+            menu.style.maxHeight = '500px';
         },
 
         closeDropdown(dropdown, toggle, menu) {
@@ -203,10 +202,11 @@
             
             console.log('Closing dropdown:', dropdown.className);
             
-            // Reset styles
-            menu.style.opacity = '';
-            menu.style.transform = '';
-            menu.style.transition = '';
+            // Force hide
+            menu.style.display = 'none';
+            menu.style.opacity = '0';
+            menu.style.transform = 'translateY(-10px)';
+            menu.style.maxHeight = '0';
         },
 
         closeAllDropdowns(excludeDropdown = null) {

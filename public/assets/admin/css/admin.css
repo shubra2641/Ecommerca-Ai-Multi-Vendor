@@ -282,8 +282,8 @@ body.dark-mode {
 /* Make dropdown menus inside the sidebar behave as in-flow submenu lists instead of floating panels
    but keep them collapsed by default. They open when the parent has the `show` class. */
 .nav-dropdown .dropdown-menu {
-    position: static; /* in-flow */
-    display: none; /* collapsed by default */
+    position: static;
+    display: none !important;
     background: transparent;
     border: none;
     box-shadow: none;
@@ -291,13 +291,17 @@ body.dark-mode {
     padding: 0.25rem 0;
     opacity: 0;
     transform: translateY(-10px);
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transition: all 0.3s ease;
+    max-height: 0;
+    overflow: hidden;
 }
 
-.nav-dropdown.show .dropdown-menu {
-    display: block; /* open when parent has `show` */
+.nav-dropdown.show .dropdown-menu,
+.nav-dropdown .dropdown-menu.show {
+    display: block !important;
     opacity: 1;
     transform: translateY(0);
+    max-height: 500px;
 }
 
 .nav-dropdown .dropdown-item {
