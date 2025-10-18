@@ -557,7 +557,7 @@
                 <div class="collapse show d-lg-block" id="recentActivityCollapse">
                     <div class="activity-list" id="recent-activity">
                         @if(isset($recentActivity) && count($recentActivity) > 0)
-                        @foreach(($recentActivityWithGrad ?? $recentActivity) as $activity)
+                        @foreach(($recentActivityWithGrad ?? $recentActivity)->take(4) as $activity)
                         <div class="activity-item">
                             <div class="activity-icon {{ $activity['gradient'] ?? 'bg-grad-warn' }}">
                                 <i class="fas {{ $activity['icon'] }}"></i>
@@ -570,7 +570,7 @@
                         </div>
                         @endforeach
                         @else
-                        <!-- Sample activity items -->
+                        <!-- Sample activity items - limited to 4 -->
                         <div class="activity-item">
                             <div class="activity-icon bg-grad-approval">
                                 <i class="fas fa-user-plus"></i>
@@ -579,6 +579,36 @@
                                 <div class="activity-title">{{ __('New user registered') }}</div>
                                 <div class="activity-description">{{ __('Ahmed Mohamed joined the platform') }}</div>
                                 <div class="activity-time">{{ __('2 minutes ago') }}</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon bg-grad-success">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">{{ __('New order placed') }}</div>
+                                <div class="activity-description">{{ __('Order #1234 was created') }}</div>
+                                <div class="activity-time">{{ __('5 minutes ago') }}</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon bg-grad-info">
+                                <i class="fas fa-product-hunt"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">{{ __('Product updated') }}</div>
+                                <div class="activity-description">{{ __('iPhone 15 Pro was updated') }}</div>
+                                <div class="activity-time">{{ __('10 minutes ago') }}</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon bg-grad-warning">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">{{ __('User approved') }}</div>
+                                <div class="activity-description">{{ __('Sara Ahmed was approved') }}</div>
+                                <div class="activity-time">{{ __('15 minutes ago') }}</div>
                             </div>
                         </div>
                         @endif
