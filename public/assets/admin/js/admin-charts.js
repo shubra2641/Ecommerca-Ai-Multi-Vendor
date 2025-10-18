@@ -1,251 +1,447 @@
-/* Unified Admin Charts Initializer
-   - Reads per-page JSON payloads (script#*-data or div#*-data)
-   - Initializes Chart.js charts found in the DOM (canvas elements with known IDs)
-   - Provides a small registry to allow page-specific data adapters
-*/
-(function(){
+/**
+ * Admin Charts - Simplified and Optimized
+ * Unified chart initialization with reduced complexity
+ * Maintains all chart functionality while being cleaner and more maintainable
+ */
+
+(function () {
     'use strict';
 
-    // Parse JSON from a script tag or an element with data-payload (base64)
-    function parseJsonElement(selector){
-        var el = document.querySelector(selector);
-        if(!el) return null;
-        try{
-            if(el.tagName && el.tagName.toLowerCase() === 'script'){
-                return JSON.parse(el.textContent || el.innerText || '{}');
-            }
-            var payload = el.getAttribute('data-payload') || el.textContent || el.innerText || '';
-            try{ return JSON.parse(payload); }catch(e){
-                try{ return JSON.parse(atob(payload)); }catch(e2){ return null; }
-            }
-        }catch(e){ console.error('admin-charts: parse error', selector, e); return null; }
-    }
+    // Configuration
+    const CONFIG = {
+        CHART_COLORS: {
+            primary: '#007bff',
+            success: '#28a745',
+            warning: '#ffc107',
+            danger: '#dc3545',
+            info: '#17a2b8',
+            secondary: '#6c757d'
+        },
+        CHART_DEFAULTS: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    };
 
-    // Wait until Chart.js is ready, with retries
-    function waitForChart(cb){
-        if(window.Chart) return cb();
-        var tries = 0;
-        (function poll(){
-            if(window.Chart) return cb();
-            if(tries++ > 40) return console.warn('admin-charts: Chart.js not available');
-            setTimeout(poll, 150);
-        })();
-    }
+    // Utility functions
+    const Utils = {
+        // Parse JSON from element
+        parseJson(selector) {
+            const element = document.querySelector(selector);
+            if (!element) return null;
 
-    // Create charts with options matching previous page-specific scripts
-    function buildUserAnalyticsChart(ctx, chartData){
-        return new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels || [],
-                datasets: [{
-                    label: (window.__tFn ? __tFn('New Users') : 'New Users'),
-                    data: chartData.userData || chartData.values || [],
-                    borderColor: chartData.borderColor || '#007bff',
-                    backgroundColor: chartData.backgroundColor || 'rgba(0,123,255,0.1)',
-                    tension: chartData.tension || 0.4,
-                    fill: chartData.fill !== undefined ? chartData.fill : true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: '#f1f3f4' } },
-                    x: { grid: { display: false } }
+            try {
+                if (element.tagName?.toLowerCase() === 'script') {
+                    return JSON.parse(element.textContent || element.innerText || '{}');
                 }
+
+                const payload = element.getAttribute('data-payload') || element.textContent || element.innerText || '';
+                try {
+                    return JSON.parse(payload);
+                } catch (e) {
+                    return JSON.parse(atob(payload));
+                }
+            } catch (e) {
+                return null;
             }
-        });
-    }
+        },
 
-    function buildDoughnutChart(ctx, labels, data, colors){
-        return new Chart(ctx, {
-            type: 'doughnut',
-            data: { labels: labels, datasets: [{ data: data, backgroundColor: colors || ['#007bff','#ffc107','#dc3545'], borderWidth:0 }] },
-            options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } }
-        });
-    }
+        // Wait for Chart.js to be available
+        waitForChart(callback) {
+            if (window.Chart) {
+                callback();
+                return;
+            }
 
-    function buildFinancialDoughnut(ctx, labels, data){
-        return new Chart(ctx, { type:'doughnut', data:{ labels:labels, datasets:[{ data:data, backgroundColor:['#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b'] }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } } });
-    }
+            let attempts = 0;
+            const maxAttempts = 40;
+            const interval = 150;
 
-    function buildFinancialLine(ctx, labels, data, label){
-        return new Chart(ctx, { type:'line', data:{ labels:labels, datasets:[{ label: label||'Trends', data:data, borderColor:'#4e73df', backgroundColor:'rgba(78,115,223,0.1)', fill:true }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, ticks:{ callback:function(v){ return v; } } } } } });
-    }
+            const poll = () => {
+                if (window.Chart) {
+                    callback();
+                    return;
+                }
 
-    // Common UI behaviors: refresh, export, tooltips
-    function initCommonUi(){
-        // Refresh Reports button
-        var refreshBtn = document.getElementById('refreshReportsBtn');
-        if(refreshBtn){
-            refreshBtn.addEventListener('click', function(){
-                var icon = this.querySelector('i'); if(icon) icon.classList.add('fa-spin');
-                setTimeout(function(){ if(icon) icon.classList.remove('fa-spin'); location.reload(); }, 1000);
+                attempts++;
+                if (attempts > maxAttempts) {
+                    return;
+                }
+
+                setTimeout(poll, interval);
+            };
+
+            poll();
+        },
+
+        // Get translation function
+        translate(key, fallback) {
+            return (window.__tFn && window.__tFn(key)) || fallback || key;
+        },
+
+        // Hide loading elements
+        hideLoaders() {
+            const loaderIds = ['reports-loading', 'stats-loading', 'chart-loading', 'activity-loading'];
+            const errorIds = ['stats-error', 'chart-error', 'reports-error'];
+
+            loaderIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.classList.add('envato-hidden');
+                    element.classList.remove('d-none');
+                }
+            });
+
+            errorIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.classList.add('envato-hidden');
+                }
             });
         }
+    };
 
-        // Export buttons (data-export attribute or old data-export-* patterns)
-        document.querySelectorAll('[data-export], [data-export-type]').forEach(function(btn){
-            btn.addEventListener('click', function(e){
-                e.preventDefault();
-                var format = this.dataset.export || this.dataset.exportType || this.getAttribute('data-export');
-                var originalHtml = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التصدير...';
-                setTimeout(function(){ try{ btn.innerHTML = originalHtml; alert('تَم التصدير بنجاح: '+(format||'file').toUpperCase()); }catch(e){} }, 1200);
+    // Chart builders
+    const ChartBuilder = {
+        // Line chart
+        createLineChart(ctx, data, options = {}) {
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels || [],
+                    datasets: [{
+                        label: data.label || 'Data',
+                        data: data.values || data.data || [],
+                        borderColor: data.borderColor || CONFIG.CHART_COLORS.primary,
+                        backgroundColor: data.backgroundColor || 'rgba(0,123,255,0.1)',
+                        tension: data.tension || 0.4,
+                        fill: data.fill !== false
+                    }]
+                },
+                options: {
+                    ...CONFIG.CHART_DEFAULTS,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f3f4' } },
+                        x: { grid: { display: false } }
+                    },
+                    ...options
+                }
             });
-        });
-
-        // Bootstrap tooltips
-        try{
-            var triggers = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            triggers.map(function(el){ return new bootstrap.Tooltip(el); });
-        }catch(e){ /* bootstrap may not be loaded */ }
-    }
-
-    // Hide common loading placeholders used by pages
-    function hideLoaders(){
-        ['reports-loading','stats-loading','chart-loading','activity-loading'].forEach(function(id){
-            var el = document.getElementById(id);
-            if(!el) return;
-            // remove classes that show loader
-            el.classList.add('envato-hidden');
-            el.classList.remove('d-none');
-        });
-        // hide global error boxes if any
-        ['stats-error','chart-error','reports-error'].forEach(function(id){ var e = document.getElementById(id); if(e) e.classList.add('envato-hidden'); });
-    }
-
-    // Adapters
-    var adapters = {
-        reports: function(){
-            var data = parseJsonElement('#reports-data');
-            if(!data){ hideLoaders(); return; }
-            var chartData = data.chartData || {};
-
-            var uaEl = document.getElementById('userAnalyticsChart');
-            if(uaEl && chartData){
-                try{ buildUserAnalyticsChart(uaEl.getContext('2d'), chartData); }catch(e){ console.error('admin-charts: userAnalytics error', e); }
-            }
-
-            var udEl = document.getElementById('userDistributionChart');
-            if(udEl){
-                try{
-                    // If stats are provided in the payload, use them
-                    var stats = data.stats || {};
-                    var labels = [ (window.__tFn?__tFn('Active Users'):'Active'), (window.__tFn?__tFn('Pending Users'):'Pending'), (window.__tFn?__tFn('Inactive Users'):'Inactive') ];
-                    var values = [ stats.activeUsers||0, stats.pendingUsers||0, stats.inactiveUsers||0 ];
-                    buildDoughnutChart(udEl.getContext('2d'), labels, values, ['#007bff','#ffc107','#dc3545']);
-                }catch(e){ console.error('admin-charts: userDistribution error', e); }
-            }
-
-            initCommonUi();
-            try{ hideLoaders(); }catch(e){}
         },
 
-        financial: function(){
-            var data = parseJsonElement('#report-financial-data');
-            if(!data){ hideLoaders(); return; }
-            var charts = data.charts || {};
-            if(charts.balanceDistribution){
-                var bd = document.getElementById('balanceDistributionChart');
-                if(bd){ try{ buildFinancialDoughnut(bd.getContext('2d'), charts.balanceDistribution.labels || [], charts.balanceDistribution.values || []); }catch(e){ console.error('admin-charts: balanceDistribution error', e); } }
-            }
-            if(charts.monthlyTrends){
-                var mt = document.getElementById('monthlyTrendsChart');
-                if(mt){ try{ var mfLabel = (charts.monthlyTrends.label) ? charts.monthlyTrends.label : (window.__tFn ? __tFn('Monthly Financial Trends') : 'Monthly Financial Trends'); buildFinancialLine(mt.getContext('2d'), charts.monthlyTrends.labels || [], charts.monthlyTrends.values || [], mfLabel); }catch(e){ console.error('admin-charts: monthlyTrends error', e); } }
-            }
-
-            initCommonUi();
-            try{ hideLoaders(); }catch(e){}
+        // Doughnut chart
+        createDoughnutChart(ctx, data, options = {}) {
+            return new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.labels || [],
+                    datasets: [{
+                        data: data.values || data.data || [],
+                        backgroundColor: data.colors || [
+                            CONFIG.CHART_COLORS.primary,
+                            CONFIG.CHART_COLORS.warning,
+                            CONFIG.CHART_COLORS.danger
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    ...CONFIG.CHART_DEFAULTS,
+                    plugins: { legend: { display: false } },
+                    ...options
+                }
+            });
         },
 
-        dashboard: function(){
-            var data = parseJsonElement('#dashboard-data');
-            if(!data){ hideLoaders(); return; }
-            var charts = data.charts || {};
+        // Multi-dataset line chart
+        createMultiLineChart(ctx, data, options = {}) {
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels || [],
+                    datasets: data.datasets || []
+                },
+                options: {
+                    ...CONFIG.CHART_DEFAULTS,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: { type: 'linear', position: 'left', beginAtZero: true },
+                        y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, beginAtZero: true }
+                    },
+                    ...options
+                }
+            });
+        }
+    };
 
-            // Users Line Chart (userChart)
-            var uEl = document.getElementById('userChart');
-            if(uEl && charts.users){
+    // UI handlers
+    const UIHandler = {
+        init() {
+            this.initRefreshButton();
+            this.initExportButtons();
+            this.initTooltips();
+        },
+
+        initRefreshButton() {
+            const refreshBtn = document.getElementById('refreshReportsBtn');
+            if (!refreshBtn) return;
+
+            refreshBtn.addEventListener('click', () => {
+                const icon = refreshBtn.querySelector('i');
+                if (icon) icon.classList.add('fa-spin');
+
+                setTimeout(() => {
+                    if (icon) icon.classList.remove('fa-spin');
+                    location.reload();
+                }, 1000);
+            });
+        },
+
+        initExportButtons() {
+            const exportButtons = document.querySelectorAll('[data-export], [data-export-type]');
+            exportButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const format = btn.dataset.export || btn.dataset.exportType || 'file';
+                    const originalHtml = btn.innerHTML;
+
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التصدير...';
+
+                    setTimeout(() => {
+                        btn.innerHTML = originalHtml;
+                        alert(`تم التصدير بنجاح: ${format.toUpperCase()}`);
+                    }, 1200);
+                });
+            });
+        },
+
+        initTooltips() {
+            try {
+                const tooltipElements = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltipElements.forEach(el => new bootstrap.Tooltip(el));
+            } catch (e) {
+                // Bootstrap may not be loaded
+            }
+        }
+    };
+
+    // Page adapters
+    const PageAdapters = {
+        reports() {
+            const data = Utils.parseJson('#reports-data');
+            if (!data) {
+                Utils.hideLoaders();
+                return;
+            }
+
+            const chartData = data.chartData || {};
+            const stats = data.stats || {};
+
+            // User Analytics Chart
+            const userAnalyticsEl = document.getElementById('userAnalyticsChart');
+            if (userAnalyticsEl && chartData) {
                 try {
-                    new Chart(uEl.getContext('2d'), {
-                        type: 'line',
-                        data: { labels: charts.users.labels || [], datasets: [{
-                            label: (window.__tFn?__tFn('Users'):'Users'),
-                            data: charts.users.data || [],
-                            borderColor: '#007bff',
-                            backgroundColor: 'rgba(0,123,255,0.1)',
-                            tension: 0.4,
-                            fill: true
-                        }]},
-                        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true }, x:{ grid:{ display:false } } } }
+                    ChartBuilder.createLineChart(userAnalyticsEl.getContext('2d'), {
+                        labels: chartData.labels || [],
+                        values: chartData.userData || chartData.values || [],
+                        label: Utils.translate('New Users', 'New Users'),
+                        borderColor: chartData.borderColor,
+                        backgroundColor: chartData.backgroundColor,
+                        tension: chartData.tension,
+                        fill: chartData.fill
                     });
-                }catch(e){ console.error('admin-charts: dashboard users chart error', e); }
+                } catch (e) {
+                    // Chart creation failed
+                }
             }
 
-            // Sales & Revenue Mixed / Dual Dataset Line Chart (salesChart)
-            var sEl = document.getElementById('salesChart');
-            if(sEl && charts.sales){
+            // User Distribution Chart
+            const userDistributionEl = document.getElementById('userDistributionChart');
+            if (userDistributionEl) {
                 try {
-                    new Chart(sEl.getContext('2d'), {
-                        type: 'line',
-                        data: { labels: charts.sales.labels || [], datasets: [
+                    ChartBuilder.createDoughnutChart(userDistributionEl.getContext('2d'), {
+                        labels: [
+                            Utils.translate('Active Users', 'Active'),
+                            Utils.translate('Pending Users', 'Pending'),
+                            Utils.translate('Inactive Users', 'Inactive')
+                        ],
+                        values: [
+                            stats.activeUsers || 0,
+                            stats.pendingUsers || 0,
+                            stats.inactiveUsers || 0
+                        ],
+                        colors: [CONFIG.CHART_COLORS.primary, CONFIG.CHART_COLORS.warning, CONFIG.CHART_COLORS.danger]
+                    });
+                } catch (e) {
+                    // Chart creation failed
+                }
+            }
+
+            UIHandler.init();
+            Utils.hideLoaders();
+        },
+
+        financial() {
+            const data = Utils.parseJson('#report-financial-data');
+            if (!data) {
+                Utils.hideLoaders();
+                return;
+            }
+
+            const charts = data.charts || {};
+
+            // Balance Distribution Chart
+            const balanceDistEl = document.getElementById('balanceDistributionChart');
+            if (balanceDistEl && charts.balanceDistribution) {
+                try {
+                    ChartBuilder.createDoughnutChart(balanceDistEl.getContext('2d'), {
+                        labels: charts.balanceDistribution.labels || [],
+                        values: charts.balanceDistribution.values || [],
+                        colors: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
+                    }, {
+                        plugins: { legend: { position: 'bottom' } }
+                    });
+                } catch (e) {
+                    // Chart creation failed
+                }
+            }
+
+            // Monthly Trends Chart
+            const monthlyTrendsEl = document.getElementById('monthlyTrendsChart');
+            if (monthlyTrendsEl && charts.monthlyTrends) {
+                try {
+                    ChartBuilder.createLineChart(monthlyTrendsEl.getContext('2d'), {
+                        labels: charts.monthlyTrends.labels || [],
+                        values: charts.monthlyTrends.values || [],
+                        label: charts.monthlyTrends.label || Utils.translate('Monthly Financial Trends', 'Monthly Financial Trends'),
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78,115,223,0.1)',
+                        fill: true
+                    });
+                } catch (e) {
+                    // Chart creation failed
+                }
+            }
+
+            UIHandler.init();
+            Utils.hideLoaders();
+        },
+
+        dashboard() {
+            const data = Utils.parseJson('#dashboard-data');
+            if (!data) {
+                Utils.hideLoaders();
+                return;
+            }
+
+            const charts = data.charts || {};
+
+            // Users Chart
+            const usersEl = document.getElementById('userChart');
+            if (usersEl && charts.users) {
+                try {
+                    ChartBuilder.createLineChart(usersEl.getContext('2d'), {
+                        labels: charts.users.labels || [],
+                        values: charts.users.data || [],
+                        label: Utils.translate('Users', 'Users'),
+                        borderColor: CONFIG.CHART_COLORS.primary,
+                        backgroundColor: 'rgba(0,123,255,0.1)',
+                        tension: 0.4,
+                        fill: true
+                    });
+                } catch (e) {
+                    // Chart creation failed
+                }
+            }
+
+            // Sales Chart (Multi-dataset)
+            const salesEl = document.getElementById('salesChart');
+            if (salesEl && charts.sales) {
+                try {
+                    ChartBuilder.createMultiLineChart(salesEl.getContext('2d'), {
+                        labels: charts.sales.labels || [],
+                        datasets: [
                             {
-                                label: (window.__tFn?__tFn('Orders'):'Orders'),
+                                label: Utils.translate('Orders', 'Orders'),
                                 data: charts.sales.orders || [],
-                                borderColor: '#17a2b8',
+                                borderColor: CONFIG.CHART_COLORS.info,
                                 backgroundColor: 'rgba(23,162,184,0.15)',
                                 tension: 0.3,
                                 fill: true,
                                 yAxisID: 'y'
                             },
                             {
-                                label: (window.__tFn?__tFn('Revenue'):'Revenue'),
+                                label: Utils.translate('Revenue', 'Revenue'),
                                 data: charts.sales.revenue || [],
-                                borderColor: '#28a745',
+                                borderColor: CONFIG.CHART_COLORS.success,
                                 backgroundColor: 'rgba(40,167,69,0.15)',
                                 tension: 0.3,
                                 fill: true,
                                 yAxisID: 'y1'
                             }
-                        ]},
-                        options: { responsive:true, maintainAspectRatio:false, interaction:{ mode:'index', intersect:false }, stacked:false, plugins:{ legend:{ position:'bottom' } }, scales:{ y:{ type:'linear', position:'left', beginAtZero:true }, y1:{ type:'linear', position:'right', grid:{ drawOnChartArea:false }, beginAtZero:true } } }
+                        ]
                     });
-                }catch(e){ console.error('admin-charts: dashboard sales chart error', e); }
+                } catch (e) {
+                    // Chart creation failed
+                }
             }
 
-            // Order Status Doughnut (orderStatusChart)
-            var oEl = document.getElementById('orderStatusChart');
-            if(oEl && charts.ordersStatus){
+            // Order Status Chart
+            const orderStatusEl = document.getElementById('orderStatusChart');
+            if (orderStatusEl && charts.ordersStatus) {
                 try {
-                    new Chart(oEl.getContext('2d'), {
-                        type: 'doughnut',
-                        data: { labels: charts.ordersStatus.labels || [], datasets: [{ data: charts.ordersStatus.data || [], backgroundColor: ['#007bff','#28a745','#ffc107','#dc3545','#17a2b8'] }] },
-                        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
+                    ChartBuilder.createDoughnutChart(orderStatusEl.getContext('2d'), {
+                        labels: charts.ordersStatus.labels || [],
+                        values: charts.ordersStatus.data || [],
+                        colors: [
+                            CONFIG.CHART_COLORS.primary,
+                            CONFIG.CHART_COLORS.success,
+                            CONFIG.CHART_COLORS.warning,
+                            CONFIG.CHART_COLORS.danger,
+                            CONFIG.CHART_COLORS.info
+                        ]
+                    }, {
+                        plugins: { legend: { position: 'bottom' } }
                     });
-                }catch(e){ console.error('admin-charts: dashboard order status chart error', e); }
+                } catch (e) {
+                    // Chart creation failed
+                }
             }
 
-            initCommonUi();
-            try{ hideLoaders(); }catch(e){}
+            UIHandler.init();
+            Utils.hideLoaders();
         }
     };
 
-    // Auto-run adapters when DOM ready and Chart.js available
-    function ready(fn){ if(document.readyState==='complete' || document.readyState==='interactive') setTimeout(fn,0); else document.addEventListener('DOMContentLoaded', fn); }
-
-    ready(function(){ waitForChart(function(){
-        try{
-            if(document.getElementById('reports-data')) adapters.reports();
-            if(document.getElementById('report-financial-data')) adapters.financial();
-            if(document.getElementById('dashboard-data')) adapters.dashboard();
-            // If none of the adapters matched but generic loaders exist, hide them.
-            if(!document.getElementById('reports-data') && !document.getElementById('report-financial-data') && !document.getElementById('dashboard-data')){
-                try{ hideLoaders(); }catch(e){}
+    // Initialize charts when DOM is ready
+    function initializeCharts() {
+        Utils.waitForChart(() => {
+            try {
+                // Run appropriate adapter based on page data
+                if (document.getElementById('reports-data')) {
+                    PageAdapters.reports();
+                } else if (document.getElementById('report-financial-data')) {
+                    PageAdapters.financial();
+                } else if (document.getElementById('dashboard-data')) {
+                    PageAdapters.dashboard();
+                } else {
+                    // No specific data found, just hide loaders
+                    Utils.hideLoaders();
+                }
+            } catch (e) {
+                // Initialization failed
+                Utils.hideLoaders();
             }
-        }catch(e){ console.error('admin-charts: adapter run error', e); }
-    }); });
+        });
+    }
+
+    // Start initialization
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        setTimeout(initializeCharts, 0);
+    } else {
+        document.addEventListener('DOMContentLoaded', initializeCharts);
+    }
 
 })();
