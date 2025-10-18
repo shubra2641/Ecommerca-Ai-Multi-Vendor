@@ -130,17 +130,24 @@
     // Dropdown Manager - Simple dropdown functionality
     const DropdownManager = {
         init() {
-            this.dropdowns = Utils.selectAll('.dropdown');
+            this.dropdowns = Utils.selectAll('.dropdown, .nav-dropdown');
             this.bindEvents();
+            
+            // Debug: Log found dropdowns
+            console.log('Found dropdowns:', this.dropdowns.length);
         },
 
         bindEvents() {
             this.dropdowns.forEach(dropdown => {
-                const toggle = Utils.select('.dropdown-toggle', dropdown);
+                const toggle = Utils.select('.dropdown-toggle, .nav-item.dropdown-toggle', dropdown);
                 const menu = Utils.select('.dropdown-menu', dropdown);
                 
                 if (toggle && menu) {
-                    Utils.on(toggle, 'click', (e) => this.handleToggle(e, dropdown, toggle, menu));
+                    // Handle both data-bs-toggle and regular dropdowns
+                    if (toggle.hasAttribute('data-bs-toggle') || toggle.classList.contains('dropdown-toggle')) {
+                        Utils.on(toggle, 'click', (e) => this.handleToggle(e, dropdown, toggle, menu));
+                        console.log('Bound dropdown:', dropdown.className);
+                    }
                 }
             });
 
@@ -151,6 +158,8 @@
         handleToggle(e, dropdown, toggle, menu) {
             e.preventDefault();
             e.stopPropagation();
+
+            console.log('Dropdown clicked:', dropdown.className);
 
             // Close other dropdowns
             this.closeAllDropdowns(dropdown);
@@ -168,6 +177,8 @@
             Utils.addClass(dropdown, 'show');
             Utils.addClass(menu, 'show');
             toggle.setAttribute('aria-expanded', 'true');
+            
+            console.log('Opening dropdown:', dropdown.className);
             
             // Add animation
             menu.style.opacity = '0';
@@ -190,6 +201,8 @@
             Utils.removeClass(menu, 'show');
             toggle.setAttribute('aria-expanded', 'false');
             
+            console.log('Closing dropdown:', dropdown.className);
+            
             // Reset styles
             menu.style.opacity = '';
             menu.style.transform = '';
@@ -199,7 +212,7 @@
         closeAllDropdowns(excludeDropdown = null) {
             this.dropdowns.forEach(dropdown => {
                 if (dropdown !== excludeDropdown) {
-                    const toggle = Utils.select('.dropdown-toggle', dropdown);
+                    const toggle = Utils.select('.dropdown-toggle, .nav-item.dropdown-toggle', dropdown);
                     const menu = Utils.select('.dropdown-menu', dropdown);
                     if (toggle && menu) {
                         this.closeDropdown(dropdown, toggle, menu);
@@ -209,7 +222,7 @@
         },
 
         handleOutsideClick(e) {
-            const clickedDropdown = e.target.closest('.dropdown');
+            const clickedDropdown = e.target.closest('.dropdown, .nav-dropdown');
             if (!clickedDropdown) {
                 this.closeAllDropdowns();
             }
@@ -579,10 +592,10 @@
         updateBalanceDisplay(data) {
             const balanceEls = Utils.selectAll('[data-countup][data-target]');
             balanceEls.forEach(el => {
-                    const key = el.getAttribute('data-stat') || el.getAttribute('data-key');
-                    if (key && data && key in data) {
+                const key = el.getAttribute('data-stat') || el.getAttribute('data-key');
+                if (key && data && key in data) {
                     el.textContent = Utils.formatCurrency(data[key], this.config.currency);
-                        el.dataset.target = Number(data[key]);
+                    el.dataset.target = Number(data[key]);
                     delete el.dataset.counted;
                 }
             });
