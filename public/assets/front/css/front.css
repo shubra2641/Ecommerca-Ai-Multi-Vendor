@@ -5651,19 +5651,21 @@ select.form-control {
 /* Professional Hero Slider */
 .hero-slider { 
     position: relative; 
-    margin-bottom: var(--space-8, 48px);
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 16px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #111;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border-radius: 0;
+    box-shadow: none;
 }
 
 .hero-slider-viewport { 
     position: relative; 
     overflow: hidden;
-    border-radius: 16px;
+    width: 100%;
+    border-radius: 0;
 }
 
 .hero-slider-track { 
@@ -5702,19 +5704,31 @@ select.form-control {
 }
 
 @media (max-width:760px){ .hero-slide-img { aspect-ratio: 16/9; } }
-.hero-slide-overlay { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; text-align:start; padding:clamp(1rem,4vw,3rem); gap:clamp(.4rem,1.1vw,.85rem); max-width:min(78ch,62%); background:linear-gradient(90deg,rgb(0,0,0,.55),rgb(0,0,0,.25),rgb(0,0,0,.05)); }
+.hero-slide-overlay { 
+    position: absolute; 
+    inset: 0; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    text-align: center; 
+    padding: clamp(1rem, 4vw, 3rem); 
+    gap: clamp(.4rem, 1.1vw, .85rem); 
+    max-width: 100%; 
+    background: linear-gradient(135deg, rgba(0,0,0,.4), rgba(0,0,0,.2), rgba(0,0,0,.1)); 
+}
 .hero-slide-title, .hero-slide-sub { text-wrap:balance; }
 [dir="rtl"] .hero-slide-overlay { 
-    align-items: flex-end; 
-    text-align: right; 
-    background: linear-gradient(270deg, rgb(0,0,0,.55), rgb(0,0,0,.25), rgb(0,0,0,.05)); 
+    align-items: center; 
+    text-align: center; 
+    background: linear-gradient(135deg, rgba(0,0,0,.4), rgba(0,0,0,.2), rgba(0,0,0,.1)); 
 }
 
 @media (max-width: 760px) {
     .hero-slider {
-        margin-left: 1rem;
-        margin-right: 1rem;
-        border-radius: 12px;
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0;
     }
     
     .hero-slide {
@@ -5759,12 +5773,31 @@ select.form-control {
         height: 10px;
     }
 }
-.hero-slide-title { font-size:clamp(1.5rem,4vw,2.75rem); margin:0 0 .5rem; font-weight:600; color:#fff; }
-.hero-slide-sub { max-width:640px; font-size:clamp(.9rem,1.6vw,1.15rem); line-height:1.4; margin:0 0 1rem; color:#f4f4f4; }
-.hero-slide-cta { /* removed align-self override to keep button aligned with text in both LTR & RTL */ margin-top:.35rem; }
+.hero-slide-title { 
+    font-size: clamp(1.5rem, 4vw, 2.75rem); 
+    margin: 0 0 .5rem; 
+    font-weight: 600; 
+    color: #fff; 
+    text-align: center;
+    max-width: 800px;
+}
+
+.hero-slide-sub { 
+    max-width: 640px; 
+    font-size: clamp(.9rem, 1.6vw, 1.15rem); 
+    line-height: 1.4; 
+    margin: 0 0 1rem; 
+    color: #f4f4f4; 
+    text-align: center;
+}
+
+.hero-slide-cta { 
+    margin-top: .35rem; 
+    align-self: center;
+}
 
 /* Force consistent alignment per direction to avoid browser differences with start keyword */
-[dir="ltr"] .hero-slide-overlay { text-align:left; align-items:flex-start; }
+[dir="ltr"] .hero-slide-overlay { text-align: center; align-items: center; }
 
 /* Normalize child elements spacing */
 .hero-slide-overlay > * { margin-inline:0; }
