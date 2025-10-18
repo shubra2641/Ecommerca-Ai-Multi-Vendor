@@ -262,11 +262,3 @@
 </section>
 @endsection
 <div id="checkout-root" hidden data-config='{{ e(json_encode($checkoutConfigJson ?? [], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'></div>
-
-@push('scripts')
-<!-- Load external sanitizer (runs immediately) to satisfy CSP (no inline scripts) -->
-<script
-    src="{{ asset('front/js/checkout-pattern-sanitizer.js') }}?v={{ filemtime(public_path('front/js/checkout-pattern-sanitizer.js')) }}">
-</script>
-<script src="{{ asset('front/js/checkout.js') }}?v={{ filemtime(public_path('front/js/checkout.js')) }}" defer></script>
-@endpush

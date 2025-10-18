@@ -22,23 +22,14 @@
     <meta name="selected-font" content="{{ $selectedFont }}">
     {{-- Set to '1' to allow loading external Google Fonts; keep '0' for strict CSP environments --}}
     <meta name="allow-google-fonts" content="0">
-    <link rel="stylesheet" href="{{ asset('css/local-fonts.css') }}">
-    <!-- Inline font CSS removed for CSP compliance; default font rules moved to envato-fixes.css; JS font-loader applies selected font at runtime -->
     <!-- Bootstrap (local) -->
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('front/css/envato-fixes.css') }}">
-    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
-
     <!-- Unified Customer CSS - All styles consolidated -->
-    <link href="{{ asset('assets/customer/css/customer.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/front/css/front.css') }}" rel="stylesheet">
     <!-- Critical CSS is now in external file -->
     @yield('styles')
-    {{-- Load pattern sanitizer early for checkout pages to avoid invalid RegExp compile-time errors --}}
-    @if(request()->is('checkout*') || request()->routeIs('checkout.*'))
-    <script src="{{ asset('front/js/checkout-pattern-sanitizer.js') }}"></script>
-    @endif
 </head>
 
 <body class="@if(request()->routeIs('user.*')) account-body @endif">
@@ -49,27 +40,9 @@
         </div>
     </div>
     @include('front.partials.header')
-    <div id="flash-messages-root" class="position-fixed flash-root"
-        data-flash-success='{{ e(json_encode(session('success'), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'
-        data-flash-error='{{ e(json_encode(session('error'), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'
-        data-flash-warning='{{ e(json_encode(session('warning'), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'
-        data-flash-info='{{ e(json_encode(session('info'), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'></div>
-    <?php // backup: layout.blade.php original l10n-data block saved as layout.blade.php.bak ?>
-    <template id="l10n-data">{!! json_encode([
-        'added_to_cart' => __('Added to cart'),
-        'failed_add_to_cart' => __('Failed to add to cart'),
-        'select_options_first' => __('Please select product options first.'),
-        'subscription_saved' => __('Subscription saved'),
-        'network_error' => __('Network error'),
-        'removed_from_cart' => __('Removed from cart'),
-        'moved_to_wishlist' => __('Moved to wishlist'),
-        'coupon_applied' => __('Coupon applied'),
-        'failed_apply_coupon' => __('Failed to apply coupon'),
-        'please_select_required_options' => __('Please select required options first'),
-        'sku_copied' => __('SKU copied'),
-        'failed_copy' => __('Failed to copy'),
-        ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}</template>
-    <main class="site-main">@yield('content')</main>
+     <main class="site-main">
+        @yield('content')
+    </main>
     @includeWhen(View::exists('front.partials.footer_extended'),'front.partials.footer_extended')
     @yield('modals')
     @if(request()->routeIs('products.index') || request()->routeIs('products.category') ||
@@ -81,20 +54,9 @@
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
     
     <!-- Unified Customer JS - All functionality consolidated -->
-    <script src="{{ asset('assets/customer/js/customer.js') }}"></script>
+    <script src="{{ asset('assets/front/js/front.js') }}"></script>
 
     @yield('scripts')
-
-    <!-- Font Loader Script -->
-    <script>
-        // Load selected font
-        document.addEventListener('DOMContentLoaded', function() {
-            const fontName = document.querySelector('meta[name="selected-font"]').getAttribute('content');
-            if (fontName && fontName !== 'Inter') {
-                document.body.style.fontFamily = fontName + ', sans-serif';
-            }
-        });
-    </script>
 </body>
 
 </html>
