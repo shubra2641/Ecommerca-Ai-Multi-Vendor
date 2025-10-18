@@ -14,26 +14,20 @@
     <div class="container container-wide">
         <?php if (isset($component)) { $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.breadcrumb','data' => ['items' => [
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.breadcrumb','data' => ['items' => array_merge([
             ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
-            ['title' => __('Products'), 'url' => route('products.index')],
-            @if(request('category'))
-            ['title' => request('category'), 'url' => '#']
-            @endif
-        ]]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+            ['title' => __('Products'), 'url' => route('products.index')]
+        ], request('category') ? [['title' => request('category'), 'url' => '#']] : [])]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('breadcrumb'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['items' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute([
+<?php $component->withAttributes(['items' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(array_merge([
             ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
-            ['title' => __('Products'), 'url' => route('products.index')],
-            @if(request('category'))
-            ['title' => request('category'), 'url' => '#']
-            @endif
-        ])]); ?>
+            ['title' => __('Products'), 'url' => route('products.index')]
+        ], request('category') ? [['title' => request('category'), 'url' => '#']] : []))]); ?>
 <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>

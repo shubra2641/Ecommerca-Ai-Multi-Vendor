@@ -14,13 +14,10 @@
 @section('content')
 <section class="products-section">
     <div class="container container-wide">
-        <x-breadcrumb :items="[
+        <x-breadcrumb :items="array_merge([
             ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
-            ['title' => __('Products'), 'url' => route('products.index')],
-            @if(request('category'))
-            ['title' => request('category'), 'url' => '#']
-            @endif
-        ]" />
+            ['title' => __('Products'), 'url' => route('products.index')]
+        ], request('category') ? [['title' => request('category'), 'url' => '#']] : [])" />
     <h1 class="results-title">{{ method_exists($products, 'total') ? $products->total() : $products->count() }} {{ __('Results') }}
             @if(request('q')) {{ __('for') }} "{{ request('q') }}" @endif</h1>
         <div class="catalog-layout">
