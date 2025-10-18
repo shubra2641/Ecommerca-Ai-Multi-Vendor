@@ -87,8 +87,8 @@
         createOverlay() {
             let overlay = Utils.select('.sidebar-overlay');
             if (!overlay && this.sidebar?.parentNode) {
-            overlay = document.createElement('div');
-            overlay.className = 'sidebar-overlay';
+                overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
                 this.sidebar.parentNode.insertBefore(overlay, this.sidebar.nextSibling);
             }
             return overlay;
@@ -132,10 +132,10 @@
         init() {
             this.dropdowns = Utils.selectAll('.dropdown, .nav-dropdown');
             this.bindEvents();
-            
+
             // Debug: Log found dropdowns
             console.log('Found dropdowns:', this.dropdowns.length);
-            
+
             // Initialize all dropdowns as closed
             this.dropdowns.forEach(dropdown => {
                 const menu = Utils.select('.dropdown-menu', dropdown);
@@ -185,9 +185,9 @@
             Utils.addClass(dropdown, 'show');
             Utils.addClass(menu, 'show');
             toggle.setAttribute('aria-expanded', 'true');
-            
+
             console.log('Opening dropdown:', dropdown.className);
-            
+
             // Force display and remove inline styles that might conflict
             menu.style.display = 'block';
             menu.style.opacity = '1';
@@ -199,9 +199,9 @@
             Utils.removeClass(dropdown, 'show');
             Utils.removeClass(menu, 'show');
             toggle.setAttribute('aria-expanded', 'false');
-            
+
             console.log('Closing dropdown:', dropdown.className);
-            
+
             // Force hide
             menu.style.display = 'none';
             menu.style.opacity = '0';
@@ -248,13 +248,13 @@
         },
 
         sortTable(table, header) {
-        const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+            const columnIndex = Array.from(header.parentNode.children).indexOf(header);
             const rows = Array.from(Utils.selectAll('tbody tr', table));
             const isAscending = !Utils.hasClass(header, 'sort-asc');
 
             rows.sort((a, b) => {
-            const aText = a.children[columnIndex].textContent.trim();
-            const bText = b.children[columnIndex].textContent.trim();
+                const aText = a.children[columnIndex].textContent.trim();
+                const bText = b.children[columnIndex].textContent.trim();
                 return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
             });
 
@@ -265,7 +265,7 @@
             });
             Utils.addClass(header, isAscending ? 'sort-asc' : 'sort-desc');
 
-        // Reorder rows
+            // Reorder rows
             const tbody = Utils.select('tbody', table);
             rows.forEach(row => tbody.appendChild(row));
         },
@@ -274,25 +274,25 @@
             const selectAll = Utils.select('thead input[type="checkbox"]', table);
             const rowCheckboxes = Utils.selectAll('tbody input[type="checkbox"]', table);
 
-        if (selectAll) {
+            if (selectAll) {
                 Utils.on(selectAll, 'change', () => {
                     rowCheckboxes.forEach(checkbox => {
-                    checkbox.checked = selectAll.checked;
+                        checkbox.checked = selectAll.checked;
                         this.updateRowSelection(checkbox);
+                    });
                 });
-            });
-        }
+            }
 
             rowCheckboxes.forEach(checkbox => {
                 Utils.on(checkbox, 'change', () => {
                     this.updateRowSelection(checkbox);
                     this.updateSelectAll(table);
+                });
             });
-        });
         },
 
         updateRowSelection(checkbox) {
-        const row = checkbox.closest('tr');
+            const row = checkbox.closest('tr');
             Utils.toggleClass(row, 'selected', checkbox.checked);
         },
 
@@ -301,9 +301,9 @@
             const rowCheckboxes = Utils.selectAll('tbody input[type="checkbox"]', table);
             const checkedBoxes = Utils.selectAll('tbody input[type="checkbox"]:checked', table);
 
-        if (selectAll) {
-            selectAll.checked = checkedBoxes.length === rowCheckboxes.length;
-            selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < rowCheckboxes.length;
+            if (selectAll) {
+                selectAll.checked = checkedBoxes.length === rowCheckboxes.length;
+                selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < rowCheckboxes.length;
             }
         }
     };
@@ -329,28 +329,28 @@
         },
 
         validateForm(form) {
-        let isValid = true;
+            let isValid = true;
             const requiredFields = Utils.selectAll('[required]', form);
 
             requiredFields.forEach(field => {
-            if (!field.value.trim()) {
+                if (!field.value.trim()) {
                     this.showFieldError(field, 'This field is required');
-                isValid = false;
-            } else {
+                    isValid = false;
+                } else {
                     this.clearFieldError(field);
-            }
-        });
+                }
+            });
 
-        return isValid;
+            return isValid;
         },
 
         showFieldError(field, message) {
             this.clearFieldError(field);
             Utils.addClass(field, 'error');
-        
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'field-error';
-        errorDiv.textContent = message;
+
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'field-error';
+            errorDiv.textContent = message;
             field.parentNode.appendChild(errorDiv);
         },
 
@@ -400,11 +400,11 @@
             const triggers = Utils.selectAll('[data-modal]');
             triggers.forEach(trigger => {
                 Utils.on(trigger, 'click', (e) => {
-                e.preventDefault();
-                const modalId = trigger.getAttribute('data-modal');
+                    e.preventDefault();
+                    const modalId = trigger.getAttribute('data-modal');
                     this.open(modalId);
+                });
             });
-        });
         },
 
         bindCloseHandlers() {
@@ -415,23 +415,23 @@
             });
 
             Utils.on(document, 'keydown', (e) => {
-            if (e.key === 'Escape') {
+                if (e.key === 'Escape') {
                     this.close();
-            }
-        });
+                }
+            });
         },
 
         open(modalId) {
             const modal = Utils.select(`#${modalId}`);
-        if (modal) {
+            if (modal) {
                 Utils.addClass(modal, 'active');
                 Utils.addClass(document.body, 'modal-open');
-        }
+            }
         },
 
         close() {
             const activeModal = Utils.select('.modal.active');
-        if (activeModal) {
+            if (activeModal) {
                 Utils.removeClass(activeModal, 'active');
                 Utils.removeClass(document.body, 'modal-open');
             }
@@ -448,7 +448,7 @@
         initAutoHide() {
             const notifications = Utils.selectAll('.notification');
             notifications.forEach(notification => {
-            if (notification.hasAttribute('data-auto-hide')) {
+                if (notification.hasAttribute('data-auto-hide')) {
                     setTimeout(() => this.hide(notification), CONFIG.NOTIFICATION_DURATION);
                 }
             });
@@ -457,7 +457,7 @@
         bindCloseHandlers() {
             Utils.on(document, 'click', (e) => {
                 if (Utils.hasClass(e.target, 'notification-close')) {
-                const notification = e.target.closest('.notification');
+                    const notification = e.target.closest('.notification');
                     this.hide(notification);
                 }
             });
@@ -528,8 +528,8 @@
 
             try {
                 return JSON.parse(tpl.textContent || tpl.innerText || '{}');
-        } catch (e) {
-            console.error('user-balance-config JSON parse error', e);
+            } catch (e) {
+                console.error('user-balance-config JSON parse error', e);
                 return null;
             }
         },
@@ -646,13 +646,13 @@
                     emptyDiv.textContent = this.config.i18n?.no_history_desc || 'No previous transactions found';
                     container.appendChild(emptyDiv);
                 }
-                } catch (err) {
-                    console.error('Failed to load history', err);
+            } catch (err) {
+                console.error('Failed to load history', err);
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'alert alert-danger';
                 errorDiv.textContent = this.config.i18n?.error_history || 'Failed to load balance history';
                 container.appendChild(errorDiv);
-                }
+            }
         },
 
         wireForm(formId, urlKey, successMessageKey) {
@@ -665,7 +665,7 @@
                 if (submitBtn) submitBtn.disabled = true;
 
                 try {
-                const formData = new FormData(form);
+                    const formData = new FormData(form);
                     const response = await Utils.fetch(this.config.urls[urlKey], {
                         method: 'POST',
                         body: formData
@@ -708,23 +708,23 @@
         bindFormConfirmations() {
             Utils.selectAll('form.js-confirm, form.js-confirm-delete').forEach(form => {
                 Utils.on(form, 'submit', (e) => {
-                const msg = form.dataset.confirm || form.getAttribute('data-confirm') || 'Are you sure?';
-                if (!window.confirm(msg)) {
-                    e.preventDefault();
-                }
+                    const msg = form.dataset.confirm || form.getAttribute('data-confirm') || 'Are you sure?';
+                    if (!window.confirm(msg)) {
+                        e.preventDefault();
+                    }
+                });
             });
-        });
         },
 
         bindElementConfirmations() {
             Utils.selectAll('[data-confirm]').forEach(element => {
                 Utils.on(element, 'click', (e) => {
                     const msg = element.getAttribute('data-confirm');
-                if (!window.confirm(msg)) {
-                    e.preventDefault();
-                }
+                    if (!window.confirm(msg)) {
+                        e.preventDefault();
+                    }
+                });
             });
-        });
         }
     };
 
