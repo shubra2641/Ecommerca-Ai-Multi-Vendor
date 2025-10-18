@@ -85,7 +85,6 @@ class AppServiceProvider extends ServiceProvider
         View::composer('admin.shipping.index', \App\View\Composers\AdminShippingComposer::class);
         View::composer('admin.reports.system', \App\View\Composers\AdminSystemReportComposer::class);
         View::composer('admin.products.products.show', \App\View\Composers\AdminProductShowComposer::class);
-        View::composer('admin.dashboard', \App\View\Composers\AdminDashboardComposer::class);
         View::composer('admin.users.form', \App\View\Composers\AdminUsersFormComposer::class);
         View::composer('admin.social.form', \App\View\Composers\AdminSocialFormComposer::class);
         View::composer('admin.profile.settings', \App\View\Composers\AdminProfileSettingsComposer::class);

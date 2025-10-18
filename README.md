@@ -40,8 +40,6 @@ Laravel 12 multi-vendor platform with focus on performance (query limiting), sca
 | Catalog | ✅ | Products, categories (multilingual), attributes (extensible) |
 | Blog | ✅ | Posts & categories multilingual slugs + fallback |
 | Translations | ✅ | JSON based + automatic per-locale slug generation |
-| Performance Dashboard | ✅ | Snapshot tiles (manual refresh) |
-| Activity Center | ✅ | Vue enhancement / degrades to static list |
 | PWA | ✅ | Offline, background sync allowlist |
 | Web Push | ✅ | VAPID + command dispatch |
 | SEO | ✅ | Slug & meta per locale (categories/posts) |
@@ -61,9 +59,6 @@ Laravel 12 multi-vendor platform with focus on performance (query limiting), sca
 | Area | File |
 |------|------|
 | Dashboard | `docs/screenshots/cover.png` |
-| Activity Center | (add) `docs/screenshots/activity.png` |
-| Vendor Withdrawals | (add) `docs/screenshots/withdrawals.png` |
-| Performance Tiles | (add) `docs/screenshots/performance.png` |
 
 Add missing screenshots before packaging (PNG ≤ 300KB each).
 

@@ -226,9 +226,6 @@ Route::middleware(['auth', 'role:admin', 'can:access-admin', \App\Http\Middlewar
     });
 
 
-    // Performance dashboard
-    Route::get('/performance', [PerformanceController::class, 'index'])->name('admin.performance.index');
-    Route::get('/performance/snapshot', [PerformanceController::class, 'apiSnapshot'])->name('admin.performance.snapshot');
 
     // Dashboard AJAX routes
     Route::prefix('dashboard')->name('admin.dashboard.')->group(function () {
