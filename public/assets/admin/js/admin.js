@@ -646,7 +646,7 @@
                     container.appendChild(emptyDiv);
                 }
             } catch (err) {
-                    // Failed to load history
+                // Failed to load history
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'alert alert-danger';
                 errorDiv.textContent = this.config.i18n?.error_history || 'Failed to load balance history';
