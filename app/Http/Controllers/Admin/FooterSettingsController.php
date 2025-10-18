@@ -105,10 +105,15 @@ class FooterSettingsController extends Controller
             'support_bar' => true,
             'apps' => true,
             'social' => true,
+            'pages' => true,
             'payments' => true,
         ], $setting->footer_sections_visibility ?? []);
 
-        return view('admin.footer.settings', compact('setting', 'activeLanguages', 'appLinks', 'sections'));
+        // Add empty pages array and footerPageTitles to prevent undefined key errors
+        $pages = collect();
+        $footerPageTitles = [];
+
+        return view('admin.footer.settings', compact('setting', 'activeLanguages', 'appLinks', 'sections', 'pages', 'footerPageTitles'));
     }
 
     public function update(UpdateFooterSettingsRequest $request, \App\Services\HtmlSanitizer $sanitizer): RedirectResponse
@@ -132,7 +137,7 @@ class FooterSettingsController extends Controller
         $appLinks = $this->normalizeAppLinks($data['app_links'] ?? [], $setting, $request);
 
         // Sections visibility (explicit each submit)
-        $sections = collect(['support_bar', 'apps', 'social', 'payments'])
+        $sections = collect(['support_bar', 'apps', 'social', 'pages', 'payments'])
             ->mapWithKeys(fn ($sec) => [$sec => (bool) ($data['sections'][$sec] ?? false)])
             ->toArray();
 
@@ -160,6 +165,9 @@ class FooterSettingsController extends Controller
         $payload['footer_sections_visibility'] = $sections;
         if (array_key_exists('footer_payment_methods', $data)) {
             $payload['footer_payment_methods'] = $data['footer_payment_methods'];
+        }
+        if (array_key_exists('footer_pages', $data)) {
+            $payload['footer_pages'] = $data['footer_pages'] ?? [];
         }
 
         // Update rights plain field from default language if available

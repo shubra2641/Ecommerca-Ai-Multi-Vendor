@@ -126,11 +126,17 @@
     <hr>
     <h5>{{ __('Footer Pages') }}</h5>
     <p class="text-muted small">{{ __('Select pages to display (max 8). Order will follow selection order.') }}</p>
-    <select name="footer_pages[]" class="form-select" multiple size="8">
-      @foreach($pages as $p)
-        <option value="{{ $p->id }}" @selected(in_array($p->id, $setting->footer_pages ?? []))>{{ $footerPageTitles[$p->id] ?? ('#'.$p->id) }} @if($p->identifier) ({{ $p->identifier }}) @endif</option>
-      @endforeach
-    </select>
+    @if($pages->count() > 0)
+      <select name="footer_pages[]" class="form-select" multiple size="8">
+        @foreach($pages as $p)
+          <option value="{{ $p->id }}" @selected(in_array($p->id, $setting->footer_pages ?? []))>{{ $footerPageTitles[$p->id] ?? ('#'.$p->id) }} @if(isset($p->identifier) && $p->identifier) ({{ $p->identifier }}) @endif</option>
+        @endforeach
+      </select>
+    @else
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> {{ __('No pages available. Pages will be available once the pages system is set up.') }}
+      </div>
+    @endif
 
     <hr>
     <h5>{{ __('Payment Methods (one per line, max 6 shown)') }}</h5>
