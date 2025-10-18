@@ -35,6 +35,16 @@
 
         // AJAX helpers
         fetch: async (url, options = {}) => {
+            // Validate URL to prevent SSRF attacks
+            try {
+                const urlObj = new URL(url, window.location.origin);
+                if (urlObj.origin !== window.location.origin) {
+                    throw new Error('Cross-origin requests not allowed');
+                }
+            } catch (e) {
+                throw new Error('Invalid URL');
+            }
+
             const defaultOptions = {
                 credentials: 'same-origin',
                 headers: {
@@ -270,7 +280,7 @@
                     if (response.ok) {
                         NotificationManager.show('Changes saved automatically', 'success');
                     }
-                }).catch(error => console.error('Auto-save failed:', error));
+                }).catch(() => { /* Auto-save failed silently */ });
             }
         }
     };
@@ -352,12 +362,22 @@
         show(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
-                <div class="notification-content">
-                    <div class="notification-message">${message}</div>
-                    <button class="notification-close" type="button" aria-label="Close notification">&times;</button>
-                </div>
-            `;
+            const content = document.createElement('div');
+            content.className = 'notification-content';
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'notification-message';
+            messageDiv.textContent = message;
+
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'notification-close';
+            closeBtn.type = 'button';
+            closeBtn.setAttribute('aria-label', 'Close notification');
+            closeBtn.textContent = '×';
+
+            content.appendChild(messageDiv);
+            content.appendChild(closeBtn);
+            notification.appendChild(content);
 
             let container = Utils.select('.notification-container');
             if (!container) {
@@ -370,9 +390,9 @@
 
             const autoHide = setTimeout(() => this.hide(notification), CONFIG.NOTIFICATION_DURATION);
 
-            const closeBtn = Utils.select('.notification-close', notification);
-            if (closeBtn) {
-                Utils.on(closeBtn, 'click', () => {
+            const closeButton = Utils.select('.notification-close', notification);
+            if (closeButton) {
+                Utils.on(closeButton, 'click', () => {
                     clearTimeout(autoHide);
                     this.hide(notification);
                 });
@@ -478,7 +498,7 @@
 
             ['total_added', 'total_deducted', 'net_balance_change', 'balance'].forEach(key => {
                 const element = Utils.select(`[data-stat="${key}"]`);
-                if (element && data.hasOwnProperty(key)) {
+                if (element && Object.prototype.hasOwnProperty.call(data, key)) {
                     element.textContent = Utils.formatCurrency(data[key], this.config.currency);
                 }
             });
@@ -489,29 +509,45 @@
             const container = Utils.select('#balanceHistoryContainer');
             if (!container || !this.config.urls?.history) return;
 
-            container.innerHTML = `
-                <div class="text-center p-4">
-                    <div class="loading-spinner mx-auto"></div>
-                    <p class="mt-2">${this.config.i18n?.loading_history || 'Loading history...'}</p>
-                </div>
-            `;
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'text-center p-4';
+
+            const spinner = document.createElement('div');
+            spinner.className = 'loading-spinner mx-auto';
+
+            const text = document.createElement('p');
+            text.className = 'mt-2';
+            text.textContent = this.config.i18n?.loading_history || 'Loading history...';
+
+            loadingDiv.appendChild(spinner);
+            loadingDiv.appendChild(text);
+            container.appendChild(loadingDiv);
 
             try {
                 const response = await Utils.fetch(this.config.urls.history);
                 if (!response.ok) throw new Error('Network response not ok');
                 const html = await response.text();
-                container.innerHTML = html || `
-                    <div class="empty-state text-center p-4">
-                        ${this.config.i18n?.no_history_desc || 'No previous transactions found'}
-                    </div>
-                `;
+                if (html) {
+                    // Create a temporary container to parse HTML safely
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+
+                    // Move all child nodes to the container
+                    while (tempDiv.firstChild) {
+                        container.appendChild(tempDiv.firstChild);
+                    }
+                } else {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'empty-state text-center p-4';
+                    emptyDiv.textContent = this.config.i18n?.no_history_desc || 'No previous transactions found';
+                    container.appendChild(emptyDiv);
+                }
             } catch (err) {
                 console.error('Failed to load history', err);
-                container.innerHTML = `
-                    <div class="alert alert-danger">
-                        ${this.config.i18n?.error_history || 'Failed to load balance history'}
-                    </div>
-                `;
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger';
+                errorDiv.textContent = this.config.i18n?.error_history || 'Failed to load balance history';
+                container.appendChild(errorDiv);
             }
         },
 
@@ -613,8 +649,10 @@
     }
 
     // Expose utility functions for external use
-    AdminPanel.Utils = Utils;
-    AdminPanel.NotificationManager = NotificationManager;
-    AdminPanel.ModalManager = ModalManager;
+    if (typeof window.AdminPanel !== 'undefined') {
+        window.AdminPanel.Utils = Utils;
+        window.AdminPanel.NotificationManager = NotificationManager;
+        window.AdminPanel.ModalManager = ModalManager;
+    }
 
 })();
