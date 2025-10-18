@@ -26,7 +26,7 @@
                 @endforeach
             </div>
             <div class="section-footer">
-                <a href="{{ route('products.index', ['filter'=>'on-sale']) }}" class="btn btn-outline btn-lg">{{ __('View All Deals') }}</a>
+                <a href="{{ route('products.index', ['filter'=>'on-sale']) }}" class="btn btn-primary hero-slide-cta">{{ __('View All Deals') }}</a>
             </div>
         </div>
     </section>
@@ -56,7 +56,7 @@
                 @endforeach
             </ul>
             <div class="section-footer">
-                <a href="{{ route('products.index') }}" class="btn btn-outline btn-lg">{{ __('View All Products') }}</a>
+                <a href="{{ route('products.index') }}" class="btn btn-primary hero-slide-cta">{{ __('View All Products') }}</a>
             </div>
         </div>
     </section>
@@ -74,7 +74,7 @@
                         @endforeach
                     </div>
                     <div class="section-footer">
-                        <a href="{{ route('products.index', ['sort'=>'newest']) }}" class="btn btn-outline btn-lg">{{ __('View All New Arrivals') }}</a>
+                        <a href="{{ route('products.index', ['sort'=>'newest']) }}" class="btn btn-primary hero-slide-cta">{{ __('View All New Arrivals') }}</a>
                     </div>
                 </div>
             </section>
@@ -107,7 +107,7 @@
                                     @if($post->prepared_excerpt)
                                         <p class="excerpt">{{ $post->prepared_excerpt }}</p>
                                     @endif
-                                    <a class="read-more" href="{{ route('blog.show',$post->slug) }}">{{ __('Read more') }} →</a>
+                                    <a class="btn btn-primary btn-sm" href="{{ route('blog.show',$post->slug) }}">{{ __('Read more') }} →</a>
                                 </div>
                             </article>
                         @endforeach

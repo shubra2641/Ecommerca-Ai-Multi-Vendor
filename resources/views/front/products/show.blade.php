@@ -88,7 +88,6 @@
                     @elseif($product->type === 'variable')
                         <span class="badge-soft badge-sale" id="globalSaleBadge"></span>
                     @endif
-                    <span class="badge-soft badge-fast">express</span>
                     <span class="badge-soft badge-stock {{ $stockClass }}" id="topStockBadge">{{ $levelLabel }}</span>
                 </div>
                 <div class="divider-line"></div>

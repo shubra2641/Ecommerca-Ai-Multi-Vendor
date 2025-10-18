@@ -97,9 +97,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">{{ __('Country') }}</label>
-                                    <select id="shipping-country" name="country" class="form-control" required>
-                                        <option value="">{{ __('Select Country') }}
-                                        </option>
+                                    <select name="country" class="form-control" required onchange="this.form.submit()">
+                                        <option value="">{{ __('Select Country') }}</option>
                                         @foreach(\App\Models\Country::where('active',1)->get() as $c)
                                         <option value="{{ $c->id }}"
                                             {{ (old('country', $defaultAddress->country_id ?? auth()->user()->country_id ?? '') == $c->id) ? 'selected' : '' }}>
@@ -111,24 +110,47 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">{{ __('Governorate') }}</label>
-                                    <select id="shipping-governorate" name="governorate" class="form-control" required>
-                                        @if(old('governorate') || (!empty($defaultAddress) &&
-                                        $defaultAddress->governorate_id) || (auth()->user() &&
-                                        auth()->user()->governorate_id))
-                                        <option
-                                            value="{{ old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '') }}"
-                                            selected>{{ __('Loading...') }}</option>
+                                    <select name="governorate" class="form-control" required onchange="this.form.submit()">
+                                        <option value="">{{ __('Select Governorate') }}</option>
+                                        @if(old('country') || (!empty($defaultAddress) && $defaultAddress->country_id) || (auth()->user() && auth()->user()->country_id))
+                                        @php
+                                            $selectedCountry = old('country', $defaultAddress->country_id ?? auth()->user()->country_id ?? '');
+                                            $governorates = \App\Models\Governorate::where('country_id', $selectedCountry)->where('active', 1)->get();
+                                            $selectedGovernorate = old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '');
+                                            
+                                            // Auto-select first governorate if none selected and country is selected
+                                            if (!$selectedGovernorate && $selectedCountry && $governorates->count() > 0) {
+                                                $selectedGovernorate = $governorates->first()->id;
+                                            }
+                                        @endphp
+                                        @foreach($governorates as $gov)
+                                        <option value="{{ $gov->id }}"
+                                            {{ ($selectedGovernorate == $gov->id) ? 'selected' : '' }}>
+                                            {{ $gov->name }}</option>
+                                        @endforeach
                                         @endif
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">{{ __('City') }}</label>
-                                    <select id="shipping-city" name="city" class="form-control" required>
-                                        @if(old('city') || (!empty($defaultAddress) && $defaultAddress->city_id) ||
-                                        (auth()->user() && auth()->user()->city_id))
-                                        <option
-                                            value="{{ old('city', $defaultAddress->city_id ?? auth()->user()->city_id ?? '') }}"
-                                            selected>{{ __('Loading...') }}</option>
+                                    <select name="city" class="form-control" required onchange="this.form.submit()">
+                                        <option value="">{{ __('Select City') }}</option>
+                                        @if(old('governorate') || (!empty($defaultAddress) && $defaultAddress->governorate_id) || (auth()->user() && auth()->user()->governorate_id))
+                                        @php
+                                            $selectedGovernorate = old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '');
+                                            $cities = \App\Models\City::where('governorate_id', $selectedGovernorate)->where('active', 1)->get();
+                                            $selectedCity = old('city', $defaultAddress->city_id ?? auth()->user()->city_id ?? '');
+                                            
+                                            // Auto-select first city if none selected and governorate is selected
+                                            if (!$selectedCity && $selectedGovernorate && $cities->count() > 0) {
+                                                $selectedCity = $cities->first()->id;
+                                            }
+                                        @endphp
+                                        @foreach($cities as $city)
+                                        <option value="{{ $city->id }}"
+                                            {{ ($selectedCity == $city->id) ? 'selected' : '' }}>
+                                            {{ $city->name }}</option>
+                                        @endforeach
                                         @endif
                                     </select>
                                 </div>
@@ -147,11 +169,68 @@
                                 @error('notes') <div class="text-danger small">
                                     {{ $message }}</div>@enderror
                             </div>
-                            <div id="shipping-match-level" class="small text-muted envato-hidden"></div>
-                            @error('shipping')
-                            <div class="alert alert-danger small" id="shipping-error">{{ $message }}</div>
-                            @enderror
-                            <div id="shipping-quote" class="mt-2"></div>
+                            {{-- Shipping Cost Calculation --}}
+                            @if(old('city') || (!empty($defaultAddress) && $defaultAddress->city_id) || (auth()->user() && auth()->user()->city_id))
+                            @php
+                                $selectedCountry = old('country', $defaultAddress->country_id ?? auth()->user()->country_id ?? '');
+                                $selectedGovernorate = old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '');
+                                $selectedCity = old('city', $defaultAddress->city_id ?? auth()->user()->city_id ?? '');
+                                
+                                // Auto-select first available options if not selected
+                                if ($selectedCountry && !$selectedGovernorate) {
+                                    $governorates = \App\Models\Governorate::where('country_id', $selectedCountry)->where('active', 1)->get();
+                                    if ($governorates->count() > 0) {
+                                        $selectedGovernorate = $governorates->first()->id;
+                                    }
+                                }
+                                
+                                if ($selectedGovernorate && !$selectedCity) {
+                                    $cities = \App\Models\City::where('governorate_id', $selectedGovernorate)->where('active', 1)->get();
+                                    if ($cities->count() > 0) {
+                                        $selectedCity = $cities->first()->id;
+                                    }
+                                }
+                                
+                                // Find shipping rule for the selected location
+                                $shippingRule = \App\Models\ShippingRule::where('active', 1)
+                                    ->where(function($query) use ($selectedCity, $selectedGovernorate, $selectedCountry) {
+                                        $query->where('city_id', $selectedCity)
+                                              ->orWhere(function($q) use ($selectedGovernorate) {
+                                                  $q->where('governorate_id', $selectedGovernorate)
+                                                    ->whereNull('city_id');
+                                              })
+                                              ->orWhere(function($q) use ($selectedCountry) {
+                                                  $q->where('country_id', $selectedCountry)
+                                                    ->whereNull('governorate_id')
+                                                    ->whereNull('city_id');
+                                              });
+                                    })
+                                    ->orderBy('city_id', 'desc') // Prioritize city-specific rules
+                                    ->orderBy('governorate_id', 'desc') // Then governorate-specific
+                                    ->orderBy('country_id', 'desc') // Finally country-specific
+                                    ->first();
+                            @endphp
+                            
+                            @if($shippingRule)
+                            <div class="shipping-info mt-3">
+                                <div class="shipping-cost">
+                                    <strong>{{ __('Shipping Cost') }}: {{ $currency_symbol ?? '$' }}{{ number_format($shippingRule->price, 2) }}</strong>
+                                </div>
+                                @if($shippingRule->estimated_days)
+                                <div class="shipping-days small text-muted">
+                                    {{ __('Estimated delivery') }}: {{ $shippingRule->estimated_days }} {{ __('days') }}
+                                </div>
+                                @endif
+                                <input type="hidden" name="shipping_cost" value="{{ $shippingRule->price }}">
+                            </div>
+                            @else
+                            <div class="shipping-info mt-3">
+                                <div class="alert alert-warning small">
+                                    {{ __('Shipping cost will be calculated at checkout') }}
+                                </div>
+                            </div>
+                            @endif
+                            @endif
                         </div>
                     </div>
                     <div class="panel-card">

@@ -140,10 +140,8 @@ unset($__errorArgs, $__bag); ?>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label"><?php echo e(__('Country')); ?></label>
-                                    <select id="shipping-country" name="country" class="form-control" required>
-                                        <option value=""><?php echo e(__('Select Country')); ?>
-
-                                        </option>
+                                    <select name="country" class="form-control" required onchange="this.form.submit()">
+                                        <option value=""><?php echo e(__('Select Country')); ?></option>
                                         <?php $__currentLoopData = \App\Models\Country::where('active',1)->get(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <option value="<?php echo e($c->id); ?>"
                                             <?php echo e((old('country', $defaultAddress->country_id ?? auth()->user()->country_id ?? '') == $c->id) ? 'selected' : ''); ?>>
@@ -155,24 +153,47 @@ unset($__errorArgs, $__bag); ?>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label"><?php echo e(__('Governorate')); ?></label>
-                                    <select id="shipping-governorate" name="governorate" class="form-control" required>
-                                        <?php if(old('governorate') || (!empty($defaultAddress) &&
-                                        $defaultAddress->governorate_id) || (auth()->user() &&
-                                        auth()->user()->governorate_id)): ?>
-                                        <option
-                                            value="<?php echo e(old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '')); ?>"
-                                            selected><?php echo e(__('Loading...')); ?></option>
+                                    <select name="governorate" class="form-control" required onchange="this.form.submit()">
+                                        <option value=""><?php echo e(__('Select Governorate')); ?></option>
+                                        <?php if(old('country') || (!empty($defaultAddress) && $defaultAddress->country_id) || (auth()->user() && auth()->user()->country_id)): ?>
+                                        <?php
+                                            $selectedCountry = old('country', $defaultAddress->country_id ?? auth()->user()->country_id ?? '');
+                                            $governorates = \App\Models\Governorate::where('country_id', $selectedCountry)->where('active', 1)->get();
+                                            $selectedGovernorate = old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '');
+                                            
+                                            // Auto-select first governorate if none selected and country is selected
+                                            if (!$selectedGovernorate && $selectedCountry && $governorates->count() > 0) {
+                                                $selectedGovernorate = $governorates->first()->id;
+                                            }
+                                        ?>
+                                        <?php $__currentLoopData = $governorates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $gov): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($gov->id); ?>"
+                                            <?php echo e(($selectedGovernorate == $gov->id) ? 'selected' : ''); ?>>
+                                            <?php echo e($gov->name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         <?php endif; ?>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label"><?php echo e(__('City')); ?></label>
-                                    <select id="shipping-city" name="city" class="form-control" required>
-                                        <?php if(old('city') || (!empty($defaultAddress) && $defaultAddress->city_id) ||
-                                        (auth()->user() && auth()->user()->city_id)): ?>
-                                        <option
-                                            value="<?php echo e(old('city', $defaultAddress->city_id ?? auth()->user()->city_id ?? '')); ?>"
-                                            selected><?php echo e(__('Loading...')); ?></option>
+                                    <select name="city" class="form-control" required onchange="this.form.submit()">
+                                        <option value=""><?php echo e(__('Select City')); ?></option>
+                                        <?php if(old('governorate') || (!empty($defaultAddress) && $defaultAddress->governorate_id) || (auth()->user() && auth()->user()->governorate_id)): ?>
+                                        <?php
+                                            $selectedGovernorate = old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '');
+                                            $cities = \App\Models\City::where('governorate_id', $selectedGovernorate)->where('active', 1)->get();
+                                            $selectedCity = old('city', $defaultAddress->city_id ?? auth()->user()->city_id ?? '');
+                                            
+                                            // Auto-select first city if none selected and governorate is selected
+                                            if (!$selectedCity && $selectedGovernorate && $cities->count() > 0) {
+                                                $selectedCity = $cities->first()->id;
+                                            }
+                                        ?>
+                                        <?php $__currentLoopData = $cities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $city): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($city->id); ?>"
+                                            <?php echo e(($selectedCity == $city->id) ? 'selected' : ''); ?>>
+                                            <?php echo e($city->name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         <?php endif; ?>
                                     </select>
                                 </div>
@@ -205,18 +226,70 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                             </div>
-                            <div id="shipping-match-level" class="small text-muted envato-hidden"></div>
-                            <?php $__errorArgs = ['shipping'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                            <div class="alert alert-danger small" id="shipping-error"><?php echo e($message); ?></div>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                            <div id="shipping-quote" class="mt-2"></div>
+                            
+                            <?php if(old('city') || (!empty($defaultAddress) && $defaultAddress->city_id) || (auth()->user() && auth()->user()->city_id)): ?>
+                            <?php
+                                $selectedCountry = old('country', $defaultAddress->country_id ?? auth()->user()->country_id ?? '');
+                                $selectedGovernorate = old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '');
+                                $selectedCity = old('city', $defaultAddress->city_id ?? auth()->user()->city_id ?? '');
+                                
+                                // Auto-select first available options if not selected
+                                if ($selectedCountry && !$selectedGovernorate) {
+                                    $governorates = \App\Models\Governorate::where('country_id', $selectedCountry)->where('active', 1)->get();
+                                    if ($governorates->count() > 0) {
+                                        $selectedGovernorate = $governorates->first()->id;
+                                    }
+                                }
+                                
+                                if ($selectedGovernorate && !$selectedCity) {
+                                    $cities = \App\Models\City::where('governorate_id', $selectedGovernorate)->where('active', 1)->get();
+                                    if ($cities->count() > 0) {
+                                        $selectedCity = $cities->first()->id;
+                                    }
+                                }
+                                
+                                // Find shipping rule for the selected location
+                                $shippingRule = \App\Models\ShippingRule::where('active', 1)
+                                    ->where(function($query) use ($selectedCity, $selectedGovernorate, $selectedCountry) {
+                                        $query->where('city_id', $selectedCity)
+                                              ->orWhere(function($q) use ($selectedGovernorate) {
+                                                  $q->where('governorate_id', $selectedGovernorate)
+                                                    ->whereNull('city_id');
+                                              })
+                                              ->orWhere(function($q) use ($selectedCountry) {
+                                                  $q->where('country_id', $selectedCountry)
+                                                    ->whereNull('governorate_id')
+                                                    ->whereNull('city_id');
+                                              });
+                                    })
+                                    ->orderBy('city_id', 'desc') // Prioritize city-specific rules
+                                    ->orderBy('governorate_id', 'desc') // Then governorate-specific
+                                    ->orderBy('country_id', 'desc') // Finally country-specific
+                                    ->first();
+                            ?>
+                            
+                            <?php if($shippingRule): ?>
+                            <div class="shipping-info mt-3">
+                                <div class="shipping-cost">
+                                    <strong><?php echo e(__('Shipping Cost')); ?>: <?php echo e($currency_symbol ?? '$'); ?><?php echo e(number_format($shippingRule->price, 2)); ?></strong>
+                                </div>
+                                <?php if($shippingRule->estimated_days): ?>
+                                <div class="shipping-days small text-muted">
+                                    <?php echo e(__('Estimated delivery')); ?>: <?php echo e($shippingRule->estimated_days); ?> <?php echo e(__('days')); ?>
+
+                                </div>
+                                <?php endif; ?>
+                                <input type="hidden" name="shipping_cost" value="<?php echo e($shippingRule->price); ?>">
+                            </div>
+                            <?php else: ?>
+                            <div class="shipping-info mt-3">
+                                <div class="alert alert-warning small">
+                                    <?php echo e(__('Shipping cost will be calculated at checkout')); ?>
+
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div class="panel-card">

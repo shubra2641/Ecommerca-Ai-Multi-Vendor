@@ -20,14 +20,25 @@
             
             <div class="top-controls" aria-hidden="false">
                 <div class="top-controls-row">
-                    <button class="circle-btn icon-btn fav-btn <?php echo e($cardWishActive ? 'active' : ''); ?>"
-                        aria-pressed="<?php echo e($cardWishActive ? 'true' : 'false'); ?>" aria-label="Toggle wishlist" data-product="<?php echo e($product->id); ?>">
-                        <i class="fas fa-heart" aria-hidden="true"></i>
-                    </button>
-                    <button class="circle-btn icon-btn compare-btn <?php echo e($cardCmpActive ? 'is-active' : ''); ?>" title="Compare"
-                        aria-label="Compare product" data-product="<?php echo e($product->id); ?>">
-                        <i class="fas fa-chart-bar" aria-hidden="true"></i>
-                    </button>
+                    
+                    <form action="<?php echo e(route('wishlist.toggle')); ?>" method="POST" class="wishlist-form">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" name="product_id" value="<?php echo e($product->id); ?>">
+                        <button class="circle-btn icon-btn fav-btn <?php echo e($cardWishActive ? 'active' : ''); ?>"
+                            aria-pressed="<?php echo e($cardWishActive ? 'true' : 'false'); ?>" aria-label="Toggle wishlist" type="submit">
+                            <i class="fas fa-heart" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                    
+                    
+                    <form action="<?php echo e(route('compare.toggle')); ?>" method="POST" class="compare-form">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" name="product_id" value="<?php echo e($product->id); ?>">
+                        <button class="circle-btn icon-btn compare-btn <?php echo e($cardCmpActive ? 'is-active' : ''); ?>" title="Compare"
+                            aria-label="Compare product" type="submit">
+                            <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                        </button>
+                    </form>
                 </div>
                 <div class="top-controls-col">
                     <button class="circle-btn icon-btn cart-quick"

@@ -31,7 +31,6 @@ class CountryController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'iso_code' => 'nullable|string|max:5',
-            'active' => 'sometimes|boolean',
         ]);
         // sanitize
         if (isset($data['name']) && is_string($data['name'])) {
@@ -57,7 +56,6 @@ class CountryController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'iso_code' => 'nullable|string|max:5',
-            'active' => 'sometimes|boolean',
         ]);
         if (isset($data['name']) && is_string($data['name'])) {
             $data['name'] = $sanitizer->clean($data['name']);

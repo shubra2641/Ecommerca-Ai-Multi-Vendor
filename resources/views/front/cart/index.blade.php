@@ -47,21 +47,35 @@
                                 </div>
 
                                 <div class="cart-actions">
+                                    {{-- Update Quantity Form --}}
                                     <form action="{{ route('cart.update') }}" method="post" class="qty-form">@csrf
                                         <input type="hidden" name="lines[{{ $loop->index }}][cart_key]" value="{{ $it['cart_key'] }}">
                                         <label for="qty-input-{{ $loop->index }}" class="qty-label">Qty</label>
                                         <div class="qty-input-group">
-                                            <button type="button" class="qty-btn qty-decrease" data-target="#qty-input-{{ $loop->index }}">−</button>
-                                            <input id="qty-input-{{ $loop->index }}" name="lines[{{ $loop->index }}][qty]" type="number" min="1" @if(!is_null($it['available'])) max="{{ $it['available'] }}" @endif value="{{ $it['qty'] }}" class="qty-input" data-available="{{ $it['available'] ?? '' }}" />
-                                            <button type="button" class="qty-btn qty-increase" data-target="#qty-input-{{ $loop->index }}">+</button>
+                                            @if($it['qty'] > 1)
+                                            <button type="submit" name="lines[{{ $loop->index }}][qty]" value="{{ $it['qty'] - 1 }}" class="qty-btn qty-decrease" aria-label="Decrease quantity">−</button>
+                                            @else
+                                            <button type="button" class="qty-btn qty-decrease" disabled aria-label="Cannot decrease below 1">−</button>
+                                            @endif
+                                            <input id="qty-input-{{ $loop->index }}" name="lines[{{ $loop->index }}][qty]" type="number" min="1" @if(!is_null($it['available'])) max="{{ $it['available'] }}" @endif value="{{ $it['qty'] }}" class="qty-input" />
+                                            @if($it['qty'] < ($it['available'] ?? 999))
+                                            <button type="submit" name="lines[{{ $loop->index }}][qty]" value="{{ $it['qty'] + 1 }}" class="qty-btn qty-increase" aria-label="Increase quantity">+</button>
+                                            @else
+                                            <button type="button" class="qty-btn qty-increase" disabled aria-label="Cannot increase above available stock">+</button>
+                                            @endif
                                         </div>
-                                        <button type="submit" class="visually-hidden">Update</button>
-                                        {{-- Remove line button (sets qty to 0 via JS or handled server-side if supported) --}}
-                                        <button type="submit" name="lines[{{ $loop->index }}][remove]" value="1" class="circle-btn icon-btn" aria-label="Remove item">
+                                        <button type="submit" class="btn btn-sm btn-outline">Update</button>
+                                    </form>
+                                    
+                                    {{-- Remove Item Form --}}
+                                    <form action="{{ route('cart.remove') }}" method="post" class="remove-form">@csrf
+                                        <input type="hidden" name="cart_key" value="{{ $it['cart_key'] }}">
+                                        <button type="submit" class="circle-btn icon-btn remove-btn" aria-label="Remove item">
                                             <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 3v1H4v2h16V4h-5V3H9zm1 5v9h2V8H10zm4 0v9h2V8h-2zM7 8v9h2V8H7z" fill="currentColor"/></svg>
                                         </button>
-                                        <span class="line-price">{{ number_format($it['display_price'],2) }}</span>
                                     </form>
+                                    
+                                    <span class="line-price">{{ $currency_symbol ?? '$' }}{{ number_format($it['display_price'],2) }}</span>
                                     @if(!empty($it['on_sale']))
                                         <div class="sale-flag">{{ $it['sale_percent'] }}% OFF</div>
                                     @endif
@@ -146,7 +160,5 @@
 </section>
 @endsection
 
-@push('scripts')
-<script src="{{ asset('front/js/cart-qty.js') }}" defer></script>
-@endpush
+{{-- JavaScript removed - cart now works without JS --}}
 

@@ -27,7 +27,7 @@
             <h5 class="mt-3">{{ __('Locations') }}</h5>
                 <div id="locations-list" class="mb-2"></div>
                 <button type="button" id="add-location" class="btn btn-sm btn-outline-secondary">{{ __('Add Location') }}</button>
-                <p class="text-muted small mt-2">{{ __('اترك المحافظة و المدينة فارغين لو السعر لكل الدولة. املأ المحافظة فقط ليطبق على كل مدنها. ضع المدينة ليكون سعر خاص بها.') }}</p>
+                <p class="text-muted small mt-2"></p>
     </div>
     <div class="card-footer d-flex justify-content-between">
         <div>
@@ -39,14 +39,4 @@
     </div>
         </form>
 </div>
-@section('scripts')
-<script id="shipping-group-config" type="application/json">{!! json_encode([
-    'countries'=>$countries->map(fn($c)=>['id'=>$c->id,'name'=>$c->name])->values(),
-    'existing'=>$locations->map(fn($l)=>['country_id'=>$l->country_id,'governorate_id'=>$l->governorate_id,'city_id'=>$l->city_id,'price'=>$l->price,'estimated_days'=>$l->estimated_days])->values(),
-    'routes'=>[
-        'governorates'=>route('admin.locations.governorates'),
-        'cities'=>route('admin.locations.cities')
-    ]
-], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)</script>
-<script src="{{ asset('admin/js/shipping-group.js') }}" defer></script>
 @endsection

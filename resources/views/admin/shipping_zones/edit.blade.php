@@ -18,38 +18,143 @@
                     <div class="col-md-3 d-flex align-items-end">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" name="active" value="1" id="zone-active"
-                                {{ $zone->active? 'checked':'' }}>
+                                {{ $zone->active ? 'checked' : '' }}>
                             <label class="form-check-label" for="zone-active">{{ __('Active') }}</label>
                         </div>
                     </div>
                 </div>
-                <h5 class="mt-4">{{ __('Rules') }}</h5>
-                <p class="text-muted small mb-2">
-                    {{ __('Leave governorate and city empty for a country-wide rule. City overrides governorate which overrides country.') }}
-                </p>
-                <div id="rules-list"></div>
-                <button type="button" id="add-rule" class="btn btn-sm btn-outline-secondary mt-2">{{ __('Add Rule') }}</button>
+
+                @if($rules->count() > 0)
+                    <div class="mb-3">
+                        <h6>{{ __('Existing Rules') }}</h6>
+                        @foreach($rules as $index => $rule)
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold">{{ __('Country') }}</label>
+                                            <select name="rules[{{ $index }}][country_id]" class="form-select">
+                                                <option value="">{{ __('Select Country') }}</option>
+                                                @foreach($countries as $country)
+                                                    <option value="{{ $country->id }}" {{ $rule->country_id == $country->id ? 'selected' : '' }}>
+                                                        {{ $country->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold">{{ __('Governorate') }}</label>
+                                            <select name="rules[{{ $index }}][governorate_id]" class="form-select">
+                                                <option value="">{{ __('Select Governorate') }}</option>
+                                                @foreach(\App\Models\Governorate::where('country_id', $rule->country_id)->get() as $governorate)
+                                                    <option value="{{ $governorate->id }}" {{ $rule->governorate_id == $governorate->id ? 'selected' : '' }}>
+                                                        {{ $governorate->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold">{{ __('City') }}</label>
+                                            <select name="rules[{{ $index }}][city_id]" class="form-select">
+                                                <option value="">{{ __('Select City') }}</option>
+                                                @if($rule->governorate_id)
+                                                    @foreach(\App\Models\City::where('governorate_id', $rule->governorate_id)->get() as $city)
+                                                        <option value="{{ $city->id }}" {{ $rule->city_id == $city->id ? 'selected' : '' }}>
+                                                            {{ $city->name }}
+                                                        </option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold">{{ __('Price') }}</label>
+                                            <input type="number" name="rules[{{ $index }}][price]" class="form-control" 
+                                                   value="{{ $rule->price }}" step="0.01" min="0" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold">{{ __('Estimated Days') }}</label>
+                                            <input type="number" name="rules[{{ $index }}][estimated_days]" class="form-control" 
+                                                   value="{{ $rule->estimated_days }}" min="1" required>
+                                        </div>
+                                        <div class="col-md-3 d-flex align-items-end">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" name="rules[{{ $index }}][active]" value="1" 
+                                                       id="rule-active-{{ $index }}" {{ $rule->active ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="rule-active-{{ $index }}">{{ __('Active') }}</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 d-flex align-items-end">
+                                            <a href="{{ route('admin.shipping-zones.edit', ['shipping_zone' => $zone, 'remove_rule' => $index]) }}" 
+                                               class="btn btn-outline-danger btn-sm" 
+                                               onclick="return confirm('{{ __('Are you sure you want to remove this rule?') }}')">
+                                                {{ __('Remove') }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {{ __('No rules found. Add a rule below to get started.') }}
+                    </div>
+                @endif
+                
+                <div class="mb-3">
+                    <h6>{{ __('Add New Rule') }}</h6>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">{{ __('Country') }}</label>
+                                    <select name="rules[new][country_id]" class="form-select" required>
+                                        <option value="">{{ __('Select Country') }}</option>
+                                        @foreach($countries as $country)
+                                            <option value="{{ $country->id }}">{{ $country->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">{{ __('Governorate') }}</label>
+                                    <select name="rules[new][governorate_id]" class="form-select">
+                                        <option value="">{{ __('Select Governorate') }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">{{ __('City') }}</label>
+                                    <select name="rules[new][city_id]" class="form-select">
+                                        <option value="">{{ __('Select City') }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">{{ __('Price') }}</label>
+                                    <input type="number" name="rules[new][price]" class="form-control" 
+                                           step="0.01" min="0" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">{{ __('Estimated Days') }}</label>
+                                    <input type="number" name="rules[new][estimated_days]" class="form-control" 
+                                           min="1" required>
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="rules[new][active]" value="1" 
+                                               id="new-rule-active" checked>
+                                        <label class="form-check-label" for="new-rule-active">{{ __('Active') }}</label>
+                                    </div>
+                                </div>
         </div>
-        <div class="card-footer d-flex justify-content-between">
-            <div>
-                <a href="{{ route('admin.shipping-zones.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
             </div>
-            <div>
-                <button class="btn btn-primary mt-0">{{ __('Save') }}</button>
             </div>
         </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{{ route('admin.shipping-zones.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
+                    <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
+                </div>
             </form>
     </div>
-@endsection
-@section('scripts')
-<script id="shipping-zone-config" type="application/json">{!! json_encode([
-    'countries'=>$countries->map(fn($c)=>['id'=>$c->id,'name'=>$c->name])->values(),
-    'existing'=>$rules->map(fn($r)=>['country_id'=>$r->country_id,'governorate_id'=>$r->governorate_id,'city_id'=>$r->city_id,'price'=>$r->price,'estimated_days'=>$r->estimated_days])->values(),
-    'routes'=>[
-        'governorates'=>url('/admin/products/locations/governorates'),
-        'cities'=>url('/admin/products/locations/cities')
-    ],
-    'i18n'=>['remove'=>__('Remove')]
-], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)</script>
-<script src="{{ asset('admin/js/shipping-zone.js') }}" defer></script>
+    </div>
 @endsection

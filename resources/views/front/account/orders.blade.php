@@ -36,7 +36,6 @@
               </div>
               <div class="badges">
                  <span class="badge subtle">#{{ $o->id }}</span>
-                 @if($o->shipping_price) <span class="badge yellow">{{ __('express') }}</span>@endif
               </div>
            </div>
          </div>

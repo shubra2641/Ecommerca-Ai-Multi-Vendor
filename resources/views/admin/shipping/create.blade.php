@@ -42,11 +42,3 @@
         </form>
 </div>
 @endsection
-
-@section('scripts')
-<template id="shipping-group-config">{!! json_encode([
-    'countries' => $countries->map(fn($c)=>['id'=>$c->id,'name'=>$c->name]),
-    'routes' => [ 'governorates' => route('admin.locations.governorates') ]
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)</template>
-<script src="{{ asset('admin/js/shipping-group.js') }}" defer></script>
-@endsection

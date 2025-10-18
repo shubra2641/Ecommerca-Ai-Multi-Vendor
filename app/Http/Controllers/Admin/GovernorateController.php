@@ -40,7 +40,6 @@ class GovernorateController extends Controller
         $data = $request->validate([
             'country_id' => 'required|exists:countries,id',
             'name' => 'required|string|max:255',
-            'active' => 'sometimes|boolean',
         ]);
         $data['active'] = $request->has('active') ? 1 : 0;
         // sanitize string inputs
@@ -66,7 +65,6 @@ class GovernorateController extends Controller
         $data = $request->validate([
             'country_id' => 'required|exists:countries,id',
             'name' => 'required|string|max:255',
-            'active' => 'sometimes|boolean',
         ]);
         $data['active'] = $request->has('active') ? 1 : 0;
         // sanitize string inputs

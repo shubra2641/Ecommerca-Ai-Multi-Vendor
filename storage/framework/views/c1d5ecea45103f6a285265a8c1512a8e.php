@@ -25,7 +25,7 @@
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
             <div class="section-footer">
-                <a href="<?php echo e(route('products.index', ['filter'=>'on-sale'])); ?>" class="btn btn-outline btn-lg"><?php echo e(__('View All Deals')); ?></a>
+                <a href="<?php echo e(route('products.index', ['filter'=>'on-sale'])); ?>" class="btn btn-primary hero-slide-cta"><?php echo e(__('View All Deals')); ?></a>
             </div>
         </div>
     </section>
@@ -55,7 +55,7 @@
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </ul>
             <div class="section-footer">
-                <a href="<?php echo e(route('products.index')); ?>" class="btn btn-outline btn-lg"><?php echo e(__('View All Products')); ?></a>
+                <a href="<?php echo e(route('products.index')); ?>" class="btn btn-primary hero-slide-cta"><?php echo e(__('View All Products')); ?></a>
             </div>
         </div>
     </section>
@@ -73,7 +73,7 @@
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
                     <div class="section-footer">
-                        <a href="<?php echo e(route('products.index', ['sort'=>'newest'])); ?>" class="btn btn-outline btn-lg"><?php echo e(__('View All New Arrivals')); ?></a>
+                        <a href="<?php echo e(route('products.index', ['sort'=>'newest'])); ?>" class="btn btn-primary hero-slide-cta"><?php echo e(__('View All New Arrivals')); ?></a>
                     </div>
                 </div>
             </section>
@@ -106,7 +106,7 @@
                                     <?php if($post->prepared_excerpt): ?>
                                         <p class="excerpt"><?php echo e($post->prepared_excerpt); ?></p>
                                     <?php endif; ?>
-                                    <a class="read-more" href="<?php echo e(route('blog.show',$post->slug)); ?>"><?php echo e(__('Read more')); ?> →</a>
+                                    <a class="btn btn-primary btn-sm" href="<?php echo e(route('blog.show',$post->slug)); ?>"><?php echo e(__('Read more')); ?> →</a>
                                 </div>
                             </article>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

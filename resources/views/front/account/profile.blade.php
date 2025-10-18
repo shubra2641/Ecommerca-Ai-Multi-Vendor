@@ -77,7 +77,7 @@
                                 </div>
                             </div>
                             <div class="actions">
-                                <button class="btn-primary-lg" type="submit">{{ __('Update Profile') }}</button>
+                                <button class="btn btn-primary btn-sm" type="submit">{{ __('Update Profile') }}</button>
                             </div>
                         </form>
                     </div>

@@ -43,7 +43,6 @@ class CityController extends Controller
         $data = $request->validate([
             'governorate_id' => 'required|exists:governorates,id',
             'name' => 'required|string|max:255',
-            'active' => 'sometimes|boolean',
         ]);
         $data['active'] = $request->has('active') ? 1 : 0;
         // sanitize string inputs
@@ -70,7 +69,6 @@ class CityController extends Controller
         $data = $request->validate([
             'governorate_id' => 'required|exists:governorates,id',
             'name' => 'required|string|max:255',
-            'active' => 'sometimes|boolean',
         ]);
         $data['active'] = $request->has('active') ? 1 : 0;
         // sanitize string inputs

@@ -24,21 +24,28 @@ class ShippingZoneController extends Controller
         return view('admin.shipping_zones.index', compact('zones'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $countries = Country::where('active', 1)->get();
 
-        return view('admin.shipping_zones.create', compact('countries'));
+        return view('admin.shipping_zones.create', [
+            'countries' => $countries
+        ]);
     }
 
     public function store(Request $request, HtmlSanitizer $sanitizer)
     {
-        \Log::info('ShippingZoneController.store request', $request->all());
         $data = $request->validate([
             'name' => 'required|string|max:191',
             'code' => 'nullable|string|max:50',
             'active' => 'sometimes|boolean',
             'rules' => 'nullable|array',
+            'rules.*.country_id' => 'required_with:rules|exists:countries,id',
+            'rules.*.governorate_id' => 'nullable|exists:governorates,id',
+            'rules.*.city_id' => 'nullable|exists:cities,id',
+            'rules.*.price' => 'required_with:rules|numeric|min:0',
+            'rules.*.estimated_days' => 'required_with:rules|integer|min:1',
+            'rules.*.active' => 'sometimes|boolean',
         ]);
         if (isset($data['name']) && is_string($data['name'])) {
             $data['name'] = $sanitizer->clean($data['name']);
@@ -57,22 +64,43 @@ class ShippingZoneController extends Controller
         return redirect()->route('admin.shipping-zones.index')->with('success', __('Zone created'));
     }
 
-    public function edit(ShippingZone $shipping_zone)
+    public function edit(ShippingZone $shipping_zone, Request $request)
     {
         $countries = Country::where('active', 1)->get();
         $rules = $shipping_zone->rules()->get();
 
-        return view('admin.shipping_zones.edit', ['zone' => $shipping_zone, 'countries' => $countries, 'rules' => $rules]);
+        // Handle rule removal
+        if ($request->has('remove_rule')) {
+            $ruleIndex = $request->get('remove_rule');
+            $rulesArray = $rules->toArray();
+            if (isset($rulesArray[$ruleIndex])) {
+                $ruleToDelete = $rulesArray[$ruleIndex];
+                $shipping_zone->rules()->where('id', $ruleToDelete['id'])->delete();
+                return redirect()->route('admin.shipping-zones.edit', $shipping_zone)
+                    ->with('success', __('Rule removed successfully'));
+            }
+        }
+
+        return view('admin.shipping_zones.edit', [
+            'zone' => $shipping_zone, 
+            'countries' => $countries, 
+            'rules' => $rules
+        ]);
     }
 
     public function update(Request $request, ShippingZone $shipping_zone, HtmlSanitizer $sanitizer)
     {
-        \Log::info('ShippingZoneController.update request', $request->all());
         $data = $request->validate([
             'name' => 'required|string|max:191',
             'code' => 'nullable|string|max:50',
             'active' => 'sometimes|boolean',
             'rules' => 'nullable|array',
+            'rules.*.country_id' => 'required_with:rules|exists:countries,id',
+            'rules.*.governorate_id' => 'nullable|exists:governorates,id',
+            'rules.*.city_id' => 'nullable|exists:cities,id',
+            'rules.*.price' => 'required_with:rules|numeric|min:0',
+            'rules.*.estimated_days' => 'required_with:rules|integer|min:1',
+            'rules.*.active' => 'sometimes|boolean',
         ]);
         if (isset($data['name']) && is_string($data['name'])) {
             $data['name'] = $sanitizer->clean($data['name']);
@@ -141,7 +169,7 @@ class ShippingZoneController extends Controller
             'city_id' => $city,
             'price' => is_numeric($price) ? $price : null,
             'estimated_days' => is_numeric($days) ? (int) $days : null,
-            'active' => true,
+            'active' => isset($r['active']) ? (bool) $r['active'] : true,
         ];
     }
 }
