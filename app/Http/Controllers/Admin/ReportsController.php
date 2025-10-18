@@ -116,7 +116,6 @@ class ReportsController extends Controller
     {
         $systemData = [
             'health' => $this->getSystemHealth(),
-            'performance' => $this->getPerformanceMetrics(),
             'storage' => $this->getStorageInfo(),
             'database' => $this->getDatabaseInfo(),
         ];
@@ -329,18 +328,6 @@ class ReportsController extends Controller
         return $trends;
     }
 
-    /**
-     * Get performance metrics
-     */
-    private function getPerformanceMetrics()
-    {
-        return [
-            'memory_usage' => memory_get_usage(true),
-            'memory_peak' => memory_get_peak_usage(true),
-            'execution_time' => microtime(true) - LARAVEL_START,
-            'database_queries' => DB::getQueryLog(),
-        ];
-    }
 
     /**
      * Get storage information

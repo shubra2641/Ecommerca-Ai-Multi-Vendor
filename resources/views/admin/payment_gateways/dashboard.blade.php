@@ -113,54 +113,15 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-sm" id="performanceTable" width="100%" cellspacing="0">
+                        <table class="table table-bordered table-sm" id="gatewaysTable" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
                                     <th>{{ __('Gateway') }}</th>
-                                    <th>{{ __('Success Rate') }}</th>
-                                    <th>{{ __('Transactions') }}</th>
-                                    <th class="d-none d-md-table-cell">{{ __('Avg Response Time') }}</th>
                                     <th>{{ __('Status') }}</th>
                                     <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($performanceMetrics as $metric)
-                                <tr>
-                                    <td>{{ $metric['gateway'] }}</td>
-                                    <td>
-                                        <div class="progress progress-sm">
-                                            <div class="progress-bar {{ $metric['success_rate'] >= 95 ? 'bg-success' : ($metric['success_rate'] >= 80 ? 'bg-warning' : 'bg-danger') }}"
-                                                role="progressbar" data-progress="{{ $metric['success_rate'] }}"
-                                                aria-valuenow="{{ $metric['success_rate'] }}" aria-valuemin="0"
-                                                aria-valuemax="100">
-                                                {{ $metric['success_rate'] }}%
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>{{ number_format($metric['total_transactions']) }}</td>
-                                    <td class="d-none d-md-table-cell">{{ $metric['avg_response_time'] }}ms</td>
-                                    <td>
-                                        @if($metric['success_rate'] >= 95)
-                                        <span class="badge badge-success">{{ __('Excellent') }}</span>
-                                        @elseif($metric['success_rate'] >= 80)
-                                        <span class="badge badge-warning">{{ __('Good') }}</span>
-                                        @else
-                                        <span class="badge badge-danger">{{ __('Poor') }}</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary" data-action="test-gateway"
-                                            data-gateway="{{ $metric['gateway'] }}">
-                                            <i class="fas fa-vial"></i> {{ __('Test') }}
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-info" data-action="view-analytics"
-                                            data-gateway="{{ $metric['gateway'] }}">
-                                            <i class="fas fa-chart-line"></i> {{ __('Analytics') }}
-                                        </button>
-                                    </td>
-                                </tr>
-                                @endforeach
                             </tbody>
                         </table>
                     </div>

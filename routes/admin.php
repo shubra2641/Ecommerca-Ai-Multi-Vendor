@@ -21,7 +21,6 @@ use App\Http\Controllers\Admin\NotifyController as AdminNotifyController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentGatewayController;
 use App\Http\Controllers\Admin\PaymentGatewayManagementController;
-use App\Http\Controllers\Admin\PerformanceController;
 use App\Http\Controllers\Admin\PostCategoryController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ProductApprovalController;

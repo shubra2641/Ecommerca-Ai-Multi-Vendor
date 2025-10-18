@@ -18,9 +18,8 @@ class PaymentGatewayManagementController extends Controller
         }])->get();
         $stats = $this->getGatewayStats();
         $recentTransactions = $this->getRecentTransactions();
-        $performanceMetrics = $this->getPerformanceMetrics();
 
-        return view('admin.payment_gateways.dashboard', compact('gateways', 'stats', 'recentTransactions', 'performanceMetrics'));
+        return view('admin.payment_gateways.dashboard', compact('gateways', 'stats', 'recentTransactions'));
     }
 
     public function testConnection(Request $request, PaymentGateway $gateway)
@@ -123,9 +122,6 @@ class PaymentGatewayManagementController extends Controller
         return Payment::with(['gateway', 'order.user'])->latest()->limit(10)->get();
     }
 
-    private function getPerformanceMetrics()
-    {
-        $gateways = PaymentGateway::where('enabled', true)->get();
 
         return $gateways->map(function ($g) {
             $total = $g->payments()->count();

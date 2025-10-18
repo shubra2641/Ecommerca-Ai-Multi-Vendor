@@ -12,7 +12,6 @@ class Kernel extends HttpKernel
         // Global HTTP middleware stack
         \App\Http\Middleware\CheckMaintenanceMode::class,
         \App\Http\Middleware\ContentSecurityPolicy::class,
-        \App\Http\Middleware\PerformanceMetrics::class,
         \App\Http\Middleware\Localization::class,
     ];
 

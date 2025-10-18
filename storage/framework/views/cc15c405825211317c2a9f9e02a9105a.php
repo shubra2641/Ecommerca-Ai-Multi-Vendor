@@ -36,16 +36,16 @@
                             <span class="nav-text"><?php echo e(__('Dashboard')); ?></span>
                         </a>
 
-                        <div class="nav-dropdown dropdown <?php echo e(request()->routeIs('admin.reports*') || request()->routeIs('admin.performance.*') ? 'show' : ''); ?>">
+                        <div class="nav-dropdown dropdown <?php echo e(request()->routeIs('admin.reports*') ? 'show' : ''); ?>">
                             <a href="#" class="nav-item dropdown-toggle" data-bs-toggle="dropdown"
-                                aria-expanded="<?php echo e((request()->routeIs('admin.reports*') || request()->routeIs('admin.performance.*')) ? 'true' : 'false'); ?>">
+                                aria-expanded="<?php echo e(request()->routeIs('admin.reports*') ? 'true' : 'false'); ?>">
                                 <div class="nav-icon">
                                     <i class="fas fa-chart-line"></i>
                                 </div>
                                 <span class="nav-text"><?php echo e(__('Reports')); ?></span>
                                 <i class="fas fa-chevron-down dropdown-arrow"></i>
                             </a>
-                            <ul class="dropdown-menu <?php echo e(request()->routeIs('admin.reports*') || request()->routeIs('admin.performance.*') ? 'show' : ''); ?>">
+                            <ul class="dropdown-menu <?php echo e(request()->routeIs('admin.reports*') ? 'show' : ''); ?>">
                                 <li><a href="<?php echo e(route('admin.reports.index')); ?>"
                                         class="dropdown-item <?php echo e(request()->routeIs('admin.reports.index') ? 'active' : ''); ?>"><i
                                             class="fas fa-list"></i> <?php echo e(__('Reports')); ?></a></li>
@@ -60,7 +60,6 @@
                                             class="fas fa-store"></i> <?php echo e(__('Vendors')); ?></a></li>
                                 <li><a href="<?php echo e(route('admin.reports.financial')); ?>" class="dropdown-item <?php echo e(request()->routeIs('admin.reports.financial') ? 'active' : ''); ?>"><i class="fas fa-file-invoice-dollar"></i> <?php echo e(__('Financial')); ?></a></li>
                                 <li><a href="<?php echo e(route('admin.reports.system')); ?>" class="dropdown-item <?php echo e(request()->routeIs('admin.reports.system') ? 'active' : ''); ?>"><i class="fas fa-server"></i> <?php echo e(__('System')); ?></a></li>
-                                <li><a href="<?php echo e(route('admin.performance.index')); ?>" class="dropdown-item <?php echo e(request()->routeIs('admin.performance.*') ? 'active' : ''); ?>"><i class="fas fa-gauge-high"></i> <?php echo e(__('Performance')); ?></a></li>
                                 <li><hr class="dropdown-divider"></li>
                             </ul>
                         </div>
