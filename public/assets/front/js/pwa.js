@@ -15,13 +15,11 @@
 
     // Check if service workers are supported
     if (!('serviceWorker' in navigator)) {
-        console.warn('[PWA] Service Workers not supported');
         return;
     }
 
     // Check if we're in a secure context
     if (!window.isSecureContext && location.hostname !== 'localhost') {
-        console.warn('[PWA] Not in secure context, PWA features may not work');
     }
 
     // Initialize PWA when DOM is ready
@@ -32,7 +30,6 @@
     }
 
     function initPWA() {
-        console.log('[PWA] Initializing PWA features');
 
         // Register service worker
         registerServiceWorker();
@@ -54,7 +51,6 @@
         try {
             const registration = await navigator.serviceWorker.register(PWA_CONFIG.serviceWorkerPath);
 
-            console.log('[PWA] Service Worker registered successfully:', registration.scope);
 
             // Handle service worker updates
             registration.addEventListener('updatefound', () => {
@@ -72,7 +68,6 @@
             navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
 
         } catch (error) {
-            console.error('[PWA] Service Worker registration failed:', error);
         }
     }
 
@@ -82,13 +77,10 @@
 
         switch (type) {
             case 'CACHE_UPDATED':
-                console.log('[PWA] Cache updated:', message);
                 break;
             case 'OFFLINE_ACTION_QUEUED':
-                console.log('[PWA] Offline action queued:', message);
                 break;
             default:
-                console.log('[PWA] Service Worker message:', event.data);
         }
     }
 
@@ -99,11 +91,9 @@
             document.body.classList.toggle('offline', !isOnline);
 
             if (isOnline) {
-                console.log('[PWA] Back online');
                 // Sync any offline data
                 syncOfflineData();
             } else {
-                console.log('[PWA] Gone offline');
             }
         }
 
@@ -120,7 +110,6 @@
         let deferredPrompt;
 
         window.addEventListener('beforeinstallprompt', (event) => {
-            console.log('[PWA] Install prompt triggered');
 
             // Prevent the mini-infobar from appearing on mobile
             event.preventDefault();
@@ -133,7 +122,6 @@
         });
 
         window.addEventListener('appinstalled', () => {
-            console.log('[PWA] App installed successfully');
             hideInstallButton();
         });
     }
@@ -176,7 +164,6 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                console.log('[PWA] Install prompt outcome:', outcome);
                 deferredPrompt = null;
                 hideInstallButton();
             }
@@ -196,7 +183,6 @@
         // Request notification permission
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission().then(permission => {
-                console.log('[PWA] Notification permission:', permission);
             });
         }
     }
@@ -241,7 +227,6 @@
                 navigator.serviceWorker.controller.postMessage({ type: 'SYNC_OFFLINE_DATA' });
             }
         } catch (error) {
-            console.error('[PWA] Error syncing offline data:', error);
         }
     }
 
@@ -259,5 +244,4 @@
         hideInstallButton
     };
 
-    console.log('[PWA] PWA utilities loaded');
 })();

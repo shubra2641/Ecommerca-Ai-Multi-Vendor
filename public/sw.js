@@ -12,32 +12,27 @@ const ESSENTIAL_FILES = [
     '/offline.html',
     '/manifest.json',
     '/assets/front/css/front.css',
-    '/assets/front/js/front-lite.js'
+    '/assets/front/js/front.js'
 ];
 
 // Install Service Worker
 self.addEventListener('install', (event) => {
-    console.log('[SW] Installing Service Worker');
 
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                console.log('[SW] Caching essential files');
                 return cache.addAll(ESSENTIAL_FILES);
             })
             .then(() => {
-                console.log('[SW] Service Worker installed successfully');
                 return self.skipWaiting();
             })
             .catch(error => {
-                console.error('[SW] Installation error:', error);
             })
     );
 });
 
 // Activate Service Worker
 self.addEventListener('activate', (event) => {
-    console.log('[SW] Activating Service Worker');
 
     event.waitUntil(
         caches.keys()
@@ -46,13 +41,11 @@ self.addEventListener('activate', (event) => {
                     cacheNames
                         .filter(cacheName => cacheName !== CACHE_NAME)
                         .map(cacheName => {
-                            console.log('[SW] Deleting old cache:', cacheName);
                             return caches.delete(cacheName);
                         })
                 );
             })
             .then(() => {
-                console.log('[SW] Service Worker activated');
                 return self.clients.claim();
             })
     );
@@ -106,7 +99,6 @@ async function handleRequest(request) {
         return await networkFirst(request);
 
     } catch (error) {
-        console.error('[SW] Error handling request:', error);
         return await handleOffline(request);
     }
 }
@@ -117,7 +109,6 @@ async function cacheFirst(request) {
     const cachedResponse = await cache.match(request);
 
     if (cachedResponse) {
-        console.log('[SW] Returning from cache:', request.url);
         return cachedResponse;
     }
 
@@ -126,12 +117,10 @@ async function cacheFirst(request) {
 
         if (networkResponse.ok) {
             cache.put(request, networkResponse.clone());
-            console.log('[SW] Caching new resource:', request.url);
         }
 
         return networkResponse;
     } catch (error) {
-        console.log('[SW] Network failed:', request.url);
         return await handleOffline(request);
     }
 }
@@ -144,12 +133,10 @@ async function networkFirst(request) {
         if (networkResponse.ok) {
             const cache = await caches.open(CACHE_NAME);
             cache.put(request, networkResponse.clone());
-            console.log('[SW] Updating cache:', request.url);
         }
 
         return networkResponse;
     } catch (error) {
-        console.log('[SW] Network failed, checking cache:', request.url);
 
         const cache = await caches.open(CACHE_NAME);
         const cachedResponse = await cache.match(request);
@@ -254,12 +241,8 @@ self.addEventListener('message', (event) => {
 
 // Handle errors
 self.addEventListener('error', (event) => {
-    console.error('[SW] Service Worker error:', event.error);
 });
 
 self.addEventListener('unhandledrejection', (event) => {
-    console.error('[SW] Unhandled rejection:', event.reason);
     event.preventDefault();
 });
-
-console.log('[SW] Service Worker loaded');

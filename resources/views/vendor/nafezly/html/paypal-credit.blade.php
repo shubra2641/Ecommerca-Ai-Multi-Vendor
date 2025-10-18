@@ -93,7 +93,6 @@ url_to_head(paypal_sdk_url + "?client-id=" + client_id + "&enable-funding=venmo&
                         return order.id;
                     })
                     .catch(error => {
-                        console.error(error);
                     });
 
                 //https://developer.paypal.com/docs/api/orders/v2/#orders_create
@@ -122,7 +121,6 @@ url_to_head(paypal_sdk_url + "?client-id=" + client_id + "&enable-funding=venmo&
                     .then((response) => response.json())
                     .then((order_details) => {
                         alerts.innerHTML = "";
-                        //console.log(order_details.process_data); //https://developer.paypal.com/docs/api/orders/v2/#orders_capture!c=201&path=create_time&t=response
                         var intent_object = intent === "authorize" ? "authorizations" : "captures";
                         //Custom Successful Message
                         window.location.href = "{{$data['return_url']}}" + "?order_id=" +
@@ -161,12 +159,10 @@ url_to_head(paypal_sdk_url + "?client-id=" + client_id + "&enable-funding=venmo&
                 setTimeout(function() {
                     alerts.innerHTML = ""
                 }, 3000);
-                console.log(err);
             }
         });
         paypal_buttons.render('#payment_options');
     })
     .catch((error) => {
-        console.error(error);
     });
 </script>

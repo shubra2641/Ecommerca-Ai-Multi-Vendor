@@ -157,4 +157,3 @@
     </nav>
 </header>
 <div id="currency-config" data-symbol='{{ e(json_encode($currency_symbol ?? "$", JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}' data-default='{{ e(json_encode($defaultCurrency ?? null, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'></div>
-<script src="{{ asset('front/js/header-inline.js') }}" defer></script>

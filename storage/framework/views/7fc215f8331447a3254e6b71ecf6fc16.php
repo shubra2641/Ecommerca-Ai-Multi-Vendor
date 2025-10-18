@@ -157,5 +157,4 @@
         </ul>
     </nav>
 </header>
-<div id="currency-config" data-symbol='<?php echo e(e(json_encode($currency_symbol ?? "$", JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))); ?>' data-default='<?php echo e(e(json_encode($defaultCurrency ?? null, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))); ?>'></div>
-<script src="<?php echo e(asset('front/js/header-inline.js')); ?>" defer></script><?php /**PATH D:\xampp1\htdocs\easy\resources\views/front/partials/header.blade.php ENDPATH**/ ?>
+<div id="currency-config" data-symbol='<?php echo e(e(json_encode($currency_symbol ?? "$", JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))); ?>' data-default='<?php echo e(e(json_encode($defaultCurrency ?? null, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))); ?>'></div><?php /**PATH D:\xampp1\htdocs\easy\resources\views/front/partials/header.blade.php ENDPATH**/ ?>

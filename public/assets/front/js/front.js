@@ -51,7 +51,6 @@
                     location.reload();
                 }
             } catch (err) {
-                console.warn('Currency switch failed', err);
             }
         });
     }
