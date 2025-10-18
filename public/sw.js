@@ -68,13 +68,13 @@ async function cacheFirst(request, cacheName) {
             return cachedResponse;
         }
 
-        const networkResponse = await fetch(request);
+        const networkResponse = await safeFetch(request);
 
-        if (networkResponse.ok) {
+        if (networkResponse && networkResponse.ok) {
             cache.put(request, networkResponse.clone());
         }
 
-        return networkResponse;
+        return networkResponse || handleOffline(request);
     } catch (error) {
         return handleOffline(request);
     }
@@ -83,24 +83,49 @@ async function cacheFirst(request, cacheName) {
 // Network First Strategy - for dynamic content
 async function networkFirst(request, cacheName) {
     try {
-        const networkResponse = await fetch(request);
+        const networkResponse = await safeFetch(request);
 
-        if (networkResponse.ok) {
+        if (networkResponse && networkResponse.ok) {
             const cache = await caches.open(cacheName);
             cache.put(request, networkResponse.clone());
         }
 
-        return networkResponse;
+        return networkResponse || handleOffline(request);
     } catch (error) {
         const cache = await caches.open(cacheName);
         const cachedResponse = await cache.match(request);
 
-        if (cachedResponse) {
-            return cachedResponse;
+        return cachedResponse || handleOffline(request);
+    }
+}
+
+// Safe fetch with URL validation
+async function safeFetch(request) {
+    try {
+        const url = new URL(request.url);
+
+        // Only allow same-origin requests or trusted domains
+        if (url.origin !== location.origin && !isTrustedDomain(url.hostname)) {
+            throw new Error('Untrusted domain');
         }
 
-        return handleOffline(request);
+        return await fetch(request);
+    } catch (error) {
+        throw error;
     }
+}
+
+// Check if domain is trusted
+function isTrustedDomain(hostname) {
+    const trustedDomains = [
+        'localhost',
+        '127.0.0.1',
+        'cdnjs.cloudflare.com',
+        'fonts.googleapis.com',
+        'fonts.gstatic.com'
+    ];
+
+    return trustedDomains.includes(hostname);
 }
 
 // Handle offline requests
@@ -156,11 +181,11 @@ async function syncOfflineData(type) {
 
         if (data && data.length > 0) {
             for (const action of data) {
-                await fetch(action.url, {
+                await safeFetch(new Request(action.url, {
                     method: action.method,
                     headers: action.headers,
                     body: action.body
-                });
+                }));
             }
 
             await clearStoredData(`pending-${type}-actions`);
@@ -277,7 +302,7 @@ self.addEventListener('message', (event) => {
 });
 
 // Error handling
-self.addEventListener('error', (event) => {
+self.addEventListener('error', () => {
     // Silent error handling
 });
 
