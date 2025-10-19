@@ -1,6 +1,6 @@
 /**
  * Admin Panel JavaScript - Simple & Clean
- * إدارة لوحة التحكم - بسيط ونظيف
+ * Optimized admin panel with mobile support
  */
 
 /* eslint-env browser */
@@ -9,14 +9,14 @@
 (function () {
     'use strict';
 
-    // متغيرات عامة
+    // Global variables
     const Admin = {
         sidebar: null,
         dropdowns: [],
         modals: []
     };
 
-    // دوال مساعدة بسيطة
+    // Helper functions
     const $ = (selector) => document.querySelector(selector);
     const $$ = (selector) => document.querySelectorAll(selector);
     const addClass = (el, className) => el?.classList.add(className);
@@ -24,14 +24,15 @@
     const toggleClass = (el, className) => el?.classList.toggle(className);
     const hasClass = (el, className) => el?.classList.contains(className);
 
-    // إدارة الشريط الجانبي
+    // Sidebar management
     function initSidebar() {
         Admin.sidebar = $('.modern-sidebar, #sidebar');
-        const toggle = $('.sidebar-toggle');
+        const toggle = $('.sidebar-toggle, #sidebarToggle');
         const overlay = $('.sidebar-overlay');
 
         if (toggle) {
-            toggle.addEventListener('click', () => {
+            toggle.addEventListener('click', (e) => {
+                e.preventDefault();
                 toggleClass(Admin.sidebar, 'active');
                 toggleClass(overlay, 'active');
             });
@@ -44,8 +45,8 @@
             });
         }
 
-        // إغلاق الشريط عند النقر على رابط في الشاشات الصغيرة
-        $$('.sidebar-nav a').forEach(link => {
+        // Close sidebar when clicking on links in mobile
+        $$('.sidebar-nav a, .nav-item').forEach(link => {
             link.addEventListener('click', () => {
                 if (window.innerWidth <= 992 && hasClass(Admin.sidebar, 'active')) {
                     removeClass(Admin.sidebar, 'active');
@@ -53,9 +54,17 @@
                 }
             });
         });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 992) {
+                removeClass(Admin.sidebar, 'active');
+                removeClass(overlay, 'active');
+            }
+        });
     }
 
-    // إدارة القوائم المنسدلة
+    // Dropdown management
     function initDropdowns() {
         $$('.dropdown, .nav-dropdown').forEach(dropdown => {
             const toggle = $('.dropdown-toggle', dropdown);
@@ -66,10 +75,10 @@
                     e.preventDefault();
                     e.stopPropagation();
 
-                    // إغلاق القوائم الأخرى
+                    // Close other dropdowns
                     closeAllDropdowns(dropdown);
 
-                    // فتح/إغلاق القائمة الحالية
+                    // Toggle current dropdown
                     const isOpen = hasClass(dropdown, 'show');
                     if (isOpen) {
                         closeDropdown(dropdown, toggle, menu);
@@ -80,7 +89,7 @@
             }
         });
 
-        // إغلاق القوائم عند النقر خارجها
+        // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.dropdown, .nav-dropdown')) {
                 closeAllDropdowns();
@@ -114,16 +123,16 @@
         });
     }
 
-    // إدارة الجداول
+    // Table management
     function initTables() {
         $$('.admin-table').forEach(table => {
-            // ترتيب الجداول
+            // Table sorting
             $$('th[data-sortable]', table).forEach(header => {
                 header.style.cursor = 'pointer';
                 header.addEventListener('click', () => sortTable(table, header));
             });
 
-            // تحديد الصفوف
+            // Row selection
             const selectAll = $('thead input[type="checkbox"]', table);
             const rowCheckboxes = $$('tbody input[type="checkbox"]', table);
 
@@ -156,14 +165,14 @@
             return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
         });
 
-        // تحديث فئات الترتيب
+        // Update sort classes
         $$('th', table).forEach(th => {
             removeClass(th, 'sort-asc');
             removeClass(th, 'sort-desc');
         });
         addClass(header, isAscending ? 'sort-asc' : 'sort-desc');
 
-        // إعادة ترتيب الصفوف
+        // Reorder rows
         const tbody = $('tbody', table);
         rows.forEach(row => tbody.appendChild(row));
     }
@@ -184,17 +193,17 @@
         }
     }
 
-    // إدارة النماذج
+    // Form management
     function initForms() {
         $$('.admin-form').forEach(form => {
-            // التحقق من صحة النماذج
+            // Form validation
             form.addEventListener('submit', (e) => {
                 if (!validateForm(form)) {
                     e.preventDefault();
                 }
             });
 
-            // الحفظ التلقائي
+            // Auto save
             if (form.hasAttribute('data-auto-save')) {
                 initAutoSave(form);
             }
@@ -207,7 +216,7 @@
 
         requiredFields.forEach(field => {
             if (!field.value.trim()) {
-                showFieldError(field, 'هذا الحقل مطلوب');
+                showFieldError(field, 'This field is required');
                 isValid = false;
             } else {
                 clearFieldError(field);
@@ -258,7 +267,7 @@
                 }
             }).then(response => {
                 if (response.ok) {
-                    showNotification('تم الحفظ تلقائياً', 'success');
+                    showNotification('Auto saved', 'success');
                 }
             }).catch(() => { });
         }
@@ -269,7 +278,7 @@
         return meta?.getAttribute('content') || '';
     }
 
-    // إدارة النوافذ المنبثقة
+    // Modal management
     function initModals() {
         $$('[data-modal]').forEach(trigger => {
             trigger.addEventListener('click', (e) => {
@@ -279,7 +288,7 @@
             });
         });
 
-        // إغلاق النوافذ
+        // Close modals
         document.addEventListener('click', (e) => {
             if (hasClass(e.target, 'modal-overlay') || hasClass(e.target, 'modal-close')) {
                 closeModal();
@@ -309,7 +318,7 @@
         }
     }
 
-    // إدارة الإشعارات
+    // Notification management
     function initNotifications() {
         $$('.notification').forEach(notification => {
             if (notification.hasAttribute('data-auto-hide')) {
@@ -366,7 +375,7 @@
         }
     }
 
-    // فلترة المواقع (الدول والمحافظات والمدن)
+    // Location filter (Countries, Governorates, Cities)
     function initLocationFilter() {
         document.addEventListener('change', (e) => {
             if (e.target.name && e.target.name.includes('country_id')) {
@@ -377,7 +386,7 @@
             }
         });
 
-        // تهيئة الفلاتر الموجودة
+        // Initialize existing filters
         $$('select[name*="country_id"]').forEach(countrySelect => {
             if (countrySelect.value) {
                 filterByCountry(countrySelect);
@@ -439,11 +448,11 @@
         return option && option.style.display !== 'none' && !option.disabled;
     }
 
-    // تأكيد العمليات
+    // Confirmation management
     function initConfirmations() {
         $$('form.js-confirm, form.js-confirm-delete').forEach(form => {
             form.addEventListener('submit', (e) => {
-                const msg = form.dataset.confirm || 'هل أنت متأكد؟';
+                const msg = form.dataset.confirm || 'Are you sure?';
                 if (!confirm(msg)) {
                     e.preventDefault();
                 }
@@ -460,7 +469,7 @@
         });
     }
 
-    // تهيئة كل شيء
+    // Initialize everything
     function init() {
         initSidebar();
         initDropdowns();
@@ -472,14 +481,14 @@
         initConfirmations();
     }
 
-    // بدء التطبيق
+    // Start application
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
 
-    // تصدير الدوال للاستخدام الخارجي
+    // Export functions for external use
     window.AdminPanel = {
         showNotification,
         openModal,
