@@ -16,8 +16,7 @@ class ProductCatalogController extends Controller
      */
     protected function baseQuery()
     {
-        $select = ['id', 'name', 'slug', 'price', 'sale_price', 'product_category_id', 'manage_stock', 'stock_qty', 'reserved_qty', 'type', 'main_image', 'is_featured', 'active', 'vendor_id'];
-        
+        $select = ['id', 'name', 'slug', 'price', 'sale_price', 'product_category_id', 'manage_stock', 'stock_qty', 'reserved_qty', 'type', 'main_image', 'is_featured', 'active', 'vendor_id']; 
         $q = Product::query()->select($select)->with(['category', 'brand'])->active();
         
         return $q;

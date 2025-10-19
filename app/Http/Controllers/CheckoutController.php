@@ -21,7 +21,6 @@ class CheckoutController extends Controller
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', __('Your cart is empty'));
         }
-        
         $vm = app(\App\Services\CheckoutViewBuilder::class)->build(
             $cart,
             session('currency_id'),

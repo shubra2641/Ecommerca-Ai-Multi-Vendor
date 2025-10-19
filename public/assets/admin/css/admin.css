@@ -297,15 +297,17 @@ body.dark-mode {
 /* Make dropdown menus inside the sidebar behave as in-flow submenu lists instead of floating panels
    but keep them collapsed by default. They open when the parent has the `show` class. */
 
-/* Sidebar Dropdowns - All Rules Consolidated */
-.nav-dropdown {
+/* Sidebar Dropdowns - Complete Fix */
+.nav-dropdown,
+.nav-dropdown.dropdown {
     position: relative;
     width: 100%;
 }
 
+/* Hidden state - no space, no gap */
 .nav-dropdown .dropdown-menu {
     position: static !important;
-    display: none;
+    display: none !important;
     background: transparent;
     border: none;
     box-shadow: none;
@@ -314,23 +316,27 @@ body.dark-mode {
     width: 100%;
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease, opacity 0.3s ease;
     opacity: 0;
-    top: auto;
-    bottom: auto;
+    visibility: hidden;
     transform: none;
     line-height: 1;
+    transition: none;
 }
 
+/* Open state - smooth expansion */
 .nav-dropdown.show .dropdown-menu,
-.nav-dropdown .dropdown-menu.show {
+.nav-dropdown .dropdown-menu.show,
+.nav-dropdown.dropdown.show .dropdown-menu {
     display: block !important;
     max-height: 500px;
     opacity: 1;
+    visibility: visible;
     padding: 0;
     margin: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
 }
 
+/* Dropdown items - no gaps */
 .nav-dropdown .dropdown-item {
     display: flex;
     align-items: center;
@@ -343,10 +349,10 @@ body.dark-mode {
     border-radius: 8px;
 }
 
-.nav-dropdown .dropdown-item:first-child,
-.nav-dropdown.show .dropdown-menu .dropdown-item:first-child {
+/* First item - no top margin */
+.nav-dropdown .dropdown-item:first-child {
     margin-top: 0;
-    padding-top: 0.25rem;
+    padding-top: 0.5rem;
 }
 
 .nav-dropdown .dropdown-item:hover {
@@ -359,6 +365,7 @@ body.dark-mode {
     color: var(--admin-sidebar-text);
 }
 
+/* Arrow rotation */
 .nav-dropdown > .nav-item .dropdown-arrow {
     transition: transform 0.2s ease;
 }

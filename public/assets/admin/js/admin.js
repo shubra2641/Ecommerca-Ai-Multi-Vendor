@@ -64,14 +64,20 @@
         });
     }
 
-    // Dropdown management
+    // Dropdown management - Simplified approach
     function initDropdowns() {
-        $$('.dropdown, .nav-dropdown').forEach(dropdown => {
+        // Handle all nav-dropdown elements specifically
+        $$('.nav-dropdown').forEach(dropdown => {
             const toggle = $('.dropdown-toggle', dropdown);
             const menu = $('.dropdown-menu', dropdown);
 
             if (toggle && menu) {
-                toggle.addEventListener('click', (e) => {
+                // Remove any existing listeners by cloning the element
+                const newToggle = toggle.cloneNode(true);
+                toggle.parentNode.replaceChild(newToggle, toggle);
+
+                // Add click listener to the new element
+                newToggle.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
 
@@ -81,25 +87,35 @@
                     // Toggle current dropdown
                     const isOpen = hasClass(dropdown, 'show');
                     if (isOpen) {
-                        closeDropdown(dropdown, toggle, menu);
+                        closeDropdown(dropdown, newToggle, menu);
                     } else {
-                        openDropdown(dropdown, toggle, menu);
+                        openDropdown(dropdown, newToggle, menu);
                     }
                 });
+
+                // Mark as initialized to avoid duplicate listeners
+                newToggle.setAttribute('data-initialized', 'true');
             }
         });
 
         // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.dropdown, .nav-dropdown')) {
+            if (!e.target.closest('.nav-dropdown')) {
                 closeAllDropdowns();
             }
         });
     }
 
+
     function openDropdown(dropdown, toggle, menu) {
         // Close all other dropdowns first
         closeAllDropdowns(dropdown);
+
+        // Ensure dropdown opens downwards
+        menu.style.position = 'static';
+        menu.style.top = 'auto';
+        menu.style.bottom = 'auto';
+        menu.style.transform = 'none';
 
         addClass(dropdown, 'show');
         addClass(menu, 'show');
@@ -115,7 +131,7 @@
     }
 
     function closeAllDropdowns(excludeDropdown = null) {
-        $$('.dropdown, .nav-dropdown').forEach(dropdown => {
+        $$('.nav-dropdown').forEach(dropdown => {
             if (dropdown !== excludeDropdown) {
                 const toggle = $('.dropdown-toggle', dropdown);
                 const menu = $('.dropdown-menu', dropdown);
@@ -482,6 +498,18 @@
         initNotifications();
         initLocationFilter();
         initConfirmations();
+
+        // Additional dropdown initialization
+        setTimeout(() => {
+            initDropdowns();
+        }, 100);
+
+        // Re-initialize dropdowns after page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                initDropdowns();
+            }, 200);
+        });
     }
 
     // Start application
@@ -490,6 +518,7 @@
     } else {
         init();
     }
+
 
     // Export functions for external use
     window.AdminPanel = {
