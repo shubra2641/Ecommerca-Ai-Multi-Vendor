@@ -26,19 +26,34 @@ class HandlePaymentWebhook implements ShouldQueue
             $webhookData = $event->webhookData ?? [];
 
             // DEBUG
-            @file_put_contents(storage_path('logs/listener_debug.log'), 'START: payment=' . ($payment->id ?? 'null') . " status={$status}\n", FILE_APPEND);
+            @file_put_contents(
+                storage_path('logs/listener_debug.log'),
+                'START: payment=' . ($payment->id ?? 'null') . " status={$status}\n",
+                FILE_APPEND
+            );
 
             // Validate webhook data
-            @file_put_contents(storage_path('logs/listener_debug.log'), 'WEBHOOK_DATA:' . var_export($webhookData, true) . "\n", FILE_APPEND);
+            @file_put_contents(
+                storage_path('logs/listener_debug.log'),
+                'WEBHOOK_DATA:' . var_export($webhookData, true) . "\n",
+                FILE_APPEND
+            );
             if (empty($webhookData['transaction_id']) || empty($status) || $status === 'unknown') {
                 Log::warning('Invalid webhook data received', $webhookData);
-                @file_put_contents(storage_path('logs/listener_debug.log'), "INVALID_WEBHOOK:\n" . var_export($webhookData, true) . "\n", FILE_APPEND);
+                @file_put_contents(
+                    storage_path('logs/listener_debug.log'),
+                    "INVALID_WEBHOOK:\n" . var_export($webhookData, true) . "\n",
+                    FILE_APPEND
+                );
 
                 return;
             }
 
             // If payment already completed and webhook reports completed, log and exit
-            if (in_array($payment->status, ['completed', 'paid']) && in_array($status, ['completed', 'paid', 'success'])) {
+            if (
+                in_array($payment->status, ['completed', 'paid']) &&
+                in_array($status, ['completed', 'paid', 'success'])
+            ) {
                 Log::error('Error processing payment webhook', [
                     'payment_id' => $payment->payment_id,
                     'reason' => 'Payment already completed',
@@ -63,7 +78,11 @@ class HandlePaymentWebhook implements ShouldQueue
                 $payment->failed_at = $payment->failed_at ?? now();
             }
             $payment->save();
-            @file_put_contents(storage_path('logs/listener_debug.log'), 'SAVED status=' . $payment->status . "\n", FILE_APPEND);
+            @file_put_contents(
+                storage_path('logs/listener_debug.log'),
+                'SAVED status=' . $payment->status . "\n",
+                FILE_APPEND
+            );
 
             // Update order status based on payment status
             $this->updateOrderStatus($payment, $status);
@@ -91,7 +110,11 @@ class HandlePaymentWebhook implements ShouldQueue
                 throw $e;
             }
             // In testing, swallow exception to avoid failing tests due to side-effects
-            @file_put_contents(storage_path('logs/listener_debug.log'), 'EXCEPTION:' . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n", FILE_APPEND);
+            @file_put_contents(
+                storage_path('logs/listener_debug.log'),
+                'EXCEPTION:' . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n",
+                FILE_APPEND
+            );
         }
     }
 

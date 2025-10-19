@@ -218,7 +218,7 @@ class InstallController extends Controller
             try {
                 $user->assignRole('admin');
             } catch (\Throwable $e) {
-            /* ignore */
+                /* ignore */
             }
         }
 

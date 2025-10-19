@@ -61,7 +61,10 @@ class ShippingGroupController extends Controller
             }
         }
 
-        return redirect()->route('admin.shipping.index')->with('success', __('Shipping group created'));
+        return redirect()->route('admin.shipping.index')->with(
+            'success',
+            __('Shipping group created')
+        );
     }
 
     public function edit(ShippingGroup $shipping)
@@ -110,7 +113,10 @@ class ShippingGroupController extends Controller
             }
         }
 
-        return redirect()->route('admin.shipping.index')->with('success', __('Shipping group updated'));
+        return redirect()->route('admin.shipping.index')->with(
+            'success',
+            __('Shipping group updated')
+        );
     }
 
     public function destroy(ShippingGroup $shipping)

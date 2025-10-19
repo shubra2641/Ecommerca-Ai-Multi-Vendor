@@ -82,11 +82,11 @@ class RegisteredUserController extends Controller
             }
         }
 
-    // Log creation for diagnostics (kept minimal)
-    // Log::debug('REGISTER: created user', ['id' => $user->id, 'role' => $user->role]);
+        // Log creation for diagnostics (kept minimal)
+        // Log::debug('REGISTER: created user', ['id' => $user->id, 'role' => $user->role]);
 
-    // Authenticate user before firing Registered event so listeners that send
-    // notifications or render mail views do not interrupt the login flow.
+        // Authenticate user before firing Registered event so listeners that send
+        // notifications or render mail views do not interrupt the login flow.
         Auth::login($user);
 
         event(new Registered($user));

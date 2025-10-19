@@ -68,10 +68,13 @@ class PaymentGatewayService
             $resp = Http::withToken($secret)->acceptJson()->get($apiBase . '/charges/' . $chargeId);
 
             if (!$resp->ok()) {
-                Log::warning($gateway->slug . '.verify.error', [
-                    'payment_id' => $gateway->id,
-                    'status' => $resp->status()
-                ]);
+                Log::warning(
+                    $gateway->slug . '.verify.error',
+                    [
+                        'payment_id' => $gateway->id,
+                        'status' => $resp->status(),
+                    ]
+                );
                 return ['payment' => $payment, 'status' => 'pending', 'charge' => null];
             }
 
@@ -112,10 +115,13 @@ class PaymentGatewayService
 
             return ['payment' => $payment, 'status' => $payment->status, 'charge' => $json];
         } catch (\Throwable $e) {
-            Log::warning($gateway->slug . '.verify.exception', [
-                'payment_id' => $gateway->id,
-                'error' => $e->getMessage()
-            ]);
+            Log::warning(
+                $gateway->slug . '.verify.exception',
+                [
+                    'payment_id' => $gateway->id,
+                    'error' => $e->getMessage(),
+                ]
+            );
             return ['success' => false, 'status' => 'pending', 'data' => null];
         }
     }
@@ -167,8 +173,10 @@ class PaymentGatewayService
                     ],
                 ]],
                 'application_context' => [
-                    'return_url' => route('paypal.return', ['payment' => $payment->id]),
-                    'cancel_url' => route('paypal.cancel', ['payment' => $payment->id]),
+                    'return_url' =>
+                        route('paypal.return', ['payment' => $payment->id]),
+                    'cancel_url' =>
+                        route('paypal.cancel', ['payment' => $payment->id]),
                     'shipping_preference' => 'NO_SHIPPING',
                 ],
             ];
@@ -284,14 +292,21 @@ class PaymentGatewayService
                 'currency' => $currency,
                 'description' => 'Checkout',
                 'metadata' => ['order_id' => null, 'payment_id' => $payment->id],
-                'redirect' => ['url' => route($slug . '.return', ['payment' => $payment->id])],
+                'redirect' => [
+                    'url' => route($slug . '.return', ['payment' => $payment->id])
+                ],
                 'customer' => [
                     'first_name' => $snapshot['customer_name'] ?? 'Customer',
                     'email' => $snapshot['customer_email'] ?? 'customer@example.com',
                 ],
             ];
 
-            $response = Http::withToken($cfg['secret_key'] ?? ($cfg['api_key'] ?? null))->acceptJson()->post($apiBase . '/charges', $payload);
+            $response = Http::withToken(
+                $cfg['secret_key'] ?? ($cfg['api_key'] ?? null)
+            )->acceptJson()->post(
+                $apiBase . '/charges',
+                $payload
+            );
 
             if (!$response->ok()) {
                 throw new \Exception('Charge error: ' . $response->status());

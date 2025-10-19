@@ -14,7 +14,8 @@ class PaytabsGateway
         $cfg = $gateway->config ?? [];
         $apiBase = rtrim($cfg['api_base'] ?? 'https://api.paytabs.com', '/');
         // Accept multiple possible config keys used in different installs
-        $secret = $cfg['secret_key'] ?? ($cfg['api_key'] ?? ($cfg['paytabs_server_key'] ?? ($cfg['server_key'] ?? null)));
+        $secret = $cfg['secret_key'] ??
+            ($cfg['api_key'] ?? ($cfg['paytabs_server_key'] ?? ($cfg['server_key'] ?? null)));
         $usedSecretKey = null;
         if (! empty($cfg['secret_key'])) {
             $usedSecretKey = 'secret_key';
@@ -25,10 +26,12 @@ class PaytabsGateway
         } elseif (! empty($cfg['server_key'])) {
             $usedSecretKey = 'server_key';
         }
-        $currency = strtoupper($cfg['paytabs_currency'] ?? ($snapshot['currency'] ?? 'USD'));
+        $currency = strtoupper(
+            $cfg['paytabs_currency'] ?? ($snapshot['currency'] ?? 'USD')
+        );
 
-        return
-            \Illuminate\Support\Facades\DB::transaction(function () use ($snapshot, $apiBase, $secret, $currency, $cfg, $usedSecretKey, $gateway) {
+        return \Illuminate\Support\Facades\DB::transaction(
+            function () use ($snapshot, $apiBase, $secret, $currency, $cfg, $usedSecretKey, $gateway) {
                 $payment = Payment::create([
                     'order_id' => null,
                     'user_id' => $snapshot['user_id'] ?? null,
@@ -60,14 +63,20 @@ class PaytabsGateway
                     // Some older installs store a server key under this name
                     $chargePayload['server_key'] = $cfg['paytabs_server_key'];
                 }
-                Log::info('paytabs.init.request', ['payment_id' => $payment->id, 'payload' => $chargePayload]);
+                Log::info('paytabs.init.request', [
+                    'payment_id' => $payment->id,
+                    'payload' => $chargePayload
+                ]);
 
                 // choose auth style: default Bearer token, or header X-API-KEY if configured
                 try {
                     $client = Http::acceptJson();
                     // Log which config key is used (do not log the secret value)
                     try {
-                        Log::info('paytabs.init.key_used', ['payment_id' => $payment->id, 'used_key' => $usedSecretKey ? $usedSecretKey : null]);
+                        Log::info('paytabs.init.key_used', [
+                            'payment_id' => $payment->id,
+                            'used_key' => $usedSecretKey ? $usedSecretKey : null
+                        ]);
                     } catch (\Throwable $_) {
                     }
                     if (! empty($secret)) {
@@ -81,26 +90,46 @@ class PaytabsGateway
                             $client = $client->withToken($secret);
                         }
                     }
-                    $resp = $client->post($apiBase . '/charges', $chargePayload);
-                    Log::info('paytabs.init.response', ['payment_id' => $payment->id, 'status' => $resp->status(), 'body_snippet' => substr($resp->body(), 0, 500)]);
+                    $resp = $client->post(
+                        $apiBase . '/charges',
+                        $chargePayload
+                    );
+                    Log::info('paytabs.init.response', [
+                        'payment_id' => $payment->id,
+                        'status' => $resp->status(),
+                        'body_snippet' => substr($resp->body(), 0, 500)
+                    ]);
                     try {
-                        Log::info('paytabs.init.response_headers', ['payment_id' => $payment->id, 'headers' => method_exists($resp, 'headers') ? $resp->headers() : null]);
+                        Log::info('paytabs.init.response_headers', [
+                            'payment_id' => $payment->id,
+                            'headers' => method_exists($resp, 'headers') ? $resp->headers() : null
+                        ]);
                     } catch (\Throwable $_) {
                     }
                     if (! $resp->ok()) {
-                        throw new \Exception('Charge error: ' . $resp->status() . ' ' . substr($resp->body(), 0, 200));
+                        throw new \Exception(
+                            'Charge error: ' . $resp->status() . ' ' . substr($resp->body(), 0, 200)
+                        );
                     }
                     $json = $resp->json();
-                    $redirectUrl = $json['transaction']['url'] ?? $json['redirect_url'] ?? ($json['data']['redirect_url'] ?? null);
+                    $redirectUrl = $json['transaction']['url'] ??
+                        $json['redirect_url'] ??
+                        ($json['data']['redirect_url'] ?? null);
                     if (! $redirectUrl) {
                         throw new \Exception('Missing redirect URL');
                     }
-                    $payment->payload = array_merge($payment->payload ?? [], ['paytabs_charge_id' => $json['id'] ?? ($json['data']['id'] ?? null)]);
+                    $payment->payload = array_merge(
+                        $payment->payload ?? [],
+                        ['paytabs_charge_id' => $json['id'] ?? ($json['data']['id'] ?? null)]
+                    );
                     $payment->save();
 
                     return ['payment' => $payment, 'redirect_url' => $redirectUrl, 'raw' => $json];
                 } catch (\Throwable $e) {
-                    Log::error('paytabs.init.exception', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
+                    Log::error('paytabs.init.exception', [
+                        'payment_id' => $payment->id,
+                        'error' => $e->getMessage()
+                    ]);
                     throw $e;
                 }
             });
@@ -109,8 +138,13 @@ class PaytabsGateway
     public function verifyCharge(\App\Models\Payment $payment, PaymentGateway $gateway): array
     {
         // Delegate to the generic verifier available on the service class
-        $svc = app(\App\Services\Payments\PaymentGatewayService::class);
+        $svc = app(
+            \App\Services\Payments\PaymentGatewayService::class
+        );
 
-        return $svc->verifyGenericGatewayCharge($payment, $gateway);
+        return $svc->verifyGenericGatewayCharge(
+            $payment,
+            $gateway
+        );
     }
 }

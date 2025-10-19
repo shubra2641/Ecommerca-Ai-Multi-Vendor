@@ -50,14 +50,14 @@ class ProductCategoryController extends Controller
             foreach ($nameTranslations as $lc => $v) {
                 $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
             }
-            $data['name_translations'] = array_filter($clean, fn ($v) => $v !== null && $v !== '');
+            $data['name_translations'] = array_filter($clean, fn($v) => $v !== null && $v !== '');
         }
         if (! empty($descTranslations)) {
             $clean = [];
             foreach ($descTranslations as $lc => $v) {
                 $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
             }
-            $data['description_translations'] = array_filter($clean, fn ($v) => $v !== null && $v !== '');
+            $data['description_translations'] = array_filter($clean, fn($v) => $v !== null && $v !== '');
         }
         if (isset($data['name_translations'][$defaultLocale])) {
             $data['name'] = $data['name_translations'][$defaultLocale];
@@ -109,14 +109,14 @@ class ProductCategoryController extends Controller
             foreach ($nameTranslations as $lc => $v) {
                 $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
             }
-            $data['name_translations'] = array_filter($clean, fn ($v) => $v !== null && $v !== '');
+            $data['name_translations'] = array_filter($clean, fn($v) => $v !== null && $v !== '');
         }
         if (! empty($descTranslations)) {
             $clean = [];
             foreach ($descTranslations as $lc => $v) {
                 $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
             }
-            $data['description_translations'] = array_filter($clean, fn ($v) => $v !== null && $v !== '');
+            $data['description_translations'] = array_filter($clean, fn($v) => $v !== null && $v !== '');
         }
         if (isset($data['name_translations'][$defaultLocale])) {
             $data['name'] = $data['name_translations'][$defaultLocale];

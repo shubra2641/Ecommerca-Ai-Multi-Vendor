@@ -157,8 +157,14 @@ Route::middleware([
         Route::patch('/{language}/activate', [AdminLanguageController::class, 'activate'])->name('activate');
         Route::patch('/{language}/deactivate', [AdminLanguageController::class, 'deactivate'])->name('deactivate');
         Route::get('/{language}/translations', [AdminLanguageController::class, 'translations'])->name('translations');
-        Route::put('/{language}/translations', [AdminLanguageController::class, 'updateTranslations'])->name('translations.update');
-        Route::post('/{language}/translations/add', [AdminLanguageController::class, 'addTranslation'])->name('translations.add');
+        Route::put(
+            '/{language}/translations',
+            [AdminLanguageController::class, 'updateTranslations']
+        )->name('translations.update');
+        Route::post(
+            '/{language}/translations/add',
+            [AdminLanguageController::class, 'addTranslation']
+        )->name('translations.add');
         Route::delete('/{language}/translations/delete', [AdminLanguageController::class, 'deleteTranslation'])
             ->name('translations.delete');
         Route::post('/{language}/set-default', [AdminLanguageController::class, 'setDefault'])->name('set-default');
@@ -324,7 +330,10 @@ Route::middleware([
         Route::get('dashboard', [PaymentGatewayManagementController::class, 'dashboard'])->name('dashboard');
         Route::post('{paymentGateway}/test-connection', [PaymentGatewayManagementController::class, 'testConnection'])
             ->name('test-connection');
-        Route::get('config-fields/{driver}', [PaymentGatewayManagementController::class, 'getConfigFields'])->name('config-fields');
+        Route::get(
+            'config-fields/{driver}',
+            [PaymentGatewayManagementController::class, 'getConfigFields']
+        )->name('config-fields');
         Route::post('{paymentGateway}/update-config', [PaymentGatewayManagementController::class, 'updateConfig'])
             ->name('update-config');
         Route::get('{paymentGateway}/analytics', [PaymentGatewayManagementController::class, 'getAnalytics'])
@@ -389,78 +398,91 @@ Route::post('/admin/logout', function () {
 
 // Product admin routes
 
-Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])->prefix('products')->name('admin.')->group(function () {
-    Route::resource('product-categories', ProductCategoryController::class);
-    // AI assist endpoint for product categories (generate description + SEO)
-    Route::post('product-categories/ai/suggest', [ProductCategoryController::class, 'aiSuggest'])
-        ->name('product-categories.ai.suggest');
-    Route::get('product-categories/export', [ProductCategoryController::class, 'export'])
-        ->name('product-categories.export');
-    Route::resource('product-tags', ProductTagController::class)->except(['show']);
-    Route::resource('product-attributes', ProductAttributeController::class);
-    Route::resource('brands', BrandController::class)->except(['show']);
-    Route::post('product-attributes/{productAttribute}/values', [ProductAttributeController::class, 'storeValue'])->name('product-attributes.values.store');
-    Route::put('product-attributes/{productAttribute}/values/{value}', [ProductAttributeController::class, 'updateValue'])
-        ->name('product-attributes.values.update');
-    Route::delete('product-attributes/{productAttribute}/values/{value}', [ProductAttributeController::class, 'deleteValue'])
-        ->name('product-attributes.values.destroy');
-    Route::resource('products', ProductController::class);
-    // AI assist endpoint (was mistakenly registered as products/ai/suggest creating /admin/products/products/ai/suggest)
-    Route::post('ai/suggest', [ProductController::class, 'aiSuggest'])
-        ->name('products.ai.suggest');
-    Route::get('products/export', [ProductController::class, 'export'])
-        ->name('products.export');
-    Route::get('products/variations-export', [ProductController::class, 'variationsExport'])
-        ->name('products.variations_export');
-    // vendor product approvals (path: /admin/products/pending-review)
-    Route::get('pending-review', [ProductApprovalController::class, 'pending'])->name('products.pending');
-    Route::post('products/{product}/approve', [ProductApprovalController::class, 'approve'])
-        ->name('products.approve');
-    Route::post('products/{product}/reject', [ProductApprovalController::class, 'reject'])
-        ->name('products.reject');
-    // Product serials management
+Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
+    ->prefix('products')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('product-categories', ProductCategoryController::class);
+        // AI assist endpoint for product categories (generate description + SEO)
+        Route::post('product-categories/ai/suggest', [ProductCategoryController::class, 'aiSuggest'])
+            ->name('product-categories.ai.suggest');
+        Route::get('product-categories/export', [ProductCategoryController::class, 'export'])
+            ->name('product-categories.export');
+        Route::resource('product-tags', ProductTagController::class)->except(['show']);
+        Route::resource('product-attributes', ProductAttributeController::class);
+        Route::resource('brands', BrandController::class)->except(['show']);
+        Route::post(
+            'product-attributes/{productAttribute}/values',
+            [ProductAttributeController::class, 'storeValue']
+        )->name('product-attributes.values.store');
+        Route::put(
+            'product-attributes/{productAttribute}/values/{value}',
+            [ProductAttributeController::class, 'updateValue']
+        )->name('product-attributes.values.update');
+        Route::delete(
+            'product-attributes/{productAttribute}/values/{value}',
+            [ProductAttributeController::class, 'deleteValue']
+        )->name('product-attributes.values.destroy');
+        Route::resource('products', ProductController::class);
+        Route::post('ai/suggest', [ProductController::class, 'aiSuggest'])
+            ->name('products.ai.suggest');
+        Route::get('products/export', [ProductController::class, 'export'])
+            ->name('products.export');
+        Route::get('products/variations-export', [ProductController::class, 'variationsExport'])
+            ->name('products.variations_export');
+        // vendor product approvals (path: /admin/products/pending-review)
+        Route::get('pending-review', [ProductApprovalController::class, 'pending'])->name('products.pending');
+        Route::post('products/{product}/approve', [ProductApprovalController::class, 'approve'])
+            ->name('products.approve');
+        Route::post('products/{product}/reject', [ProductApprovalController::class, 'reject'])
+            ->name('products.reject');
+        // Product serials management
 
-    Route::get('products/{product}/serials', [ProductSerialController::class, 'index'])
-        ->name('products.serials.index');
+        Route::get('products/{product}/serials', [ProductSerialController::class, 'index'])
+            ->name('products.serials.index');
 
-    Route::post('products/{product}/serials/import', [ProductSerialController::class, 'import'])
-        ->name('products.serials.import');
+        Route::post('products/{product}/serials/import', [ProductSerialController::class, 'import'])
+            ->name('products.serials.import');
 
-    Route::get('products/{product}/serials/export', [ProductSerialController::class, 'export'])
-        ->name('products.serials.export');
+        Route::get('products/{product}/serials/export', [ProductSerialController::class, 'export'])
+            ->name('products.serials.export');
 
-    Route::post('products/{product}/serials/{serial}/mark-sold', [ProductSerialController::class, 'markSold'])
-        ->name('products.serials.markSold');
-    // product reviews moderation
-    Route::get('reviews', [ProductReviewController::class, 'index'])->name('reviews.index');
-    Route::get('reviews/{review}', [ProductReviewController::class, 'show'])->name('reviews.show');
-    Route::post('reviews/{review}/approve', [ProductReviewController::class, 'approve'])
-        ->name('reviews.approve');
-    Route::post('reviews/{review}/unapprove', [ProductReviewController::class, 'unapprove'])
-        ->name('reviews.unapprove');
-    Route::delete('reviews/{review}', [ProductReviewController::class, 'destroy'])
-        ->name('reviews.destroy');
+        Route::post(
+            'products/{product}/serials/{serial}/mark-sold',
+            [ProductSerialController::class, 'markSold']
+        )->name('products.serials.markSold');
+        // product reviews moderation
+        Route::get('reviews', [ProductReviewController::class, 'index'])->name('reviews.index');
+        Route::get('reviews/{review}', [ProductReviewController::class, 'show'])->name('reviews.show');
+        Route::post('reviews/{review}/approve', [ProductReviewController::class, 'approve'])
+            ->name('reviews.approve');
+        Route::post('reviews/{review}/unapprove', [ProductReviewController::class, 'unapprove'])
+            ->name('reviews.unapprove');
+        Route::delete('reviews/{review}', [ProductReviewController::class, 'destroy'])
+            ->name('reviews.destroy');
 
-    // Payment gateways removed
+        // Payment gateways removed
 
-    // Orders admin
-    Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])
-        ->name('orders.updateStatus');
-    Route::get('payments', [OrderController::class, 'payments'])
-        ->name('orders.payments');
-    Route::post('payments/{payment}/accept', [OrderController::class, 'acceptPayment'])
-        ->name('orders.payments.accept');
-    Route::post('payments/{payment}/reject', [OrderController::class, 'rejectPayment'])
-        ->name('orders.payments.reject');
-    Route::post('orders/{order}/retry-assign', [OrderController::class, 'retryAssignSerials'])
-        ->name('orders.retry-assign');
-    Route::post('orders/{order}/items/{item}/cancel-backorder', [OrderController::class, 'cancelBackorderItem'])
-        ->name('orders.cancelBackorderItem');
-    // Returns management
-    Route::get('returns', [ReturnsController::class, 'index'])->name('returns.index');
-    Route::get('returns/{item}', [ReturnsController::class, 'show'])->name('returns.show');
-    Route::post('returns/{item}', [ReturnsController::class, 'update'])
-        ->name('returns.update');
-});
+        // Orders admin
+        Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])
+            ->name('orders.updateStatus');
+        Route::get('payments', [OrderController::class, 'payments'])
+            ->name('orders.payments');
+        Route::post('payments/{payment}/accept', [OrderController::class, 'acceptPayment'])
+            ->name('orders.payments.accept');
+        Route::post('payments/{payment}/reject', [OrderController::class, 'rejectPayment'])
+            ->name('orders.payments.reject');
+        Route::post('orders/{order}/retry-assign', [OrderController::class, 'retryAssignSerials'])
+            ->name('orders.retry-assign');
+        Route::post(
+            'orders/{order}/items/{item}/cancel-backorder',
+            [OrderController::class, 'cancelBackorderItem']
+        )->name('orders.cancelBackorderItem');
+        // Returns management
+        Route::get('returns', [ReturnsController::class, 'index'])->name('returns.index');
+        Route::get('returns/{item}', [ReturnsController::class, 'show'])->name('returns.show');
+        Route::post('returns/{item}', [ReturnsController::class, 'update'])
+            ->name('returns.update');
+    });

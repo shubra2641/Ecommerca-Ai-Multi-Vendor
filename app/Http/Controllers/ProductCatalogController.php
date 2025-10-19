@@ -195,14 +195,14 @@ class ProductCatalogController extends Controller
             $slugMap = Cache::remember(
                 'product_category_slug_id_map',
                 600,
-                fn () => ProductCategory::pluck('id', 'slug')->all()
+                fn() => ProductCategory::pluck('id', 'slug')->all()
             );
             $id = $slugMap[$cat] ?? null;
             if ($id) {
                 $childIds = Cache::remember(
                     'category_children_ids_' . $id,
                     600,
-                    fn () => ProductCategory::where('parent_id', $id)->pluck('id')->all()
+                    fn() => ProductCategory::where('parent_id', $id)->pluck('id')->all()
                 );
                 $query->where(function ($qq) use ($id, $childIds) {
                     $qq->where('product_category_id', $id)
@@ -213,7 +213,7 @@ class ProductCatalogController extends Controller
 
         // Tag filter
         if ($tag = $request->get('tag')) {
-            $query->whereHas('tags', fn ($t) => $t->where('slug', $tag));
+            $query->whereHas('tags', fn($t) => $t->where('slug', $tag));
         }
 
         $query = $this->applyFilters($query, $request);
@@ -348,7 +348,7 @@ class ProductCatalogController extends Controller
             $images->push('front/images/default-product.png');
         }
 
-        $gallery = $images->map(fn ($p) => ['raw' => $p, 'url' => asset($p)]);
+        $gallery = $images->map(fn($p) => ['raw' => $p, 'url' => asset($p)]);
         $mainImage = $gallery->first();
 
         // Pricing
@@ -397,7 +397,7 @@ class ProductCatalogController extends Controller
         $activeVars = collect();
         if ($product->type === 'variable') {
             $activeVars = $product->variations->where('active', true);
-            $prices = $activeVars->map(fn ($v) => $v->effectivePrice())->filter();
+            $prices = $activeVars->map(fn($v) => $v->effectivePrice())->filter();
             if ($prices->count()) {
                 $minP = $prices->min();
                 $maxP = $prices->max();

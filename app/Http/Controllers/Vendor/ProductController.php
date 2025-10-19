@@ -188,7 +188,10 @@ class ProductController extends Controller
                 if ($r->has($field) && is_array($r->input($field))) {
                     $incoming = $r->input($field);
                     // pick default value
-                    $defaultVal = $incoming[$defaultCode] ?? collect($incoming)->first(fn ($v) => trim((string) $v) !== '');
+                    $defaultVal = $incoming[$defaultCode] ??
+                        collect($incoming)->first(
+                            fn($v) => trim((string) $v) !== ''
+                        );
                     if ($defaultVal === null) {
                         $defaultVal = $existing?->$field; // fallback
                     }
@@ -253,7 +256,12 @@ class ProductController extends Controller
                 $arr = $candidate;
             }
         }
-        $arr = array_values(array_filter(array_map(fn ($v) => is_string($v) ? trim($v) : '', $arr), fn ($v) => $v !== ''));
+        $arr = array_values(
+            array_filter(
+                array_map(fn($v) => is_string($v) ? trim($v) : '', $arr),
+                fn($v) => $v !== ''
+            )
+        );
 
         return $arr;
     }
@@ -294,7 +302,10 @@ class ProductController extends Controller
                     if ($languages->count()) {
                         $default = optional($languages->firstWhere('is_default', 1))->code ?? $languages->first()->code;
                         $translations = $v['name'];
-                        $defaultVal = $translations[$default] ?? collect($translations)->first(fn ($val) => trim((string) $val) !== '');
+                        $defaultVal = $translations[$default] ??
+                            collect($translations)->first(
+                                fn($val) => trim((string) $val) !== ''
+                            );
                         foreach ($languages as $lang) {
                             $code = $lang->code;
                             if (! isset($translations[$code]) || trim((string) $translations[$code]) === '') {
@@ -308,7 +319,9 @@ class ProductController extends Controller
                 }
             }
             if ($id) {
-                $variation = \App\Models\ProductVariation::where('product_id', $product->id)->where('id', $id)->first();
+                $variation = \App\Models\ProductVariation::where('product_id', $product->id)
+                    ->where('id', $id)
+                    ->first();
                 if ($variation) {
                     $variation->update($data);
                     $ids[] = $variation->id;
@@ -327,7 +340,9 @@ class ProductController extends Controller
             if ($s === '') {
                 continue;
             }
-            $exists = \App\Models\ProductSerial::where('product_id', $product->id)->where('serial', $s)->first();
+            $exists = \App\Models\ProductSerial::where('product_id', $product->id)
+                ->where('serial', $s)
+                ->first();
             if (! $exists) {
                 \App\Models\ProductSerial::create(['product_id' => $product->id, 'serial' => $s]);
             }

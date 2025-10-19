@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use App\Http\Controllers\Api\PaymentApiController;
 use App\Http\Controllers\Api\SystemController as ApiSystemController;
@@ -37,8 +37,14 @@ Route::prefix('vendor')->group(function () {
         Route::put('/products/{id}', [ApiVendorProductsController::class, 'update']);
         Route::delete('/products/{id}', [ApiVendorProductsController::class, 'destroy']);
         // variation management
-        Route::put('/products/{productId}/variations/{variationId}', [ApiVendorProductVariationsController::class, 'update']);
-        Route::delete('/products/{productId}/variations/{variationId}', [ApiVendorProductVariationsController::class, 'destroy']);
+        Route::put(
+            '/products/{productId}/variations/{variationId}',
+            [ApiVendorProductVariationsController::class, 'update']
+        );
+        Route::delete(
+            '/products/{productId}/variations/{variationId}',
+            [ApiVendorProductVariationsController::class, 'destroy']
+        );
         Route::post('/products/{productId}/variations', [ApiVendorProductVariationsController::class, 'store']);
 
         // Active languages list for multilingual fields

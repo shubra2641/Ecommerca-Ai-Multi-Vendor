@@ -91,8 +91,7 @@ class ProductAttributeController extends Controller
     {
         $data = $r->validate([
             'value' => 'required',
-            'slug' => 'nullable|unique:product_attribute_values,slug,' .
-                $value->id,
+            'slug' => 'nullable|unique:product_attribute_values,slug,' . $value->id,
         ]);
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['value']);

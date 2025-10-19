@@ -45,7 +45,10 @@ class DistributeOrderProceedsListener
 
                 // Shipping and taxes are considered platform/admin revenue by default
 
-                Log::info('DistributeOrderProceedsListener processing order ' . $order->id . ' computed vendorAmounts: ' . json_encode($vendorAmounts));
+                Log::info(
+                    'DistributeOrderProceedsListener processing order ' . $order->id .
+                    ' computed vendorAmounts: ' . json_encode($vendorAmounts)
+                );
 
                 // Credit each vendor or hold if within return window
                 foreach ($vendorAmounts as $vendorId => $amount) {
@@ -54,13 +57,18 @@ class DistributeOrderProceedsListener
                     }
                     $vendor = \App\Models\User::find($vendorId);
                     if (! $vendor) {
-                        Log::warning('DistributeOrderProceedsListener: vendor not found id=' . $vendorId . ' for order ' . $order->id);
+                        Log::warning(
+                            'DistributeOrderProceedsListener: vendor not found id=' . $vendorId .
+                            ' for order ' . $order->id
+                        );
 
                         continue;
                     }
 
                     // Determine if any items for this vendor in this order are still within refund window
-                    $vendorItems = $order->items->filter(fn ($it) => ($it->product?->vendor_id ?? null) == $vendorId);
+                    $vendorItems = $order->items->filter(
+                        fn ($it) => ($it->product?->vendor_id ?? null) == $vendorId
+                    );
                     $hasHeld = false;
                     foreach ($vendorItems as $vi) {
                         if ($vi->isWithinReturnWindow()) {
@@ -70,18 +78,21 @@ class DistributeOrderProceedsListener
                     }
 
                     if ($hasHeld) {
-                        // Create a held credit record (do not increment available balance)
                         BalanceHistory::createTransaction(
                             $vendor,
                             BalanceHistory::TYPE_CREDIT,
                             $amount,
                             (float) $vendor->balance,
                             (float) $vendor->balance,
-                            'Held credit for Order #' . $order->id . ' (refund window active)',
+                            'Held credit for Order #' . $order->id .
+                            ' (refund window active)',
                             null,
                             $order
                         );
-                        Log::info('DistributeOrderProceedsListener held vendor ' . $vendorId . ' amount ' . $amount . ' for order ' . $order->id);
+                        Log::info(
+                            'DistributeOrderProceedsListener held vendor ' . $vendorId .
+                            ' amount ' . $amount . ' for order ' . $order->id
+                        );
                     } else {
                         $previous = (float) $vendor->balance;
                         $vendor->increment('balance', $amount);
@@ -98,7 +109,10 @@ class DistributeOrderProceedsListener
                             $order
                         );
 
-                        Log::info('DistributeOrderProceedsListener credited vendor ' . $vendorId . ' amount ' . $amount . ' for order ' . $order->id);
+                        Log::info(
+                            'DistributeOrderProceedsListener credited vendor ' . $vendorId .
+                            ' amount ' . $amount . ' for order ' . $order->id
+                        );
                     }
                 }
 
@@ -115,7 +129,10 @@ class DistributeOrderProceedsListener
                             $break = CommissionService::breakdown($it->product, (int) $it->qty, (float) $it->price);
                             $commission = (float) ($break['commission'] ?? 0.0);
                         } catch (\Throwable $e) {
-                            Log::warning('DistributeOrderProceedsListener: failed computing commission fallback for order ' . $order->id . ' item ' . $it->id . ': ' . $e->getMessage());
+                            Log::warning(
+                                'DistributeOrderProceedsListener: failed computing commission fallback for order ' .
+                                $order->id . ' item ' . $it->id . ': ' . $e->getMessage()
+                            );
                         }
                     }
                     $platformShare += $commission;
@@ -139,9 +156,15 @@ class DistributeOrderProceedsListener
                             $order
                         );
 
-                        Log::info('DistributeOrderProceedsListener credited admin id ' . $admin->id . ' amount ' . $platformShare . ' for order ' . $order->id);
+                        Log::info(
+                            'DistributeOrderProceedsListener credited admin id ' . $admin->id .
+                            ' amount ' . $platformShare . ' for order ' . $order->id
+                        );
                     } else {
-                        Log::warning('DistributeOrderProceedsListener: no admin user found to credit platform share for order ' . $order->id);
+                        Log::warning(
+                            'DistributeOrderProceedsListener: no admin user found to credit platform share for order ' .
+                            $order->id
+                        );
                     }
                 }
 
@@ -150,7 +173,10 @@ class DistributeOrderProceedsListener
                 $order->save();
             });
         } catch (\Throwable $e) {
-            Log::error('DistributeOrderProceedsListener failed for order ' . ($order->id ?? 'n/a') . ': ' . $e->getMessage());
+            Log::error(
+                'DistributeOrderProceedsListener failed for order ' . ($order->id ?? 'n/a') .
+                ': ' . $e->getMessage()
+            );
             throw $e;
         }
     }
