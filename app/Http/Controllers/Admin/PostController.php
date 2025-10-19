@@ -12,25 +12,30 @@ use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
-    private HtmlSanitizer $sanitizer;
-
-    public function __construct(HtmlSanitizer $sanitizer)
-    {
-        $this->sanitizer = $sanitizer;
-    }
-
     public function index(Request $request)
     {
-        $posts = $this->buildPostsQuery($request)->paginate(20);
+        $query = Post::with('category', 'author');
+
+        if ($q = $request->get('q')) {
+            $query->where(function ($w) use ($q) {
+                $w->where('title', 'like', "%$q%")->orWhere('slug', 'like', "%$q%");
+            });
+        }
+
+        if ($categoryId = $request->get('category_id')) {
+            $query->where('category_id', $categoryId);
+        }
+
+        if ($published = $request->get('published')) {
+            if ($published !== '') {
+                $query->where('published', (bool) $published);
+            }
+        }
+
+        $posts = $query->orderByDesc('published_at')->paginate(20);
         $categories = PostCategory::orderBy('name')->get();
 
-        return view('admin.blog.posts.index', [
-            'posts' => $posts,
-            'q' => $request->get('q'),
-            'categories' => $categories,
-            'categoryId' => $request->get('category_id'),
-            'published' => $request->get('published')
-        ]);
+        return view('admin.blog.posts.index', compact('posts', 'q', 'categories', 'categoryId', 'published'));
     }
 
     public function create()
@@ -41,14 +46,13 @@ class PostController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, HtmlSanitizer $sanitizer)
     {
         $data = $this->validatePostData($request);
-        $payload = $this->buildPostPayload($data);
+        $payload = $this->buildPostPayload($data, $sanitizer);
         
         $post = Post::create($payload);
         $post->tags()->sync($data['tags'] ?? []);
-        
         $this->flushBlogCache();
 
         return redirect()->route('admin.blog.posts.edit', $post)
@@ -64,14 +68,13 @@ class PostController extends Controller
         ]);
     }
 
-    public function update(Request $request, Post $post)
+    public function update(Request $request, Post $post, HtmlSanitizer $sanitizer)
     {
         $data = $this->validatePostData($request);
-        $payload = $this->buildPostPayload($data, $post);
+        $payload = $this->buildPostPayload($data, $sanitizer, $post);
         
         $post->update($payload);
         $post->tags()->sync($data['tags'] ?? []);
-        
         $this->flushBlogCache($post);
 
         return back()->with('success', __('Post updated'));
@@ -81,7 +84,6 @@ class PostController extends Controller
     {
         $post->delete();
         $this->flushBlogCache($post);
-
         return back()->with('success', __('Post deleted'));
     }
 
@@ -93,7 +95,6 @@ class PostController extends Controller
         ]);
         
         $this->flushBlogCache($post);
-
         return back()->with('success', __('Status updated'));
     }
 
@@ -106,30 +107,6 @@ class PostController extends Controller
 
         $aiService = app(\App\Services\AI\BlogPostSuggestionService::class);
         return $aiService->generateSuggestions($request->title, $request->locale);
-    }
-
-    private function buildPostsQuery(Request $request)
-    {
-        $query = Post::with('category', 'author');
-
-        if ($q = $request->get('q')) {
-            $query->where(function ($w) use ($q) {
-                $w->where('title', 'like', "%$q%")
-                  ->orWhere('slug', 'like', "%$q%");
-            });
-        }
-
-        if ($categoryId = $request->get('category_id')) {
-            $query->where('category_id', $categoryId);
-        }
-
-        if ($published = $request->get('published')) {
-            if ($published !== '') {
-                $query->where('published', (bool) $published);
-            }
-        }
-
-        return $query->orderByDesc('published_at');
     }
 
     private function validatePostData(Request $request): array
@@ -156,10 +133,10 @@ class PostController extends Controller
         ]);
     }
 
-    private function buildPostPayload(array $data, ?Post $post = null): array
+    private function buildPostPayload(array $data, HtmlSanitizer $sanitizer, ?Post $post = null): array
     {
         $fallback = config('app.fallback_locale');
-        $defaultTitle = $this->getDefaultTitle($data['title'], $fallback);
+        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn($v) => !empty($v)) ?? '';
         
         $payload = [
             'title' => $defaultTitle,
@@ -169,45 +146,42 @@ class PostController extends Controller
             'user_id' => auth()->id(),
         ];
 
-        // Handle slug generation
-        if ($post && $this->needsSlugUpdate($post, $defaultTitle)) {
+        // Handle slug
+        if ($post && $defaultTitle !== $post->getRawOriginal('title')) {
             $payload['slug'] = $this->generateUniqueSlug($defaultTitle, $post->id);
         } elseif (!$post) {
             $payload['slug'] = $this->generateUniqueSlug($defaultTitle);
         }
 
         // Process translatable fields
-        $this->processTranslatableFields($data, $payload, $fallback);
+        foreach (['excerpt', 'body', 'seo_title', 'seo_description', 'seo_tags'] as $field) {
+            if (isset($data[$field]) && is_array($data[$field])) {
+                $translations = array_filter($data[$field]);
+                foreach ($translations as $locale => $value) {
+                    $translations[$locale] = $sanitizer->clean($value);
+                }
+                $payload[$field . '_translations'] = $translations;
+                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn($v) => !empty($v));
+            }
+        }
 
         // Handle featured image
         if (!empty($data['featured_image_path'])) {
-            $payload['featured_image'] = $this->processFeaturedImage($data['featured_image_path']);
+            $payload['featured_image'] = trim(str_replace(asset('storage/'), '', $data['featured_image_path']), ' /');
         }
 
         return $payload;
     }
 
-    private function getDefaultTitle(array $titles, string $fallback): string
-    {
-        return $titles[$fallback] ?? collect($titles)->first(fn($v) => !empty($v)) ?? '';
-    }
-
     private function generateSlugTranslations(array $data, string $defaultTitle): array
     {
         $slugTranslations = $data['slug'] ?? [];
-        
         foreach ($data['title'] as $locale => $title) {
             if (!isset($slugTranslations[$locale]) || $slugTranslations[$locale] === '') {
                 $slugTranslations[$locale] = Str::slug($title ?: $defaultTitle);
             }
         }
-
         return array_filter($slugTranslations);
-    }
-
-    private function needsSlugUpdate(Post $post, string $newTitle): bool
-    {
-        return $newTitle && $newTitle !== $post->getRawOriginal('title');
     }
 
     private function generateUniqueSlug(string $title, ?int $excludeId = null): string
@@ -216,44 +190,11 @@ class PostController extends Controller
         $base = $slug;
         $i = 1;
 
-        $query = Post::where('slug', $slug);
-        if ($excludeId) {
-            $query->where('id', '!=', $excludeId);
-        }
-
-        while ($query->exists()) {
+        while (Post::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
             $slug = $base . '-' . $i++;
-            $query = Post::where('slug', $slug);
-            if ($excludeId) {
-                $query->where('id', '!=', $excludeId);
-            }
         }
 
         return $slug;
-    }
-
-    private function processTranslatableFields(array $data, array &$payload, string $fallback): void
-    {
-        $fields = ['excerpt', 'body', 'seo_title', 'seo_description', 'seo_tags'];
-
-        foreach ($fields as $field) {
-            if (!isset($data[$field]) || !is_array($data[$field])) {
-                continue;
-            }
-
-            $translations = array_filter($data[$field]);
-            foreach ($translations as $locale => $value) {
-                $translations[$locale] = $this->sanitizer->clean($value);
-            }
-
-            $payload[$field . '_translations'] = $translations;
-            $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn($v) => !empty($v));
-        }
-    }
-
-    private function processFeaturedImage(string $imagePath): string
-    {
-        return trim(str_replace(asset('storage/'), '', $imagePath), ' /');
     }
 
     private function flushBlogCache(?Post $post = null): void
@@ -267,9 +208,7 @@ class PostController extends Controller
             }
         }
 
-        if (!$post) {
-            return;
-        }
+        if (!$post) return;
 
         // Clear post-specific cache
         foreach ($locales as $locale) {
