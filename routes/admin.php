@@ -102,8 +102,10 @@ Route::middleware([
     // Index page to view all notifications (header links to this)
     Route::get('/notifications', [NotificationController::class, 'index'])->name('admin.notifications.index');
     // Send notifications (admin)
-    Route::get('/notifications/send', [SendNotificationController::class, 'create'])->name('admin.notifications.send.create');
-    Route::post('/notifications/send', [SendNotificationController::class, 'store'])->name('admin.notifications.send.store');
+    Route::get('/notifications/send', [SendNotificationController::class, 'create'])
+        ->name('admin.notifications.send.create');
+    Route::post('/notifications/send', [SendNotificationController::class, 'store'])
+        ->name('admin.notifications.send.store');
 
     // Profile management routes
     Route::prefix('profile')->name('admin.profile.')->group(function () {
@@ -157,7 +159,8 @@ Route::middleware([
         Route::get('/{language}/translations', [AdminLanguageController::class, 'translations'])->name('translations');
         Route::put('/{language}/translations', [AdminLanguageController::class, 'updateTranslations'])->name('translations.update');
         Route::post('/{language}/translations/add', [AdminLanguageController::class, 'addTranslation'])->name('translations.add');
-        Route::delete('/{language}/translations/delete', [AdminLanguageController::class, 'deleteTranslation'])->name('translations.delete');
+        Route::delete('/{language}/translations/delete', [AdminLanguageController::class, 'deleteTranslation'])
+            ->name('translations.delete');
         Route::post('/{language}/set-default', [AdminLanguageController::class, 'setDefault'])->name('set-default');
         Route::post('/refresh-cache', [AdminLanguageController::class, 'refreshCache'])->name('refresh-cache');
     });
@@ -199,7 +202,8 @@ Route::middleware([
         Route::get('/{image}/edit', [GalleryController::class, 'edit'])->name('edit');
         Route::put('/{image}', [GalleryController::class, 'update'])->name('update');
         Route::delete('/{image}', [GalleryController::class, 'destroy'])->name('destroy');
-        Route::post('/{image}/use-as-logo', [GalleryController::class, 'useAsLogo'])->name('use-as-logo');
+        Route::post('/{image}/use-as-logo', [GalleryController::class, 'useAsLogo'])
+            ->name('use-as-logo');
     });
 
 
@@ -215,7 +219,8 @@ Route::middleware([
             Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
             Route::post('/{post}/publish', [PostController::class, 'publishToggle'])->name('publish');
             // AI assist for post content (title/excerpt/body/seo)
-            Route::post('/ai/suggest', [PostController::class, 'aiSuggest'])->name('ai.suggest');
+            Route::post('/ai/suggest', [PostController::class, 'aiSuggest'])
+                ->name('ai.suggest');
         });
         // Categories
         Route::prefix('categories')->name('categories.')->group(function () {
@@ -226,7 +231,8 @@ Route::middleware([
             Route::put('/{category}', [PostCategoryController::class, 'update'])->name('update');
             Route::delete('/{category}', [PostCategoryController::class, 'destroy'])->name('destroy');
             // AI assist for blog category description & SEO
-            Route::post('/ai/suggest', [PostCategoryController::class, 'aiSuggest'])->name('ai.suggest');
+            Route::post('/ai/suggest', [PostCategoryController::class, 'aiSuggest'])
+                ->name('ai.suggest');
         });
         // Tags
         Route::prefix('tags')->name('tags.')->group(function () {
@@ -250,7 +256,8 @@ Route::middleware([
     Route::prefix('settings')->name('admin.settings.')->group(function () {
         Route::get('/', [SettingsController::class, 'index'])->name('index');
         Route::put('/', [SettingsController::class, 'update'])->name('update');
-        Route::delete('/logo/delete', [GalleryController::class, 'deleteLogo'])->name('logo.delete');
+        Route::delete('/logo/delete', [GalleryController::class, 'deleteLogo'])
+            ->name('logo.delete');
     });
 
     // Footer settings routes
@@ -307,17 +314,23 @@ Route::middleware([
     Route::resource('payment-gateways', PaymentGatewayController::class, [
         'parameters' => ['payment-gateways' => 'paymentGateway'],
     ])->names('admin.payment-gateways');
-    Route::post('payment-gateways/{paymentGateway}/toggle', [PaymentGatewayController::class, 'toggle'])->name('admin.payment-gateways.toggle');
-    Route::post('payment-gateways/{paymentGateway}/test-webhook', [PaymentGatewayController::class, 'testWebhook'])->name('admin.payment-gateways.test-webhook');
+    Route::post('payment-gateways/{paymentGateway}/toggle', [PaymentGatewayController::class, 'toggle'])
+        ->name('admin.payment-gateways.toggle');
+    Route::post('payment-gateways/{paymentGateway}/test-webhook', [PaymentGatewayController::class, 'testWebhook'])
+        ->name('admin.payment-gateways.test-webhook');
 
     // Advanced Payment Gateway Management
     Route::prefix('payment-gateways-management')->name('admin.payment-gateways-management.')->group(function () {
         Route::get('dashboard', [PaymentGatewayManagementController::class, 'dashboard'])->name('dashboard');
-        Route::post('{paymentGateway}/test-connection', [PaymentGatewayManagementController::class, 'testConnection'])->name('test-connection');
+        Route::post('{paymentGateway}/test-connection', [PaymentGatewayManagementController::class, 'testConnection'])
+            ->name('test-connection');
         Route::get('config-fields/{driver}', [PaymentGatewayManagementController::class, 'getConfigFields'])->name('config-fields');
-        Route::post('{paymentGateway}/update-config', [PaymentGatewayManagementController::class, 'updateConfig'])->name('update-config');
-        Route::get('{paymentGateway}/analytics', [PaymentGatewayManagementController::class, 'getAnalytics'])->name('analytics');
-        Route::get('transaction/{payment}', [PaymentGatewayManagementController::class, 'getTransaction'])->name('transaction');
+        Route::post('{paymentGateway}/update-config', [PaymentGatewayManagementController::class, 'updateConfig'])
+            ->name('update-config');
+        Route::get('{paymentGateway}/analytics', [PaymentGatewayManagementController::class, 'getAnalytics'])
+            ->name('analytics');
+        Route::get('transaction/{payment}', [PaymentGatewayManagementController::class, 'getTransaction'])
+            ->name('transaction');
         Route::post('sync', [PaymentGatewayManagementController::class, 'syncGateways'])->name('sync');
     });
 
@@ -340,14 +353,18 @@ Route::middleware([
         Route::post('/{withdrawal}/approve', [VendorWithdrawalController::class, 'approve'])->name('approve');
         Route::post('/{withdrawal}/reject', [VendorWithdrawalController::class, 'reject'])->name('reject');
         // payouts execution
-        Route::post('/payouts/{payout}/execute', [VendorWithdrawalController::class, 'execute'])->name('payouts.execute');
+        Route::post('/payouts/{payout}/execute', [VendorWithdrawalController::class, 'execute'])
+            ->name('payouts.execute');
     });
-    Route::get('payouts', [VendorWithdrawalController::class, 'payoutsIndex'])->name('admin.vendor.payouts.index');
-    Route::get('payouts/{payout}', [VendorWithdrawalController::class, 'payoutsShow'])->name('admin.vendor.payouts.show');
+    Route::get('payouts', [VendorWithdrawalController::class, 'payoutsIndex'])
+        ->name('admin.vendor.payouts.index');
+    Route::get('payouts/{payout}', [VendorWithdrawalController::class, 'payoutsShow'])
+        ->name('admin.vendor.payouts.show');
     // Vendor exports admin
     Route::prefix('vendor-exports')->name('admin.vendor_exports.')->group(function () {
         Route::get('/', [VendorExportController::class, 'index'])->name('index');
-        Route::get('/{export}/download', [VendorExportController::class, 'download'])->name('download');
+        Route::get('/{export}/download', [VendorExportController::class, 'download'])
+            ->name('download');
     });
     // Locations management
     Route::resource('countries', CountryController::class)->except(['show'])->names('admin.countries');
@@ -375,52 +392,75 @@ Route::post('/admin/logout', function () {
 Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])->prefix('products')->name('admin.')->group(function () {
     Route::resource('product-categories', ProductCategoryController::class);
     // AI assist endpoint for product categories (generate description + SEO)
-    Route::post('product-categories/ai/suggest', [ProductCategoryController::class, 'aiSuggest'])->name('product-categories.ai.suggest');
-    Route::get('product-categories/export', [ProductCategoryController::class, 'export'])->name('product-categories.export');
+    Route::post('product-categories/ai/suggest', [ProductCategoryController::class, 'aiSuggest'])
+        ->name('product-categories.ai.suggest');
+    Route::get('product-categories/export', [ProductCategoryController::class, 'export'])
+        ->name('product-categories.export');
     Route::resource('product-tags', ProductTagController::class)->except(['show']);
     Route::resource('product-attributes', ProductAttributeController::class);
     Route::resource('brands', BrandController::class)->except(['show']);
     Route::post('product-attributes/{productAttribute}/values', [ProductAttributeController::class, 'storeValue'])->name('product-attributes.values.store');
-    Route::put('product-attributes/{productAttribute}/values/{value}', [ProductAttributeController::class, 'updateValue'])->name('product-attributes.values.update');
-    Route::delete('product-attributes/{productAttribute}/values/{value}', [ProductAttributeController::class, 'deleteValue'])->name('product-attributes.values.destroy');
+    Route::put('product-attributes/{productAttribute}/values/{value}', [ProductAttributeController::class, 'updateValue'])
+        ->name('product-attributes.values.update');
+    Route::delete('product-attributes/{productAttribute}/values/{value}', [ProductAttributeController::class, 'deleteValue'])
+        ->name('product-attributes.values.destroy');
     Route::resource('products', ProductController::class);
     // AI assist endpoint (was mistakenly registered as products/ai/suggest creating /admin/products/products/ai/suggest)
-    Route::post('ai/suggest', [ProductController::class, 'aiSuggest'])->name('products.ai.suggest');
-    Route::get('products/export', [ProductController::class, 'export'])->name('products.export');
-    Route::get('products/variations-export', [ProductController::class, 'variationsExport'])->name('products.variations_export');
+    Route::post('ai/suggest', [ProductController::class, 'aiSuggest'])
+        ->name('products.ai.suggest');
+    Route::get('products/export', [ProductController::class, 'export'])
+        ->name('products.export');
+    Route::get('products/variations-export', [ProductController::class, 'variationsExport'])
+        ->name('products.variations_export');
     // vendor product approvals (path: /admin/products/pending-review)
     Route::get('pending-review', [ProductApprovalController::class, 'pending'])->name('products.pending');
-    Route::post('products/{product}/approve', [ProductApprovalController::class, 'approve'])->name('products.approve');
-    Route::post('products/{product}/reject', [ProductApprovalController::class, 'reject'])->name('products.reject');
+    Route::post('products/{product}/approve', [ProductApprovalController::class, 'approve'])
+        ->name('products.approve');
+    Route::post('products/{product}/reject', [ProductApprovalController::class, 'reject'])
+        ->name('products.reject');
     // Product serials management
 
-    Route::get('products/{product}/serials', [ProductSerialController::class, 'index'])->name('products.serials.index');
+    Route::get('products/{product}/serials', [ProductSerialController::class, 'index'])
+        ->name('products.serials.index');
 
-    Route::post('products/{product}/serials/import', [ProductSerialController::class, 'import'])->name('products.serials.import');
+    Route::post('products/{product}/serials/import', [ProductSerialController::class, 'import'])
+        ->name('products.serials.import');
 
-    Route::get('products/{product}/serials/export', [ProductSerialController::class, 'export'])->name('products.serials.export');
+    Route::get('products/{product}/serials/export', [ProductSerialController::class, 'export'])
+        ->name('products.serials.export');
 
-    Route::post('products/{product}/serials/{serial}/mark-sold', [ProductSerialController::class, 'markSold'])->name('products.serials.markSold');
+    Route::post('products/{product}/serials/{serial}/mark-sold', [ProductSerialController::class, 'markSold'])
+        ->name('products.serials.markSold');
     // product reviews moderation
     Route::get('reviews', [ProductReviewController::class, 'index'])->name('reviews.index');
     Route::get('reviews/{review}', [ProductReviewController::class, 'show'])->name('reviews.show');
-    Route::post('reviews/{review}/approve', [ProductReviewController::class, 'approve'])->name('reviews.approve');
-    Route::post('reviews/{review}/unapprove', [ProductReviewController::class, 'unapprove'])->name('reviews.unapprove');
-    Route::delete('reviews/{review}', [ProductReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::post('reviews/{review}/approve', [ProductReviewController::class, 'approve'])
+        ->name('reviews.approve');
+    Route::post('reviews/{review}/unapprove', [ProductReviewController::class, 'unapprove'])
+        ->name('reviews.unapprove');
+    Route::delete('reviews/{review}', [ProductReviewController::class, 'destroy'])
+        ->name('reviews.destroy');
 
     // Payment gateways removed
 
     // Orders admin
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
-    Route::get('payments', [OrderController::class, 'payments'])->name('orders.payments');
-    Route::post('payments/{payment}/accept', [OrderController::class, 'acceptPayment'])->name('orders.payments.accept');
-    Route::post('payments/{payment}/reject', [OrderController::class, 'rejectPayment'])->name('orders.payments.reject');
-    Route::post('orders/{order}/retry-assign', [OrderController::class, 'retryAssignSerials'])->name('orders.retry-assign');
-    Route::post('orders/{order}/items/{item}/cancel-backorder', [OrderController::class, 'cancelBackorderItem'])->name('orders.cancelBackorderItem');
+    Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])
+        ->name('orders.updateStatus');
+    Route::get('payments', [OrderController::class, 'payments'])
+        ->name('orders.payments');
+    Route::post('payments/{payment}/accept', [OrderController::class, 'acceptPayment'])
+        ->name('orders.payments.accept');
+    Route::post('payments/{payment}/reject', [OrderController::class, 'rejectPayment'])
+        ->name('orders.payments.reject');
+    Route::post('orders/{order}/retry-assign', [OrderController::class, 'retryAssignSerials'])
+        ->name('orders.retry-assign');
+    Route::post('orders/{order}/items/{item}/cancel-backorder', [OrderController::class, 'cancelBackorderItem'])
+        ->name('orders.cancelBackorderItem');
     // Returns management
     Route::get('returns', [ReturnsController::class, 'index'])->name('returns.index');
     Route::get('returns/{item}', [ReturnsController::class, 'show'])->name('returns.show');
-    Route::post('returns/{item}', [ReturnsController::class, 'update'])->name('returns.update');
+    Route::post('returns/{item}', [ReturnsController::class, 'update'])
+        ->name('returns.update');
 });

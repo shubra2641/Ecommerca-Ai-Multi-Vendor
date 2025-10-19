@@ -366,7 +366,10 @@ class ReportsController extends Controller
     {
         try {
             $tables = DB::select('SHOW TABLES');
-            $dbSize = DB::select('SELECT SUM(data_length + index_length) / 1024 / 1024 AS "DB Size in MB" FROM information_schema.tables WHERE table_schema = DATABASE()')[0];
+            $dbSize = DB::select(
+                'SELECT SUM(data_length + index_length) / 1024 / 1024 AS "DB Size in MB" '
+                . 'FROM information_schema.tables WHERE table_schema = DATABASE()'
+            )[0];
 
             return [
                 'tables_count' => count($tables),

@@ -30,7 +30,8 @@ class ReturnsController extends Controller
         HtmlSanitizer $sanitizer
     ) {
         $data = $request->validate([
-            'return_status' => 'required|string|in:received,in_repair,shipped_back,delivered,completed,cancelled,pending,rejected,approved',
+            'return_status' => 'required|string|in:received,in_repair,shipped_back,delivered,completed,'
+                . 'cancelled,pending,rejected,approved',
             'admin_note' => 'nullable|string',
             'image' => 'nullable|image|max:5120',
         ]);

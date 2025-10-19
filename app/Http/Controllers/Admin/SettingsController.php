@@ -188,7 +188,10 @@ class SettingsController extends Controller
 
         foreach ($dangerousPatterns as $pattern) {
             if (preg_match($pattern, $code)) {
-                $validator->errors()->add($field, __('The :attribute contains potentially dangerous code.', ['attribute' => $field]));
+                $validator->errors()->add(
+                    $field,
+                    __('The :attribute contains potentially dangerous code.', ['attribute' => $field])
+                );
                 break;
             }
         }
@@ -212,11 +215,12 @@ class SettingsController extends Controller
             }
         }
 
-        // If maintenance_message is an array of localized strings, sanitize each
         if (isset($data['maintenance_message']) && is_array($data['maintenance_message'])) {
             foreach ($data['maintenance_message'] as $k => $v) {
                 if (is_string($v)) {
-                    $data['maintenance_message'][$k] = $sanitizer ? $sanitizer->clean($v) : htmlspecialchars(strip_tags($v), ENT_QUOTES, 'UTF-8');
+                    $data['maintenance_message'][$k] = $sanitizer
+                        ? $sanitizer->clean($v)
+                        : htmlspecialchars(strip_tags($v), ENT_QUOTES, 'UTF-8');
                 }
             }
         }

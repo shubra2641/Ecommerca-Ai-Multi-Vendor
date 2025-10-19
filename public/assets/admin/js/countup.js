@@ -2,10 +2,13 @@
 // Elements: add data-countup, data-target (number), optional: data-decimals, data-prefix, data-suffix, data-duration(ms)
 (function () {
     function formatNumber(value, decimals, locale, prefix, suffix) {
-        const opts = decimals > 0 ? { minimumFractionDigits: decimals, maximumFractionDigits: decimals } : { maximumFractionDigits: 0 };
+        const opts = decimals > 0 ? {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals
+        } : { maximumFractionDigits: 0 };
         try {
             return (prefix || '') + new Intl.NumberFormat(locale || 'en', opts).format(value) + (suffix || '');
-        } catch (e) {
+        } catch {
             return (prefix || '') + value.toFixed(decimals) + (suffix || '');
         }
     }
@@ -14,14 +17,19 @@
             return; // prevent double
         }
         const target = parseFloat(el.dataset.target || '0');
-        const decimals = parseInt(el.dataset.decimals || '0');
+        const decimals = parseInt(el.dataset.decimals || '0', 10);
         const prefix = el.dataset.prefix || '';
         const suffix = el.dataset.suffix || '';
-        const duration = parseInt(el.dataset.duration || '1200');
+        const duration = parseInt(el.dataset.duration || '1200', 10);
         const startTime = performance.now();
         const startVal = 0;
         const locale = document.documentElement.getAttribute('lang') || 'en';
-        const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // cubic in-out
+        const EASE_HALF = 0.5;
+        const EASE_MULTIPLIER = 4;
+        const EASE_POWER = 3;
+        const EASE_DIVISOR = 2;
+        const EASE_NEGATIVE_MULTIPLIER = -2;
+        const ease = t => t < EASE_HALF ? EASE_MULTIPLIER * t * t * t : 1 - Math.pow(EASE_NEGATIVE_MULTIPLIER * t + 2, EASE_POWER) / EASE_DIVISOR; // cubic in-out
         function step(now) {
             const p = Math.min(1, (now - startTime) / duration);
             const val = startVal + (target - startVal) * ease(p);
@@ -53,4 +61,4 @@
     } else {
         init();
     }
-})();
+}());

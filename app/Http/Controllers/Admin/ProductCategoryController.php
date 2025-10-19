@@ -219,7 +219,10 @@ class ProductCategoryController extends Controller
         $payload = [
             'model' => $model,
             'messages' => [
-                ['role' => 'system', 'content' => 'You are a helpful e-commerce taxonomy assistant. Output concise valid JSON only.'],
+                [
+                    'role' => 'system',
+                    'content' => 'You are a helpful e-commerce taxonomy assistant. Output concise valid JSON only.',
+                ],
                 ['role' => 'user', 'content' => $prompt],
             ],
             'temperature' => 0.6,
@@ -240,7 +243,9 @@ class ProductCategoryController extends Controller
                 'provider_status' => $providerStatus,
                 'provider_body' => $providerBody,
                 'provider_message' => data_get($providerBody, 'error.message'),
-                'retry_after' => $resp->header('Retry-After') ? (int) $resp->header('Retry-After') : null,
+                'retry_after' => $resp->header('Retry-After')
+                    ? (int) $resp->header('Retry-After')
+                    : null,
             ], $providerStatus);
         }
         $rawText = data_get($providerBody, 'choices.0.message.content');
@@ -280,7 +285,11 @@ class ProductCategoryController extends Controller
             }
         }
         if ($seoDescription === '' && $description !== '') {
-            $seoDescription = mb_substr(preg_replace('/\s+/', ' ', trim($description)), 0, 160);
+            $seoDescription = mb_substr(
+                preg_replace('/\s+/', ' ', trim($description)),
+                0,
+                160
+            );
         }
         $result = [
             'seo_description' => mb_substr($seoDescription, 0, 160),

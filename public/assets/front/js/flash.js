@@ -14,10 +14,22 @@
 
         initFlashMessages() {
             const flashElements = [
-                { id: 'flash-success', type: 'success' },
-                { id: 'flash-info', type: 'info' },
-                { id: 'flash-warning', type: 'warning' },
-                { id: 'flash-error', type: 'error' }
+                {
+                    id: 'flash-success',
+                    type: 'success'
+                },
+                {
+                    id: 'flash-info',
+                    type: 'info'
+                },
+                {
+                    id: 'flash-warning',
+                    type: 'warning'
+                },
+                {
+                    id: 'flash-error',
+                    type: 'error'
+                }
             ];
 
             flashElements.forEach(({ id, type }) => {
@@ -34,7 +46,7 @@
                 try {
                     const errors = JSON.parse(errorsEl.getAttribute('data-errors'));
                     errors.forEach(error => this.showToast(error, 'error'));
-                } catch (e) {
+                } catch {
                     // Silent fail for JSON parsing
                 }
                 errorsEl.remove();
@@ -72,9 +84,16 @@
         },
 
         animateToast(toast) {
+            const ANIMATION_DELAY = 50;
+            const FALLBACK_DELAY = 100;
             setTimeout(() => {
                 toast.classList.add('in');
-                toast.offsetHeight; // Force reflow
+                // Force reflow
+                const _ = toast.offsetHeight;
+                // Use the variable to avoid unused warning
+                if (_) {
+                    // Force reflow completed
+                }
 
                 // Fallback for visibility
                 setTimeout(() => {
@@ -82,15 +101,16 @@
                         toast.style.opacity = '1';
                         toast.style.transform = 'translateY(0)';
                     }
-                }, 100);
-            }, 50);
+                }, FALLBACK_DELAY);
+            }, ANIMATION_DELAY);
         },
 
         setupToastRemoval(toast) {
             // Auto remove after 5 seconds
+            const AUTO_REMOVE_DELAY = 5000;
             setTimeout(() => {
                 this.removeToast(toast);
-            }, 5000);
+            }, AUTO_REMOVE_DELAY);
 
             // Click to close
             toast.addEventListener('click', () => this.removeToast(toast));
@@ -98,16 +118,18 @@
 
         removeToast(toast) {
             toast.classList.add('out');
+            const REMOVAL_DELAY = 350;
             setTimeout(() => {
                 if (toast.parentNode) {
                     toast.parentNode.removeChild(toast);
                 }
-            }, 350);
+            }, REMOVAL_DELAY);
         }
     };
 
     function initFlash() {
-        setTimeout(() => FlashManager.init(), 100);
+        const INIT_DELAY = 100;
+        setTimeout(() => FlashManager.init(), INIT_DELAY);
     }
 
     if (document.readyState === 'loading') {
@@ -117,5 +139,4 @@
     }
 
     window.FlashManager = FlashManager;
-
-})();
+}());

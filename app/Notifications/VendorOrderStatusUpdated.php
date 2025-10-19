@@ -40,7 +40,10 @@ class VendorOrderStatusUpdated extends Notification implements ShouldQueue
         return [
             'type' => 'vendor_order_status_updated',
             'title' => __('Order update'),
-            'message' => __('Order #:id status changed to :status', ['id' => $this->order->id, 'status' => $this->status]),
+            'message' => __('Order #:id status changed to :status', [
+                'id' => $this->order->id,
+                'status' => $this->status
+            ]),
             'url' => route('vendor.orders.index'),
             'order_id' => $this->order->id,
             'status' => $this->status,

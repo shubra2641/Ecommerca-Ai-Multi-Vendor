@@ -32,7 +32,10 @@ class AdminProductInterestNotification extends Notification implements ShouldQue
         return [
             'type' => 'product_interest',
             'title' => __('Product interest'),
-            'message' => __(':who requested notify for :product', ['who' => $this->interest->email ?? 'Guest', 'product' => $this->interest->product?->name ?? '']),
+            'message' => __(':who requested notify for :product', [
+                'who' => $this->interest->email ?? 'Guest',
+                'product' => $this->interest->product?->name ?? ''
+            ]),
             'url' => route('admin.notify.index'),
             'icon' => 'bell',
         ];

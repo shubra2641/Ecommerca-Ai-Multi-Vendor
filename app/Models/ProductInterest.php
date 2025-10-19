@@ -10,7 +10,18 @@ class ProductInterest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'product_id', 'user_id', 'email', 'phone', 'type', 'status', 'notified_at', 'meta', 'ip_address', 'unsubscribe_token', 'unsubscribed_at', 'last_mail_at',
+        'product_id',
+        'user_id',
+        'email',
+        'phone',
+        'type',
+        'status',
+        'notified_at',
+        'meta',
+        'ip_address',
+        'unsubscribe_token',
+        'unsubscribed_at',
+        'last_mail_at',
     ];
 
     protected $casts = [

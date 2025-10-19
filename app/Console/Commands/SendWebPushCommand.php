@@ -7,7 +7,8 @@ use Illuminate\Console\Command;
 
 class SendWebPushCommand extends Command
 {
-    protected $signature = 'push:send {title : Notification title} {body : Notification body} {--data= : JSON payload extras}';
+    protected $signature = 'push:send {title : Notification title} {body : Notification body} '
+        . '{--data= : JSON payload extras}';
 
     protected $description = 'Broadcast a Web Push notification to all stored subscriptions';
 

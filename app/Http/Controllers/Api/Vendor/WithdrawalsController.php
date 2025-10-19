@@ -62,7 +62,10 @@ class WithdrawalsController extends Controller
             if (is_numeric($g)) {
                 $pg = \App\Models\PaymentGateway::find((int) $g);
                 if ($pg) {
-                    $gateways[] = ['slug' => $pg->slug ?? \Illuminate\Support\Str::slug($pg->name ?? (string) $pg->id), 'label' => $pg->name ?? $pg->slug];
+                    $gateways[] = [
+                        'slug' => $pg->slug ?? \Illuminate\Support\Str::slug($pg->name ?? (string) $pg->id),
+                        'label' => $pg->name ?? $pg->slug
+                    ];
 
                     continue;
                 }

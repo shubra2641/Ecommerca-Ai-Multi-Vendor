@@ -100,7 +100,11 @@ class ProductApprovalController extends Controller
             try {
                 if ($vendor) {
                     $fakeProduct = new Product(['id' => $productId, 'name' => $name]);
-                    $notification = new \App\Notifications\VendorProductStatusNotification($fakeProduct, 'rejected', __('Deleted by admin'));
+                    $notification = new \App\Notifications\VendorProductStatusNotification(
+                        $fakeProduct,
+                        'rejected',
+                        __('Deleted by admin')
+                    );
                     $vendor->notify($notification);
                 }
             } catch (\Throwable $e) {
@@ -115,7 +119,11 @@ class ProductApprovalController extends Controller
         // Notify vendor via in-app notification
         try {
             if ($product->vendor) {
-                $product->vendor->notify(new \App\Notifications\VendorProductStatusNotification($product, 'rejected', $reason));
+                $product->vendor->notify(new \App\Notifications\VendorProductStatusNotification(
+                    $product,
+                    'rejected',
+                    $reason
+                ));
             }
         } catch (\Throwable $e) {
             logger()->warning('Vendor product rejection notification failed: ' . $e->getMessage());

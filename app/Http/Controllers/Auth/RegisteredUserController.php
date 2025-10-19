@@ -57,12 +57,18 @@ class RegisteredUserController extends Controller
         // notify admins of any new registration (database + optional mail)
         if ($admins && $admins->count()) {
             // Send synchronously to ensure admin header receives DB notification immediately
-            \Illuminate\Support\Facades\Notification::sendNow($admins, new \App\Notifications\AdminUserRegisteredNotification($user));
+            \Illuminate\Support\Facades\Notification::sendNow(
+                $admins,
+                new \App\Notifications\AdminUserRegisteredNotification($user)
+            );
         }
 
         if ($user->role === 'vendor') {
             if ($admins && $admins->count()) {
-                \Illuminate\Support\Facades\Notification::sendNow($admins, new \App\Notifications\AdminVendorRegisteredNotification($user));
+                \Illuminate\Support\Facades\Notification::sendNow(
+                    $admins,
+                    new \App\Notifications\AdminVendorRegisteredNotification($user)
+                );
             }
             Notification::send($admins, new VendorApprovalNotification($user));
 
@@ -70,7 +76,9 @@ class RegisteredUserController extends Controller
             if (is_null($user->approved_at)) {
                 event(new Registered($user));
 
-                return redirect()->route('login')->with('status', 'Your vendor account is pending approval by an administrator. You will be notified once approved.')->with('refresh_admin_notifications', true);
+                return redirect()->route('login')
+                    ->with('status', 'Your vendor account is pending approval by an administrator. You will be notified once approved.')
+                    ->with('refresh_admin_notifications', true);
             }
         }
 

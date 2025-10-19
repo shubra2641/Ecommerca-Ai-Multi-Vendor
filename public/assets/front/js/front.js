@@ -46,11 +46,19 @@
                 return;
             }
             try {
-                const res = await fetch('/currency/switch', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }, body: JSON.stringify({ code }) });
+                const res = await fetch('/currency/switch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ code })
+                });
                 if (res.ok) {
                     location.reload();
                 }
             } catch (err) {
+                console.error('Error applying coupon:', err);
             }
         });
     }
@@ -90,13 +98,14 @@
             window.addEventListener('load', hideLoader);
 
             // Fallback: hide loader after 3 seconds maximum
-            setTimeout(hideLoader, 3000);
+            const LOADER_TIMEOUT = 3000;
+            setTimeout(hideLoader, LOADER_TIMEOUT);
         }
     }
 
     function initHeroSlider() {
         const slider = doc.querySelector('.hero-slider');
-        if (!slider) return;
+        if (!slider) { return; }
 
         const track = slider.querySelector('[data-hero-slider-track]');
         const prevBtn = slider.querySelector('[data-hero-prev]');
@@ -104,15 +113,15 @@
         const dots = slider.querySelector('[data-hero-dots]');
         const slides = slider.querySelectorAll('.hero-slide');
 
-        if (!track || slides.length <= 1) return;
+        if (!track || slides.length <= 1) { return; }
 
         let currentSlide = 0;
         const totalSlides = slides.length;
 
         // Show navigation
-        if (prevBtn) prevBtn.hidden = false;
-        if (nextBtn) nextBtn.hidden = false;
-        if (dots) dots.hidden = false;
+        if (prevBtn) { prevBtn.hidden = false; }
+        if (nextBtn) { nextBtn.hidden = false; }
+        if (dots) { dots.hidden = false; }
 
         // Create dots
         if (dots) {
@@ -151,14 +160,17 @@
         }
 
         // Event listeners
-        if (nextBtn) nextBtn.addEventListener('click', nextSlide);
-        if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+        if (nextBtn) { nextBtn.addEventListener('click', nextSlide); }
+        if (prevBtn) { prevBtn.addEventListener('click', prevSlide); }
 
         // Auto-play
-        let autoPlay = setInterval(nextSlide, 5000);
+        const AUTO_PLAY_INTERVAL = 5000;
+        let autoPlay = setInterval(nextSlide, AUTO_PLAY_INTERVAL);
 
         slider.addEventListener('mouseenter', () => clearInterval(autoPlay));
-        slider.addEventListener('mouseleave', () => autoPlay = setInterval(nextSlide, 5000));
+        slider.addEventListener('mouseleave', () => {
+            autoPlay = setInterval(nextSlide, AUTO_PLAY_INTERVAL);
+        });
     }
 
 
@@ -177,6 +189,6 @@
         initLoader();
         initHeroSlider();
     }
-})();
+}());
 
 

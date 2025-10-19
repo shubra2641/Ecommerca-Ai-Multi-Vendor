@@ -50,7 +50,10 @@ class UserOrderStatusUpdated extends Notification implements ShouldQueue
         return [
             'type' => 'order_status_updated',
             'title' => __('Order update'),
-            'message' => __('Order #:id status changed to :status', ['id' => $this->order->id, 'status' => $this->status]),
+            'message' => __('Order #:id status changed to :status', [
+                'id' => $this->order->id,
+                'status' => $this->status
+            ]),
             'url' => route('orders.show', $this->order->id),
             'icon' => 'truck',
             'order_id' => $this->order->id,

@@ -34,7 +34,9 @@ class NotifyPriceDropJob implements ShouldQueue
         }
         $chunkSize = (int) config('interest.mail_chunk', 100);
         $oldPrice = (float) ($product->last_sale_price ?? $product->last_price ?? 0);
-        $currentBase = $product->sale_price && $product->sale_price < $product->price ? (float) $product->sale_price : (float) $product->price;
+        $currentBase = $product->sale_price && $product->sale_price < $product->price
+            ? (float) $product->sale_price
+            : (float) $product->price;
         if ($oldPrice <= 0 || $currentBase <= 0 || $currentBase >= $oldPrice) {
             return;
         }
@@ -47,7 +49,12 @@ class NotifyPriceDropJob implements ShouldQueue
             ->chunk($chunkSize, function ($chunk) use ($oldPrice, $currentBase, $percent) {
                 foreach ($chunk as $interest) {
                     if (\App\Support\MailHelper::mailIsAvailable()) {
-                        Mail::to($interest->email)->queue(new ProductPriceDropNotification($interest, $oldPrice, $currentBase, $percent));
+                        Mail::to($interest->email)->queue(new ProductPriceDropNotification(
+                            $interest,
+                            $oldPrice,
+                            $currentBase,
+                            $percent
+                        ));
                     }
                     $interest->markNotified();
                 }

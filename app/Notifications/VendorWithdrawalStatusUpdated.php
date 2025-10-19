@@ -30,7 +30,10 @@ class VendorWithdrawalStatusUpdated extends Notification
         $payload = [
             'type' => 'vendor_withdrawal_status_updated',
             'title' => __('Withdrawal :status', ['status' => $this->status]),
-            'message' => __('Your withdrawal request #:id status changed to :status', ['id' => $this->withdrawal->id, 'status' => $this->status]),
+            'message' => __('Your withdrawal request #:id status changed to :status', [
+                'id' => $this->withdrawal->id,
+                'status' => $this->status
+            ]),
             'url' => route('vendor.withdrawals.index'),
             'withdrawal_id' => $this->withdrawal->id,
             'status' => $this->status,

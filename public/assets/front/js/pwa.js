@@ -2,6 +2,7 @@
  * Simple PWA Registration Script
  * Handles service worker registration and PWA features
  */
+/* global Notification */
 
 (function () {
     'use strict';
@@ -20,6 +21,7 @@
 
     // Check if we're in a secure context
     if (!window.isSecureContext && location.hostname !== 'localhost') {
+        console.warn('PWA requires HTTPS in production');
     }
 
     // Initialize PWA when DOM is ready
@@ -30,7 +32,6 @@
     }
 
     function initPWA() {
-
         // Register service worker
         registerServiceWorker();
 
@@ -66,17 +67,18 @@
 
             // Listen for messages from service worker
             navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
-
         } catch (error) {
+            console.error('Failed to register service worker:', error);
         }
     }
 
     // Handle service worker messages
     function handleServiceWorkerMessage(event) {
-        const { type, message } = event.data || {};
+        const { type } = event.data || {};
 
         switch (type) {
             case 'CACHE_UPDATED':
+                // Handle cache update if needed
                 break;
             case 'OFFLINE_ACTION_QUEUED':
                 break;
@@ -94,6 +96,8 @@
                 // Sync any offline data
                 syncOfflineData();
             } else {
+                // Handle offline state
+                console.log('App is offline');
             }
         }
 
@@ -110,7 +114,6 @@
         let deferredPrompt;
 
         window.addEventListener('beforeinstallprompt', (event) => {
-
             // Prevent the mini-infobar from appearing on mobile
             event.preventDefault();
 
@@ -164,7 +167,9 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
+                console.log('Install prompt outcome:', outcome);
+                // Clear the deferred prompt
+                window.deferredPrompt = null;
                 hideInstallButton();
             }
         });
@@ -183,6 +188,7 @@
         // Request notification permission
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission().then(permission => {
+                console.log('Notification permission:', permission);
             });
         }
     }
@@ -220,13 +226,14 @@
     }
 
     // Sync offline data
-    async function syncOfflineData() {
+    function syncOfflineData() {
         try {
             // Send message to service worker to sync offline data
             if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
                 navigator.serviceWorker.controller.postMessage({ type: 'SYNC_OFFLINE_DATA' });
             }
         } catch (error) {
+            console.error('Failed to sync offline data:', error);
         }
     }
 
@@ -243,5 +250,4 @@
         showInstallButton,
         hideInstallButton
     };
-
-})();
+}());

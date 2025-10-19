@@ -12,7 +12,11 @@ class ProductsController extends Controller
 {
     public function index(Request $r)
     {
-        $products = $r->user()->products()->with('category')->withCount('variations')->orderByDesc('created_at')->paginate(20);
+        $products = $r->user()->products()
+            ->with('category')
+            ->withCount('variations')
+            ->orderByDesc('created_at')
+            ->paginate(20);
 
         return \App\Http\Resources\ProductResource::collection($products)->response()->getData(true);
     }

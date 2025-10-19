@@ -1,5 +1,808 @@
-﻿/* Admin JavaScript - Security Hardened v2.0
- * Zero XSS vulnerabilities - Zero complexity issues
- * All user data handled via textContent, not innerHTML
+﻿/* Admin JavaScript - Consolidated JS for Admin Panel
+ * This file contains all JavaScript functionality for the admin interface
+ * Following rules: Progressive enhancement, no inline JS, unified structure
  */
-(function (w, d) { "use strict"; w.AdminPanel = w.AdminPanel || {}; const DOM = { c: function (t, x, c) { const e = d.createElement(t); if (c) e.className = c; if (x) e.textContent = x; return e }, cl: function (e) { if (e) e.textContent = "" } }; AdminPanel.init = function () { this.initSidebar(); this.initTables(); this.initForms(); this.initModals(); this.initUserBalance(); this.initConfirmations(); this.initNotifications(); this.initSidebarSubmenus() }; AdminPanel.initSidebar = function () { const s = d.querySelector(".admin-sidebar,.modern-sidebar,.vendor-sidebar,#sidebar"); const t = Array.from(d.querySelectorAll(".sidebar-toggle,.mobile-menu-toggle")); let o = d.querySelector(".sidebar-overlay"); if (!o && s && s.parentNode) { o = DOM.c("div", "", "sidebar-overlay"); s.parentNode.insertBefore(o, s.nextSibling) } function tog(e) { if (e) e.preventDefault(); if (!s) return; s.classList.toggle("active"); if (o) o.classList.toggle("active") } t.forEach(function (x) { x.addEventListener("click", tog) }); if (o) { o.addEventListener("click", function () { if (s) { s.classList.remove("active"); o.classList.remove("active") } }) } d.addEventListener("click", function (e) { if (!s) return; const n = e.target.closest(".sidebar-nav a,.nav-item"); if (n && w.innerWidth <= 992 && s.classList.contains("active")) { s.classList.remove("active"); if (o) o.classList.remove("active") } }) }; AdminPanel.initTables = function () { d.querySelectorAll(".admin-table").forEach(function (t) { t.querySelectorAll("th[data-sortable]").forEach(function (h) { h.style.cursor = "pointer"; h.addEventListener("click", function () { AdminPanel.sortTable(t, h) }) }); const c = t.querySelectorAll("input[type=checkbox]"); if (c.length > 0) AdminPanel.initTableSelection(t) }) }; AdminPanel.sortTable = function (t, h) { const i = Array.from(h.parentNode.children).indexOf(h); const r = Array.from(t.querySelectorAll("tbody tr")); const a = !h.classList.contains("sort-asc"); r.sort(function (x, y) { const xt = x.children[i].textContent.trim(); const yt = y.children[i].textContent.trim(); return a ? xt.localeCompare(yt, void 0, { numeric: true }) : yt.localeCompare(xt, void 0, { numeric: true }) }); t.querySelectorAll("th").forEach(function (x) { x.classList.remove("sort-asc", "sort-desc") }); h.classList.add(a ? "sort-asc" : "sort-desc"); const b = t.querySelector("tbody"); r.forEach(function (x) { b.appendChild(x) }) }; AdminPanel.initTableSelection = function (t) { const a = t.querySelector("thead input[type=checkbox]"); const r = t.querySelectorAll("tbody input[type=checkbox]"); if (a) { a.addEventListener("change", function () { r.forEach(function (c) { c.checked = a.checked; AdminPanel.updateRowSelection(c) }) }) } r.forEach(function (c) { c.addEventListener("change", function () { AdminPanel.updateRowSelection(c); AdminPanel.updateSelectAll(t) }) }) }; AdminPanel.updateRowSelection = function (c) { const r = c.closest("tr"); if (r) r.classList.toggle("selected", c.checked) }; AdminPanel.updateSelectAll = function (t) { const a = t.querySelector("thead input[type=checkbox]"); const r = t.querySelectorAll("tbody input[type=checkbox]"); const ch = t.querySelectorAll("tbody input[type=checkbox]:checked"); if (a && r.length > 0) { a.checked = ch.length === r.length; a.indeterminate = ch.length > 0 && ch.length < r.length } }; AdminPanel.initForms = function () { d.querySelectorAll(".admin-form").forEach(function (f) { f.addEventListener("submit", function (e) { if (!AdminPanel.validateForm(f)) e.preventDefault() }); if (f.hasAttribute("data-auto-save")) AdminPanel.initAutoSave(f) }) }; AdminPanel.validateForm = function (f) { let v = true; f.querySelectorAll("[required]").forEach(function (x) { if (!(x.value || "").trim()) { AdminPanel.showFieldError(x, "Required"); v = false } else { AdminPanel.clearFieldError(x) } }); return v }; AdminPanel.showFieldError = function (f, m) { AdminPanel.clearFieldError(f); const e = DOM.c("div", m, "field-error"); f.classList.add("error"); if (f.parentNode) f.parentNode.appendChild(e) }; AdminPanel.clearFieldError = function (f) { f.classList.remove("error"); if (f.parentNode) { const e = f.parentNode.querySelector(".field-error"); if (e) e.remove() } }; AdminPanel.initModals = function () { d.querySelectorAll("[data-modal]").forEach(function (t) { t.addEventListener("click", function (e) { e.preventDefault(); AdminPanel.openModal(t.getAttribute("data-modal")) }) }); d.addEventListener("click", function (e) { if (e.target.classList.contains("modal-overlay") || e.target.classList.contains("modal-close")) { AdminPanel.closeModal() } }); d.addEventListener("keydown", function (e) { if (e.key === "Escape") AdminPanel.closeModal() }) }; AdminPanel.openModal = function (i) { const m = d.getElementById(i); if (m) { m.classList.add("active"); d.body.classList.add("modal-open") } }; AdminPanel.closeModal = function () { const m = d.querySelector(".modal.active"); if (m) { m.classList.remove("active"); d.body.classList.remove("modal-open") } }; AdminPanel.initNotifications = function () { d.querySelectorAll(".notification").forEach(function (n) { if (n.hasAttribute("data-auto-hide")) { w.setTimeout(function () { AdminPanel.hideNotification(n) }, 5e3) } }); d.addEventListener("click", function (e) { if (e.target.classList.contains("notification-close")) { const n = e.target.closest(".notification"); if (n) AdminPanel.hideNotification(n) } }) }; AdminPanel.initUserBalance = function () { const tp = d.getElementById("user-balance-config"); if (!tp) return; let cfg = {}; try { cfg = JSON.parse(tp.textContent || "{}") } catch (e) { return } const u = cfg.urls || {}; const c = cfg.currency || { code: "USD", symbol: "$" }; function fmt(v) { try { return new w.Intl.NumberFormat(d.documentElement.lang || "en", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(v || 0)) + " " + (c.symbol || "$") } catch (e) { return parseFloat(v || 0).toFixed(2) + " " + (c.symbol || "$") } } async function ref() { if (!u.stats) return; try { const r = await w.fetch(u.stats, { headers: { "X-Requested-With": "XMLHttpRequest" } }); if (!r.ok) throw new Error("Fail"); const dt = await r.json(); d.querySelectorAll("[data-countup][data-target]").forEach(function (e) { const k = e.getAttribute("data-stat") || e.getAttribute("data-key"); if (k && Object.prototype.hasOwnProperty.call(dt, k)) { e.textContent = fmt(dt[k]); e.dataset.target = String(Number(dt[k])); delete e.dataset.counted } });["total_added", "total_deducted", "net_balance_change", "balance"].forEach(function (k) { const s = d.querySelector('[data-stat="' + k + '"]'); if (s && Object.prototype.hasOwnProperty.call(dt, k)) s.textContent = fmt(dt[k]) }); AdminPanel.showNotification((cfg.i18n && cfg.i18n.balance_refreshed) || "Refreshed", "success") } catch (e) { AdminPanel.showNotification((cfg.i18n && cfg.i18n.error_refresh) || "Failed", "danger") } } d.querySelectorAll(".btn-refresh-balance").forEach(function (b) { b.addEventListener("click", function (e) { e.preventDefault(); ref() }) }); d.querySelectorAll(".btn-add-balance").forEach(function (b) { b.addEventListener("click", function (e) { e.preventDefault(); AdminPanel.openModal("addBalanceModal") }) }); d.querySelectorAll(".btn-deduct-balance").forEach(function (b) { b.addEventListener("click", function (e) { e.preventDefault(); AdminPanel.openModal("deductBalanceModal") }) }); d.querySelectorAll(".btn-view-history").forEach(function (b) { b.addEventListener("click", async function (e) { e.preventDefault(); AdminPanel.openModal("balanceHistoryModal"); const ct = d.getElementById("balanceHistoryContainer"); if (!ct || !u.history) return; DOM.cl(ct); const ld = DOM.c("div", "", "text-center p-4"); const sp = DOM.c("div", "", "loading-spinner mx-auto"); const tx = DOM.c("p", (cfg.i18n && cfg.i18n.loading_history) || "Loading...", "mt-2"); ld.appendChild(sp); ld.appendChild(tx); ct.appendChild(ld); try { const r = await w.fetch(u.history, { headers: { "X-Requested-With": "XMLHttpRequest" } }); if (!r.ok) throw new Error("Fail"); const h = await r.text(); DOM.cl(ct); if (h && h.trim()) { const wrapper = d.createElement("div"); wrapper.innerHTML = h; ct.appendChild(wrapper) } else { ct.appendChild(DOM.c("div", (cfg.i18n && cfg.i18n.no_history_desc) || "No transactions", "empty-state text-center p-4")) } } catch (e) { DOM.cl(ct); ct.appendChild(DOM.c("div", (cfg.i18n && cfg.i18n.error_history) || "Failed", "alert alert-danger")) } }) }); function wire(fi, uk, smk) { const f = d.getElementById(fi); if (!f) return; f.addEventListener("submit", async function (e) { e.preventDefault(); const bt = f.querySelector("button[type=submit]"); if (bt) bt.disabled = true; const fd = new w.FormData(f); const ur = u[uk]; try { const mt = d.querySelector("meta[name=csrf-token]"); const cs = mt ? mt.getAttribute("content") : ""; const r = await w.fetch(ur, { method: "POST", body: fd, headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRF-TOKEN": cs } }); const j = await r.json(); if (r.ok) { AdminPanel.showNotification((cfg.i18n && cfg.i18n[smk]) || "Success", "success"); AdminPanel.closeModal(); ref() } else { AdminPanel.showNotification(j.message || (cfg.i18n && cfg.i18n.error_server) || "Error", "danger") } } catch (e) { AdminPanel.showNotification((cfg.i18n && cfg.i18n.error_server) || "Error", "danger") } finally { if (bt) bt.disabled = false } }) } wire("addBalanceForm", "add", "balance_added"); wire("deductBalanceForm", "deduct", "balance_deducted"); w.setTimeout(ref, 400) }; AdminPanel.initConfirmations = function () { d.querySelectorAll("form.js-confirm,form.js-confirm-delete").forEach(function (f) { f.addEventListener("submit", function (e) { const m = f.dataset.confirm || f.getAttribute("data-confirm") || "Are you sure?"; if (!w.confirm(m)) e.preventDefault() }) }); d.querySelectorAll("[data-confirm]").forEach(function (el) { el.addEventListener("click", function (e) { const m = el.getAttribute("data-confirm"); if (m && !w.confirm(m)) e.preventDefault() }) }) }; AdminPanel.hideNotification = function (n) { if (n) { n.style.opacity = "0"; w.setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n) }, 300) } }; AdminPanel.showNotification = function (msg, ty) { ty = ty || "info"; const n = DOM.c("div", "", "notification notification-" + ty); const ct = DOM.c("div", "", "notification-content"); const ms = DOM.c("div", msg, "notification-message"); const bt = DOM.c("button", "×", "notification-close"); bt.type = "button"; bt.setAttribute("aria-label", "Close"); ct.appendChild(ms); ct.appendChild(bt); n.appendChild(ct); let c = d.querySelector(".notification-container"); if (!c) { c = DOM.c("div", "", "notification-container"); d.body.appendChild(c) } c.appendChild(n); const au = w.setTimeout(function () { AdminPanel.hideNotification(n) }, 5e3); bt.addEventListener("click", function () { w.clearTimeout(au); AdminPanel.hideNotification(n) }) }; AdminPanel.initAutoSave = function (f) { const fi = f.querySelectorAll("input,textarea,select"); let ti; fi.forEach(function (x) { x.addEventListener("input", function () { w.clearTimeout(ti); ti = w.setTimeout(function () { AdminPanel.autoSave(f) }, 2e3) }) }) }; AdminPanel.autoSave = function (f) { const fd = new w.FormData(f); const ur = f.getAttribute("data-auto-save-url"); if (!ur) return; const mt = d.querySelector("meta[name=csrf-token]"); const cs = mt ? mt.getAttribute("content") : ""; w.fetch(ur, { method: "POST", body: fd, headers: { "X-CSRF-TOKEN": cs } }).then(function (r) { if (r.ok) AdminPanel.showNotification("Saved", "success") }).catch(function () { }) }; AdminPanel.initSidebarSubmenus = function () { d.querySelectorAll(".nav-item.dropdown-toggle").forEach(function (el) { try { el.removeAttribute("data-bs-toggle") } catch (e) { } const p = el.closest(".nav-dropdown"); el.setAttribute("aria-expanded", (p && p.classList.contains("show")) ? "true" : "false") }); d.addEventListener("click", function (e) { const tg = e.target.closest(".nav-item.dropdown-toggle"); if (!tg) return; e.preventDefault(); e.stopPropagation(); const pr = tg.closest(".nav-dropdown"); if (!pr) return; const op = !pr.classList.contains("show"); d.querySelectorAll(".nav-dropdown.show").forEach(function (o) { if (o !== pr) { o.classList.remove("show"); const t = o.querySelector(".nav-item.dropdown-toggle"); if (t) t.setAttribute("aria-expanded", "false") } }); if (op) { pr.classList.add("show"); tg.setAttribute("aria-expanded", "true") } else { pr.classList.remove("show"); tg.setAttribute("aria-expanded", "false") } }); d.addEventListener("click", function (e) { if (!e.target.closest(".modern-sidebar") && !e.target.closest(".admin-sidebar")) { d.querySelectorAll(".nav-dropdown.show").forEach(function (o) { o.classList.remove("show"); const t = o.querySelector(".nav-item.dropdown-toggle"); if (t) t.setAttribute("aria-expanded", "false") }) } }, true) }; function init() { if (typeof AdminPanel.init === "function") AdminPanel.init() } if (d.readyState === "loading") { d.addEventListener("DOMContentLoaded", init) } else { init() } (function () { function initL() { const bg = d.getElementById("adminNotificationBadge"); const mn = d.getElementById("adminNotificationsMenu"); const ph = d.getElementById("adminNotificationsPlaceholder"); if (!bg || !mn || !ph) return; function showB(cn) { if (cn > 0) { bg.textContent = cn > 99 ? "99+" : String(cn); bg.style.display = "inline-block"; bg.classList.remove("envato-hidden") } else { bg.textContent = ""; bg.style.display = "none" } } const bs = (function () { const el = d.querySelector("body") || d.documentElement; let b = (el && el.getAttribute) ? (el.getAttribute("data-admin-base") || "") : ""; b = b.replace(/\/$/, ""); if (!b) { try { const loc = w.location; const idx = loc.pathname.indexOf("/admin"); const pre = idx !== -1 ? loc.pathname.slice(0, idx) : ""; b = loc.origin + pre } catch (e) { b = "" } } return b })(); async function pref() { try { const r = await w.fetch(bs + "/admin/notifications/unread-count", { credentials: "same-origin" }); if (!r.ok) return; const j = await r.json(); if (j && typeof j.unread === "number") showB(j.unread) } catch (e) { } } async function load() { try { const r = await w.fetch(bs + "/admin/notifications/latest", { credentials: "same-origin" }); if (!r.ok) { DOM.cl(ph); ph.appendChild(DOM.c("div", "Could not load (" + r.status + ")", "px-3 py-2 text-muted")); return } let j; try { j = await r.json() } catch (e) { DOM.cl(ph); ph.appendChild(DOM.c("div", "Parse error", "px-3 py-2 text-muted")); return } if (!j.ok) { DOM.cl(ph); ph.appendChild(DOM.c("div", "No notifications", "px-3 py-2 text-muted")); return } const it = j.notifications || []; const un = j.unread || it.filter(function (i) { return !i.read_at }).length || 0; showB(un); if (it.length === 0) { DOM.cl(ph); const tf = (w.__t && typeof w.__t === "function") ? w.__t : function (x) { return x }; ph.appendChild(DOM.c("div", tf("No notifications"), "px-3 py-2 text-muted")); return } DOM.cl(ph); it.forEach(function (n) { const a = DOM.c("a", "", "dropdown-item d-flex align-items-start"); a.href = (n.data && n.data.url) || "#"; a.dataset.notificationId = n.id; const ic = DOM.c("div", "", "me-2"); const icn = DOM.c("i", "", "fas fa-" + ((n.data && n.data.icon) || "bell") + " fa-lg text-primary"); ic.appendChild(icn); const bd = DOM.c("div", "", ""); bd.style.flex = "1"; function hum(t) { if (!t) return ""; return t.replace(/_/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase() }) } const tf = (w.__t && typeof w.__t === "function") ? w.__t : function (x) { return x }; const ttl = (n.data && n.data.title) || tf((n.data && n.data.type) || "") || hum((n.data && n.data.type) || "") || "Notification"; const tit = DOM.c("div", ttl, "fw-semibold"); const sub = (n.data && (n.data.message || n.data.text)) || ""; const subt = DOM.c("div", sub, "small text-muted"); const ts = DOM.c("div", n.created_at || "", "small text-muted ms-2"); bd.appendChild(tit); bd.appendChild(subt); a.appendChild(ic); a.appendChild(bd); a.appendChild(ts); a.addEventListener("click", async function (ev) { ev.preventDefault(); const id = this.dataset.notificationId; let ok = false; let mg = ""; try { const mt = d.querySelector("meta[name=csrf-token]"); const cs = mt ? mt.getAttribute("content") : ""; const r = await w.fetch(bs + "/admin/notifications/" + encodeURIComponent(id) + "/read", { method: "POST", credentials: "same-origin", headers: { "X-CSRF-TOKEN": cs, Accept: "application/json" } }); const j = await r.json(); ok = j.ok || r.ok; const tff = (w.__t && typeof w.__t === "function") ? w.__t : function (x) { return x }; mg = j.message || (ok ? tff("Marked read") : (j.error || tff("Failed"))) } catch (e) { const tff = (w.__t && typeof w.__t === "function") ? w.__t : function (x) { return x }; mg = tff("Network error") } if (w.AdminPanel && typeof w.AdminPanel.showNotification === "function") { w.AdminPanel.showNotification(mg, ok ? "success" : "error") } else if (w.alert) { w.alert(mg) } try { if (!this.classList.contains("text-muted")) this.classList.add("text-muted"); const cu = parseInt((bg.textContent || "0").replace("+", ""), 10) || 0; showB(Math.max(0, cu - 1)) } catch (e) { } load().catch(function () { }); const u = this.getAttribute("href"); if (u && u !== "#") w.location.href = u }); ph.appendChild(a) }) } catch (e) { DOM.cl(ph); ph.appendChild(DOM.c("div", "Could not load", "px-3 py-2 text-muted")) } } w.refreshAdminNotifications = load; const ma = d.getElementById("adminMarkAllReadBtn"); if (ma) { ma.addEventListener("click", async function (ev) { ev.preventDefault(); try { const mt = d.querySelector("meta[name=csrf-token]"); const cs = mt ? mt.getAttribute("content") : ""; const r = await w.fetch(bs + "/admin/notifications/mark-all-read", { method: "POST", credentials: "same-origin", headers: { "X-CSRF-TOKEN": cs } }); const j = await r.json(); const tf = (w.__t && typeof w.__t === "function") ? w.__t : function (x) { return x }; if (j.ok || r.ok) { if (w.AdminPanel && w.AdminPanel.showNotification) { w.AdminPanel.showNotification(tf("All marked read"), "success") } showB(0); load().catch(function () { }) } else { if (w.AdminPanel && w.AdminPanel.showNotification) { w.AdminPanel.showNotification(j.message || tf("Failed"), "error") } } } catch (e) { const tf = (w.__t && typeof w.__t === "function") ? w.__t : function (x) { return x }; if (w.AdminPanel && w.AdminPanel.showNotification) { w.AdminPanel.showNotification(tf("Network error"), "error") } } }) } pref().finally(load) } if (d.readyState === "loading") { d.addEventListener("DOMContentLoaded", initL) } else { initL() } })() })(window, document);
+/* global AdminPanel */
+
+(function () {
+    'use strict';
+
+    // Admin namespace
+    window.AdminPanel = window.AdminPanel || {};
+
+    // Initialize admin functionality
+    AdminPanel.init = function () {
+        this.initSidebar();
+        this.initTables();
+        this.initForms();
+        this.initModals();
+        this.initUserBalance();
+        this.initConfirmations();
+        this.initNotifications();
+    };
+
+    // Sidebar functionality
+    AdminPanel.initSidebar = function () {
+        // Find sidebar element across admin/vendor layouts
+        const sidebar = document.querySelector('.admin-sidebar, .modern-sidebar, .vendor-sidebar, #sidebar');
+        // Support multiple toggles (desktop compact, mobile toggle)
+        const toggles = Array.from(document.querySelectorAll('.sidebar-toggle, .mobile-menu-toggle'));
+        let overlay = document.querySelector('.sidebar-overlay');
+
+        // If overlay missing, create one and append after sidebar to keep markup consistent
+        if (!overlay && sidebar && sidebar.parentNode) {
+            overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            sidebar.parentNode.insertBefore(overlay, sidebar.nextSibling);
+        }
+
+        // toggle handler
+        function toggleSidebar(e) {
+            if (e) {
+                e.preventDefault();
+            }
+            if (!sidebar) { return; }
+            sidebar.classList.toggle('active');
+            if (overlay) { overlay.classList.toggle('active'); }
+        }
+
+        // attach to all toggles
+        toggles.forEach((t) => {
+            t.addEventListener('click', toggleSidebar);
+        });
+
+        // Close sidebar when clicking overlay
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                if (!sidebar) { return; }
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        }
+
+        // Close sidebar when clicking a nav item on small screens
+        document.addEventListener('click', (e) => {
+            if (!sidebar) { return; }
+            const navItem = e.target.closest('.sidebar-nav a, .nav-item');
+            if (!navItem) { return; }
+            // only auto-close for narrower viewports where sidebar overlays content
+            const MOBILE_BREAKPOINT = 992;
+            if (window.innerWidth <= MOBILE_BREAKPOINT && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                if (overlay) { overlay.classList.remove('active'); }
+            }
+        });
+    };
+
+    // Enhanced table functionality
+    AdminPanel.initTables = function () {
+        const tables = document.querySelectorAll('.admin-table');
+
+        tables.forEach((table) => {
+            // Add sorting functionality
+            const headers = table.querySelectorAll('th[data-sortable]');
+            headers.forEach((header) => {
+                header.style.cursor = 'pointer';
+                header.addEventListener('click', () => {
+                    AdminPanel.sortTable(table, header);
+                });
+            });
+
+            // Add row selection
+            const checkboxes = table.querySelectorAll('input[type="checkbox"]');
+            if (checkboxes.length > 0) {
+                AdminPanel.initTableSelection(table);
+            }
+        });
+    };
+
+    // Table sorting
+    AdminPanel.sortTable = function (table, header) {
+        const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+        const rows = Array.from(table.querySelectorAll('tbody tr'));
+        const isAscending = !header.classList.contains('sort-asc');
+
+        rows.sort((a, b) => {
+            const aText = a.children[columnIndex].textContent.trim();
+            const bText = b.children[columnIndex].textContent.trim();
+
+            if (isAscending) {
+                return aText.localeCompare(bText);
+            }
+            return bText.localeCompare(aText);
+        });
+
+        // Remove existing sort classes
+        table.querySelectorAll('th').forEach((th) => {
+            th.classList.remove('sort-asc', 'sort-desc');
+        });
+
+        // Add sort class to current header
+        header.classList.add(isAscending ? 'sort-asc' : 'sort-desc');
+
+        // Reorder rows
+        const tbody = table.querySelector('tbody');
+        rows.forEach((row) => {
+            tbody.appendChild(row);
+        });
+    };
+
+    // Table selection functionality
+    AdminPanel.initTableSelection = function (table) {
+        const selectAll = table.querySelector('thead input[type="checkbox"]');
+        const rowCheckboxes = table.querySelectorAll('tbody input[type="checkbox"]');
+
+        if (selectAll) {
+            selectAll.addEventListener('change', () => {
+                rowCheckboxes.forEach((checkbox) => {
+                    checkbox.checked = selectAll.checked;
+                    AdminPanel.updateRowSelection(checkbox);
+                });
+            });
+        }
+
+        rowCheckboxes.forEach((checkbox) => {
+            checkbox.addEventListener('change', () => {
+                AdminPanel.updateRowSelection(checkbox);
+                AdminPanel.updateSelectAll(table);
+            });
+        });
+    };
+
+    // Update row selection visual state
+    AdminPanel.updateRowSelection = function (checkbox) {
+        const row = checkbox.closest('tr');
+        if (checkbox.checked) {
+            row.classList.add('selected');
+        } else {
+            row.classList.remove('selected');
+        }
+    };
+
+    // Update select all checkbox state
+    AdminPanel.updateSelectAll = function (table) {
+        const selectAll = table.querySelector('thead input[type="checkbox"]');
+        const rowCheckboxes = table.querySelectorAll('tbody input[type="checkbox"]');
+        const checkedBoxes = table.querySelectorAll('tbody input[type="checkbox"]:checked');
+
+        if (selectAll) {
+            selectAll.checked = checkedBoxes.length === rowCheckboxes.length;
+            selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < rowCheckboxes.length;
+        }
+    };
+
+    // Form enhancements
+    AdminPanel.initForms = function () {
+        const forms = document.querySelectorAll('.admin-form');
+
+        forms.forEach((form) => {
+            // Add form validation
+            form.addEventListener('submit', (e) => {
+                if (!AdminPanel.validateForm(form)) {
+                    e.preventDefault();
+                }
+            });
+
+            // Auto-save functionality
+            if (form.hasAttribute('data-auto-save')) {
+                AdminPanel.initAutoSave(form);
+            }
+        });
+    };
+
+    // Form validation
+    AdminPanel.validateForm = function (form) {
+        let isValid = true;
+        const requiredFields = form.querySelectorAll('[required]');
+
+        requiredFields.forEach((field) => {
+            if (!field.value.trim()) {
+                AdminPanel.showFieldError(field, 'This field is required');
+                isValid = false;
+            } else {
+                AdminPanel.clearFieldError(field);
+            }
+        });
+
+        return isValid;
+    };
+
+    // Show field error
+    AdminPanel.showFieldError = function (field, message) {
+        AdminPanel.clearFieldError(field);
+
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error';
+        errorDiv.textContent = message;
+
+        field.classList.add('error');
+        field.parentNode.appendChild(errorDiv);
+    };
+
+    // Clear field error
+    AdminPanel.clearFieldError = function (field) {
+        field.classList.remove('error');
+        const existingError = field.parentNode.querySelector('.field-error');
+        if (existingError) {
+            existingError.remove();
+        }
+    };
+
+    // Modal functionality
+    AdminPanel.initModals = function () {
+        const modalTriggers = document.querySelectorAll('[data-modal]');
+
+        modalTriggers.forEach((trigger) => {
+            trigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                const modalId = trigger.getAttribute('data-modal');
+                AdminPanel.openModal(modalId);
+            });
+        });
+
+        // Close modal functionality
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
+                AdminPanel.closeModal();
+            }
+        });
+
+        // Escape key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                AdminPanel.closeModal();
+            }
+        });
+    };
+
+    // Open modal
+    AdminPanel.openModal = function (modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+    };
+
+    // Close modal
+    AdminPanel.closeModal = function () {
+        const activeModal = document.querySelector('.modal.active');
+        if (activeModal) {
+            activeModal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+    };
+
+    // Notification system
+    AdminPanel.initNotifications = function () {
+        // Auto-hide notifications
+        const notifications = document.querySelectorAll('.notification');
+        notifications.forEach((notification) => {
+            if (notification.hasAttribute('data-auto-hide')) {
+                setTimeout(() => {
+                    AdminPanel.hideNotification(notification);
+                }, 5000);
+            }
+        });
+
+        // Close notification buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('notification-close')) {
+                const notification = e.target.closest('.notification');
+                AdminPanel.hideNotification(notification);
+            }
+        });
+    };
+
+    // User Balance page adapter
+    AdminPanel.initUserBalance = function () {
+        // Look for the config template inserted by the Blade view
+        const tpl = document.getElementById('user-balance-config');
+        if (!tpl) { return; } // not present on this page
+
+        let cfg = {};
+        try {
+            cfg = JSON.parse(tpl.textContent || tpl.innerText || '{}');
+        } catch (e) {
+            console.error('user-balance-config JSON parse error', e);
+            return;
+        }
+
+        const urls = (cfg.urls) ? cfg.urls : {};
+        const currency = (cfg.currency) ? cfg.currency : {
+            code: 'USD',
+            symbol: '$'
+        };
+
+        function fmtAmount(v) {
+            try {
+                return new Intl.NumberFormat(document.documentElement.lang || 'en', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(parseFloat(v || 0)) + ' ' + (currency.symbol || '$');
+            } catch (err) {
+                return (parseFloat(v || 0).toFixed(2) + ' ' + (currency.symbol || '$'));
+            }
+        }
+
+        // Refresh stats from server and update DOM
+        async function refreshStats() {
+            if (!urls.stats) { return; }
+            try {
+                const res = await fetch(urls.stats, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                if (!res.ok) { throw new Error('Network response not ok'); }
+                const data = await res.json();
+
+                // Update balance display
+                const balanceEls = document.querySelectorAll('[data-countup][data-target]');
+                balanceEls.forEach((el) => {
+                    const key = el.getAttribute('data-stat') || el.getAttribute('data-key');
+                    if (key && Object.prototype.hasOwnProperty.call(data, key)) {
+                        el.textContent = fmtAmount(data[key]);
+                        // update dataset target for potential CountUp observers
+                        el.dataset.target = Number(data[key]);
+                        delete el.dataset.counted; // allow re-animate if CountUp observes again
+                    }
+                });
+
+                // Fallback: update elements with specific data-stat attributes
+                ['total_added', 'total_deducted', 'net_balance_change', 'balance'].forEach((k) => {
+                    const sel = document.querySelector('[data-stat="' + k + '"]');
+                    if (sel && Object.prototype.hasOwnProperty.call(data, k)) {
+                        sel.textContent = fmtAmount(data[k]);
+                    }
+                });
+
+                AdminPanel.showNotification(cfg.i18n && cfg.i18n.balance_refreshed ? cfg.i18n.balance_refreshed : 'Data refreshed', 'success');
+            } catch (err) {
+                // console.error('Failed to refresh balance stats', err);
+                AdminPanel.showNotification(cfg.i18n && cfg.i18n.error_refresh ? cfg.i18n.error_refresh : 'Failed to refresh', 'danger');
+            }
+        }
+
+        // Wire refresh buttons
+        document.querySelectorAll('.btn-refresh-balance').forEach((btn) => {
+            btn.addEventListener('click', (e) => { e.preventDefault(); refreshStats(); });
+        });
+
+        // Open modals for add / deduct
+        document.querySelectorAll('.btn-add-balance').forEach((btn) => {
+            btn.addEventListener('click', (e) => { e.preventDefault(); AdminPanel.openModal('addBalanceModal'); });
+        });
+        document.querySelectorAll('.btn-deduct-balance').forEach((btn) => {
+            btn.addEventListener('click', (e) => { e.preventDefault(); AdminPanel.openModal('deductBalanceModal'); });
+        });
+
+        // View history
+        document.querySelectorAll('.btn-view-history').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                AdminPanel.openModal('balanceHistoryModal');
+                const container = document.getElementById('balanceHistoryContainer');
+                if (!container || !urls.history) { return; }
+                // show loading
+                container.innerHTML = '<div class="text-center p-4"><div class="loading-spinner mx-auto"></div><p class="mt-2">' + (cfg.i18n && cfg.i18n.loading_history ? cfg.i18n.loading_history : 'Loading history...') + '</p></div>';
+                try {
+                    const res = await fetch(urls.history, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                    if (!res.ok) { throw new Error('Network response not ok'); }
+                    const html = await res.text();
+                    container.innerHTML = html || ('<div class="empty-state text-center p-4">' + (cfg.i18n && cfg.i18n.no_history_desc ? cfg.i18n.no_history_desc : 'No previous transactions found') + '</div>');
+                } catch (err) {
+                    console.error('Failed to load history', err);
+                    container.innerHTML = '<div class="alert alert-danger">' + (cfg.i18n && cfg.i18n.error_history ? cfg.i18n.error_history : 'Failed to load balance history') + '</div>';
+                }
+            });
+        });
+
+        // AJAX form submit for add/deduct
+        function wireForm(formId, urlKey, successMessageKey) {
+            const form = document.getElementById(formId);
+            if (!form) { return; }
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) { submitBtn.disabled = true; }
+                const formData = new FormData(form);
+                const url = urls[urlKey];
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
+                        }
+                    });
+                    const json = await res.json();
+                    if (res.ok) {
+                        AdminPanel.showNotification((cfg.i18n && cfg.i18n[successMessageKey]) || 'Success', 'success');
+                        // close modal
+                        AdminPanel.closeModal();
+                        // refresh stats
+                        refreshStats();
+                    } else {
+                        AdminPanel.showNotification(json.message || (cfg.i18n && cfg.i18n.error_server) || 'Error', 'danger');
+                    }
+                } catch (err) {
+                    console.error('Form submit failed', err);
+                    AdminPanel.showNotification((cfg.i18n && cfg.i18n.error_server) || 'Server error', 'danger');
+                } finally {
+                    if (submitBtn) { submitBtn.disabled = false; }
+                }
+            });
+        }
+
+        wireForm('addBalanceForm', 'add', 'balance_added');
+        wireForm('deductBalanceForm', 'deduct', 'balance_deducted');
+
+        // initial refresh to populate numbers if needed
+        setTimeout(refreshStats, 400);
+    };
+
+    // Centralized confirm handlers for forms and links
+    AdminPanel.initConfirmations = function () {
+        // Forms with js-confirm or js-confirm-delete
+        document.querySelectorAll('form.js-confirm, form.js-confirm-delete').forEach((form) => {
+            form.addEventListener('submit', (e) => {
+                const msg = form.dataset.confirm || form.getAttribute('data-confirm') || 'Are you sure?';
+                if (!window.confirm(msg)) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // Links/buttons with data-confirm attribute
+        document.querySelectorAll('[data-confirm]').forEach((el) => {
+            // only handle anchors or buttons that navigate or submit forms
+            el.addEventListener('click', (e) => {
+                const msg = el.getAttribute('data-confirm');
+                if (!window.confirm(msg)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    };
+
+    // Hide notification
+    AdminPanel.hideNotification = function (notification) {
+        if (notification) {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }
+    };
+
+    // Show notification
+    AdminPanel.showNotification = function (message, type) {
+        type = type || 'info';
+        const notification = document.createElement('div');
+        notification.className = 'notification notification-' + type;
+        notification.innerHTML = '<div class="notification-content"><div class="notification-message">' + message + '</div><button class="notification-close" type="button" aria-label="Close notification">&times;</button></div>';
+
+        // Ensure a dedicated container exists
+        let container = document.querySelector('.notification-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'notification-container';
+            // Prefer a top-right position via CSS; append to body
+            document.body.appendChild(container);
+        }
+
+        container.appendChild(notification);
+
+        // Auto-hide after 5 seconds
+        const autoHide = setTimeout(() => {
+            AdminPanel.hideNotification(notification);
+        }, 5000);
+
+        // Close handler
+        const closeBtn = notification.querySelector('.notification-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                clearTimeout(autoHide);
+                AdminPanel.hideNotification(notification);
+            });
+        }
+    };
+
+    // Auto-save functionality
+    AdminPanel.initAutoSave = function (form) {
+        const fields = form.querySelectorAll('input, textarea, select');
+        let saveTimeout;
+
+        fields.forEach((field) => {
+            field.addEventListener('input', () => {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    AdminPanel.autoSave(form);
+                }, 2000);
+            });
+        });
+    };
+
+    // Auto-save implementation
+    AdminPanel.autoSave = function (form) {
+        const formData = new FormData(form);
+        const autoSaveUrl = form.getAttribute('data-auto-save-url');
+
+        if (autoSaveUrl) {
+            fetch(autoSaveUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        AdminPanel.showNotification('Changes saved automatically', 'success');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Auto-save failed:', error);
+                });
+        }
+    };
+
+    // Initialize when DOM is loaded (ensure correct `this` binding)
+    function _adminInit() {
+        // Call init with AdminPanel as `this` to ensure methods referenced via `this` are found
+        if (typeof AdminPanel.init === 'function') {
+            AdminPanel.init();
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', _adminInit);
+    } else {
+        _adminInit();
+    }
+
+    /* ===== Admin Notifications Loader (migrated from admin-notifications.js) ===== */
+    (function () {
+        // Defer execution until DOM ready
+        function initNotificationsLoader() {
+            const badge = document.getElementById('adminNotificationBadge');
+            const menu = document.getElementById('adminNotificationsMenu');
+            const placeholder = document.getElementById('adminNotificationsPlaceholder');
+            if (!badge || !menu || !placeholder) {
+                return; // markup missing on this page
+            }
+
+            function showBadge(count) {
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'inline-block';
+                    badge.classList.remove('envato-hidden');
+                } else {
+                    badge.textContent = '';
+                    badge.style.display = 'none';
+                }
+            }
+
+            // Build base URL using body[data-admin-base] when present. This helps when app is hosted
+            // in a subdirectory (e.g., http://localhost/easy) so fetch('/admin/...') would otherwise miss.
+            const baseEl = document.querySelector('body') || document.documentElement;
+            const rawBase = (baseEl && baseEl.getAttribute) ? (baseEl.getAttribute('data-admin-base') || '') : '';
+            // Ensure no trailing slash
+            let baseUrl = rawBase.replace(/\/$/, '');
+            // If data-admin-base is not accurate or empty, derive base from current location by
+            // finding the first '/admin' segment in the pathname. This handles deployments
+            // where the app is served from a subdirectory (e.g., /easy) but APP_URL was not set.
+            if (!baseUrl) {
+                try {
+                    const loc = window.location;
+                    const idx = loc.pathname.indexOf('/admin');
+                    const prefix = idx !== -1 ? loc.pathname.slice(0, idx) : '';
+                    baseUrl = loc.origin + prefix;
+                } catch (e) {
+                    baseUrl = ''; // fallback to absolute-root-style paths
+                }
+            }
+
+            async function preflightUnread() {
+                try {
+                    const url = (baseUrl ? (baseUrl + '/admin/notifications/unread-count') : '/admin/notifications/unread-count');
+                    const res = await fetch(url, { credentials: 'same-origin' });
+                    if (!res.ok) { return; }
+                    const j = await res.json().catch(() => ({}));
+                    if (j && typeof j.unread === 'number') { showBadge(j.unread); }
+                } catch (e) {
+                    /* ignore network error */
+                }
+            }
+
+            async function loadNotifications() {
+                try {
+                    const url = (baseUrl ? (baseUrl + '/admin/notifications/latest') : '/admin/notifications/latest');
+                    const res = await fetch(url, { credentials: 'same-origin' });
+                    if (!res.ok) {
+                        placeholder.innerHTML = '<div class="px-3 py-2 text-muted">Could not load (status: ' + res.status + ')</div>';
+                        return;
+                    }
+                    let json;
+                    try { json = await res.json(); } catch (e) { placeholder.innerHTML = '<div class="px-3 py-2 text-muted">Could not parse response</div>'; return; }
+                    if (!json.ok) { placeholder.innerHTML = '<div class="px-3 py-2 text-muted">No notifications</div>'; return; }
+                    const items = json.notifications || [];
+                    const unread = (json.unread ?? items.filter(i => !i.read_at).length) || 0;
+                    showBadge(unread);
+                    if (items.length === 0) {
+                        placeholder.innerHTML = '<div class="px-3 py-2 text-muted">' + ((window.__t && typeof window.__t === 'function') ? window.__t('No notifications') : 'No notifications') + '</div>';
+                        return;
+                    }
+                    placeholder.innerHTML = '';
+                    items.forEach(n => {
+                        const a = document.createElement('a');
+                        a.className = 'dropdown-item d-flex align-items-start';
+                        a.href = n.data.url || '#';
+                        a.dataset.notificationId = n.id;
+                        const icon = document.createElement('div');
+                        icon.className = 'me-2';
+                        icon.innerHTML = '<i class="fas fa-' + (n.data.icon || 'bell') + ' fa-lg text-primary"></i>';
+                        const body = document.createElement('div');
+                        body.style.flex = '1';
+                        const title = document.createElement('div');
+                        title.className = 'fw-semibold';
+                        function humanizeType(t) { if (!t) { return ''; } return t.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); }
+                        const titleText = (n.data?.title) || ((typeof window.__t === 'function') ? (window.__t(n.data?.type || '') || '') : '') || humanizeType(n.data?.type) || (n.data?.type || 'Notification');
+                        title.textContent = titleText;
+                        const subtitle = document.createElement('div');
+                        subtitle.className = 'small text-muted';
+                        subtitle.textContent = n.data?.message || n.data?.text || '';
+                        const ts = document.createElement('div');
+                        ts.className = 'small text-muted ms-2';
+                        ts.textContent = n.created_at;
+                        body.appendChild(title);
+                        body.appendChild(subtitle);
+                        a.appendChild(icon);
+                        a.appendChild(body);
+                        a.appendChild(ts);
+
+                        a.addEventListener('click', async function (ev) {
+                            ev.preventDefault();
+                            const id = this.dataset.notificationId;
+                            let ok = false; let msg = '';
+                            try {
+                                const readUrl = (baseUrl ? (baseUrl + '/admin/notifications/' + encodeURIComponent(id) + '/read') : ('/admin/notifications/' + encodeURIComponent(id) + '/read'));
+                                const res = await fetch(readUrl, {
+                                    method: 'POST',
+                                    credentials: 'same-origin',
+                                    headers: {
+                                        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')) || '',
+                                        'Accept': 'application/json'
+                                    }
+                                });
+                                const j = await res.json().catch(() => ({}));
+                                ok = j.ok || res.ok;
+                                msg = j.message || (ok ? ((typeof window.__t === 'function' && window.__t('Marked read')) || 'Marked read') : (j.error || ((typeof window.__t === 'function' && window.__t('Failed')) || 'Failed')));
+                            } catch (e) { msg = ((typeof window.__t === 'function') ? window.__t('Network error') : 'Network error'); }
+
+                            // show toast feedback via AdminPanel or fallback
+                            if (window.AdminPanel && typeof window.AdminPanel.showNotification === 'function') {
+                                window.AdminPanel.showNotification(msg, ok ? 'success' : 'error');
+                            } else if (window.alert) {
+                                alert(msg);
+                            }
+
+                            try {
+                                if (!this.classList.contains('text-muted')) { this.classList.add('text-muted'); }
+                                const current = parseInt((badge.textContent || '0').replace('+', ''), 10) || 0;
+                                const next = Math.max(0, current - 1);
+                                showBadge(next);
+                            } catch (e) { /* ignore */ }
+
+                            loadNotifications().catch(() => { });
+                            const url = this.getAttribute('href');
+                            if (url && url !== '#') { window.location.href = url; }
+                        });
+
+                        placeholder.appendChild(a);
+                    });
+                } catch (e) {
+                    placeholder.innerHTML = '<div class="px-3 py-2 text-muted">Could not load</div>';
+                }
+            }
+
+            window.refreshAdminNotifications = loadNotifications;
+
+            const markAllBtn = document.getElementById('adminMarkAllReadBtn');
+            if (markAllBtn) {
+                markAllBtn.addEventListener('click', async (ev) => {
+                    ev.preventDefault();
+                    try {
+                        const markAllUrl = (baseUrl ? (baseUrl + '/admin/notifications/mark-all-read') : '/admin/notifications/mark-all-read');
+                        const res = await fetch(markAllUrl, {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: { 'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')) || '' }
+                        });
+                        const j = await res.json().catch(() => ({}));
+                        if (j.ok || res.ok) {
+                            if (window.AdminPanel && window.AdminPanel.showNotification) { window.AdminPanel.showNotification((typeof window.__t === 'function') ? window.__t('All marked read') : 'All marked read', 'success'); }
+                            showBadge(0);
+                            loadNotifications().catch(() => { });
+                        } else if (window.AdminPanel && window.AdminPanel.showNotification) { window.AdminPanel.showNotification(j.message || ((typeof window.__t === 'function') ? window.__t('Failed') : 'Failed'), 'error'); }
+                    } catch (e) {
+                        if (window.AdminPanel && window.AdminPanel.showNotification) { window.AdminPanel.showNotification((typeof window.__t === 'function') ? window.__t('Network error') : 'Network error', 'error'); }
+                    }
+                });
+            }
+
+            preflightUnread().finally(loadNotifications);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initNotificationsLoader);
+        } else {
+            initNotificationsLoader();
+        }
+    }());
+
+    // Sidebar submenu toggle fallback (robust)
+    // - removes data-bs-toggle to avoid Bootstrap interference
+    // - toggles .show on the parent .nav-dropdown
+    // - closes other open nav-dropdowns when opening a new one
+    // - updates aria-expanded on toggles
+    AdminPanel.initSidebarSubmenus = function () {
+        // remove bootstrap data attribute to prevent popper/bootstrap from hijacking behavior
+        document.querySelectorAll('.nav-item.dropdown-toggle').forEach((el) => {
+            try { el.removeAttribute('data-bs-toggle'); } catch (e) { /* ignore */ }
+            // ensure aria-expanded is present
+            const p = el.closest('.nav-dropdown');
+            if (p && p.classList.contains('show')) {
+                el.setAttribute('aria-expanded', 'true');
+            } else {
+                el.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // delegate clicks for toggles
+        document.addEventListener('click', (e) => {
+            const toggle = e.target.closest('.nav-item.dropdown-toggle');
+            if (!toggle) { return; }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const parent = toggle.closest('.nav-dropdown');
+            if (!parent) { return; }
+
+            const willOpen = !parent.classList.contains('show');
+
+            // close all other open dropdowns
+            document.querySelectorAll('.nav-dropdown.show').forEach((openEl) => {
+                if (openEl !== parent) {
+                    openEl.classList.remove('show');
+                    const t = openEl.querySelector('.nav-item.dropdown-toggle');
+                    if (t) { t.setAttribute('aria-expanded', 'false'); }
+                }
+            });
+
+            // toggle the clicked dropdown
+            if (willOpen) {
+                parent.classList.add('show');
+                toggle.setAttribute('aria-expanded', 'true');
+            } else {
+                parent.classList.remove('show');
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // close dropdowns when clicking outside the sidebar
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.modern-sidebar') && !e.target.closest('.admin-sidebar')) {
+                document.querySelectorAll('.nav-dropdown.show').forEach((openEl) => {
+                    openEl.classList.remove('show');
+                    const t = openEl.querySelector('.nav-item.dropdown-toggle');
+                    if (t) { t.setAttribute('aria-expanded', 'false'); }
+                });
+            }
+        }, true);
+    };
+
+    // call submenu init on DOM ready
+    if (typeof AdminPanel.initSidebarSubmenus === 'function') {
+        AdminPanel.initSidebarSubmenus();
+    }
+}());

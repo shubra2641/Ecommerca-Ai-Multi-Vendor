@@ -57,7 +57,10 @@ class NotifyBackInStockJob implements ShouldQueue
                         $sentThisMinute = 0;
                     }
                     if (\App\Support\MailHelper::mailIsAvailable()) {
-                        Mail::to($interest->email)->later(now()->addSeconds($delaySeconds), new ProductBackInStockNotification($interest));
+                        Mail::to($interest->email)->later(
+                            now()->addSeconds($delaySeconds),
+                            new ProductBackInStockNotification($interest)
+                        );
                     }
                     $interest->markNotified();
                     $sentThisMinute++;

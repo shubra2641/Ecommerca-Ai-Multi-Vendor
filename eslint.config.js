@@ -61,12 +61,21 @@ export default [
             'object-curly-spacing': ['error', 'always'],
             'array-bracket-spacing': ['error', 'never'],
             'comma-dangle': ['error', 'never'],
-            'comma-spacing': ['error', { 'before': false, 'after': true }],
+            'comma-spacing': ['error', {
+                'before': false,
+                'after': true
+            }],
             'comma-style': ['error', 'last'],
             'computed-property-spacing': ['error', 'never'],
             'func-call-spacing': ['error', 'never'],
-            'key-spacing': ['error', { 'beforeColon': false, 'afterColon': true }],
-            'keyword-spacing': ['error', { 'before': true, 'after': true }],
+            'key-spacing': ['error', {
+                'beforeColon': false,
+                'afterColon': true
+            }],
+            'keyword-spacing': ['error', {
+                'before': true,
+                'after': true
+            }],
             'no-multi-spaces': 'error',
             'no-trailing-spaces': 'error',
             'object-property-newline': ['error', { 'allowMultiplePropertiesPerLine': false }],
@@ -101,7 +110,6 @@ export default [
             'no-obj-calls': 'error',
             'no-regex-spaces': 'error',
             'no-self-assign': 'error',
-            'no-sparse-arrays': 'error',
             'no-unexpected-multiline': 'error',
             'no-unreachable': 'error',
             'no-unsafe-finally': 'error',
@@ -178,6 +186,20 @@ export default [
             'wrap-iife': 'error',
             'yoda': 'error'
         },
-        ignores: []
+        ignores: [
+            'public/vendor/**',
+            'public/vendor/**/*',
+            '**/vendor/**',
+            '**/node_modules/**',
+            'public/sw.js',
+            '**/*.min.js',
+            '**/*.min.css',
+            '**/bootstrap/**',
+            '**/jquery/**',
+            '**/chart.js/**',
+            '**/fontawesome/**',
+            '**/intl-tel-input/**',
+            '**/sortable/**'
+        ]
     }
 ];

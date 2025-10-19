@@ -44,7 +44,11 @@ class AdminPaymentNotification extends Notification implements ShouldQueue
             'event' => $this->event,
             'url' => url('/admin/orders/' . ($order?->id ?? '')),
             'title' => __('Payment') . ' #' . ($this->payment->id ?? ''),
-            'message' => __('Payment :id for order :order is :status', ['id' => $this->payment->id, 'order' => $order?->id ?? '-', 'status' => $this->payment->status]),
+            'message' => __('Payment :id for order :order is :status', [
+                'id' => $this->payment->id,
+                'order' => $order?->id ?? '-',
+                'status' => $this->payment->status
+            ]),
         ];
     }
 }

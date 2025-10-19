@@ -187,7 +187,10 @@ class VendorWithdrawalController extends Controller
                 0.00,
                 $previous,
                 $new,
-                __('Payout executed for withdrawal #:id (funds were previously held)', ['id' => $payout->withdrawal?->id ?? $payout->id]),
+                __(
+                    'Payout executed for withdrawal #:id (funds were previously held)',
+                    ['id' => $payout->withdrawal?->id ?? $payout->id]
+                ),
                 auth()->id(),
                 $payout
             );
@@ -203,7 +206,12 @@ class VendorWithdrawalController extends Controller
                 $withdrawal->update(['proof_path' => $payout->proof_path]);
             }
             try {
-                $withdrawal->user->notify(new \App\Notifications\VendorWithdrawalStatusUpdated($withdrawal, 'executed'));
+                $withdrawal->user->notify(
+                    new \App\Notifications\VendorWithdrawalStatusUpdated(
+                        $withdrawal,
+                        'executed'
+                    )
+                );
             } catch (\Throwable $e) {
                 logger()->warning('Vendor notification failed: ' . $e->getMessage());
             }

@@ -16,8 +16,26 @@ class ProductCatalogController extends Controller
      */
     protected function baseQuery()
     {
-        $select = ['id', 'name', 'slug', 'price', 'sale_price', 'product_category_id', 'manage_stock', 'stock_qty', 'reserved_qty', 'type', 'main_image', 'is_featured', 'active', 'vendor_id'];
-        $q = Product::query()->select($select)->with(['category', 'brand'])->active();
+        $select = [
+            'id',
+            'name',
+            'slug',
+            'price',
+            'sale_price',
+            'product_category_id',
+            'manage_stock',
+            'stock_qty',
+            'reserved_qty',
+            'type',
+            'main_image',
+            'is_featured',
+            'active',
+            'vendor_id'
+        ];
+        $q = Product::query()
+            ->select($select)
+            ->with(['category', 'brand'])
+            ->active();
 
         return $q;
     }
@@ -62,7 +80,9 @@ class ProductCatalogController extends Controller
         if ($brands = $request->get('brand')) {
             $brandsArr = array_filter(is_array($brands) ? $brands : explode(',', $brands));
             if ($brandsArr) {
-                $query->whereHas('brand', fn ($b) => $b->whereIn('slug', array_map('Str::slug', $brandsArr)));
+                $query->whereHas('brand', function ($b) use ($brandsArr) {
+                    $b->whereIn('slug', array_map('Str::slug', $brandsArr));
+                });
             }
         }
 
@@ -143,9 +163,15 @@ class ProductCatalogController extends Controller
 
         $wishlistIds = [];
         if ($request->user()?->id) {
-            $wishlistIds = (array) Cache::remember('wishlist_ids_' . $request->user()->id, 60, function () use ($request) {
-                return \App\Models\WishlistItem::where('user_id', $request->user()->id)->pluck('product_id')->all();
-            });
+            $wishlistIds = (array) Cache::remember(
+                'wishlist_ids_' . $request->user()->id,
+                60,
+                function () use ($request) {
+                    return \App\Models\WishlistItem::where('user_id', $request->user()->id)
+                        ->pluck('product_id')
+                        ->all();
+                }
+            );
         } else {
             $wishlistSession = session('wishlist');
             $wishlistIds = is_array($wishlistSession) && $wishlistSession ? $wishlistSession : [];
@@ -166,12 +192,21 @@ class ProductCatalogController extends Controller
 
         // Category filter
         if ($cat = $request->get('category')) {
-            $slugMap = Cache::remember('product_category_slug_id_map', 600, fn () => ProductCategory::pluck('id', 'slug')->all());
+            $slugMap = Cache::remember(
+                'product_category_slug_id_map',
+                600,
+                fn () => ProductCategory::pluck('id', 'slug')->all()
+            );
             $id = $slugMap[$cat] ?? null;
             if ($id) {
-                $childIds = Cache::remember('category_children_ids_' . $id, 600, fn () => ProductCategory::where('parent_id', $id)->pluck('id')->all());
+                $childIds = Cache::remember(
+                    'category_children_ids_' . $id,
+                    600,
+                    fn () => ProductCategory::where('parent_id', $id)->pluck('id')->all()
+                );
                 $query->where(function ($qq) use ($id, $childIds) {
-                    $qq->where('product_category_id', $id)->orWhereIn('product_category_id', $childIds);
+                    $qq->where('product_category_id', $id)
+                        ->orWhereIn('product_category_id', $childIds);
                 });
             }
         }
@@ -218,7 +253,9 @@ class ProductCatalogController extends Controller
     public function tag($slug, Request $request)
     {
         $tag = ProductTag::where('slug', $slug)->firstOrFail();
-        $query = $this->baseQuery()->whereHas('tags', fn ($t) => $t->where('product_tags.id', $tag->id));
+        $query = $this->baseQuery()->whereHas('tags', function ($t) use ($tag) {
+            $t->where('product_tags.id', $tag->id);
+        });
 
         $query = $this->applyFilters($query, $request);
         $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
@@ -234,12 +271,16 @@ class ProductCatalogController extends Controller
     public function show($slug)
     {
         $product = Product::with(['category', 'tags', 'variations'])
-            ->withCount(['reviews as approved_reviews_count' => function ($q) {
-                $q->where('approved', true);
-            }])
-            ->withAvg(['reviews as approved_reviews_avg' => function ($q) {
-                $q->where('approved', true);
-            }], 'rating')
+            ->withCount([
+                'reviews as approved_reviews_count' => function ($q) {
+                    $q->where('approved', true);
+                }
+            ])
+            ->withAvg([
+                'reviews as approved_reviews_avg' => function ($q) {
+                    $q->where('approved', true);
+                }
+            ], 'rating')
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -260,19 +301,25 @@ class ProductCatalogController extends Controller
         }
 
         // Related products
-        $related = Cache::remember('product_related_' . $product->id, 300, function () use ($product) {
-            return Product::active()
-                ->where('product_category_id', $product->product_category_id)
-                ->where('id', '!=', $product->id)
-                ->with('variations')
-                ->limit(6)
-                ->get();
-        });
+        $related = Cache::remember(
+            'product_related_' . $product->id,
+            300,
+            function () use ($product) {
+                return Product::active()
+                    ->where('product_category_id', $product->product_category_id)
+                    ->where('id', '!=', $product->id)
+                    ->with('variations')
+                    ->limit(6)
+                    ->get();
+            }
+        );
 
         // Convert price
         $this->convertPrices(collect([$product]));
 
-        $currentCurrency = session('currency_id') ? \App\Models\Currency::find(session('currency_id')) : \App\Models\Currency::getDefault();
+        $currentCurrency = session('currency_id')
+            ? \App\Models\Currency::find(session('currency_id'))
+            : \App\Models\Currency::getDefault();
 
         // Reviews data
         $reviewsCount = (int) ($product->approved_reviews_count ?? 0);

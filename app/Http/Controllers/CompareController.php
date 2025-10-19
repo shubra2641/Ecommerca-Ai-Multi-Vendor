@@ -28,7 +28,11 @@ class CompareController extends Controller
         } else {
             if (count($list) >= 4) { // limit compare items
                 if ($r->wantsJson()) {
-                    return response()->json(['status' => 'error', 'message' => __('Maximum items reached'), 'count' => count($list)], 422);
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => __('Maximum items reached'),
+                        'count' => count($list)
+                    ], 422);
                 }
 
                 return back()->with('error', __('Maximum compare items reached'));

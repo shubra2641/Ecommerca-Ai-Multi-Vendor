@@ -100,13 +100,24 @@ class InstallController extends Controller
                     // drop
                     $conn->statement("DROP TABLE $tname;");
                 } catch (\Throwable $we) {
-                    return response()->json(['success' => false, 'message' => 'Connection OK but write test failed: ' . $we->getMessage(), 'code' => $we->getCode()]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Connection OK but write test failed: ' . $we->getMessage(),
+                        'code' => $we->getCode()
+                    ]);
                 }
             }
 
-            return response()->json(['success' => true, 'message' => 'Connection successful' . ($doWrite ? ' (including write test)' : '')]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Connection successful' . ($doWrite ? ' (including write test)' : '')
+            ]);
         } catch (\Throwable $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage(), 'code' => $e->getCode()]);
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'code' => $e->getCode()
+            ]);
         }
     }
 

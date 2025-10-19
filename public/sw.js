@@ -17,7 +17,6 @@ const ESSENTIAL_FILES = [
 
 // Install Service Worker
 self.addEventListener('install', (event) => {
-
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
@@ -33,7 +32,6 @@ self.addEventListener('install', (event) => {
 
 // Activate Service Worker
 self.addEventListener('activate', (event) => {
-
     event.waitUntil(
         caches.keys()
             .then(cacheNames => {
@@ -97,7 +95,6 @@ async function handleRequest(request) {
 
         // Default: Network First
         return await networkFirst(request);
-
     } catch (error) {
         return await handleOffline(request);
     }
@@ -137,7 +134,6 @@ async function networkFirst(request) {
 
         return networkResponse;
     } catch (error) {
-
         const cache = await caches.open(CACHE_NAME);
         const cachedResponse = await cache.match(request);
 

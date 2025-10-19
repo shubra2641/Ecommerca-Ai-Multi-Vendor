@@ -7,17 +7,30 @@
         return;
     }
     const target = new Date(targetAttr).getTime();
-    function tick()
-    {
-        const now = Date.now(); let diff = target - now; if (diff <= 0) {
-            el.textContent = el.dataset.labelSoon || 'Soon'; return;}
-        const d = Math.floor(diff / 86400000); diff %= 86400000;
-        const h = Math.floor(diff / 3600000); diff %= 3600000;
-        const m = Math.floor(diff / 60000); diff %= 60000;
-        const s = Math.floor(diff / 1000);
+    function tick() {
+        const now = Date.now();
+        let diff = target - now;
+        if (diff <= 0) {
+            el.textContent = el.dataset.labelSoon || 'Soon';
+            return;
+        }
+
+        const MS_PER_DAY = 86400000;
+        const MS_PER_HOUR = 3600000;
+        const MS_PER_MINUTE = 60000;
+        const MS_PER_SECOND = 1000;
+        const UPDATE_INTERVAL = 1000;
+
+        const d = Math.floor(diff / MS_PER_DAY);
+        diff %= MS_PER_DAY;
+        const h = Math.floor(diff / MS_PER_HOUR);
+        diff %= MS_PER_HOUR;
+        const m = Math.floor(diff / MS_PER_MINUTE);
+        diff %= MS_PER_MINUTE;
+        const s = Math.floor(diff / MS_PER_SECOND);
         el.textContent = `${d}d ${h}h ${m}m ${s}s`;
-        setTimeout(tick,1000);
+        setTimeout(tick, UPDATE_INTERVAL);
     }
     tick();
-})();
+}());
 

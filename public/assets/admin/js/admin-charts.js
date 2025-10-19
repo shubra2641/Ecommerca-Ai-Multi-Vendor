@@ -3,6 +3,7 @@
  * Unified chart initialization with reduced complexity
  * Maintains all chart functionality while being cleaner and more maintainable
  */
+/* global Chart, atob */
 
 (function () {
     'use strict';
@@ -28,7 +29,7 @@
         // Parse JSON from element
         parseJson(selector) {
             const element = document.querySelector(selector);
-            if (!element) return null;
+            if (!element) { return null; }
 
             try {
                 if (element.tagName?.toLowerCase() === 'script') {
@@ -38,10 +39,10 @@
                 const payload = element.getAttribute('data-payload') || element.textContent || element.innerText || '';
                 try {
                     return JSON.parse(payload);
-                } catch (e) {
+                } catch (err) {
                     return JSON.parse(atob(payload));
                 }
-            } catch (e) {
+            } catch (err) {
                 return null;
             }
         },
@@ -122,7 +123,10 @@
                     ...CONFIG.CHART_DEFAULTS,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: '#f1f3f4' } },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f3f4' }
+                        },
                         x: { grid: { display: false } }
                     },
                     ...options
@@ -164,11 +168,23 @@
                 },
                 options: {
                     ...CONFIG.CHART_DEFAULTS,
-                    interaction: { mode: 'index', intersect: false },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
                     plugins: { legend: { position: 'bottom' } },
                     scales: {
-                        y: { type: 'linear', position: 'left', beginAtZero: true },
-                        y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, beginAtZero: true }
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            beginAtZero: true
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            beginAtZero: true
+                        }
                     },
                     ...options
                 }
@@ -186,14 +202,14 @@
 
         initRefreshButton() {
             const refreshBtn = document.getElementById('refreshReportsBtn');
-            if (!refreshBtn) return;
+            if (!refreshBtn) { return; }
 
             refreshBtn.addEventListener('click', () => {
                 const icon = refreshBtn.querySelector('i');
-                if (icon) icon.classList.add('fa-spin');
+                if (icon) { icon.classList.add('fa-spin'); }
 
                 setTimeout(() => {
-                    if (icon) icon.classList.remove('fa-spin');
+                    if (icon) { icon.classList.remove('fa-spin'); }
                     location.reload();
                 }, 1000);
             });
@@ -443,5 +459,4 @@
     } else {
         document.addEventListener('DOMContentLoaded', initializeCharts);
     }
-
-})();
+}());

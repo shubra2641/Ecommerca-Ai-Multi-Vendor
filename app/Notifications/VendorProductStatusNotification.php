@@ -33,7 +33,9 @@ class VendorProductStatusNotification extends Notification
     {
         if ($this->action === 'approved') {
             $subject = __('Your product has been approved');
-            $line = __('Your product :name was approved and is now visible on the store.', ['name' => $this->product->name]);
+            $line = __('Your product :name was approved and is now visible on the store.', [
+                'name' => $this->product->name
+            ]);
         } else {
             $subject = __('Your product was rejected');
             $line = __('Your product :name was rejected.', ['name' => $this->product->name]);
@@ -53,7 +55,9 @@ class VendorProductStatusNotification extends Notification
         return [
             'type' => 'product_' . $this->action,
             'title' => $this->action === 'approved' ? __('Product approved') : __('Product rejected'),
-            'message' => $this->action === 'approved' ? __('Your product :name was approved', ['name' => $this->product->name]) : __('Your product :name was rejected', ['name' => $this->product->name]),
+            'message' => $this->action === 'approved'
+                ? __('Your product :name was approved', ['name' => $this->product->name])
+                : __('Your product :name was rejected', ['name' => $this->product->name]),
             'url' => route('vendor.products.edit', $this->product->id),
             'product_id' => $this->product->id,
             'reason' => $this->reason,

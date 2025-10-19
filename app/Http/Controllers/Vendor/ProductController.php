@@ -18,7 +18,11 @@ class ProductController extends Controller
     public function index()
     {
         // Show all vendor products (active & pending) for clarity; eager-load category for listing
-        $products = auth()->user()->products()->with('category')->orderByDesc('created_at')->paginate(20);
+        $products = auth()->user()
+            ->products()
+            ->with('category')
+            ->orderByDesc('created_at')
+            ->paginate(20);
 
         return view('vendor.products.index', compact('products'));
     }
@@ -50,7 +54,11 @@ class ProductController extends Controller
 
         // prepare slug similar to admin
         $defaultName = $data['name'] ?? '';
-        $slug = Str::slug(is_array($defaultName) ? (array_values(array_filter($defaultName))[0] ?? '') : $defaultName);
+        $slug = Str::slug(
+            is_array($defaultName)
+                ? (array_values(array_filter($defaultName))[0] ?? '')
+                : $defaultName
+        );
         $base = $slug;
         $i = 1;
         while (Product::where('slug', $slug)->exists()) {
@@ -61,7 +69,10 @@ class ProductController extends Controller
             $data['gallery'] = $this->cleanGalleryValue($data['gallery']);
         }
 
-        $product = Product::create($data + ['vendor_id' => auth()->id(), 'active' => false]);
+        $product = Product::create($data + [
+            'vendor_id' => auth()->id(),
+            'active' => false
+        ]);
         // tags
         $product->tags()->sync($request->input('tag_ids', []));
         if ($product->type === 'variable') {
@@ -113,7 +124,11 @@ class ProductController extends Controller
 
         // update slug if name changed
         $defaultName = $data['name'] ?? $product->name;
-        $slug = Str::slug(is_array($defaultName) ? (array_values(array_filter($defaultName))[0] ?? '') : $defaultName);
+        $slug = Str::slug(
+            is_array($defaultName)
+                ? (array_values(array_filter($defaultName))[0] ?? '')
+                : $defaultName
+        );
         $base = $slug;
         $i = 1;
         while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {

@@ -73,7 +73,10 @@ class UserReturnStatusUpdated extends Notification implements ShouldQueue
         return [
             'type' => 'return_status_updated',
             'title' => __('Return status updated'),
-            'message' => __('Return for :product is now :status', ['product' => $this->item->name, 'status' => $this->status]),
+            'message' => __('Return for :product is now :status', [
+                'product' => $this->item->name,
+                'status' => $this->status
+            ]),
             'url' => $url,
             'icon' => 'undo',
             'item_id' => $this->item->id,

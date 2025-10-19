@@ -146,7 +146,8 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
             case 'success':
                 return 'Your payment has been successfully processed and your order is confirmed.';
             case 'failed':
-                return 'Unfortunately, your payment could not be processed. Please try again or use a different payment method.';
+                return 'Unfortunately, your payment could not be processed. '
+                    . 'Please try again or use a different payment method.';
             case 'cancelled':
                 return 'Your payment has been cancelled. You can try again if you wish to complete your order.';
             case 'refunded':

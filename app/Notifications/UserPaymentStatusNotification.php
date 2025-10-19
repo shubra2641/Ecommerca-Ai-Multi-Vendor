@@ -50,7 +50,11 @@ class UserPaymentStatusNotification extends Notification implements ShouldQueue
         return [
             'type' => 'payment_status',
             'title' => __('Payment') . ' #' . ($this->payment->id ?? ''),
-            'message' => __('Payment :id for order :order is :status', ['id' => $this->payment->id, 'order' => $order?->id ?? '-', 'status' => $this->status]),
+            'message' => __('Payment :id for order :order is :status', [
+                'id' => $this->payment->id,
+                'order' => $order?->id ?? '-',
+                'status' => $this->status
+            ]),
             'url' => $order ? route('orders.show', $order->id) : null,
             'icon' => 'credit-card',
             'payment_id' => $this->payment->id,

@@ -84,7 +84,11 @@ class GenerateVendorOrdersCsv implements ShouldQueue
         @unlink($temp);
 
         // create temporary signed URL (2 hours)
-        $signed = URL::temporarySignedRoute('vendor.orders.export-file', now()->addHours(2), ['filename' => $filename]);
+        $signed = URL::temporarySignedRoute(
+            'vendor.orders.export-file',
+            now()->addHours(2),
+            ['filename' => $filename]
+        );
 
         // queue mail to vendor with link
         try {

@@ -6,7 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class ShippingRule extends Model
 {
-    protected $fillable = ['zone_id', 'country_id', 'governorate_id', 'city_id', 'price', 'estimated_days', 'active'];
+    protected $fillable = [
+        'zone_id',
+        'country_id',
+        'governorate_id',
+        'city_id',
+        'price',
+        'estimated_days',
+        'active',
+    ];
 
     public function zone()
     {

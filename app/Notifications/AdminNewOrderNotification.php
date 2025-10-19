@@ -43,7 +43,10 @@ class AdminNewOrderNotification extends Notification implements ShouldQueue
         return [
             'type' => 'order_created',
             'title' => __('New order placed'),
-            'message' => __('Order #:id placed by :name', ['id' => $this->order->id, 'name' => $this->order->user?->name ?? __('Guest')]),
+            'message' => __('Order #:id placed by :name', [
+                'id' => $this->order->id,
+                'name' => $this->order->user?->name ?? __('Guest')
+            ]),
             'url' => route('admin.orders.show', $this->order->id),
             'icon' => 'shopping-cart',
             'order_id' => $this->order->id,

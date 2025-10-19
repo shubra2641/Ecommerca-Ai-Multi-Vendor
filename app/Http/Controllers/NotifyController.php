@@ -21,7 +21,10 @@ class NotifyController extends Controller
             $data['email'] = auth()->user()->email;
         }
         if (! $data['email'] && empty($data['phone'])) {
-            return response()->json(['ok' => false, 'message' => __('Email or phone required')], 422);
+            return response()->json(
+                ['ok' => false, 'message' => __('Email or phone required')],
+                422
+            );
         }
         $data['type'] = $data['type'] ?? 'stock';
         $data['user_id'] = auth()->id();
@@ -85,7 +88,10 @@ class NotifyController extends Controller
         if (! $productId) {
             return response()->json(['ok' => false, 'message' => 'product_id required'], 400);
         }
-        $q = ProductInterest::where('product_id', $productId)->where('type', $type)->whereNull('unsubscribed_at')->whereNotIn('status', [ProductInterest::STATUS_CANCELLED]);
+        $q = ProductInterest::where('product_id', $productId)
+            ->where('type', $type)
+            ->whereNull('unsubscribed_at')
+            ->whereNotIn('status', [ProductInterest::STATUS_CANCELLED]);
         if ($email) {
             $q->where('email', $email);
         }

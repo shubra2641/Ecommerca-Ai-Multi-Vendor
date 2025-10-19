@@ -6,9 +6,11 @@ use Illuminate\Console\Command;
 
 class FillMissingTranslations extends Command
 {
-    protected $signature = 'translations:fill {--model=* : Specific model class names (e.g. Product)} {--locale=* : Target locales to ensure}';
+    protected $signature = 'translations:fill {--model=* : Specific model class names (e.g. Product)} '
+        . '{--locale=* : Target locales to ensure}';
 
-    protected $description = 'Fill missing translation entries for translatable models using fallback or base attribute';
+    protected $description = 'Fill missing translation entries for translatable models '
+        . 'using fallback or base attribute';
 
     protected array $modelClasses = [
         \App\Models\Product::class,
