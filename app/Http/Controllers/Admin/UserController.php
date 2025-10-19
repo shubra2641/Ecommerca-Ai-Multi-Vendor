@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\HtmlSanitizer;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
@@ -135,7 +136,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         // Prevent deletion of current admin user
-        if ($user->id === auth()->id()) {
+        if ($user->id === Auth::id()) {
             return redirect()->route('admin.users.index')->with('error', __('You cannot delete your own account.'));
         }
 
@@ -274,7 +275,7 @@ class UserController extends Controller
             (float) $oldBalance,
             (float) $user->balance,
             $note,
-            auth()->id()
+            Auth::id()
         );
 
         // Return JSON response
@@ -288,7 +289,7 @@ class UserController extends Controller
                 'amount' => $amount,
                 'note' => $note,
                 'date' => now()->format('Y-m-d H:i:s'),
-                'admin' => auth()->user()->name,
+                'admin' => Auth::user()->name,
             ],
         ]);
     }
@@ -318,7 +319,7 @@ class UserController extends Controller
             (float) $oldBalance,
             (float) $user->balance,
             $note,
-            auth()->id()
+            Auth::id()
         );
 
         // Return JSON response
@@ -332,15 +333,15 @@ class UserController extends Controller
                 'amount' => $amount,
                 'note' => $note,
                 'date' => now()->format('Y-m-d H:i:s'),
-                'admin' => auth()->user()->name,
+                'admin' => Auth::user()->name,
             ],
         ]);
     }
 
     /**
-     * Get user balance statistics via AJAX
+     * Get user balance statistics via AJAX (Legacy)
      */
-    public function getBalanceStats(User $user)
+    public function getBalanceStatsOld(User $user)
     {
         $totalAdded = $user->balanceHistories()->whereIn('type', ['credit', 'bonus', 'refund'])->sum('amount');
         $totalDeducted = $user->balanceHistories()->whereIn('type', ['debit', 'penalty'])->sum('amount');
@@ -367,9 +368,9 @@ class UserController extends Controller
     }
 
     /**
-     * Get user balance history via AJAX
+     * Get user balance history via AJAX (Legacy)
      */
-    public function getBalanceHistory(User $user)
+    public function getBalanceHistoryOld(User $user)
     {
         $balanceHistories = $user->balanceHistories()
             ->with('admin')
@@ -403,6 +404,160 @@ class UserController extends Controller
                 'role' => $user->role,
                 'last_updated' => $user->updated_at->format('Y-m-d H:i:s'),
             ],
+        ]);
+    }
+
+    /**
+     * Get comprehensive balance statistics
+     */
+    public function getBalanceStats(User $user)
+    {
+        $totalAdded = $user->balanceHistories()->whereIn('type', ['credit', 'bonus', 'refund'])->sum('amount');
+        $totalDeducted = $user->balanceHistories()->whereIn('type', ['debit', 'penalty'])->sum('amount');
+        $transactionCount = $user->balanceHistories()->count();
+        $lastTransaction = $user->balanceHistories()->latest()->first();
+
+        // Format values with currency symbol
+        $defaultCurrency = \App\Models\Currency::getDefault();
+        $symbol = $defaultCurrency ? $defaultCurrency->symbol : '$';
+
+        $stats = [
+            'balance' => $user->balance,
+            'total_added' => $totalAdded,
+            'total_deducted' => $totalDeducted,
+            'net_balance_change' => $totalAdded - $totalDeducted,
+            'transaction_count' => $transactionCount,
+            'last_transaction' => $lastTransaction ? $lastTransaction->created_at->format('Y-m-d H:i:s') : null,
+            'formatted' => [
+                'balance' => number_format($user->balance, 2) . ' ' . $symbol,
+                'total_added' => number_format($totalAdded, 2) . ' ' . $symbol,
+                'total_deducted' => number_format($totalDeducted, 2) . ' ' . $symbol,
+                'net_change' => number_format($totalAdded - $totalDeducted, 2) . ' ' . $symbol,
+            ]
+        ];
+
+        return response()->json([
+            'success' => true,
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
+     * Get balance history with pagination
+     */
+    public function getBalanceHistory(User $user, Request $request)
+    {
+        $perPage = $request->get('per_page', 20);
+        $page = $request->get('page', 1);
+
+        $balanceHistories = $user->balanceHistories()
+            ->with('admin')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'data' => $balanceHistories->items(),
+                'pagination' => [
+                    'current_page' => $balanceHistories->currentPage(),
+                    'last_page' => $balanceHistories->lastPage(),
+                    'per_page' => $balanceHistories->perPage(),
+                    'total' => $balanceHistories->total(),
+                ]
+            ]);
+        }
+
+        return view('admin.users.balance-history', [
+            'user' => $user,
+            'balanceHistories' => $balanceHistories
+        ]);
+    }
+
+    /**
+     * Bulk balance operations
+     */
+    public function bulkBalanceOperation(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
+            'operation' => 'required|in:add,deduct',
+            'amount' => 'required|numeric|min:0.01',
+            'note' => 'nullable|string|max:255'
+        ]);
+
+        $userIds = $request->user_ids;
+        $operation = $request->operation;
+        $amount = (float) $request->amount;
+        $note = $request->note;
+
+        $results = [];
+        $successCount = 0;
+        $errorCount = 0;
+
+        foreach ($userIds as $userId) {
+            try {
+                $user = User::findOrFail($userId);
+                $oldBalance = (float) $user->balance;
+
+                if ($operation === 'add') {
+                    $user->increment('balance', $amount);
+                } else {
+                    if ($amount > $oldBalance) {
+                        $results[] = [
+                            'user_id' => $userId,
+                            'user_name' => $user->name,
+                            'success' => false,
+                            'message' => __('Amount exceeds current balance')
+                        ];
+                        $errorCount++;
+                        continue;
+                    }
+                    $user->decrement('balance', $amount);
+                }
+
+                $user->refresh();
+
+                // Log the transaction
+                \App\Models\BalanceHistory::createTransaction(
+                    $user,
+                    $operation === 'add' ? 'credit' : 'debit',
+                    $amount,
+                    $oldBalance,
+                    (float) $user->balance,
+                    $note,
+                    Auth::id()
+                );
+
+                $results[] = [
+                    'user_id' => $userId,
+                    'user_name' => $user->name,
+                    'success' => true,
+                    'message' => __('Balance updated successfully'),
+                    'new_balance' => $user->balance
+                ];
+                $successCount++;
+            } catch (\Exception $e) {
+                $results[] = [
+                    'user_id' => $userId,
+                    'user_name' => $user->name ?? 'Unknown',
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+                $errorCount++;
+            }
+        }
+
+        return response()->json([
+            'success' => $errorCount === 0,
+            'message' => __('Bulk operation completed'),
+            'summary' => [
+                'total' => count($userIds),
+                'success' => $successCount,
+                'errors' => $errorCount
+            ],
+            'results' => $results
         ]);
     }
 }

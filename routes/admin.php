@@ -41,6 +41,7 @@ use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VendorExportController;
 use App\Http\Controllers\Admin\VendorWithdrawalController;
+use App\Http\Controllers\Admin\FormController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -485,4 +486,26 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
         Route::get('returns/{item}', [ReturnsController::class, 'show'])->name('returns.show');
         Route::post('returns/{item}', [ReturnsController::class, 'update'])
             ->name('returns.update');
+
+        // Enhanced User Balance Routes
+        Route::prefix('users/{user}')->group(function () {
+            Route::get('balance/stats', [UserController::class, 'getBalanceStats'])->name('users.balance.stats');
+            Route::get('balance/history', [UserController::class, 'getBalanceHistory'])->name('users.balance.history');
+            Route::post('balance/refresh', [UserController::class, 'refreshBalance'])->name('users.balance.refresh');
+            Route::post('balance/bulk', [UserController::class, 'bulkBalanceOperation'])->name('users.balance.bulk');
+        });
+
+        // Enhanced Notification Routes
+        Route::prefix('notifications')->group(function () {
+            Route::get('stats', [NotificationController::class, 'getStats'])->name('notifications.stats');
+            Route::post('mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+            Route::delete('{id}', [NotificationController::class, 'delete'])->name('notifications.delete');
+            Route::delete('clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
+        });
+
+        // Form Validation Routes
+        Route::prefix('forms')->group(function () {
+            Route::post('validate', [FormController::class, 'validateForm'])->name('forms.validate');
+            Route::post('auto-save', [FormController::class, 'autoSave'])->name('forms.autoSave');
+        });
     });

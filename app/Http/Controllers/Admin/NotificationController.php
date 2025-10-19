@@ -42,7 +42,7 @@ class NotificationController extends Controller
         return view('admin.notifications.index', compact('notifications'));
     }
 
-    public function markRead(Request $request, $id)
+    public function markReadOld(Request $request, $id)
     {
         $n = $request->user()->notifications()->where('id', $id)->first();
         if ($n) {
@@ -58,5 +58,124 @@ class NotificationController extends Controller
         $user->unreadNotifications()->update(['read_at' => now()]);
 
         return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Get notification statistics
+     */
+    public function getStats(Request $request)
+    {
+        $user = $request->user();
+
+        $stats = [
+            'total' => $user->notifications()->count(),
+            'unread' => $user->unreadNotifications()->count(),
+            'read' => $user->readNotifications()->count(),
+            'today' => $user->notifications()->whereDate('created_at', today())->count(),
+            'this_week' => $user->notifications()->whereBetween('created_at', [
+                now()->startOfWeek(),
+                now()->endOfWeek()
+            ])->count(),
+        ];
+
+        return response()->json([
+            'success' => true,
+            'stats' => $stats
+        ]);
+    }
+
+    /**
+     * Mark notification as read (improved)
+     */
+    public function markRead(Request $request, $id)
+    {
+        $user = $request->user();
+        $notification = $user->notifications()->where('id', $id)->first();
+
+        if (!$notification) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Notification not found')
+            ], 404);
+        }
+
+        if ($notification->read_at) {
+            return response()->json([
+                'success' => true,
+                'message' => __('Notification already marked as read')
+            ]);
+        }
+
+        $notification->markAsRead();
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Notification marked as read'),
+            'unread_count' => $user->unreadNotifications()->count()
+        ]);
+    }
+
+    /**
+     * Mark all notifications as read (improved)
+     */
+    public function markAllRead(Request $request)
+    {
+        $user = $request->user();
+        $unreadCount = $user->unreadNotifications()->count();
+
+        if ($unreadCount === 0) {
+            return response()->json([
+                'success' => true,
+                'message' => __('No unread notifications to mark')
+            ]);
+        }
+
+        $user->unreadNotifications()->update(['read_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('All notifications marked as read'),
+            'marked_count' => $unreadCount
+        ]);
+    }
+
+    /**
+     * Delete notification
+     */
+    public function delete(Request $request, $id)
+    {
+        $user = $request->user();
+        $notification = $user->notifications()->where('id', $id)->first();
+
+        if (!$notification) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Notification not found')
+            ], 404);
+        }
+
+        $notification->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Notification deleted successfully')
+        ]);
+    }
+
+    /**
+     * Clear all notifications
+     */
+    public function clearAll(Request $request)
+    {
+        $user = $request->user();
+        $count = $user->notifications()->count();
+
+        $user->notifications()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => __('All notifications cleared'),
+            'cleared_count' => $count
+        ]);
     }
 }
