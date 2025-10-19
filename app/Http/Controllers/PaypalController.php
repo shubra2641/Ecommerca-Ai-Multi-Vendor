@@ -80,23 +80,8 @@ class PaypalController extends Controller
                 if ($payment->order_id) {
                     return redirect()->route('orders.show', $payment->order_id)->with('error', __('Payment processing error'));
                 }
-                // No order created yet: restore cart from checkout snapshot and show failure page
-                $snap = $payment->payload['checkout_snapshot'] ?? null;
-                if ($snap && ! empty($snap['items'])) {
-                    $cart = [];
-                    foreach ($snap['items'] as $it) {
-                        if (empty($it['product_id'])) {
-                            continue;
-                        }
-                        $cart[$it['product_id']] = [
-                            'qty' => $it['qty'] ?? 1,
-                            'price' => $it['price'] ?? 0,
-                        ];
-                    }
-                    session(['cart' => $cart]);
-                }
+                $this->restoreCartFromSnapshot($payment);
                 $errorMessage = __('Payment processing error');
-
                 return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', $errorMessage);
             }
             if ($statusCode === 409) {
@@ -153,7 +138,6 @@ class PaypalController extends Controller
                                             'price' => $it['price'] ?? 0,
                                         ]);
                                     }
-
                                     return $order;
                                 });
                                 $payment->order_id = $order->id;
@@ -173,7 +157,6 @@ class PaypalController extends Controller
                     }
                     // Clear cart on successful payment
                     session()->forget('cart');
-
                     return redirect()->route('orders.show', $payment->order_id)->with('success', __('Payment completed'));
                 }
                 // Not completed yet -> treat as pending / processing
@@ -183,22 +166,8 @@ class PaypalController extends Controller
                 if ($payment->order_id) {
                     return redirect()->route('orders.show', $payment->order_id)->with('info', __('Payment pending confirmation'));
                 }
-                $snap = $payment->payload['checkout_snapshot'] ?? null;
-                if ($snap && ! empty($snap['items'])) {
-                    $cart = [];
-                    foreach ($snap['items'] as $it) {
-                        if (empty($it['product_id'])) {
-                            continue;
-                        }
-                        $cart[$it['product_id']] = [
-                            'qty' => $it['qty'] ?? 1,
-                            'price' => $it['price'] ?? 0,
-                        ];
-                    }
-                    session(['cart' => $cart]);
-                }
+                $this->restoreCartFromSnapshot($payment);
                 $msg = __('Payment pending confirmation');
-
                 return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', $msg);
             }
             if ($statusCode === 400) {
@@ -216,44 +185,16 @@ class PaypalController extends Controller
             if ($payment->order_id) {
                 return redirect()->route('orders.show', $payment->order_id)->with('error', __('Payment capture failed'));
             }
-            $snap = $payment->payload['checkout_snapshot'] ?? null;
-            if ($snap && ! empty($snap['items'])) {
-                $cart = [];
-                foreach ($snap['items'] as $it) {
-                    if (empty($it['product_id'])) {
-                        continue;
-                    }
-                    $cart[$it['product_id']] = [
-                        'qty' => $it['qty'] ?? 1,
-                        'price' => $it['price'] ?? 0,
-                    ];
-                }
-                session(['cart' => $cart]);
-            }
+            $this->restoreCartFromSnapshot($payment);
             $errorMessage = __('Payment capture failed');
-
             return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', $errorMessage);
         } catch (\Throwable $e) {
             Log::error('paypal.return.exception', ['error' => $e->getMessage()]);
             if ($payment->order_id) {
                 return redirect()->route('orders.show', $payment->order_id)->with('error', __('Payment processing error'));
             }
-            $snap = $payment->payload['checkout_snapshot'] ?? null;
-            if ($snap && ! empty($snap['items'])) {
-                $cart = [];
-                foreach ($snap['items'] as $it) {
-                    if (empty($it['product_id'])) {
-                        continue;
-                    }
-                    $cart[$it['product_id']] = [
-                        'qty' => $it['qty'] ?? 1,
-                        'price' => $it['price'] ?? 0,
-                    ];
-                }
-                session(['cart' => $cart]);
-            }
+            $this->restoreCartFromSnapshot($payment);
             $errorMessage = __('Payment processing error');
-
             return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', $errorMessage);
         }
     }
@@ -269,6 +210,13 @@ class PaypalController extends Controller
         if ($payment->order_id) {
             return redirect()->route('orders.show', $payment->order_id)->with('error', __('Payment cancelled'));
         }
+        $this->restoreCartFromSnapshot($payment);
+        $errorMessage = __('Payment cancelled');
+        return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', $errorMessage);
+    }
+
+    private function restoreCartFromSnapshot(Payment $payment)
+    {
         $snap = $payment->payload['checkout_snapshot'] ?? null;
         if ($snap && ! empty($snap['items'])) {
             $cart = [];
@@ -283,8 +231,5 @@ class PaypalController extends Controller
             }
             session(['cart' => $cart]);
         }
-        $errorMessage = __('Payment cancelled');
-
-        return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', $errorMessage);
     }
 }
