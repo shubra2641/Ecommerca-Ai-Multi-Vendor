@@ -57,8 +57,8 @@
                 if (res.ok) {
                     location.reload();
                 }
-            } catch (err) {
-                console.error('Error applying coupon:', err);
+            } catch {
+                // console.error('Error applying coupon');
             }
         });
     }

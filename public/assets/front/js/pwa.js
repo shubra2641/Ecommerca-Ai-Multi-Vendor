@@ -21,7 +21,7 @@
 
     // Check if we're in a secure context
     if (!window.isSecureContext && location.hostname !== 'localhost') {
-        console.warn('PWA requires HTTPS in production');
+        // console.warn('PWA requires HTTPS in production');
     }
 
     // Initialize PWA when DOM is ready
@@ -67,8 +67,8 @@
 
             // Listen for messages from service worker
             navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
-        } catch (error) {
-            console.error('Failed to register service worker:', error);
+        } catch {
+            // console.error('Failed to register service worker');
         }
     }
 
@@ -97,7 +97,7 @@
                 syncOfflineData();
             } else {
                 // Handle offline state
-                console.log('App is offline');
+                // console.log('App is offline');
             }
         }
 
@@ -166,8 +166,8 @@
         installButton.addEventListener('click', async() => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log('Install prompt outcome:', outcome);
+                await deferredPrompt.userChoice;
+                // console.log('Install prompt outcome');
                 // Clear the deferred prompt
                 window.deferredPrompt = null;
                 hideInstallButton();
@@ -187,8 +187,8 @@
     function setupNotifications() {
         // Request notification permission
         if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission().then(permission => {
-                console.log('Notification permission:', permission);
+            Notification.requestPermission().then(() => {
+                // console.log('Notification permission');
             });
         }
     }
@@ -232,8 +232,8 @@
             if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
                 navigator.serviceWorker.controller.postMessage({ type: 'SYNC_OFFLINE_DATA' });
             }
-        } catch (error) {
-            console.error('Failed to sync offline data:', error);
+        } catch {
+            // console.error('Failed to sync offline data');
         }
     }
 
