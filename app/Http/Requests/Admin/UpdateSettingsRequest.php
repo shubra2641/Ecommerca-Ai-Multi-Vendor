@@ -104,7 +104,10 @@ class UpdateSettingsRequest extends FormRequest
 
         foreach ($dangerousPatterns as $pattern) {
             if (preg_match($pattern, $code)) {
-                $validator->errors()->add($field, __('The :attribute contains potentially dangerous code.', ['attribute' => $field]));
+                $validator->errors()->add(
+                    $field,
+                    __('The :attribute contains potentially dangerous code.', ['attribute' => $field])
+                );
                 break;
             }
         }

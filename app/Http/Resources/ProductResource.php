@@ -18,9 +18,15 @@ class ProductResource extends JsonResource
             'type' => $this->type,
             'id' => $this->id,
             // main translated fields (single-value for current/default language)
-            'name' => method_exists($this, 'translated') ? $this->translated('name') : $this->name,
-            'short_description' => method_exists($this, 'translated') ? $this->translated('short_description') : $this->short_description,
-            'description' => method_exists($this, 'translated') ? $this->translated('description') : $this->description,
+            'name' => method_exists($this, 'translated')
+                ? $this->translated('name')
+                : $this->name,
+            'short_description' => method_exists($this, 'translated')
+                ? $this->translated('short_description')
+                : $this->short_description,
+            'description' => method_exists($this, 'translated')
+                ? $this->translated('description')
+                : $this->description,
             'slug' => $this->slug,
             'product_category_id' => $this->product_category_id,
             'price' => $this->price,
@@ -29,7 +35,7 @@ class ProductResource extends JsonResource
             'sale_end' => $this->sale_end?->toIso8601String(),
             'effective_price' => method_exists($this, 'effectivePrice') ? $this->effectivePrice() : $this->price,
             'main_image' => $this->main_image ? storage_image_url($this->main_image) : null,
-            'gallery' => $this->gallery ? array_map(fn ($img) => storage_image_url($img), $this->gallery) : [],
+            'gallery' => $this->gallery ? array_map(fn($img) => storage_image_url($img), $this->gallery) : [],
             'manage_stock' => (bool) $this->manage_stock,
             'stock_qty' => $this->stock_qty,
             'reserved_qty' => $this->reserved_qty,
@@ -78,7 +84,9 @@ class ProductResource extends JsonResource
                         'name_translations' => $v->name_translations ?? [],
                         'sku' => $v->sku,
                         'price' => $v->price,
-                        'effective_price' => method_exists($v, 'effectivePrice') ? $v->effectivePrice() : ($v->sale_price ?? $v->price),
+                        'effective_price' => method_exists($v, 'effectivePrice')
+                            ? $v->effectivePrice()
+                            : ($v->sale_price ?? $v->price),
                         'sale_price' => $v->sale_price,
                         'sale_start' => $v->sale_start ? $v->sale_start->toIso8601String() : null,
                         'sale_end' => $v->sale_end ? $v->sale_end->toIso8601String() : null,
@@ -103,7 +111,7 @@ class ProductResource extends JsonResource
             'seo_description' => $this->seo_description,
             'seo_keywords' => $this->seo_keywords,
             // tag ids when loaded
-            'tag_ids' => $this->whenLoaded('tags', fn () => $this->tags->pluck('id')->values()),
+            'tag_ids' => $this->whenLoaded('tags', fn() => $this->tags->pluck('id')->values()),
             // include full translations maps (for client to render multilingual fields)
             'name_translations' => $this->name_translations ?? [],
             'short_description_translations' => $this->short_description_translations ?? [],

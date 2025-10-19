@@ -77,7 +77,11 @@ class RegisteredUserController extends Controller
                 event(new Registered($user));
 
                 return redirect()->route('login')
-                    ->with('status', 'Your vendor account is pending approval by an administrator. You will be notified once approved.')
+                    ->with(
+                        'status',
+                        'Your vendor account is pending approval by an administrator. ' .
+                            'You will be notified once approved.'
+                    )
                     ->with('refresh_admin_notifications', true);
             }
         }

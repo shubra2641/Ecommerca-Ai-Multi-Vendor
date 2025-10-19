@@ -405,7 +405,10 @@ class CheckoutController extends Controller
             abort(403);
         }
 
-        return redirect()->route('orders.show', $order)->with('info', __('Payment completed but verification is pending. Check your order for updates.'));
+        return redirect()->route('orders.show', $order)->with(
+            'info',
+            __('Payment completed but verification is pending. Check your order for updates.')
+        );
     }
 
     /**

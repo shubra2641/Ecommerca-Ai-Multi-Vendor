@@ -15,8 +15,15 @@ class HtmlSanitizer
         $config = HTMLPurifier_Config::createDefault();
         $config->set('HTML.Doctype', 'HTML 4.01 Transitional');
         $config->set('HTML.SafeIframe', true);
-        $config->set('URI.SafeIframeRegexp', '%^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|player\.vimeo\.com/video/)%');
-        $config->set('HTML.Allowed', 'p,b,strong,i,em,a[href|title|rel],ul,ol,li,br,span[style],img[src|alt|title|width|height],h1,h2,h3,h4,blockquote');
+        $config->set(
+            'URI.SafeIframeRegexp',
+            '%^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|player\.vimeo\.com/video/)%'
+        );
+        $config->set(
+            'HTML.Allowed',
+            'p,b,strong,i,em,a[href|title|rel],ul,ol,li,br,span[style],' .
+                'img[src|alt|title|width|height],h1,h2,h3,h4,blockquote'
+        );
         $purifier = new HTMLPurifier($config);
 
         return $purifier->purify($html);
@@ -34,7 +41,10 @@ class HtmlSanitizer
         // Allow a minimal set plus safe iframes (YouTube/Vimeo)
         $config = HTMLPurifier_Config::createDefault();
         $config->set('HTML.SafeIframe', true);
-        $config->set('URI.SafeIframeRegexp', '%^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|player\.vimeo\.com/video/)%');
+        $config->set(
+            'URI.SafeIframeRegexp',
+            '%^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|player\.vimeo\.com/video/)%'
+        );
         $config->set('Attr.AllowedFrameTargets', ['_blank']);
 
         $purifier = new HTMLPurifier($config);

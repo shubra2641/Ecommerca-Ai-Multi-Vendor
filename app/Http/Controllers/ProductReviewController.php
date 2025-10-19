@@ -19,7 +19,8 @@ class ProductReviewController extends Controller
 
         // Optional: verify ownership of order_id if provided
         if (! empty($data['order_id'])) {
-            // we can't reliably check orders table if it doesn't exist; best-effort: check product_serials for order_id belonging to user
+            // we can't reliably check orders table if it doesn't exist;
+            // best-effort: check product_serials for order_id belonging to user
             // If no verification possible, record order_id but still require admin approval
         }
 
@@ -38,7 +39,10 @@ class ProductReviewController extends Controller
         if (! $autoPublish) {
             $admins = \App\Models\User::where('role', 'admin')->get();
             if ($admins && $admins->count()) {
-                \Illuminate\Support\Facades\Notification::sendNow($admins, new \App\Notifications\AdminReviewSubmittedNotification($review));
+                \Illuminate\Support\Facades\Notification::sendNow(
+                    $admins,
+                    new \App\Notifications\AdminReviewSubmittedNotification($review)
+                );
             }
         }
 

@@ -48,8 +48,10 @@ class ProductObserver
                     'percent' => $dropPercent,
                 ]);
             });
-            // Dispatch price drop notifications via existing job (reuse back-in-stock for simplicity now or create new job)
-            dispatch(new \App\Jobs\NotifyPriceDropJob($product->id))->afterResponse();
+            // Dispatch price drop notifications via existing job
+            // (reuse back-in-stock for simplicity now or create new job)
+            dispatch(new \App\Jobs\NotifyPriceDropJob($product->id))
+                ->afterResponse();
         }
     }
 }

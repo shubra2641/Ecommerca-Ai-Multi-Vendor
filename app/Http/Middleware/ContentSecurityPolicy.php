@@ -37,7 +37,8 @@ class ContentSecurityPolicy
 
         // Adjust domains (fonts, analytics) as needed; keep strict for Envato review.
         // Strict CSP (all inline scripts/styles removed in views; external CDNs should be self-hosted before enabling)
-        // If some CDN assets still present (Bootstrap, Chart.js, intl-tel-input) either self-host them under /public or re-add their hosts.
+        // If some CDN assets still present (Bootstrap, Chart.js, intl-tel-input)
+        // either self-host them under /public or re-add their hosts.
         // build directive parts in arrays to avoid very long literal lines and keep each code line short
         $formActionHosts = [
             "'self'",

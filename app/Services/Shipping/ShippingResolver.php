@@ -16,8 +16,12 @@ class ShippingResolver
      *
      * @return array|null [zone_id, price, estimated_days, level]
      */
-    public function resolve(?int $countryId, ?int $governorateId = null, ?int $cityId = null, ?int $zoneId = null): ?array
-    {
+    public function resolve(
+        ?int $countryId,
+        ?int $governorateId = null,
+        ?int $cityId = null,
+        ?int $zoneId = null
+    ): ?array {
         if (! $countryId) {
             return null;
         }
@@ -64,8 +68,12 @@ class ShippingResolver
      *
      * @return array[] empty array if none
      */
-    public function resolveAll(?int $countryId, ?int $governorateId = null, ?int $cityId = null, ?int $zoneId = null): array
-    {
+    public function resolveAll(
+        ?int $countryId,
+        ?int $governorateId = null,
+        ?int $cityId = null,
+        ?int $zoneId = null
+    ): array {
         if (! $countryId) {
             return [];
         }

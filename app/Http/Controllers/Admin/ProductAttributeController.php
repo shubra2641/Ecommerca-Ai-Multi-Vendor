@@ -87,8 +87,12 @@ class ProductAttributeController extends Controller
         return back()->with('success', 'Value added');
     }
 
-    public function updateValue(Request $r, ProductAttribute $productAttribute, ProductAttributeValue $value, HtmlSanitizer $sanitizer)
-    {
+    public function updateValue(
+        Request $r,
+        ProductAttribute $productAttribute,
+        ProductAttributeValue $value,
+        HtmlSanitizer $sanitizer
+    ) {
         $data = $r->validate([
             'value' => 'required',
             'slug' => 'nullable|unique:product_attribute_values,slug,' . $value->id,

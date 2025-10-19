@@ -32,7 +32,10 @@ class PayeerGateway
                 'currency' => $currency,
                 'description' => 'Checkout',
                 'redirect' => ['url' => route('payeer.return', ['payment' => $payment->id])],
-                'customer' => ['first_name' => $snapshot['customer_name'] ?? 'Customer', 'email' => $snapshot['customer_email'] ?? 'customer@example.com'],
+                'customer' => [
+                    'first_name' => $snapshot['customer_name'] ?? 'Customer',
+                    'email' => $snapshot['customer_email'] ?? 'customer@example.com'
+                ],
             ];
 
             Log::info('payeer.init.request', ['payment_id' => $payment->id, 'payload' => $chargePayload]);
@@ -42,9 +45,16 @@ class PayeerGateway
                     $client = $client->withToken($secret);
                 }
                 $resp = $client->post($apiBase . '/charges', $chargePayload);
-                Log::info('payeer.init.response', ['payment_id' => $payment->id, 'status' => $resp->status(), 'body_snippet' => substr($resp->body(), 0, 500)]);
+                Log::info('payeer.init.response', [
+                    'payment_id' => $payment->id,
+                    'status' => $resp->status(),
+                    'body_snippet' => substr($resp->body(), 0, 500)
+                ]);
                 try {
-                    Log::info('payeer.init.response_headers', ['payment_id' => $payment->id, 'headers' => method_exists($resp, 'headers') ? $resp->headers() : null]);
+                    Log::info('payeer.init.response_headers', [
+                        'payment_id' => $payment->id,
+                        'headers' => method_exists($resp, 'headers') ? $resp->headers() : null
+                    ]);
                 } catch (\Throwable $_) {
                 }
                 if (! $resp->ok()) {
@@ -55,7 +65,10 @@ class PayeerGateway
                 if (! $redirectUrl) {
                     throw new \Exception('Missing redirect URL');
                 }
-                $payment->payload = array_merge($payment->payload ?? [], ['payeer_charge_id' => $json['id'] ?? ($json['data']['id'] ?? null)]);
+                $payment->payload = array_merge(
+                    $payment->payload ?? [],
+                    ['payeer_charge_id' => $json['id'] ?? ($json['data']['id'] ?? null)]
+                );
                 $payment->save();
 
                 return ['payment' => $payment, 'redirect_url' => $redirectUrl, 'raw' => $json];

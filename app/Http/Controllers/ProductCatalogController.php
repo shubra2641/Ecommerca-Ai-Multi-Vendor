@@ -355,7 +355,9 @@ class ProductCatalogController extends Controller
         $onSale = $product->isOnSale();
         $basePrice = $product->display_price ?? $product->effectivePrice();
         $origPrice = $product->display_price ?? $product->price;
-        $discountPercent = ($onSale && $origPrice && $origPrice > 0) ? (int) round((($origPrice - $basePrice) / $origPrice) * 100) : null;
+        $discountPercent = ($onSale && $origPrice && $origPrice > 0)
+            ? (int) round((($origPrice - $basePrice) / $origPrice) * 100)
+            : null;
 
         // Stock
         $available = $product->availableStock();
@@ -477,7 +479,13 @@ class ProductCatalogController extends Controller
             $reviewStats = $reviewsPayload['stats'];
         } catch (\Throwable $e) {
             $reviews = collect();
-            $reviewStats = ['total' => 0, 'average' => 0, 'distribution' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0], 'distribution_percent' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0], 'helpful_total' => 0];
+            $reviewStats = [
+                'total' => 0,
+                'average' => 0,
+                'distribution' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0],
+                'distribution_percent' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0],
+                'helpful_total' => 0
+            ];
         }
 
         // Check if user purchased

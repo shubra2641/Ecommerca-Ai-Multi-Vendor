@@ -151,7 +151,8 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
             case 'cancelled':
                 return 'Your payment has been cancelled. You can try again if you wish to complete your order.';
             case 'refunded':
-                return 'Your payment has been refunded. The amount will be credited back to your original payment method.';
+                return 'Your payment has been refunded. The amount will be credited back to your ' .
+                    'original payment method.';
             case 'pending':
                 return 'Your payment is being processed. We will notify you once the payment is confirmed.';
             case 'expired':

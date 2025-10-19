@@ -56,7 +56,14 @@ class AdminProductVariationsDataComposer
             }
         })->filter()->values()->all();
 
-        $langData = $languages->map(fn ($l) => ['code' => $l->code, 'name' => $l->name, 'is_default' => $l->is_default])->values()->all();
+        $langData = $languages
+            ->map(fn ($l) => [
+                'code' => $l->code,
+                'name' => $l->name,
+                'is_default' => $l->is_default
+            ])
+            ->values()
+            ->all();
 
         $json = json_encode([
             'existing' => $existing,

@@ -28,7 +28,10 @@ class CheckMaintenanceMode
         if ($setting->maintenance_enabled) {
             // allow admin users to access admin pages (already skipped) and allow admin login
             // if a reopen timestamp is set, and now >= reopen_at, disable maintenance
-            if ($setting->maintenance_reopen_at && Carbon::now()->greaterThanOrEqualTo($setting->maintenance_reopen_at)) {
+            if (
+                $setting->maintenance_reopen_at &&
+                Carbon::now()->greaterThanOrEqualTo($setting->maintenance_reopen_at)
+            ) {
                 // Auto-disable maintenance at reopen time
                 $setting->maintenance_enabled = false;
                 $setting->save();
@@ -38,8 +41,11 @@ class CheckMaintenanceMode
 
             // Show maintenance page for public requests
             $locale = app()->getLocale();
-            $messages = is_array($setting->maintenance_message) ? $setting->maintenance_message : (@json_decode($setting->maintenance_message, true) ?: []);
-            $message = $messages[$locale] ?? $messages['en'] ?? __('The site is under maintenance. Please check back later.');
+            $messages = is_array($setting->maintenance_message)
+                ? $setting->maintenance_message
+                : (@json_decode($setting->maintenance_message, true) ?: []);
+            $message = $messages[$locale] ?? $messages['en'] ??
+                __('The site is under maintenance. Please check back later.');
 
             return response()->view('errors.maintenance', [
                 'message' => $message,

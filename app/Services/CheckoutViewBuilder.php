@@ -106,12 +106,18 @@ class CheckoutViewBuilder
                 if (is_object($variant)) {
                     $variantLabel = $variant->name ?? null;
                     if (! $variantLabel && ! empty($variant->attribute_data)) {
-                        $variantLabel = collect($variant->attribute_data)->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ');
+                        $variantLabel = collect($variant->attribute_data)
+                            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                            ->values()
+                            ->join(', ');
                     }
                 } elseif (is_string($variant)) {
                     $parsed = @json_decode($variant, true);
                     if (is_array($parsed) && isset($parsed['attribute_data'])) {
-                        $variantLabel = collect($parsed['attribute_data'])->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ');
+                        $variantLabel = collect($parsed['attribute_data'])
+                            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                            ->values()
+                            ->join(', ');
                     } else {
                         $variantLabel = $variant;
                     }
@@ -138,7 +144,11 @@ class CheckoutViewBuilder
         $checkoutConfig = [
             'baseTotal' => (float) $displayDiscountedTotal,
             'rawItemsSubtotal' => (float) $total,
-            'coupon' => $coupon ? ['id' => $coupon->id, 'code' => $coupon->code, 'discount' => (float) $discount] : null,
+            'coupon' => $coupon ? [
+                'id' => $coupon->id,
+                'code' => $coupon->code,
+                'discount' => (float) $discount
+            ] : null,
             'initial' => [
                 'country' => $user?->country_id,
                 'governorate' => $user?->governorate_id,

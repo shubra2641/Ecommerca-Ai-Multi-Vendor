@@ -190,9 +190,15 @@ class ProductDemoSeeder extends Seeder
                     $p4->variations()->create([
                         'sku' => 'CT-' . Str::substr($col, 0, 1) . $sz,
                         'price' => 25.00,
-                        'sale_price' => ($col === 'Black' && $sz === 'M') ? 20.00 : null,
-                        'sale_start' => ($col === 'Black' && $sz === 'M') ? $now->copy()->subDay() : null,
-                        'sale_end' => ($col === 'Black' && $sz === 'M') ? $future : null,
+                        'sale_price' => ($col === 'Black' && $sz === 'M')
+                            ? 20.00
+                            : null,
+                        'sale_start' => ($col === 'Black' && $sz === 'M')
+                            ? $now->copy()->subDay()
+                            : null,
+                        'sale_end' => ($col === 'Black' && $sz === 'M')
+                            ? $future
+                            : null,
                         'attribute_data' => ['color' => $col, 'size' => $sz],
                         'manage_stock' => 1,
                         'stock_qty' => 30,

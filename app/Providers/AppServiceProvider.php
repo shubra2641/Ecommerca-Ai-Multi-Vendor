@@ -101,7 +101,10 @@ class AppServiceProvider extends ServiceProvider
         View::composer('admin.users.form', \App\View\Composers\AdminUsersFormComposer::class);
         View::composer('admin.social.form', \App\View\Composers\AdminSocialFormComposer::class);
         View::composer('admin.profile.settings', \App\View\Composers\AdminProfileSettingsComposer::class);
-        View::composer('admin.products.products._script', \App\View\Composers\AdminProductVariationsDataComposer::class);
+        View::composer(
+            'admin.products.products._script',
+            \App\View\Composers\AdminProductVariationsDataComposer::class
+        );
         View::composer('admin.notify.top-products', \App\View\Composers\AdminNotifyTopProductsComposer::class);
         View::composer('admin.orders.index', \App\View\Composers\AdminOrdersIndexComposer::class);
         View::composer('admin.gallery.index', \App\View\Composers\AdminGalleryIndexComposer::class);
@@ -153,7 +156,11 @@ class AppServiceProvider extends ServiceProvider
             if ($cached === null) {
                 try {
                     $cached = [
-                        'setting' => \Illuminate\Support\Facades\Cache::remember('site_settings', 3600, fn() => \App\Models\Setting::first()),
+                        'setting' => \Illuminate\Support\Facades\Cache::remember(
+                            'site_settings',
+                            3600,
+                            fn() => \App\Models\Setting::first()
+                        ),
                     ];
                 } catch (\Throwable $e) {
                     $cached = ['setting' => null];
@@ -173,7 +180,8 @@ class AppServiceProvider extends ServiceProvider
             $view->with('selectedFont', $cached['selectedFont']);
         });
 
-        // Share default/current currency lightweight for all views. HeaderComposer may override currentCurrency/currency_symbol.
+        // Share default/current currency lightweight for all views.
+        // HeaderComposer may override currentCurrency/currency_symbol.
         View::composer('*', function ($view) {
             static $cache = null;
             if ($cache === null) {
@@ -222,13 +230,17 @@ class AppServiceProvider extends ServiceProvider
                 }
             );
 
-            $pendingVendorProducts = \Illuminate\Support\Facades\Cache::remember('pending_vendor_products_count', 300, function () {
-                try {
-                    return \App\Models\Product::whereNotNull('vendor_id')->where('active', false)->count();
-                } catch (\Throwable $e) {
-                    return 0;
+            $pendingVendorProducts = \Illuminate\Support\Facades\Cache::remember(
+                'pending_vendor_products_count',
+                300,
+                function () {
+                    try {
+                        return \App\Models\Product::whereNotNull('vendor_id')->where('active', false)->count();
+                    } catch (\Throwable $e) {
+                        return 0;
+                    }
                 }
-            });
+            );
 
             $view->with('pendingReturnsCount', $pending)
                 ->with('pendingVendorProductsCount', $pendingVendorProducts);

@@ -33,7 +33,9 @@ class AdminNewReturnRequest extends Notification implements ShouldQueue
     {
         $locale = app()->getLocale();
         // prefer HTML mail templates
-        $view = $locale === 'ar' ? 'emails.returns.admin_new_request_ar_html' : 'emails.returns.admin_new_request_en_html';
+        $view = $locale === 'ar'
+            ? 'emails.returns.admin_new_request_ar_html'
+            : 'emails.returns.admin_new_request_en_html';
 
         return (new MailMessage())
             ->subject(__('returns.admin_new_request_subject', [

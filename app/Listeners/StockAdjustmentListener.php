@@ -30,9 +30,15 @@ class StockAdjustmentListener
                     if ($ok) {
                         $item->committed = true;
                         $item->save();
-                        logger()->info('StockAdjustmentListener: committed variation ' . $variation->id . ' qty ' . $qty . ' for order ' . $order->id);
+                        logger()->info(
+                            'StockAdjustmentListener: committed variation ' . $variation->id .
+                            ' qty ' . $qty . ' for order ' . $order->id
+                        );
                     } else {
-                        logger()->warning('StockAdjustmentListener: failed to commit variation ' . $variation->id . ' qty ' . $qty . ' for order ' . $order->id);
+                        logger()->warning(
+                            'StockAdjustmentListener: failed to commit variation ' . $variation->id .
+                            ' qty ' . $qty . ' for order ' . $order->id
+                        );
                     }
                 }
             } else {
@@ -40,9 +46,15 @@ class StockAdjustmentListener
                 if ($ok) {
                     $item->committed = true;
                     $item->save();
-                    logger()->info('StockAdjustmentListener: committed product ' . $product->id . ' qty ' . $qty . ' for order ' . $order->id);
+                    logger()->info(
+                        'StockAdjustmentListener: committed product ' . $product->id .
+                        ' qty ' . $qty . ' for order ' . $order->id
+                    );
                 } else {
-                    logger()->warning('StockAdjustmentListener: failed to commit product ' . $product->id . ' qty ' . $qty . ' for order ' . $order->id);
+                    logger()->warning(
+                        'StockAdjustmentListener: failed to commit product ' . $product->id .
+                        ' qty ' . $qty . ' for order ' . $order->id
+                    );
                 }
             }
         }

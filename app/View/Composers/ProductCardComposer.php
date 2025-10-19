@@ -26,7 +26,10 @@ class ProductCardComposer
         }
 
         // Availability (prefer precomputed list_available set upstream)
-        $available = $product->list_available ?? ($product->manage_stock ? max(0, ($product->stock_qty ?? 0) - ($product->reserved_qty ?? 0)) : null);
+        $available = $product->list_available ??
+            ($product->manage_stock
+                ? max(0, ($product->stock_qty ?? 0) - ($product->reserved_qty ?? 0))
+                : null);
 
         // Rating aggregates (preloaded or 0)
         $rating = $product->reviews_avg_rating ?? 0.0;

@@ -62,7 +62,9 @@ class BlogPostSuggestionService
 
     private function callOpenAI(string $title, string $locale, string $apiKey): \Illuminate\Http\Client\Response
     {
-        $prompt = "Generate JSON with keys excerpt (<=300 chars), body_intro (2 paragraphs), seo_description (<=160 chars), seo_tags (<=12 comma keywords) for blog post titled '{$title}'. Language: {$locale}. Return ONLY JSON.";
+        $prompt = "Generate JSON with keys excerpt (<=300 chars), body_intro (2 paragraphs), " .
+            "seo_description (<=160 chars), seo_tags (<=12 comma keywords) for blog post titled '{$title}'. " .
+            "Language: {$locale}. Return ONLY JSON.";
 
         $response = Http::withToken($apiKey)
             ->acceptJson()
@@ -70,7 +72,10 @@ class BlogPostSuggestionService
             ->post('https://api.openai.com/v1/chat/completions', [
                 'model' => config('services.openai.model', 'gpt-4o-mini'),
                 'messages' => [
-                    ['role' => 'system', 'content' => 'You are a helpful blogging assistant. Output concise valid JSON only.'],
+                    [
+                        'role' => 'system',
+                        'content' => 'You are a helpful blogging assistant. Output concise valid JSON only.'
+                    ],
                     ['role' => 'user', 'content' => $prompt],
                 ],
                 'temperature' => 0.65,

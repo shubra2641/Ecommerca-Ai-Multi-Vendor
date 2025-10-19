@@ -30,7 +30,10 @@ class OrderViewBuilder
                 }
             } catch (\Throwable $e) {
             }
-            $orderedKeys = ['name', 'title', 'line1', 'line2', 'city', 'governorate', 'postal_code', 'country', 'phone'];
+            $orderedKeys = [
+                'name', 'title', 'line1', 'line2', 'city',
+                'governorate', 'postal_code', 'country', 'phone'
+            ];
             $parts = [];
             foreach ($orderedKeys as $k) {
                 if (! empty($addrSource[$k])) {
@@ -80,7 +83,10 @@ class OrderViewBuilder
             if (! empty($it->meta['variant_name'])) {
                 $variantLabel = $it->meta['variant_name'];
             } elseif (! empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data'])) {
-                $variantLabel = collect($it->meta['attribute_data'])->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ');
+                $variantLabel = collect($it->meta['attribute_data'])
+                    ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                    ->values()
+                    ->join(', ');
             }
         }
 

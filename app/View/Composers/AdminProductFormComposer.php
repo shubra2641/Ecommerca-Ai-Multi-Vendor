@@ -27,7 +27,10 @@ class AdminProductFormComposer
                 'id' => $a->id,
                 'name' => $a->name,
                 'slug' => $a->slug,
-                'values' => $a->values->map(fn ($v) => ['id' => $v->id, 'value' => $v->value, 'slug' => $v->slug])->values()->all(),
+                'values' => $a->values
+                    ->map(fn ($v) => ['id' => $v->id, 'value' => $v->value, 'slug' => $v->slug])
+                    ->values()
+                    ->all(),
             ];
         })->values()->all();
 

@@ -64,7 +64,11 @@ class UpdateFooterSettingsRequest extends FormRequest
     {
         if (is_string($this->footer_payment_methods)) {
             $this->merge([
-                'footer_payment_methods' => array_values(array_filter(array_map('trim', preg_split('/[\r\n]+/', $this->footer_payment_methods)))),
+                'footer_payment_methods' => array_values(
+                    array_filter(
+                        array_map('trim', preg_split('/[\r\n]+/', $this->footer_payment_methods))
+                    )
+                ),
             ]);
         }
 

@@ -19,7 +19,10 @@ class PaymentWebhookController extends Controller
     {
         // Read raw payload and signature
         $payload = (string) $request->getContent();
-        $signature = $request->header('X-Signature') ?? $request->header('X-Signature-Sha256') ?? $request->header('Signature') ?? $request->input('signature');
+        $signature = $request->header('X-Signature') ??
+            $request->header('X-Signature-Sha256') ??
+            $request->header('Signature') ??
+            $request->input('signature');
 
         // Try to load gateway config to obtain webhook secret
         $gateway = PaymentGateway::where('driver', $driver)->first();
@@ -41,7 +44,12 @@ class PaymentWebhookController extends Controller
         $data = $request->all();
 
         // Identify transaction id
-        $tx = $data['transaction_id'] ?? $data['payment_id'] ?? $data['id'] ?? $data['reference'] ?? $data['order_reference'] ?? null;
+        $tx = $data['transaction_id'] ??
+            $data['payment_id'] ??
+            $data['id'] ??
+            $data['reference'] ??
+            $data['order_reference'] ??
+            null;
         if (! $tx) {
             Log::warning('Webhook missing transaction identifier for driver ' . $driver);
 

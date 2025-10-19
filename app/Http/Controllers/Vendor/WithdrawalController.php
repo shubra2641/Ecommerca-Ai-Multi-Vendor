@@ -64,7 +64,9 @@ class WithdrawalController extends Controller
         $availableBalance = (float) ($user->balance ?? 0);
         $currency = $user->currency ?? 'USD';
         // Pending amount for sidebar summary
-        $pendingAmount = \App\Models\VendorWithdrawal::where('user_id', $user->id)->where('status', 'pending')->sum('amount');
+        $pendingAmount = \App\Models\VendorWithdrawal::where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->sum('amount');
 
         // Load settings and ensure numeric minimum and normalized gateways
         $setting = \App\Models\Setting::first();
@@ -158,7 +160,9 @@ class WithdrawalController extends Controller
         $commissionEnabled = (bool) ($setting->withdrawal_commission_enabled ?? false);
         $commissionRate = (float) ($setting->withdrawal_commission_rate ?? 0);
         $gross = (float) $r->input('amount');
-        $commissionExact = $commissionEnabled && $commissionRate > 0 ? ($gross * ($commissionRate / 100)) : 0.0; // full precision
+        $commissionExact = $commissionEnabled && $commissionRate > 0
+            ? ($gross * ($commissionRate / 100))
+            : 0.0; // full precision
         $commissionAmount = $commissionEnabled && $commissionRate > 0 ? round($commissionExact, 2) : 0.0; // legacy 2dp
         $netAmount = max(0, $gross - $commissionAmount);
         // Persist transfer details to user account if provided
@@ -184,7 +188,12 @@ class WithdrawalController extends Controller
                 'notes' => $r->input('notes'),
                 'payment_method' => $r->input('payment_method'),
                 'reference' => strtoupper(bin2hex(random_bytes(4))),
-                'admin_note' => $commissionAmount > 0 ? __('Commission :rate% potential (:fee)', ['rate' => $commissionRate, 'fee' => number_format($commissionAmount, 2)]) : null,
+                'admin_note' => $commissionAmount > 0
+                    ? __('Commission :rate% potential (:fee)', [
+                        'rate' => $commissionRate,
+                        'fee' => number_format($commissionAmount, 2)
+                    ])
+                    : null,
                 'held_at' => now(),
             ]);
 
@@ -213,7 +222,9 @@ class WithdrawalController extends Controller
         } catch (\Throwable $e) {
             \DB::rollBack();
 
-            return back()->withErrors(['amount' => __('Failed to create withdrawal: :msg', ['msg' => $e->getMessage()])])->withInput();
+            return back()->withErrors([
+                'amount' => __('Failed to create withdrawal: :msg', ['msg' => $e->getMessage()])
+            ])->withInput();
         }
 
         // Notify admins about new withdrawal request
@@ -236,7 +247,8 @@ class WithdrawalController extends Controller
             abort(403);
         }
         if ($withdrawal->status !== 'completed') {
-            return redirect()->route('vendor.withdrawals.index')->with('error', __('Receipt available after completion'));
+            return redirect()->route('vendor.withdrawals.index')
+                ->with('error', __('Receipt available after completion'));
         }
 
         return view('vendor.withdrawals.receipt', [

@@ -105,7 +105,10 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $item = OrderItem::with('order', 'product')->where('id', $id)->whereHas('product', fn ($qq) => $qq->where('vendor_id', auth()->id()))->firstOrFail();
+        $item = OrderItem::with('order', 'product')
+            ->where('id', $id)
+            ->whereHas('product', fn ($qq) => $qq->where('vendor_id', auth()->id()))
+            ->firstOrFail();
 
         return view('vendor.orders.show', compact('item'));
     }

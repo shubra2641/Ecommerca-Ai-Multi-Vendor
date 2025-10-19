@@ -36,12 +36,18 @@ class CheckoutViewBuilder
             if (is_object($it['variant'])) {
                 $variantLabel = $it['variant']->name ?? null;
                 if (! $variantLabel && ! empty($it['variant']->attribute_data)) {
-                    $variantLabel = collect($it['variant']->attribute_data)->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ');
+                    $variantLabel = collect($it['variant']->attribute_data)
+                        ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                        ->values()
+                        ->join(', ');
                 }
             } else {
                 if (is_string($it['variant']) && ($parsed = @json_decode($it['variant'], true))) {
                     if (is_array($parsed) && isset($parsed['attribute_data'])) {
-                        $variantLabel = collect($parsed['attribute_data'])->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ');
+                        $variantLabel = collect($parsed['attribute_data'])
+                            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                            ->values()
+                            ->join(', ');
                     } else {
                         $variantLabel = $it['variant'];
                     }

@@ -48,8 +48,14 @@ class TapGateway
             ];
 
             Log::info('tap.init.request', ['payment_id' => $payment->id, 'payload' => $chargePayload]);
-            $resp = Http::withToken($secret)->acceptJson()->post('https://api.tap.company/v2/charges', $chargePayload);
-            Log::info('tap.init.response', ['payment_id' => $payment->id, 'status' => $resp->status(), 'body_snippet' => substr($resp->body(), 0, 500)]);
+            $resp = Http::withToken($secret)
+                ->acceptJson()
+                ->post('https://api.tap.company/v2/charges', $chargePayload);
+            Log::info('tap.init.response', [
+                'payment_id' => $payment->id,
+                'status' => $resp->status(),
+                'body_snippet' => substr($resp->body(), 0, 500)
+            ]);
             if (! $resp->ok()) {
                 throw new \Exception('Charge error: ' . $resp->status() . ' ' . substr($resp->body(), 0, 200));
             }

@@ -58,7 +58,10 @@ class NotifyController extends Controller
             try {
                 $admins = \App\Models\User::where('role', 'admin')->get();
                 if ($admins && $admins->count()) {
-                    \Illuminate\Support\Facades\Notification::sendNow($admins, new \App\Notifications\AdminProductInterestNotification($interest));
+                    \Illuminate\Support\Facades\Notification::sendNow(
+                        $admins,
+                        new \App\Notifications\AdminProductInterestNotification($interest)
+                    );
                 }
             } catch (\Throwable $e) {
                 logger()->warning('Failed sending product interest admin notification: ' . $e->getMessage());

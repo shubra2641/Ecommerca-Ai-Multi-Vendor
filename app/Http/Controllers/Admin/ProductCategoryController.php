@@ -228,11 +228,17 @@ class ProductCategoryController extends Controller
             'temperature' => 0.6,
         ];
         try {
-            $resp = \Http::withToken($apiKey)->acceptJson()->timeout(25)->post('https://api.openai.com/v1/chat/completions', $payload);
+            $resp = \Http::withToken($apiKey)
+                ->acceptJson()
+                ->timeout(25)
+                ->post('https://api.openai.com/v1/chat/completions', $payload);
         } catch (\Throwable $e) {
             \Log::warning('AI category HTTP exception: ' . $e->getMessage());
 
-            return response()->json(['error' => 'connection_failed', 'message' => $e->getMessage()], 502);
+            return response()->json(
+                ['error' => 'connection_failed', 'message' => $e->getMessage()],
+                502
+            );
         }
         $providerStatus = $resp->status();
         $providerBody = $resp->json();
@@ -251,7 +257,11 @@ class ProductCategoryController extends Controller
         }
         $rawText = data_get($providerBody, 'choices.0.message.content');
         if (! $rawText) {
-            return response()->json(['error' => 'empty_output', 'provider_status' => $providerStatus, 'provider_body' => $providerBody], 502);
+            return response()->json([
+                'error' => 'empty_output',
+                'provider_status' => $providerStatus,
+                'provider_body' => $providerBody
+            ], 502);
         }
         $seoDescription = '';
         $seoKeywords = '';

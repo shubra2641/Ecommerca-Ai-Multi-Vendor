@@ -59,7 +59,10 @@ class ReturnsController extends Controller
         try {
             $admins = \App\Models\User::admins()->get();
             if ($admins && $admins->count()) {
-                \Illuminate\Support\Facades\Notification::sendNow($admins, new \App\Notifications\AdminNewReturnRequest($item));
+                \Illuminate\Support\Facades\Notification::sendNow(
+                    $admins,
+                    new \App\Notifications\AdminNewReturnRequest($item)
+                );
             }
         } catch (\Throwable $e) {
             // swallow notify errors to avoid breaking UX

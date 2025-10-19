@@ -157,7 +157,8 @@ class ProductController extends Controller
         }
 
 
-        return redirect()->route('vendor.products.index')->with('success', __('Product updated and resubmitted for review.'));
+        return redirect()->route('vendor.products.index')
+            ->with('success', __('Product updated and resubmitted for review.'));
     }
 
     public function destroy(Product $product)
@@ -184,7 +185,10 @@ class ProductController extends Controller
             }
             $defaultLang = $languages->firstWhere('is_default', 1) ?? $languages->first();
             $defaultCode = $defaultLang->code;
-            foreach (['name', 'short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords'] as $field) {
+            foreach (
+                ['name', 'short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords']
+                as $field
+            ) {
                 if ($r->has($field) && is_array($r->input($field))) {
                     $incoming = $r->input($field);
                     // pick default value
@@ -225,7 +229,10 @@ class ProductController extends Controller
      */
     public function collapsePrimaryTextFields(array $data, ?Product $existing = null): array
     {
-        foreach (['name', 'short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords'] as $field) {
+        foreach (
+            ['name', 'short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords']
+            as $field
+        ) {
             if (isset($data[$field]) && is_array($data[$field])) {
                 // choose first non-empty value
                 $first = null;

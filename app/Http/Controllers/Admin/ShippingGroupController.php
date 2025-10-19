@@ -47,7 +47,9 @@ class ShippingGroupController extends Controller
             foreach ($data['locations'] as $loc) {
                 $clean = $this->cleanLocationInput($loc);
                 if ($clean) {
-                    $key = ($clean['country_id'] ?: '0') . '-' . ($clean['governorate_id'] ?: '0') . '-' . ($clean['city_id'] ?: '0');
+                    $key = ($clean['country_id'] ?: '0') . '-' .
+                        ($clean['governorate_id'] ?: '0') . '-' .
+                        ($clean['city_id'] ?: '0');
                     if (isset($seen[$key])) {
                         $overlaps[] = $key;
                     }
@@ -57,7 +59,10 @@ class ShippingGroupController extends Controller
                 }
             }
             if ($overlaps) {
-                $message = __('Some location rows were duplicated and may override each other: :c', ['c' => implode(', ', $overlaps)]);
+                $message = __(
+                    'Some location rows were duplicated and may override each other: :c',
+                    ['c' => implode(', ', $overlaps)]
+                );
                 session()->flash('warning', $message);
             }
         }
@@ -100,7 +105,9 @@ class ShippingGroupController extends Controller
             foreach ($data['locations'] as $loc) {
                 $clean = $this->cleanLocationInput($loc);
                 if ($clean) {
-                    $key = ($clean['country_id'] ?: '0') . '-' . ($clean['governorate_id'] ?: '0') . '-' . ($clean['city_id'] ?: '0');
+                    $key = ($clean['country_id'] ?: '0') . '-' .
+                        ($clean['governorate_id'] ?: '0') . '-' .
+                        ($clean['city_id'] ?: '0');
                     if (isset($seen[$key])) {
                         $overlaps[] = $key;
                     }
@@ -110,7 +117,10 @@ class ShippingGroupController extends Controller
                 }
             }
             if ($overlaps) {
-                $message = __('Some location rows were duplicated and may override each other: :c', ['c' => implode(', ', $overlaps)]);
+                $message = __(
+                    'Some location rows were duplicated and may override each other: :c',
+                    ['c' => implode(', ', $overlaps)]
+                );
                 session()->flash('warning', $message);
             }
         }

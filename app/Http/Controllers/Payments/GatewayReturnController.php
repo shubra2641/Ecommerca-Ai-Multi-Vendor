@@ -59,7 +59,8 @@ class GatewayReturnController extends Controller
             $base = rtrim($payload['weaccept_api_base'] ?? 'https://accept.paymob.com', '/');
             $iframeId = $payload['weaccept_iframe_id'] ?? ($payload['weaccept_integration_id'] ?? null);
             if ($iframeId) {
-                $redirect = $base . '/api/acceptance/iframes/' . $iframeId . '?payment_token=' . $payload['weaccept_payment_token'];
+                $redirect = $base . '/api/acceptance/iframes/' . $iframeId .
+                    '?payment_token=' . $payload['weaccept_payment_token'];
             }
         }
 

@@ -171,7 +171,9 @@ class PaymentRedirectController extends Controller
             } elseif (in_array($r, ['processing', 'pending', 'in_progress', 'in_process'])) {
                 $normalized = 'processing';
             } else {
-                $normalized = in_array($r, ['fail', 'failed', 'cancel', 'cancelled', 'error', 'declined']) ? 'failed' : $r;
+                $normalized = in_array($r, ['fail', 'failed', 'cancel', 'cancelled', 'error', 'declined'])
+                    ? 'failed'
+                    : $r;
             }
         } elseif (is_null($result) && isset($payload['success'])) {
             $normalized = $payload['success'] ? 'success' : 'failed';

@@ -80,7 +80,12 @@ class GenerateVendorOrdersCsv implements ShouldQueue
         $storagePath = 'vendor_exports/' . $filename;
         Storage::disk('local')->putFileAs('vendor_exports', new \Illuminate\Http\File($temp), $filename);
         // update export record
-        $export->update(['filename' => $filename, 'path' => $storagePath, 'status' => 'completed', 'completed_at' => now()]);
+        $export->update([
+            'filename' => $filename,
+            'path' => $storagePath,
+            'status' => 'completed',
+            'completed_at' => now()
+        ]);
         @unlink($temp);
 
         // create temporary signed URL (2 hours)

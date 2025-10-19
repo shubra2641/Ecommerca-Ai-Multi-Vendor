@@ -126,11 +126,17 @@ class PaymentGatewayService
         }
     }
 
-    private function initPayPalPayment(?Order $order, PaymentGateway $gateway, ?int $orderId, ?array $snapshot = null): array
-    {
+    private function initPayPalPayment(
+        ?Order $order,
+        PaymentGateway $gateway,
+        ?int $orderId,
+        ?array $snapshot = null
+    ): array {
         $cfg = $gateway->config ?? [];
         $mode = ($cfg['paypal_mode'] ?? 'sandbox') === 'live' ? 'live' : 'sandbox';
-        $baseUrl = $mode === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+        $baseUrl = $mode === 'live'
+            ? 'https://api-m.paypal.com'
+            : 'https://api-m.sandbox.paypal.com';
 
         return DB::transaction(function () use ($order, $orderId, $snapshot, $cfg, $baseUrl) {
             $payment = Payment::create([
@@ -215,10 +221,16 @@ class PaymentGatewayService
         });
     }
 
-    private function initTapPayment(?Order $order, PaymentGateway $gateway, ?int $orderId, ?array $snapshot = null): array
-    {
+    private function initTapPayment(
+        ?Order $order,
+        PaymentGateway $gateway,
+        ?int $orderId,
+        ?array $snapshot = null
+    ): array {
         $cfg = $gateway->config ?? [];
-        $currency = strtoupper($cfg['tap_currency'] ?? ($order?->currency ?? $snapshot['currency'] ?? 'USD'));
+        $currency = strtoupper(
+            $cfg['tap_currency'] ?? ($order?->currency ?? $snapshot['currency'] ?? 'USD')
+        );
 
         return DB::transaction(function () use ($order, $orderId, $snapshot, $cfg, $currency) {
             $payment = Payment::create([
@@ -251,7 +263,9 @@ class PaymentGatewayService
                 'source' => ['id' => 'src_all'],
             ];
 
-            $response = Http::withToken($cfg['tap_secret_key'])->acceptJson()->post('https://api.tap.company/v2/charges', $payload);
+            $response = Http::withToken($cfg['tap_secret_key'])
+                ->acceptJson()
+                ->post('https://api.tap.company/v2/charges', $payload);
 
             if (!$response->ok()) {
                 throw new \Exception('Charge error: ' . $response->status());
@@ -303,17 +317,19 @@ class PaymentGatewayService
 
             $response = Http::withToken(
                 $cfg['secret_key'] ?? ($cfg['api_key'] ?? null)
-            )->acceptJson()->post(
-                $apiBase . '/charges',
-                $payload
-            );
+            )
+                ->acceptJson()
+                ->post($apiBase . '/charges', $payload);
 
             if (!$response->ok()) {
                 throw new \Exception('Charge error: ' . $response->status());
             }
 
             $data = $response->json();
-            $redirectUrl = $data['transaction']['url'] ?? $data['redirect_url'] ?? $data['data']['redirect_url'] ?? null;
+            $redirectUrl = $data['transaction']['url'] ??
+                $data['redirect_url'] ??
+                $data['data']['redirect_url'] ??
+                null;
             $chargeId = $data['id'] ?? $data['data']['id'] ?? null;
 
             $payment->payload = array_merge($payment->payload ?? [], [

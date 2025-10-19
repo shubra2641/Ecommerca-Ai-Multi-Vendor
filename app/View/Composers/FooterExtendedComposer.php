@@ -21,9 +21,14 @@ class FooterExtendedComposer
             } catch (\Throwable $e) {
                 $socialLinks = collect();
             }
-            $supportHeading = $setting->footer_support_heading[$locale] ?? ($setting->footer_support_heading['en'] ?? __("We're Always Here To Help"));
-            $supportSub = $setting->footer_support_subheading[$locale] ?? ($setting->footer_support_subheading['en'] ?? __('Reach out to us through any of these support channels'));
-            $rightsLine = $setting->rights_i18n[$locale] ?? ($setting->rights_i18n['en'] ?? ($setting->rights ?? __('All Rights Reserved')));
+            $supportHeading = $setting->footer_support_heading[$locale] ??
+                ($setting->footer_support_heading['en'] ?? __("We're Always Here To Help"));
+            $supportSub = $setting->footer_support_subheading[$locale] ??
+                ($setting->footer_support_subheading['en'] ??
+                __('Reach out to us through any of these support channels'));
+            $rightsLine = $setting->rights_i18n[$locale] ??
+                ($setting->rights_i18n['en'] ??
+                ($setting->rights ?? __('All Rights Reserved')));
             $sections = array_merge([
                 'support_bar' => true,
                 'apps' => true,
@@ -35,7 +40,9 @@ class FooterExtendedComposer
                 $paymentList = ['VISA', 'MC', 'CASH'];
             }
             $appLinks = $setting->footer_app_links ?? [];
-            $orderedApps = collect($appLinks)->filter(fn ($a) => ($a['enabled'] ?? false) && ($a['url'] ?? null))->sortBy('order');
+            $orderedApps = collect($appLinks)
+                ->filter(fn ($a) => ($a['enabled'] ?? false) && ($a['url'] ?? null))
+                ->sortBy('order');
             $labels = $setting->footer_labels ?? [];
             $translate = function ($key, $fallback) use ($labels, $locale) {
                 return $labels[$key][$locale] ?? ($labels[$key]['en'] ?? __($fallback));

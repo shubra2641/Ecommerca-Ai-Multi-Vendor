@@ -94,7 +94,9 @@ class InstallController extends Controller
                 try {
                     $conn = DB::connection('install_test');
                     // create table
-                    $conn->statement("CREATE TABLE $tname (id INT PRIMARY KEY AUTO_INCREMENT, created_at TIMESTAMP NULL);");
+                    $conn->statement(
+                        "CREATE TABLE $tname (id INT PRIMARY KEY AUTO_INCREMENT, created_at TIMESTAMP NULL);"
+                    );
                     // insert
                     $conn->statement("INSERT INTO $tname (created_at) VALUES (NOW());");
                     // drop

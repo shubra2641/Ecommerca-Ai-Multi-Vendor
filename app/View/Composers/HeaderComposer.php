@@ -17,11 +17,17 @@ class HeaderComposer
         // Basic site meta for header (avoid inline @php)
         $siteName = $setting->site_name ?? config('app.name');
         $logoPath = $setting->logo ?? null;
-        $userName = auth()->check() ? explode(' ', auth()->user()->name)[0] : null;
+        $userName = auth()->check()
+            ? explode(' ', auth()->user()->name)[0]
+            : null;
         $rootCats = Cache::remember('root_categories', 3600, function () {
             if (Schema::hasTable('product_categories')) {
                 try {
-                    return ProductCategory::where('active', 1)->whereNull('parent_id')->orderBy('name')->take(14)->get();
+                    return ProductCategory::where('active', 1)
+                        ->whereNull('parent_id')
+                        ->orderBy('name')
+                        ->take(14)
+                        ->get();
                 } catch (Throwable $e) {
                     return collect();
                 }
@@ -76,18 +82,25 @@ class HeaderComposer
                 $wishlistCount = \App\Models\WishlistItem::where('user_id', auth()->id())->count();
             } else {
                 $wishlistSession = session('wishlist', []);
-                $wishlistCount = is_array($wishlistSession) ? count($wishlistSession) : 0;
+                $wishlistCount = is_array($wishlistSession)
+                    ? count($wishlistSession)
+                    : 0;
             }
         } catch (\Throwable $e) {
             $wishlistSession = session('wishlist', []);
-            $wishlistCount = is_array($wishlistSession) ? count($wishlistSession) : 0;
+            $wishlistCount = is_array($wishlistSession)
+                ? count($wishlistSession)
+                : 0;
         }
 
         // Active languages (cached)
         $activeLanguages = Cache::remember('header_active_languages', 1800, function () {
             if (Schema::hasTable('languages')) {
                 try {
-                    return \App\Models\Language::where('is_active', 1)->orderByDesc('is_default')->orderBy('name')->get();
+                    return \App\Models\Language::where('is_active', 1)
+                        ->orderByDesc('is_default')
+                        ->orderBy('name')
+                        ->get();
                 } catch (\Throwable $e) {
                     return collect();
                 }

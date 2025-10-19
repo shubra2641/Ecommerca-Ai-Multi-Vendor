@@ -84,9 +84,9 @@ class PaytabsGateway
                         if ($authType === 'header') {
                             $client = $client->withHeaders(['X-API-KEY' => $secret]);
                         } else {
-                            // Some installs store server_key which PayTabs expects as "server_key" in payload or header;
-                            // withToken will send Authorization: Bearer <secret> which works for many APIs; if a gateway requires a different
-                            // header you can set config.auth_type = 'header' to force X-API-KEY.
+                            // PayTabs expects server_key as "server_key" in payload or header.
+                            // withToken sends Authorization: Bearer <secret> which works for many APIs.
+                            // For different auth, set config.auth_type = 'header' to force X-API-KEY.
                             $client = $client->withToken($secret);
                         }
                     }

@@ -214,7 +214,9 @@ class WithdrawalsController extends Controller
                 'notes' => $data['notes'] ?? null,
                 'payment_method' => $data['payment_method'],
                 'reference' => strtoupper(bin2hex(random_bytes(4))),
-                'admin_note' => $commissionAmount > 0 ? "Commission {$commissionRate}% potential ({$commissionAmount})" : null,
+                'admin_note' => $commissionAmount > 0
+                    ? "Commission {$commissionRate}% potential ({$commissionAmount})"
+                    : null,
                 'held_at' => now(),
             ]);
 
