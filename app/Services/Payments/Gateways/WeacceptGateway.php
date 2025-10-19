@@ -14,20 +14,27 @@ class WeacceptGateway
         $cfg = $gateway->config ?? [];
 
         // allow explicit api_base in gateway config, then env override, default to PayMob accept endpoint
-        $cfgApiBase = $cfg['api_base'] ?? env('WEACCEPT_API_BASE', env('PAYMOB_API_BASE', 'https://accept.paymob.com'));
+        $cfgApiBase = $cfg['api_base'] ?? env('WEACCEPT_API_BASE', env(
+            'PAYMOB_API_BASE',
+            'https://accept.paymob.com'
+        ));
         $apiBase = rtrim($cfgApiBase, '/');
 
         // API key used for auth/tokens
-        $apiKey = $cfg['api_key'] ?? $cfg['weaccept_api_key'] ?? $cfg['paymob_api_key'] ?? env('PAYMOB_API_KEY');
+        $apiKey = $cfg['api_key'] ?? $cfg['weaccept_api_key'] ?? $cfg['paymob_api_key'] ??
+            env('PAYMOB_API_KEY');
 
         // Integration ID used in payment_key request
-        $integrationId = $cfg['integration_id'] ?? $cfg['weaccept_integration_id'] ?? $cfg['paymob_integration_id'] ?? env('PAYMOB_INTEGRATION_ID');
+        $integrationId = $cfg['integration_id'] ?? $cfg['weaccept_integration_id'] ??
+            $cfg['paymob_integration_id'] ?? env('PAYMOB_INTEGRATION_ID');
 
         // Iframe ID used in redirect URL
-        $iframeId = $cfg['iframe_id'] ?? $cfg['weaccept_iframe_id'] ?? $cfg['paymob_iframe_id'] ?? env('PAYMOB_IFRAME_ID');
+        $iframeId = $cfg['iframe_id'] ?? $cfg['weaccept_iframe_id'] ?? $cfg['paymob_iframe_id'] ??
+            env('PAYMOB_IFRAME_ID');
 
         // default to Egyptian Pound unless explicitly configured (accepts PAYMOB_CURRENCY)
-        $currency = strtoupper($cfg['weaccept_currency'] ?? $cfg['paymob_currency'] ?? env('PAYMOB_CURRENCY', ($snapshot['currency'] ?? 'EGP')));
+        $currency = strtoupper($cfg['weaccept_currency'] ?? $cfg['paymob_currency'] ??
+            env('PAYMOB_CURRENCY', ($snapshot['currency'] ?? 'EGP')));
         $mock = (bool) ($cfg['mock'] ?? env('WEACCEPT_MOCK', false));
         // HTTP client robustness (timeouts/CA bundle)
         $timeoutSec = (int) ($cfg['http_timeout'] ?? env('PAYMOB_HTTP_TIMEOUT', 20));
@@ -80,20 +87,30 @@ class WeacceptGateway
             // Validate minimal config (unless mock mode)
             if (! $mock) {
                 if (empty($apiKey)) {
-                    Log::error('weaccept.init.exception', ['payment_id' => $payment->id, 'error' => 'Missing PAYMOB_API_KEY in gateway config']);
+                    Log::error('weaccept.init.exception', [
+                        'payment_id' => $payment->id,
+                        'error' => 'Missing PAYMOB_API_KEY in gateway config'
+                    ]);
                     throw new \Exception('Missing PAYMOB_API_KEY in gateway config');
                 }
                 if (empty($integrationId)) {
-                    Log::error('weaccept.init.exception', ['payment_id' => $payment->id, 'error' => 'Missing integration_id in gateway config']);
+                    Log::error('weaccept.init.exception', [
+                        'payment_id' => $payment->id,
+                        'error' => 'Missing integration_id in gateway config'
+                    ]);
                     throw new \Exception('Missing integration_id in gateway config');
                 }
                 if (empty($iframeId)) {
-                    Log::error('weaccept.init.exception', ['payment_id' => $payment->id, 'error' => 'Missing iframe_id in gateway config']);
+                    Log::error('weaccept.init.exception', [
+                        'payment_id' => $payment->id,
+                        'error' => 'Missing iframe_id in gateway config'
+                    ]);
                     throw new \Exception('Missing iframe_id in gateway config');
                 }
             }
 
-            // Paymob Accept flow: 1) get auth token, 2) create order, 3) request payment_key -> get payment_token and redirect
+            // Paymob Accept flow: 1) get auth token, 2) create order, 3) request payment_key
+            // -> get payment_token and redirect
             $amountCents = (int) round(($snapshot['total'] ?? 0) * 100);
 
             $initLog = [
@@ -120,7 +137,8 @@ class WeacceptGateway
                     return ['payment' => $payment, 'redirect_url' => $redirectUrl, 'raw' => ['mock' => true]];
                 }
                 // build API-prefixed base (support user setting api_base with or without /api)
-                $apiPrefix = str_contains($apiBase, '/api') ? rtrim($apiBase, '/') : rtrim($apiBase, '/') . '/api';
+                $apiPrefix = str_contains($apiBase, '/api') ? rtrim($apiBase, '/') :
+                    rtrim($apiBase, '/') . '/api';
 
                 // 1) auth token
                 $authUrl = $apiPrefix . '/auth/tokens';
@@ -131,7 +149,8 @@ class WeacceptGateway
                     'api_key_tail' => substr((string) $apiKey, -4),
                 ];
                 Log::info('weaccept.init.details', $details);
-                // Sanitize API key (strip whitespace/newlines) and try several candidate keys if auth fails
+                // Sanitize API key (strip whitespace/newlines) and try several candidate keys
+                // if auth fails
                 $candidates = [];
                 $rawKey = $apiKey;
                 if (! empty($rawKey)) {
@@ -195,7 +214,10 @@ class WeacceptGateway
                             break;
                         }
                     } catch (\Throwable $inner) {
-                        Log::warning('weaccept.auth.attempt_error', ['payment_id' => $payment->id, 'error' => $inner->getMessage()]);
+                        Log::warning('weaccept.auth.attempt_error', [
+                            'payment_id' => $payment->id,
+                            'error' => $inner->getMessage()
+                        ]);
                         // Optional insecure retry for local environments only
                         if ($allowInsecure) {
                             try {
@@ -217,7 +239,10 @@ class WeacceptGateway
                                     break;
                                 }
                             } catch (\Throwable $inner2) {
-                                Log::warning('weaccept.auth.insecure_attempt_error', ['payment_id' => $payment->id, 'error' => $inner2->getMessage()]);
+                                Log::warning('weaccept.auth.insecure_attempt_error', [
+                                    'payment_id' => $payment->id,
+                                    'error' => $inner2->getMessage()
+                                ]);
                             }
                         }
                     }
@@ -233,12 +258,14 @@ class WeacceptGateway
                     throw new \Exception('Auth token error: ' . $status);
                 }
                 $authJson = $authResp->json();
-                // Extract token if present. PayMob may return a `profile` object alongside a `token` (test accounts do this).
+                // Extract token if present. PayMob may return a `profile` object alongside a `token`
+                // (test accounts do this).
                 $authToken = $authJson['token'] ?? ($authJson['access_token'] ?? null);
                 if (empty($authToken)) {
                     // If we received profile/user but no token, this is unexpected — raise a helpful error.
                     if (isset($authJson['profile']) || isset($authJson['user'])) {
-                        $errMsg = 'Unexpected auth response: profile/user present but token missing. auth_url: ' . $authUrl;
+                        $errMsg = 'Unexpected auth response: profile/user present but token missing. ' .
+                            'auth_url: ' . $authUrl;
                         throw new \Exception($errMsg);
                     }
                     throw new \Exception('Missing auth token from Paymob');
@@ -263,7 +290,8 @@ class WeacceptGateway
                 $rawItems = $snapshot['items'] ?? [];
                 $pmItems = [];
                 foreach ($rawItems as $it) {
-                    $price = $it['amount_cents'] ?? (isset($it['price']) ? (int) round($it['price'] * 100) : $amountCents);
+                    $price = $it['amount_cents'] ?? (isset($it['price']) ?
+                        (int) round($it['price'] * 100) : $amountCents);
                     $qty = $it['qty'] ?? ($it['quantity'] ?? 1);
                     $pmItems[] = [
                         'name' => $it['name'] ?? ($it['product_name'] ?? 'Item'),
@@ -283,13 +311,18 @@ class WeacceptGateway
                     $orderResp = $client->post($apiPrefix . '/ecommerce/orders', $orderPayload);
                 } catch (\Throwable $e) {
                     if ($allowInsecure) {
-                        $orderResp = $client->withOptions(['verify' => false])->post($apiPrefix . '/ecommerce/orders', $orderPayload);
+                        $orderResp = $client->withOptions(['verify' => false])
+                            ->post($apiPrefix . '/ecommerce/orders', $orderPayload);
                     } else {
                         throw $e;
                     }
                 }
                 $orderBodyPreview = substr($orderResp->body(), 0, 500);
-                $orderRespLog = ['payment_id' => $payment->id, 'status' => $orderResp->status(), 'body' => $orderBodyPreview];
+                $orderRespLog = [
+                    'payment_id' => $payment->id,
+                    'status' => $orderResp->status(),
+                    'body' => $orderBodyPreview
+                ];
                 Log::info('weaccept.order.response', $orderRespLog);
                 if (! $orderResp->successful()) {
                     throw new \Exception('Order creation error: ' . $orderResp->status());
@@ -302,7 +335,8 @@ class WeacceptGateway
 
                 // 3) request payment key
 
-                // Populate required billing fields PayMob expects (do not leave required fields blank)
+                // Populate required billing fields PayMob expects
+                // (do not leave required fields blank)
                 $fullName = $snapshot['customer_name'] ?? 'Customer';
                 $nameParts = preg_split('/\s+/', trim($fullName));
                 $first = $nameParts[0] ?? 'Customer';
@@ -360,13 +394,18 @@ class WeacceptGateway
                     $pkResp = $client->post($apiPrefix . '/acceptance/payment_keys', $paymentKeyPayload);
                 } catch (\Throwable $e) {
                     if ($allowInsecure) {
-                        $pkResp = $client->withOptions(['verify' => false])->post($apiPrefix . '/acceptance/payment_keys', $paymentKeyPayload);
+                        $pkResp = $client->withOptions(['verify' => false])
+                            ->post($apiPrefix . '/acceptance/payment_keys', $paymentKeyPayload);
                     } else {
                         throw $e;
                     }
                 }
                 $pkBodyPreview = substr($pkResp->body(), 0, 500);
-                Log::info('weaccept.payment_key.response', ['payment_id' => $payment->id, 'status' => $pkResp->status(), 'body' => $pkBodyPreview]);
+                Log::info('weaccept.payment_key.response', [
+                    'payment_id' => $payment->id,
+                    'status' => $pkResp->status(),
+                    'body' => $pkBodyPreview
+                ]);
                 if (! $pkResp->successful()) {
                     throw new \Exception('Payment key error: ' . $pkResp->status());
                 }
@@ -380,7 +419,8 @@ class WeacceptGateway
                 $iframeBase = $apiBase . '/api/acceptance/iframes/' . $iframeId;
                 $iframeUrl = $iframeBase . '?payment_token=' . $paymentToken;
 
-                // standalone order URL (full-page) as a safe fallback when iframe integration is not permitted
+                // standalone order URL (full-page) as a safe fallback when iframe integration
+                // is not permitted
                 $standaloneUrl = $orderJson['order_url'] ?? $orderJson['url'] ?? null;
 
                 $newPayload = [

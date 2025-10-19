@@ -13,16 +13,78 @@ class HomepageSectionController extends Controller
 {
     private const DEFAULT_SECTIONS = [
         // Main large sections
-        ['key' => 'flash_sale', 'title' => 'Flash Sale', 'subtitle' => 'Limited time deals', 'item_limit' => 8, 'sort_order' => 10, 'cta_url' => '/products?filter=on-sale', 'cta_label' => 'View All Deals'],
-        ['key' => 'categories', 'title' => 'Shop by Category', 'subtitle' => 'Browse our main categories', 'item_limit' => 12, 'sort_order' => 20, 'cta_url' => '/products', 'cta_label' => 'View All Products'],
-        ['key' => 'latest_products', 'title' => 'Latest Products', 'subtitle' => 'Fresh arrivals', 'item_limit' => 8, 'sort_order' => 30, 'cta_url' => '/products?sort=newest', 'cta_label' => 'View All New Arrivals'],
-        ['key' => 'blog_posts', 'title' => 'Latest News', 'subtitle' => 'From our blog', 'item_limit' => 3, 'sort_order' => 40, 'cta_url' => '/blog', 'cta_label' => 'View All Posts'],
+        [
+            'key' => 'flash_sale',
+            'title' => 'Flash Sale',
+            'subtitle' => 'Limited time deals',
+            'item_limit' => 8,
+            'sort_order' => 10,
+            'cta_url' => '/products?filter=on-sale',
+            'cta_label' => 'View All Deals'
+        ],
+        [
+            'key' => 'categories',
+            'title' => 'Shop by Category',
+            'subtitle' => 'Browse our main categories',
+            'item_limit' => 12,
+            'sort_order' => 20,
+            'cta_url' => '/products',
+            'cta_label' => 'View All Products'
+        ],
+        [
+            'key' => 'latest_products',
+            'title' => 'Latest Products',
+            'subtitle' => 'Fresh arrivals',
+            'item_limit' => 8,
+            'sort_order' => 30,
+            'cta_url' => '/products?sort=newest',
+            'cta_label' => 'View All New Arrivals'
+        ],
+        [
+            'key' => 'blog_posts',
+            'title' => 'Latest News',
+            'subtitle' => 'From our blog',
+            'item_limit' => 3,
+            'sort_order' => 40,
+            'cta_url' => '/blog',
+            'cta_label' => 'View All Posts'
+        ],
         // Footer showcase mini sections (cta disabled by default)
-        ['key' => 'showcase_latest', 'title' => 'Latest Products', 'subtitle' => '', 'item_limit' => 4, 'sort_order' => 900],
-        ['key' => 'showcase_best_selling', 'title' => 'Best Selling', 'subtitle' => '', 'item_limit' => 4, 'sort_order' => 901],
-        ['key' => 'showcase_discount', 'title' => 'Discount', 'subtitle' => '', 'item_limit' => 4, 'sort_order' => 902],
-        ['key' => 'showcase_most_rated', 'title' => 'Most Rated', 'subtitle' => '', 'item_limit' => 4, 'sort_order' => 903],
-        ['key' => 'showcase_brands', 'title' => 'Brands', 'subtitle' => '', 'item_limit' => 8, 'sort_order' => 904],
+        [
+            'key' => 'showcase_latest',
+            'title' => 'Latest Products',
+            'subtitle' => '',
+            'item_limit' => 4,
+            'sort_order' => 900
+        ],
+        [
+            'key' => 'showcase_best_selling',
+            'title' => 'Best Selling',
+            'subtitle' => '',
+            'item_limit' => 4,
+            'sort_order' => 901
+        ],
+        [
+            'key' => 'showcase_discount',
+            'title' => 'Discount',
+            'subtitle' => '',
+            'item_limit' => 4,
+            'sort_order' => 902
+        ],
+        [
+            'key' => 'showcase_most_rated',
+            'title' => 'Most Rated',
+            'subtitle' => '',
+            'item_limit' => 4,
+            'sort_order' => 903
+        ],
+        [
+            'key' => 'showcase_brands',
+            'title' => 'Brands',
+            'subtitle' => '',
+            'item_limit' => 8,
+            'sort_order' => 904
+        ],
     ];
 
     public function index(): View
@@ -33,7 +95,13 @@ class HomepageSectionController extends Controller
             try {
                 return \DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
             } catch (\Throwable $e) {
-                return collect([(object) ['code' => config('app.locale', 'en'), 'is_default' => 1, 'name' => strtoupper(config('app.locale', 'en'))]]);
+                return collect([
+                    (object) [
+                        'code' => config('app.locale', 'en'),
+                        'is_default' => 1,
+                        'name' => strtoupper(config('app.locale', 'en'))
+                    ]
+                ]);
             }
         });
 

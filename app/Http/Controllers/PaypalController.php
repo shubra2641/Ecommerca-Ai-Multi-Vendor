@@ -23,7 +23,8 @@ class PaypalController extends Controller
             $payload = $payment->payload ?? [];
             $accessToken = null;
             $storedToken = $payload['paypal_access_token'] ?? null;
-            $storedExpiry = isset($payload['paypal_token_expires_at']) ? \Carbon\Carbon::parse($payload['paypal_token_expires_at']) : null;
+            $storedExpiry = isset($payload['paypal_token_expires_at']) ?
+                \Carbon\Carbon::parse($payload['paypal_token_expires_at']) : null;
             if ($storedToken && $storedExpiry && now()->lt($storedExpiry)) {
                 $accessToken = $storedToken;
             }
@@ -32,14 +33,18 @@ class PaypalController extends Controller
                     ->asForm()
                     ->timeout(20)
                     ->retry(2, 300)
-                    ->post($base . '/v1/oauth2/token', ['grant_type' => 'client_credentials']);
+                    ->post($base . '/v1/oauth2/token', [
+                        'grant_type' => 'client_credentials'
+                    ]);
                 if (! $tokenResp->ok()) {
                     throw new \Exception('token_http_' . $tokenResp->status());
                 }
                 $accessToken = $tokenResp->json('access_token');
                 $expiresIn = (int) ($tokenResp->json('expires_in') ?? 0);
                 $payload['paypal_access_token'] = $accessToken;
-                $payload['paypal_token_expires_at'] = now()->addSeconds(max(0, $expiresIn - 60))->toIso8601String();
+                $payload['paypal_token_expires_at'] = now()
+                    ->addSeconds(max(0, $expiresIn - 60))
+                    ->toIso8601String();
                 $payment->payload = $payload;
                 $payment->save();
             }
@@ -47,7 +52,8 @@ class PaypalController extends Controller
             if (! $orderId) {
                 throw new \Exception('missing_order');
             }
-            $captureUrl = $payment->payload['paypal_capture_url'] ?? ($base . '/v2/checkout/orders/' . $orderId . '/capture');
+            $captureUrl = $payment->payload['paypal_capture_url'] ??
+                ($base . '/v2/checkout/orders/' . $orderId . '/capture');
             try {
                 $captureResp = Http::withToken($accessToken)
                     ->asJson()
@@ -57,7 +63,11 @@ class PaypalController extends Controller
                     ->post($captureUrl, (object) []);
                 $statusCode = $captureResp->status();
                 $body = $captureResp->json();
-                Log::info('paypal.capture.raw', ['code' => $statusCode, 'id' => $orderId, 'body_status' => $body['status'] ?? null]);
+                Log::info('paypal.capture.raw', [
+                    'code' => $statusCode,
+                    'id' => $orderId,
+                    'body_status' => $body['status'] ?? null
+                ]);
             } catch (\Illuminate\Http\Client\RequestException $reqEx) {
                 $resp = $reqEx->response;
                 $respBody = null;
@@ -70,23 +80,35 @@ class PaypalController extends Controller
                     }
                     $respStatus = $resp->status();
                 }
-                Log::error('paypal.capture.request_exception', ['order_id' => $orderId, 'status' => $respStatus, 'response' => $respBody]);
+                Log::error('paypal.capture.request_exception', [
+                    'order_id' => $orderId,
+                    'status' => $respStatus,
+                    'response' => $respBody
+                ]);
                 // Mark payment failed and return
                 $payment->status = 'failed';
                 $payment->failure_reason = 'capture_request_exception';
                 $payment->failed_at = now();
-                $payment->payload = array_merge($payment->payload ?? [], ['paypal_capture_error' => $respBody]);
+                $payment->payload = array_merge($payment->payload ?? [], [
+                    'paypal_capture_error' => $respBody
+                ]);
                 $payment->save();
                 if ($payment->order_id) {
-                    return redirect()->route('orders.show', $payment->order_id)->with('error', __('Payment processing error'));
+                    return redirect()->route('orders.show', $payment->order_id)
+                        ->with('error', __('Payment processing error'));
                 }
                 $this->restoreCartFromSnapshot($payment);
                 $errorMessage = __('Payment processing error');
-                return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', $errorMessage);
+                return view('payments.failure')
+                    ->with('order', null)
+                    ->with('payment', $payment)
+                    ->with('error_message', $errorMessage);
             }
             if ($statusCode === 409) {
                 // Already captured or duplicate call: fetch order details
-                $details = Http::withToken($accessToken)->acceptJson()->get($base . '/v2/checkout/orders/' . $orderId);
+                $details = Http::withToken($accessToken)
+                    ->acceptJson()
+                    ->get($base . '/v2/checkout/orders/' . $orderId);
                 $body = $details->json();
                 Log::warning('paypal.capture.duplicate', ['order_id' => $orderId]);
             }
@@ -94,7 +116,8 @@ class PaypalController extends Controller
                 // Determine final state
                 $paypalStatus = $body['status'] ?? null; // COMPLETED, APPROVED, etc.
                 // Try to extract capture status
-                $captureStatus = $body['purchase_units'][0]['payments']['captures'][0]['status'] ?? null;
+                $captureStatus = $body['purchase_units'][0]['payments']['captures'][0]['status'] ??
+                    null;
                 $finalStatus = null;
                 if (in_array($paypalStatus, ['COMPLETED']) || in_array($captureStatus, ['COMPLETED'])) {
                     $finalStatus = 'completed';
@@ -103,10 +126,14 @@ class PaypalController extends Controller
                     $second = Http::withToken($accessToken)
                         ->asJson()
                         ->acceptJson()
-                        ->post($base . '/v2/checkout/orders/' . $orderId . '/capture', (object) []);
+                        ->post(
+                            $base . '/v2/checkout/orders/' . $orderId . '/capture',
+                            (object) []
+                        );
                     if ($second->status() >= 200 && $second->status() < 300) {
                         $body = $second->json();
-                        $captureStatus = $body['purchase_units'][0]['payments']['captures'][0]['status'] ?? null;
+                        $captureStatus = $body['purchase_units'][0]['payments']['captures'][0]['status'] ??
+                            null;
                         if ($captureStatus === 'COMPLETED') {
                             $finalStatus = 'completed';
                         }
@@ -157,18 +184,25 @@ class PaypalController extends Controller
                     }
                     // Clear cart on successful payment
                     session()->forget('cart');
-                    return redirect()->route('orders.show', $payment->order_id)->with('success', __('Payment completed'));
+                    return redirect()->route('orders.show', $payment->order_id)
+                        ->with('success', __('Payment completed'));
                 }
                 // Not completed yet -> treat as pending / processing
                 $payment->status = 'processing';
-                $payment->payload = array_merge($payment->payload ?? [], ['paypal_capture_attempt' => $body]);
+                $payment->payload = array_merge($payment->payload ?? [], [
+                    'paypal_capture_attempt' => $body
+                ]);
                 $payment->save();
                 if ($payment->order_id) {
-                    return redirect()->route('orders.show', $payment->order_id)->with('info', __('Payment pending confirmation'));
+                    return redirect()->route('orders.show', $payment->order_id)
+                        ->with('info', __('Payment pending confirmation'));
                 }
                 $this->restoreCartFromSnapshot($payment);
                 $msg = __('Payment pending confirmation');
-                return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', $msg);
+                return view('payments.failure')
+                    ->with('order', null)
+                    ->with('payment', $payment)
+                    ->with('error_message', $msg);
             }
             if ($statusCode === 400) {
                 Log::error('paypal.capture_failed_invalid_request', [
@@ -176,26 +210,37 @@ class PaypalController extends Controller
                     'response_json' => $body,
                 ]);
             } else {
-                Log::error('paypal.capture_failed', ['status' => $statusCode, 'body' => $captureResp->body()]);
+                Log::error('paypal.capture_failed', [
+                    'status' => $statusCode,
+                    'body' => $captureResp->body()
+                ]);
             }
             $payment->status = 'failed';
             $payment->failure_reason = 'capture_failed_http_' . $statusCode;
             $payment->failed_at = now();
             $payment->save();
             if ($payment->order_id) {
-                return redirect()->route('orders.show', $payment->order_id)->with('error', __('Payment capture failed'));
+                return redirect()->route('orders.show', $payment->order_id)
+                    ->with('error', __('Payment capture failed'));
             }
             $this->restoreCartFromSnapshot($payment);
             $errorMessage = __('Payment capture failed');
-            return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', $errorMessage);
+            return view('payments.failure')
+                ->with('order', null)
+                ->with('payment', $payment)
+                ->with('error_message', $errorMessage);
         } catch (\Throwable $e) {
             Log::error('paypal.return.exception', ['error' => $e->getMessage()]);
             if ($payment->order_id) {
-                return redirect()->route('orders.show', $payment->order_id)->with('error', __('Payment processing error'));
+                return redirect()->route('orders.show', $payment->order_id)
+                    ->with('error', __('Payment processing error'));
             }
             $this->restoreCartFromSnapshot($payment);
             $errorMessage = __('Payment processing error');
-            return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', $errorMessage);
+            return view('payments.failure')
+                ->with('order', null)
+                ->with('payment', $payment)
+                ->with('error_message', $errorMessage);
         }
     }
 
@@ -208,11 +253,15 @@ class PaypalController extends Controller
             $payment->save();
         }
         if ($payment->order_id) {
-            return redirect()->route('orders.show', $payment->order_id)->with('error', __('Payment cancelled'));
+            return redirect()->route('orders.show', $payment->order_id)
+                ->with('error', __('Payment cancelled'));
         }
         $this->restoreCartFromSnapshot($payment);
         $errorMessage = __('Payment cancelled');
-        return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', $errorMessage);
+        return view('payments.failure')
+            ->with('order', null)
+            ->with('payment', $payment)
+            ->with('error_message', $errorMessage);
     }
 
     private function restoreCartFromSnapshot(Payment $payment)

@@ -18,7 +18,13 @@ class HomepageBannerController extends Controller
             try {
                 return \DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
             } catch (\Throwable $e) {
-                return collect([(object) ['code' => config('app.locale', 'en'), 'is_default' => 1, 'name' => strtoupper(config('app.locale', 'en'))]]);
+                return collect([
+                    (object) [
+                        'code' => config('app.locale', 'en'),
+                        'is_default' => 1,
+                        'name' => strtoupper(config('app.locale', 'en'))
+                    ]
+                ]);
             }
         });
     }
@@ -33,7 +39,14 @@ class HomepageBannerController extends Controller
 
     public function store(Request $request, \App\Services\HtmlSanitizer $sanitizer): RedirectResponse
     {
-        $data = $request->validate(['placement_key' => ['nullable', 'string', 'max:64'], 'image' => ['required', 'image', 'max:2048'], 'link_url' => ['nullable', 'url', 'max:255'], 'sort_order' => ['nullable', 'integer', 'between:0,65535'], 'enabled' => ['nullable', 'boolean'], 'alt_text_i18n' => ['nullable', 'array']]);
+        $data = $request->validate([
+            'placement_key' => ['nullable', 'string', 'max:64'],
+            'image' => ['required', 'image', 'max:2048'],
+            'link_url' => ['nullable', 'url', 'max:255'],
+            'sort_order' => ['nullable', 'integer', 'between:0,65535'],
+            'enabled' => ['nullable', 'boolean'],
+            'alt_text_i18n' => ['nullable', 'array']
+        ]);
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('uploads/homepage/banners', 'public');
         } $data['enabled'] = (bool) ($data['enabled'] ?? false);
@@ -45,23 +58,35 @@ class HomepageBannerController extends Controller
 
                     continue;
                 }
-                $data['alt_text_i18n'][$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
+                $data['alt_text_i18n'][$lc] = is_string($v) ?
+                $sanitizer->clean($v) : $v;
             }
             if (empty($data['alt_text_i18n'])) {
                 unset($data['alt_text_i18n']);
             }
         }
         $defaultLocale = config('app.locale', 'en');
-        $data['alt_text'] = $data['alt_text_i18n'][$defaultLocale] ?? null;
+        $data['alt_text'] = $data['alt_text_i18n'][$defaultLocale] ??
+            null;
         HomepageBanner::create($data);
         Cache::forget('homepage_banners_enabled');
 
         return back()->with('success', __('Banner created.'));
     }
 
-    public function update(Request $request, HomepageBanner $banner, \App\Services\HtmlSanitizer $sanitizer): RedirectResponse
-    {
-        $data = $request->validate(['placement_key' => ['nullable', 'string', 'max:64'], 'image' => ['nullable', 'image', 'max:2048'], 'link_url' => ['nullable', 'url', 'max:255'], 'sort_order' => ['nullable', 'integer', 'between:0,65535'], 'enabled' => ['nullable', 'boolean'], 'alt_text_i18n' => ['nullable', 'array']]);
+    public function update(
+        Request $request,
+        HomepageBanner $banner,
+        \App\Services\HtmlSanitizer $sanitizer
+    ): RedirectResponse {
+        $data = $request->validate([
+            'placement_key' => ['nullable', 'string', 'max:64'],
+            'image' => ['nullable', 'image', 'max:2048'],
+            'link_url' => ['nullable', 'url', 'max:255'],
+            'sort_order' => ['nullable', 'integer', 'between:0,65535'],
+            'enabled' => ['nullable', 'boolean'],
+            'alt_text_i18n' => ['nullable', 'array']
+        ]);
         if ($request->hasFile('image')) {
             if ($banner->image && Storage::disk('public')->exists($banner->image)) {
                 Storage::disk('public')->delete($banner->image);
@@ -74,7 +99,8 @@ class HomepageBannerController extends Controller
                     unset($e[$k]);
 
                     continue;
-                } if ($v !== null) {
+                }
+                if ($v !== null) {
                     $e[$k] = $v;
                 }
             }
@@ -82,14 +108,18 @@ class HomepageBannerController extends Controller
             return $e;
         };
         if (isset($data['alt_text_i18n'])) {
-            $data['alt_text_i18n'] = $merge($banner->alt_text_i18n, $data['alt_text_i18n']);
+            $data['alt_text_i18n'] = $merge(
+                $banner->alt_text_i18n,
+                $data['alt_text_i18n']
+            );
             // sanitize merged translations
             foreach ($data['alt_text_i18n'] as $lc => $v) {
                 $data['alt_text_i18n'][$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
             }
         }
         $defaultLocale = config('app.locale', 'en');
-        $data['alt_text'] = $data['alt_text_i18n'][$defaultLocale] ?? $banner->alt_text_i18n[$defaultLocale] ?? $banner->alt_text;
+        $data['alt_text'] = $data['alt_text_i18n'][$defaultLocale] ??
+            $banner->alt_text_i18n[$defaultLocale] ?? $banner->alt_text;
         $banner->update($data);
         Cache::forget('homepage_banners_enabled');
 
