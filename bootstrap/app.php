@@ -9,7 +9,7 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Providers\EventServiceProvider::class,
     ])
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
+        web: __DIR__ . '/../routes/web.php',
         then: function () {
             \Illuminate\Support\Facades\Route::middleware('web')
                 ->prefix('admin')
@@ -28,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     ->group(base_path('routes/api.php'));
             }
         },
-        commands: __DIR__.'/../routes/console.php',
+        commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {

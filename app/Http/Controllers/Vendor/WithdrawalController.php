@@ -142,7 +142,7 @@ class WithdrawalController extends Controller
         }
 
         $r->validate([
-            'amount' => ['required', 'numeric', 'min:'.$min],
+            'amount' => ['required', 'numeric', 'min:' . $min],
             'currency' => 'required|string',
             'payment_method' => ['required', 'string', function ($attribute, $value, $fail) use ($gatewaySlugs) {
                 if (! in_array($value, $gatewaySlugs)) {
@@ -205,7 +205,7 @@ class WithdrawalController extends Controller
                     $w
                 );
             } catch (\Throwable $e) {
-                logger()->warning('Failed logging withdrawal hold: '.$e->getMessage());
+                logger()->warning('Failed logging withdrawal hold: ' . $e->getMessage());
             }
 
 
@@ -223,7 +223,7 @@ class WithdrawalController extends Controller
                 $admin->notify(new \App\Notifications\AdminVendorWithdrawalCreated($w));
             }
         } catch (\Throwable $e) {
-            logger()->warning('Admin withdrawal notification failed: '.$e->getMessage());
+            logger()->warning('Admin withdrawal notification failed: ' . $e->getMessage());
         }
 
         return redirect()->route('vendor.withdrawals.index')->with('success', __('Withdrawal request submitted'));

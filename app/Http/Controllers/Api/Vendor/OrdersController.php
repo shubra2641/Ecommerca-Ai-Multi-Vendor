@@ -16,7 +16,7 @@ class OrdersController extends Controller
             ->whereHas('product', fn ($qq) => $qq->where('vendor_id', $r->user()->id));
 
         if ($r->filled('q')) {
-            $q->whereHas('order', fn ($qo) => $qo->where('id', 'like', '%'.$r->input('q').'%'));
+            $q->whereHas('order', fn ($qo) => $qo->where('id', 'like', '%' . $r->input('q') . '%'));
         }
         if ($r->filled('status')) {
             $q->whereHas('order', fn ($qo) => $qo->where('status', $r->input('status')));
@@ -107,7 +107,7 @@ class OrdersController extends Controller
                 $order->user->notify(new \App\Notifications\UserOrderStatusUpdated($order, $r->input('status')));
             }
         } catch (\Throwable $e) {
-            logger()->warning('Order status notification failed: '.$e->getMessage());
+            logger()->warning('Order status notification failed: ' . $e->getMessage());
         }
 
         return response()->json(['success' => true, 'message' => 'Order status updated successfully']);

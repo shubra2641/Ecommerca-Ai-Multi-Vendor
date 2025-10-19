@@ -15,7 +15,7 @@ class UploadController extends Controller
             'file' => ['required', 'image', 'max:2048'], // 2MB
         ]);
         $file = $r->file('file');
-        $path = $file->storeAs('uploads/vendor/'.date('Y/m'), Str::random(20).'.'.$file->getClientOriginalExtension(), 'public');
+        $path = $file->storeAs('uploads/vendor/' . date('Y/m'), Str::random(20) . '.' . $file->getClientOriginalExtension(), 'public');
         $url = Storage::disk('public')->url($path);
 
         return response()->json(['url' => $url, 'path' => $path]);

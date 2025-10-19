@@ -26,7 +26,7 @@ class ProductRequest extends FormRequest
             'product_category_id' => ['required', 'exists:product_categories,id'],
             'type' => ['required', Rule::in(['simple', 'variable'])],
             'physical_type' => ['nullable', Rule::in(['physical', 'digital'])],
-            'sku' => ['nullable', 'string', 'max:255', 'unique:products,sku'.($id ? ','.$id : '')],
+            'sku' => ['nullable', 'string', 'max:255', 'unique:products,sku' . ($id ? ',' . $id : '')],
             'name' => ['required'],
             'short_description' => ['nullable'],
             'description' => ['nullable'],

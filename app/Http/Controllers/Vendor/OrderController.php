@@ -19,7 +19,7 @@ class OrderController extends Controller
             ->whereHas('product', fn ($qq) => $qq->where('vendor_id', auth()->id()));
 
         if ($r->filled('q')) {
-            $q->whereHas('order', fn ($qo) => $qo->where('id', 'like', '%'.$r->input('q').'%'));
+            $q->whereHas('order', fn ($qo) => $qo->where('id', 'like', '%' . $r->input('q') . '%'));
         }
         if ($r->filled('status')) {
             $q->whereHas('order', fn ($qo) => $qo->where('status', $r->input('status')));
@@ -50,7 +50,7 @@ class OrderController extends Controller
             $q->whereHas('order', fn ($qo) => $qo->whereDate('created_at', '<=', $r->input('end_date')));
         }
 
-        $filename = 'vendor_orders_'.date('Ymd_His').'.csv';
+        $filename = 'vendor_orders_' . date('Ymd_His') . '.csv';
         $response = new StreamedResponse(function () use ($q) {
             $handle = fopen('php://output', 'w');
             fputcsv($handle, ['order_id', 'order_date', 'product', 'quantity', 'total_price', 'status']);
@@ -69,7 +69,7 @@ class OrderController extends Controller
             fclose($handle);
         });
         $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', 'attachment; filename="'.$filename.'"');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
 
         return $response;
     }
@@ -95,7 +95,7 @@ class OrderController extends Controller
         if (! $r->hasValidSignature()) {
             abort(403);
         }
-        $path = storage_path('app/vendor_exports/'.$filename);
+        $path = storage_path('app/vendor_exports/' . $filename);
         if (! file_exists($path)) {
             abort(404);
         }

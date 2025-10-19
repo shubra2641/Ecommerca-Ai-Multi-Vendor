@@ -26,7 +26,7 @@ return new class extends Migration
                         if (! $it->name) {
                             $attr = json_decode($it->attribute_data ?? '[]', true) ?: [];
                             if (is_array($attr) && ! empty($attr)) {
-                                $label = collect($attr)->filter(fn ($v) => $v !== null && $v !== '')->map(fn ($v, $k) => ucfirst($k).': '.$v)->join(' / ');
+                                $label = collect($attr)->filter(fn ($v) => $v !== null && $v !== '')->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)->join(' / ');
                                 if ($label) {
                                     DB::table('product_variations')->where('id', $it->id)->update(['name' => $label, 'name_translations' => json_encode(['en' => $label])]);
                                 }

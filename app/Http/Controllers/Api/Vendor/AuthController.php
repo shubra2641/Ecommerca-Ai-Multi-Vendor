@@ -71,7 +71,7 @@ class AuthController extends Controller
 
         $data = $r->validate([
             'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,'.$user->id,
+            'email' => 'sometimes|required|email|unique:users,email,' . $user->id,
             'phone' => 'sometimes|nullable|string|max:20',
             'whatsapp' => 'sometimes|nullable|string|max:20',
             'password' => 'sometimes|nullable|string|min:8|confirmed',

@@ -54,7 +54,7 @@ class ProductController extends Controller
         $base = $slug;
         $i = 1;
         while (Product::where('slug', $slug)->exists()) {
-            $slug = $base.'-'.$i++;
+            $slug = $base . '-' . $i++;
         }
         $data['slug'] = $slug;
         if (isset($data['gallery'])) {
@@ -79,7 +79,7 @@ class ProductController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            \Log::error('Product pending email failed: '.$e->getMessage());
+            \Log::error('Product pending email failed: ' . $e->getMessage());
         }
 
 
@@ -117,7 +117,7 @@ class ProductController extends Controller
         $base = $slug;
         $i = 1;
         while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
-            $slug = $base.'-'.$i++;
+            $slug = $base . '-' . $i++;
         }
         $data['slug'] = $slug;
         if (isset($data['gallery'])) {
@@ -138,7 +138,7 @@ class ProductController extends Controller
                 Mail::to($admin->email)->queue(new ProductPendingForReview($product));
             }
         } catch (\Exception $e) {
-            \Log::error('Product pending email failed: '.$e->getMessage());
+            \Log::error('Product pending email failed: ' . $e->getMessage());
         }
 
 
@@ -184,7 +184,7 @@ class ProductController extends Controller
                             $incoming[$code] = $defaultVal;
                         }
                     }
-                    $data[$field.'_translations'] = $incoming;
+                    $data[$field . '_translations'] = $incoming;
                     // base column will be set later by collapsePrimaryTextFields
                 }
             }

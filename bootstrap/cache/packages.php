@@ -1,79 +1,81 @@
-<?php return array (
-  'barryvdh/laravel-dompdf' => 
+<?php
+
+return array (
+  'barryvdh/laravel-dompdf' =>
   array (
-    'aliases' => 
+    'aliases' =>
     array (
       'PDF' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
       'Pdf' => 'Barryvdh\\DomPDF\\Facade\\Pdf',
     ),
-    'providers' => 
+    'providers' =>
     array (
       0 => 'Barryvdh\\DomPDF\\ServiceProvider',
     ),
   ),
-  'laravel/breeze' => 
+  'laravel/breeze' =>
   array (
-    'providers' => 
+    'providers' =>
     array (
       0 => 'Laravel\\Breeze\\BreezeServiceProvider',
     ),
   ),
-  'laravel/pail' => 
+  'laravel/pail' =>
   array (
-    'providers' => 
+    'providers' =>
     array (
       0 => 'Laravel\\Pail\\PailServiceProvider',
     ),
   ),
-  'laravel/sail' => 
+  'laravel/sail' =>
   array (
-    'providers' => 
+    'providers' =>
     array (
       0 => 'Laravel\\Sail\\SailServiceProvider',
     ),
   ),
-  'laravel/sanctum' => 
+  'laravel/sanctum' =>
   array (
-    'providers' => 
+    'providers' =>
     array (
       0 => 'Laravel\\Sanctum\\SanctumServiceProvider',
     ),
   ),
-  'laravel/tinker' => 
+  'laravel/tinker' =>
   array (
-    'providers' => 
+    'providers' =>
     array (
       0 => 'Laravel\\Tinker\\TinkerServiceProvider',
     ),
   ),
-  'maatwebsite/excel' => 
+  'maatwebsite/excel' =>
   array (
-    'aliases' => 
+    'aliases' =>
     array (
       'Excel' => 'Maatwebsite\\Excel\\Facades\\Excel',
     ),
-    'providers' => 
+    'providers' =>
     array (
       0 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
     ),
   ),
-  'nesbot/carbon' => 
+  'nesbot/carbon' =>
   array (
-    'providers' => 
+    'providers' =>
     array (
       0 => 'Carbon\\Laravel\\ServiceProvider',
     ),
   ),
-  'nunomaduro/collision' => 
+  'nunomaduro/collision' =>
   array (
-    'providers' => 
+    'providers' =>
     array (
       0 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
     ),
   ),
-  'nunomaduro/termwind' => 
+  'nunomaduro/termwind' =>
   array (
-    'providers' => 
+    'providers' =>
     array (
       0 => 'Termwind\\Laravel\\TermwindServiceProvider',
     ),
