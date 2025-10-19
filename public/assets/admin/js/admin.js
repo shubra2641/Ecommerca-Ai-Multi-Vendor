@@ -1,854 +1,489 @@
 /**
- * Admin JavaScript - Optimized and Simplified
- * Consolidated JS for Admin Panel with improved maintainability
- * Features: Progressive enhancement, no inline JS, unified structure
+ * Admin Panel JavaScript - Simple & Clean
+ * إدارة لوحة التحكم - بسيط ونظيف
  */
 
-/* global window, document, fetch, URL, FormData, setTimeout, clearTimeout, Intl, AdminPanel */
+/* eslint-env browser */
+/* global document, window, setTimeout, clearTimeout, FormData, fetch, confirm */
 
 (function () {
     'use strict';
 
-    // Admin namespace
-    window.AdminPanel = window.AdminPanel || {};
-
-    // Configuration constants
-    const CONFIG = {
-        AUTO_SAVE_DELAY: 2000,
-        NOTIFICATION_DURATION: 5000,
-        SIDEBAR_BREAKPOINT: 992
+    // متغيرات عامة
+    const Admin = {
+        sidebar: null,
+        dropdowns: [],
+        modals: []
     };
 
-    // Utility functions
-    const Utils = {
-        // Safe element selection
-        select: (selector, context = document) => context.querySelector(selector),
-        selectAll: (selector, context = document) => Array.from(context.querySelectorAll(selector)),
+    // دوال مساعدة بسيطة
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => document.querySelectorAll(selector);
+    const addClass = (el, className) => el?.classList.add(className);
+    const removeClass = (el, className) => el?.classList.remove(className);
+    const toggleClass = (el, className) => el?.classList.toggle(className);
+    const hasClass = (el, className) => el?.classList.contains(className);
 
-        // Event handling
-        on: (element, event, handler) => element?.addEventListener(event, handler),
-        off: (element, event, handler) => element?.removeEventListener(event, handler),
+    // إدارة الشريط الجانبي
+    function initSidebar() {
+        Admin.sidebar = $('.modern-sidebar, #sidebar');
+        const toggle = $('.sidebar-toggle');
+        const overlay = $('.sidebar-overlay');
 
-        // DOM manipulation
-        addClass: (element, className) => element?.classList.add(className),
-        removeClass: (element, className) => element?.classList.remove(className),
-        toggleClass: (element, className) => element?.classList.toggle(className),
-        hasClass: (element, className) => element?.classList.contains(className),
-
-        // AJAX helpers
-        fetch: async (url, options = {}) => {
-            // Validate URL to prevent SSRF attacks
-            try {
-                const urlObj = new URL(url, window.location.origin);
-                if (urlObj.origin !== window.location.origin) {
-                    throw new Error('Cross-origin requests not allowed');
-                }
-            } catch (e) {
-                throw new Error('Invalid URL');
-            }
-
-            const defaultOptions = {
-                credentials: 'same-origin',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': Utils.getCSRFToken()
-                }
-            };
-            return fetch(url, { ...defaultOptions, ...options });
-        },
-
-        getCSRFToken: () => {
-            const meta = Utils.select('meta[name="csrf-token"]');
-            return meta?.getAttribute('content') || '';
-        },
-
-        // Format currency
-        formatCurrency: (amount, currency = { symbol: '$', code: 'USD' }) => {
-            try {
-                return new Intl.NumberFormat(document.documentElement.lang || 'en', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }).format(parseFloat(amount || 0)) + ' ' + currency.symbol;
-            } catch (e) {
-                return (parseFloat(amount || 0).toFixed(2) + ' ' + currency.symbol);
-            }
-        }
-    };
-
-    // Sidebar Manager
-    const SidebarManager = {
-        init() {
-            this.sidebar = Utils.select('.admin-sidebar, .modern-sidebar, .vendor-sidebar, #sidebar');
-            this.toggles = Utils.selectAll('.sidebar-toggle, .mobile-menu-toggle');
-            this.overlay = this.createOverlay();
-            this.bindEvents();
-        },
-
-        createOverlay() {
-            let overlay = Utils.select('.sidebar-overlay');
-            if (!overlay && this.sidebar?.parentNode) {
-                overlay = document.createElement('div');
-                overlay.className = 'sidebar-overlay';
-                this.sidebar.parentNode.insertBefore(overlay, this.sidebar.nextSibling);
-            }
-            return overlay;
-        },
-
-        bindEvents() {
-            this.toggles.forEach(toggle => {
-                Utils.on(toggle, 'click', this.toggle.bind(this));
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                toggleClass(Admin.sidebar, 'active');
+                toggleClass(overlay, 'active');
             });
-
-            Utils.on(this.overlay, 'click', this.close.bind(this));
-            Utils.on(document, 'click', this.handleNavClick.bind(this));
-        },
-
-        toggle(e) {
-            e?.preventDefault();
-            if (!this.sidebar) return;
-            Utils.toggleClass(this.sidebar, 'active');
-            Utils.toggleClass(this.overlay, 'active');
-        },
-
-        close() {
-            if (!this.sidebar) return;
-            Utils.removeClass(this.sidebar, 'active');
-            Utils.removeClass(this.overlay, 'active');
-        },
-
-        handleNavClick(e) {
-            if (!this.sidebar) return;
-            const navItem = e.target.closest('.sidebar-nav a, .nav-item');
-            if (!navItem) return;
-
-            if (window.innerWidth <= CONFIG.SIDEBAR_BREAKPOINT && Utils.hasClass(this.sidebar, 'active')) {
-                this.close();
-            }
         }
-    };
 
-    // Dropdown Manager - Simple dropdown functionality
-    const DropdownManager = {
-        init() {
-            this.dropdowns = Utils.selectAll('.dropdown, .nav-dropdown');
-            this.bindEvents();
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                removeClass(Admin.sidebar, 'active');
+                removeClass(overlay, 'active');
+            });
+        }
 
-            // Initialize dropdowns
-
-            // Initialize all dropdowns as closed
-            this.dropdowns.forEach(dropdown => {
-                const menu = Utils.select('.dropdown-menu', dropdown);
-                if (menu) {
-                    menu.style.display = 'none';
+        // إغلاق الشريط عند النقر على رابط في الشاشات الصغيرة
+        $$('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 992 && hasClass(Admin.sidebar, 'active')) {
+                    removeClass(Admin.sidebar, 'active');
+                    removeClass(overlay, 'active');
                 }
             });
-        },
+        });
+    }
 
-        bindEvents() {
-            this.dropdowns.forEach(dropdown => {
-                const toggle = Utils.select('.dropdown-toggle, .nav-item.dropdown-toggle', dropdown);
-                const menu = Utils.select('.dropdown-menu', dropdown);
+    // إدارة القوائم المنسدلة
+    function initDropdowns() {
+        $$('.dropdown, .nav-dropdown').forEach(dropdown => {
+            const toggle = $('.dropdown-toggle', dropdown);
+            const menu = $('.dropdown-menu', dropdown);
 
+            if (toggle && menu) {
+                toggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // إغلاق القوائم الأخرى
+                    closeAllDropdowns(dropdown);
+
+                    // فتح/إغلاق القائمة الحالية
+                    const isOpen = hasClass(dropdown, 'show');
+                    if (isOpen) {
+                        closeDropdown(dropdown, toggle, menu);
+                    } else {
+                        openDropdown(dropdown, toggle, menu);
+                    }
+                });
+            }
+        });
+
+        // إغلاق القوائم عند النقر خارجها
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown, .nav-dropdown')) {
+                closeAllDropdowns();
+            }
+        });
+    }
+
+    function openDropdown(dropdown, toggle, menu) {
+        addClass(dropdown, 'show');
+        addClass(menu, 'show');
+        toggle.setAttribute('aria-expanded', 'true');
+        menu.style.display = 'block';
+    }
+
+    function closeDropdown(dropdown, toggle, menu) {
+        removeClass(dropdown, 'show');
+        removeClass(menu, 'show');
+        toggle.setAttribute('aria-expanded', 'false');
+        menu.style.display = 'none';
+    }
+
+    function closeAllDropdowns(excludeDropdown = null) {
+        $$('.dropdown, .nav-dropdown').forEach(dropdown => {
+            if (dropdown !== excludeDropdown) {
+                const toggle = $('.dropdown-toggle', dropdown);
+                const menu = $('.dropdown-menu', dropdown);
                 if (toggle && menu) {
-                    // Handle both data-bs-toggle and regular dropdowns
-                    if (toggle.hasAttribute('data-bs-toggle') || toggle.classList.contains('dropdown-toggle')) {
-                        Utils.on(toggle, 'click', (e) => this.handleToggle(e, dropdown, toggle, menu));
-                        // Dropdown bound
-                    }
+                    closeDropdown(dropdown, toggle, menu);
                 }
-            });
-
-            // Close dropdowns when clicking outside
-            Utils.on(document, 'click', (e) => this.handleOutsideClick(e));
-        },
-
-        handleToggle(e, dropdown, toggle, menu) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // Dropdown clicked
-
-            // Close other dropdowns
-            this.closeAllDropdowns(dropdown);
-
-            // Toggle current dropdown
-            const isOpen = Utils.hasClass(dropdown, 'show');
-            if (isOpen) {
-                this.closeDropdown(dropdown, toggle, menu);
-            } else {
-                this.openDropdown(dropdown, toggle, menu);
             }
-        },
+        });
+    }
 
-        openDropdown(dropdown, toggle, menu) {
-            Utils.addClass(dropdown, 'show');
-            Utils.addClass(menu, 'show');
-            toggle.setAttribute('aria-expanded', 'true');
-
-            // Opening dropdown
-
-            // Force display and remove inline styles that might conflict
-            menu.style.display = 'block';
-            menu.style.opacity = '1';
-            menu.style.transform = 'translateY(0)';
-            menu.style.maxHeight = '500px';
-        },
-
-        closeDropdown(dropdown, toggle, menu) {
-            Utils.removeClass(dropdown, 'show');
-            Utils.removeClass(menu, 'show');
-            toggle.setAttribute('aria-expanded', 'false');
-
-            // Closing dropdown
-
-            // Force hide
-            menu.style.display = 'none';
-            menu.style.opacity = '0';
-            menu.style.transform = 'translateY(-10px)';
-            menu.style.maxHeight = '0';
-        },
-
-        closeAllDropdowns(excludeDropdown = null) {
-            this.dropdowns.forEach(dropdown => {
-                if (dropdown !== excludeDropdown) {
-                    const toggle = Utils.select('.dropdown-toggle, .nav-item.dropdown-toggle', dropdown);
-                    const menu = Utils.select('.dropdown-menu', dropdown);
-                    if (toggle && menu) {
-                        this.closeDropdown(dropdown, toggle, menu);
-                    }
-                }
-            });
-        },
-
-        handleOutsideClick(e) {
-            const clickedDropdown = e.target.closest('.dropdown, .nav-dropdown');
-            if (!clickedDropdown) {
-                this.closeAllDropdowns();
-            }
-        }
-    };
-
-    // Table Manager
-    const TableManager = {
-        init() {
-            const tables = Utils.selectAll('.admin-table');
-            tables.forEach(table => {
-                this.initSorting(table);
-                this.initSelection(table);
-            });
-        },
-
-        initSorting(table) {
-            const headers = Utils.selectAll('th[data-sortable]', table);
-            headers.forEach(header => {
+    // إدارة الجداول
+    function initTables() {
+        $$('.admin-table').forEach(table => {
+            // ترتيب الجداول
+            $$('th[data-sortable]', table).forEach(header => {
                 header.style.cursor = 'pointer';
-                Utils.on(header, 'click', () => this.sortTable(table, header));
-            });
-        },
-
-        sortTable(table, header) {
-            const columnIndex = Array.from(header.parentNode.children).indexOf(header);
-            const rows = Array.from(Utils.selectAll('tbody tr', table));
-            const isAscending = !Utils.hasClass(header, 'sort-asc');
-
-            rows.sort((a, b) => {
-                const aText = a.children[columnIndex].textContent.trim();
-                const bText = b.children[columnIndex].textContent.trim();
-                return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+                header.addEventListener('click', () => sortTable(table, header));
             });
 
-            // Update sort classes
-            Utils.selectAll('th', table).forEach(th => {
-                Utils.removeClass(th, 'sort-asc');
-                Utils.removeClass(th, 'sort-desc');
-            });
-            Utils.addClass(header, isAscending ? 'sort-asc' : 'sort-desc');
-
-            // Reorder rows
-            const tbody = Utils.select('tbody', table);
-            rows.forEach(row => tbody.appendChild(row));
-        },
-
-        initSelection(table) {
-            const selectAll = Utils.select('thead input[type="checkbox"]', table);
-            const rowCheckboxes = Utils.selectAll('tbody input[type="checkbox"]', table);
+            // تحديد الصفوف
+            const selectAll = $('thead input[type="checkbox"]', table);
+            const rowCheckboxes = $$('tbody input[type="checkbox"]', table);
 
             if (selectAll) {
-                Utils.on(selectAll, 'change', () => {
+                selectAll.addEventListener('change', () => {
                     rowCheckboxes.forEach(checkbox => {
                         checkbox.checked = selectAll.checked;
-                        this.updateRowSelection(checkbox);
+                        updateRowSelection(checkbox);
                     });
                 });
             }
 
             rowCheckboxes.forEach(checkbox => {
-                Utils.on(checkbox, 'change', () => {
-                    this.updateRowSelection(checkbox);
-                    this.updateSelectAll(table);
+                checkbox.addEventListener('change', () => {
+                    updateRowSelection(checkbox);
+                    updateSelectAll(table);
                 });
             });
-        },
+        });
+    }
 
-        updateRowSelection(checkbox) {
-            const row = checkbox.closest('tr');
-            Utils.toggleClass(row, 'selected', checkbox.checked);
-        },
+    function sortTable(table, header) {
+        const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+        const rows = Array.from($$('tbody tr', table));
+        const isAscending = !hasClass(header, 'sort-asc');
 
-        updateSelectAll(table) {
-            const selectAll = Utils.select('thead input[type="checkbox"]', table);
-            const rowCheckboxes = Utils.selectAll('tbody input[type="checkbox"]', table);
-            const checkedBoxes = Utils.selectAll('tbody input[type="checkbox"]:checked', table);
+        rows.sort((a, b) => {
+            const aText = a.children[columnIndex].textContent.trim();
+            const bText = b.children[columnIndex].textContent.trim();
+            return isAscending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+        });
 
-            if (selectAll) {
-                selectAll.checked = checkedBoxes.length === rowCheckboxes.length;
-                selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < rowCheckboxes.length;
-            }
+        // تحديث فئات الترتيب
+        $$('th', table).forEach(th => {
+            removeClass(th, 'sort-asc');
+            removeClass(th, 'sort-desc');
+        });
+        addClass(header, isAscending ? 'sort-asc' : 'sort-desc');
+
+        // إعادة ترتيب الصفوف
+        const tbody = $('tbody', table);
+        rows.forEach(row => tbody.appendChild(row));
+    }
+
+    function updateRowSelection(checkbox) {
+        const row = checkbox.closest('tr');
+        toggleClass(row, 'selected', checkbox.checked);
+    }
+
+    function updateSelectAll(table) {
+        const selectAll = $('thead input[type="checkbox"]', table);
+        const rowCheckboxes = $$('tbody input[type="checkbox"]', table);
+        const checkedBoxes = $$('tbody input[type="checkbox"]:checked', table);
+
+        if (selectAll) {
+            selectAll.checked = checkedBoxes.length === rowCheckboxes.length;
+            selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < rowCheckboxes.length;
         }
-    };
+    }
 
-    // Form Manager
-    const FormManager = {
-        init() {
-            const forms = Utils.selectAll('.admin-form');
-            forms.forEach(form => {
-                this.initValidation(form);
-                if (form.hasAttribute('data-auto-save')) {
-                    this.initAutoSave(form);
-                }
-            });
-        },
-
-        initValidation(form) {
-            Utils.on(form, 'submit', (e) => {
-                if (!this.validateForm(form)) {
+    // إدارة النماذج
+    function initForms() {
+        $$('.admin-form').forEach(form => {
+            // التحقق من صحة النماذج
+            form.addEventListener('submit', (e) => {
+                if (!validateForm(form)) {
                     e.preventDefault();
                 }
             });
-        },
 
-        validateForm(form) {
-            let isValid = true;
-            const requiredFields = Utils.selectAll('[required]', form);
-
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    this.showFieldError(field, 'This field is required');
-                    isValid = false;
-                } else {
-                    this.clearFieldError(field);
-                }
-            });
-
-            return isValid;
-        },
-
-        showFieldError(field, message) {
-            this.clearFieldError(field);
-            Utils.addClass(field, 'error');
-
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'field-error';
-            errorDiv.textContent = message;
-            field.parentNode.appendChild(errorDiv);
-        },
-
-        clearFieldError(field) {
-            Utils.removeClass(field, 'error');
-            const existingError = Utils.select('.field-error', field.parentNode);
-            existingError?.remove();
-        },
-
-        initAutoSave(form) {
-            const fields = Utils.selectAll('input, textarea, select', form);
-            let saveTimeout;
-
-            fields.forEach(field => {
-                Utils.on(field, 'input', () => {
-                    clearTimeout(saveTimeout);
-                    saveTimeout = setTimeout(() => this.autoSave(form), CONFIG.AUTO_SAVE_DELAY);
-                });
-            });
-        },
-
-        autoSave(form) {
-            const formData = new FormData(form);
-            const autoSaveUrl = form.getAttribute('data-auto-save-url');
-
-            if (autoSaveUrl) {
-                Utils.fetch(autoSaveUrl, {
-                    method: 'POST',
-                    body: formData
-                }).then(response => {
-                    if (response.ok) {
-                        NotificationManager.show('Changes saved automatically', 'success');
-                    }
-                }).catch(() => { /* Auto-save failed silently */ });
+            // الحفظ التلقائي
+            if (form.hasAttribute('data-auto-save')) {
+                initAutoSave(form);
             }
+        });
+    }
+
+    function validateForm(form) {
+        let isValid = true;
+        const requiredFields = $$('[required]', form);
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                showFieldError(field, 'هذا الحقل مطلوب');
+                isValid = false;
+            } else {
+                clearFieldError(field);
+            }
+        });
+
+        return isValid;
+    }
+
+    function showFieldError(field, message) {
+        clearFieldError(field);
+        addClass(field, 'error');
+
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error';
+        errorDiv.textContent = message;
+        field.parentNode.appendChild(errorDiv);
+    }
+
+    function clearFieldError(field) {
+        removeClass(field, 'error');
+        const existingError = $('.field-error', field.parentNode);
+        existingError?.remove();
+    }
+
+    function initAutoSave(form) {
+        const fields = $$('input, textarea, select', form);
+        let saveTimeout;
+
+        fields.forEach(field => {
+            field.addEventListener('input', () => {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => autoSave(form), 2000);
+            });
+        });
+    }
+
+    function autoSave(form) {
+        const formData = new FormData(form);
+        const autoSaveUrl = form.getAttribute('data-auto-save-url');
+
+        if (autoSaveUrl) {
+            fetch(autoSaveUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken()
+                }
+            }).then(response => {
+                if (response.ok) {
+                    showNotification('تم الحفظ تلقائياً', 'success');
+                }
+            }).catch(() => { });
         }
-    };
+    }
 
-    // Modal Manager
-    const ModalManager = {
-        init() {
-            this.bindTriggers();
-            this.bindCloseHandlers();
-        },
+    function getCSRFToken() {
+        const meta = $('meta[name="csrf-token"]');
+        return meta?.getAttribute('content') || '';
+    }
 
-        bindTriggers() {
-            const triggers = Utils.selectAll('[data-modal]');
-            triggers.forEach(trigger => {
-                Utils.on(trigger, 'click', (e) => {
-                    e.preventDefault();
-                    const modalId = trigger.getAttribute('data-modal');
-                    this.open(modalId);
-                });
-            });
-        },
-
-        bindCloseHandlers() {
-            Utils.on(document, 'click', (e) => {
-                if (Utils.hasClass(e.target, 'modal-overlay') || Utils.hasClass(e.target, 'modal-close')) {
-                    this.close();
-                }
-            });
-
-            Utils.on(document, 'keydown', (e) => {
-                if (e.key === 'Escape') {
-                    this.close();
-                }
-            });
-        },
-
-        open(modalId) {
-            const modal = Utils.select(`#${modalId}`);
-            if (modal) {
-                Utils.addClass(modal, 'active');
-                Utils.addClass(document.body, 'modal-open');
-            }
-        },
-
-        close() {
-            const activeModal = Utils.select('.modal.active');
-            if (activeModal) {
-                Utils.removeClass(activeModal, 'active');
-                Utils.removeClass(document.body, 'modal-open');
-            }
-        }
-    };
-
-    // Notification Manager
-    const NotificationManager = {
-        init() {
-            this.initAutoHide();
-            this.bindCloseHandlers();
-        },
-
-        initAutoHide() {
-            const notifications = Utils.selectAll('.notification');
-            notifications.forEach(notification => {
-                if (notification.hasAttribute('data-auto-hide')) {
-                    setTimeout(() => this.hide(notification), CONFIG.NOTIFICATION_DURATION);
-                }
-            });
-        },
-
-        bindCloseHandlers() {
-            Utils.on(document, 'click', (e) => {
-                if (Utils.hasClass(e.target, 'notification-close')) {
-                    const notification = e.target.closest('.notification');
-                    this.hide(notification);
-                }
-            });
-        },
-
-        show(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            const content = document.createElement('div');
-            content.className = 'notification-content';
-
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'notification-message';
-            messageDiv.textContent = message;
-
-            const closeBtn = document.createElement('button');
-            closeBtn.className = 'notification-close';
-            closeBtn.type = 'button';
-            closeBtn.setAttribute('aria-label', 'Close notification');
-            closeBtn.textContent = '×';
-
-            content.appendChild(messageDiv);
-            content.appendChild(closeBtn);
-            notification.appendChild(content);
-
-            let container = Utils.select('.notification-container');
-            if (!container) {
-                container = document.createElement('div');
-                container.className = 'notification-container';
-                document.body.appendChild(container);
-            }
-
-            container.appendChild(notification);
-
-            const autoHide = setTimeout(() => this.hide(notification), CONFIG.NOTIFICATION_DURATION);
-
-            const closeButton = Utils.select('.notification-close', notification);
-            if (closeButton) {
-                Utils.on(closeButton, 'click', () => {
-                    clearTimeout(autoHide);
-                    this.hide(notification);
-                });
-            }
-        },
-
-        hide(notification) {
-            if (notification) {
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 300);
-            }
-        }
-    };
-
-    // User Balance Manager
-    const UserBalanceManager = {
-        init() {
-            const config = this.getConfig();
-            if (!config) return;
-
-            this.config = config;
-            this.bindEvents();
-            setTimeout(() => this.refreshStats(), 400);
-        },
-
-        getConfig() {
-            const tpl = Utils.select('#user-balance-config');
-            if (!tpl) return null;
-
-            try {
-                return JSON.parse(tpl.textContent || tpl.innerText || '{}');
-            } catch (e) {
-                // JSON parse error handled silently
-                return null;
-            }
-        },
-
-        bindEvents() {
-            Utils.selectAll('.btn-refresh-balance').forEach(btn => {
-                Utils.on(btn, 'click', (e) => {
-                    e.preventDefault();
-                    this.refreshStats();
-                });
-            });
-
-            Utils.selectAll('.btn-add-balance').forEach(btn => {
-                Utils.on(btn, 'click', (e) => {
-                    e.preventDefault();
-                    ModalManager.open('addBalanceModal');
-                });
-            });
-
-            Utils.selectAll('.btn-deduct-balance').forEach(btn => {
-                Utils.on(btn, 'click', (e) => {
-                    e.preventDefault();
-                    ModalManager.open('deductBalanceModal');
-                });
-            });
-
-            Utils.selectAll('.btn-view-history').forEach(btn => {
-                Utils.on(btn, 'click', (e) => {
-                    e.preventDefault();
-                    this.viewHistory();
-                });
-            });
-
-            this.wireForm('addBalanceForm', 'add', 'balance_added');
-            this.wireForm('deductBalanceForm', 'deduct', 'balance_deducted');
-        },
-
-        async refreshStats() {
-            if (!this.config.urls?.stats) return;
-
-            try {
-                const response = await Utils.fetch(this.config.urls.stats);
-                if (!response.ok) throw new Error('Network response not ok');
-                const data = await response.json();
-
-                this.updateBalanceDisplay(data);
-                NotificationManager.show(
-                    this.config.i18n?.balance_refreshed || 'Data refreshed',
-                    'success'
-                );
-            } catch (err) {
-                // Failed to refresh balance stats
-                NotificationManager.show(
-                    this.config.i18n?.error_refresh || 'Failed to refresh',
-                    'danger'
-                );
-            }
-        },
-
-        updateBalanceDisplay(data) {
-            const balanceEls = Utils.selectAll('[data-countup][data-target]');
-            balanceEls.forEach(el => {
-                const key = el.getAttribute('data-stat') || el.getAttribute('data-key');
-                if (key && data && key in data) {
-                    el.textContent = Utils.formatCurrency(data[key], this.config.currency);
-                    el.dataset.target = Number(data[key]);
-                    delete el.dataset.counted;
-                }
-            });
-
-            ['total_added', 'total_deducted', 'net_balance_change', 'balance'].forEach(key => {
-                const element = Utils.select(`[data-stat="${key}"]`);
-                if (element && Object.prototype.hasOwnProperty.call(data, key)) {
-                    element.textContent = Utils.formatCurrency(data[key], this.config.currency);
-                }
-            });
-        },
-
-        async viewHistory() {
-            ModalManager.open('balanceHistoryModal');
-            const container = Utils.select('#balanceHistoryContainer');
-            if (!container || !this.config.urls?.history) return;
-
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'text-center p-4';
-
-            const spinner = document.createElement('div');
-            spinner.className = 'loading-spinner mx-auto';
-
-            const text = document.createElement('p');
-            text.className = 'mt-2';
-            text.textContent = this.config.i18n?.loading_history || 'Loading history...';
-
-            loadingDiv.appendChild(spinner);
-            loadingDiv.appendChild(text);
-            container.appendChild(loadingDiv);
-
-            try {
-                const response = await Utils.fetch(this.config.urls.history);
-                if (!response.ok) throw new Error('Network response not ok');
-                const html = await response.text();
-                if (html) {
-                    // Create a temporary container to parse HTML safely
-                    const tempDiv = document.createElement('div');
-                    // Use textContent instead of innerHTML for security
-                    tempDiv.textContent = html;
-
-                    // Move all child nodes to the container
-                    while (tempDiv.firstChild) {
-                        container.appendChild(tempDiv.firstChild);
-                    }
-                } else {
-                    const emptyDiv = document.createElement('div');
-                    emptyDiv.className = 'empty-state text-center p-4';
-                    emptyDiv.textContent = this.config.i18n?.no_history_desc || 'No previous transactions found';
-                    container.appendChild(emptyDiv);
-                }
-            } catch (err) {
-                // Failed to load history
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'alert alert-danger';
-                errorDiv.textContent = this.config.i18n?.error_history || 'Failed to load balance history';
-                container.appendChild(errorDiv);
-            }
-        },
-
-        wireForm(formId, urlKey, successMessageKey) {
-            const form = Utils.select(`#${formId}`);
-            if (!form) return;
-
-            Utils.on(form, 'submit', async (e) => {
+    // إدارة النوافذ المنبثقة
+    function initModals() {
+        $$('[data-modal]').forEach(trigger => {
+            trigger.addEventListener('click', (e) => {
                 e.preventDefault();
-                const submitBtn = Utils.select('button[type="submit"]', form);
-                if (submitBtn) submitBtn.disabled = true;
-
-                try {
-                    const formData = new FormData(form);
-                    const response = await Utils.fetch(this.config.urls[urlKey], {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const json = await response.json();
-
-                    if (response.ok) {
-                        NotificationManager.show(
-                            this.config.i18n?.[successMessageKey] || 'Success',
-                            'success'
-                        );
-                        ModalManager.close();
-                        this.refreshStats();
-                    } else {
-                        NotificationManager.show(
-                            json.message || this.config.i18n?.error_server || 'Error',
-                            'danger'
-                        );
-                    }
-                } catch (err) {
-                    // Form submit failed
-                    NotificationManager.show(
-                        this.config.i18n?.error_server || 'Server error',
-                        'danger'
-                    );
-                } finally {
-                    if (submitBtn) submitBtn.disabled = false;
-                }
+                const modalId = trigger.getAttribute('data-modal');
+                openModal(modalId);
             });
-        }
-    };
+        });
 
-    // Location Filter - فلترة بسيطة للدول والمحافظات والمدن
-    const LocationFilter = {
-        init() {
-            // ربط تغيير الدولة
-            Utils.on(document, 'change', (e) => {
-                if (e.target.name && e.target.name.includes('country_id')) {
-                    this.filterByCountry(e.target);
-                }
-                if (e.target.name && e.target.name.includes('governorate_id')) {
-                    this.filterByGovernorate(e.target);
-                }
-            });
-
-            // تهيئة الفلاتر للقواعد الموجودة
-            this.initializeExistingRules();
-        },
-
-        initializeExistingRules() {
-            // فلترة المحافظات والمدن للقواعد الموجودة بناءً على الدولة المختارة
-            Utils.selectAll('select[name*="country_id"]').forEach(countrySelect => {
-                if (countrySelect.value) {
-                    this.filterByCountry(countrySelect);
-                }
-            });
-        },
-
-        filterByCountry(countrySelect) {
-            const countryId = countrySelect.value;
-
-            // البحث عن المحافظات والمدن في نفس الصف (row)
-            const row = countrySelect.closest('.row, .card-body');
-            const governorateSelect = Utils.select('select[name*="governorate_id"]', row);
-            const citySelect = Utils.select('select[name*="city_id"]', row);
-
-            // فلترة المحافظات
-            if (governorateSelect) {
-                this.filterSelect(governorateSelect, 'data-country', countryId);
-                // إعادة تعيين المحافظة فقط إذا لم تكن مختارة مسبقاً
-                if (!governorateSelect.value || !this.isOptionVisible(governorateSelect, governorateSelect.value)) {
-                    governorateSelect.value = '';
-                }
+        // إغلاق النوافذ
+        document.addEventListener('click', (e) => {
+            if (hasClass(e.target, 'modal-overlay') || hasClass(e.target, 'modal-close')) {
+                closeModal();
             }
+        });
 
-            // مسح المدن
-            if (citySelect) {
-                this.clearSelect(citySelect);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    }
+
+    function openModal(modalId) {
+        const modal = $(`#${modalId}`);
+        if (modal) {
+            addClass(modal, 'active');
+            addClass(document.body, 'modal-open');
+        }
+    }
+
+    function closeModal() {
+        const activeModal = $('.modal.active');
+        if (activeModal) {
+            removeClass(activeModal, 'active');
+            removeClass(document.body, 'modal-open');
+        }
+    }
+
+    // إدارة الإشعارات
+    function initNotifications() {
+        $$('.notification').forEach(notification => {
+            if (notification.hasAttribute('data-auto-hide')) {
+                setTimeout(() => hideNotification(notification), 5000);
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (hasClass(e.target, 'notification-close')) {
+                const notification = e.target.closest('.notification');
+                hideNotification(notification);
+            }
+        });
+    }
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+
+        const content = document.createElement('div');
+        content.className = 'notification-content';
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'notification-message';
+        messageDiv.textContent = message;
+
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'notification-close';
+        closeBtn.type = 'button';
+        closeBtn.textContent = '×';
+
+        content.appendChild(messageDiv);
+        content.appendChild(closeBtn);
+        notification.appendChild(content);
+
+        let container = $('.notification-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'notification-container';
+            document.body.appendChild(container);
+        }
+
+        container.appendChild(notification);
+
+        setTimeout(() => hideNotification(notification), 5000);
+
+        closeBtn.addEventListener('click', () => hideNotification(notification));
+    }
+
+    function hideNotification(notification) {
+        if (notification) {
+            notification.style.opacity = '0';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }
+
+    // فلترة المواقع (الدول والمحافظات والمدن)
+    function initLocationFilter() {
+        document.addEventListener('change', (e) => {
+            if (e.target.name && e.target.name.includes('country_id')) {
+                filterByCountry(e.target);
+            }
+            if (e.target.name && e.target.name.includes('governorate_id')) {
+                filterByGovernorate(e.target);
+            }
+        });
+
+        // تهيئة الفلاتر الموجودة
+        $$('select[name*="country_id"]').forEach(countrySelect => {
+            if (countrySelect.value) {
+                filterByCountry(countrySelect);
+            }
+        });
+    }
+
+    function filterByCountry(countrySelect) {
+        const countryId = countrySelect.value;
+        const row = countrySelect.closest('.row, .card-body');
+        const governorateSelect = $('select[name*="governorate_id"]', row);
+        const citySelect = $('select[name*="city_id"]', row);
+
+        if (governorateSelect) {
+            filterSelect(governorateSelect, 'data-country', countryId);
+            if (!governorateSelect.value || !isOptionVisible(governorateSelect, governorateSelect.value)) {
+                governorateSelect.value = '';
+            }
+        }
+
+        if (citySelect) {
+            clearSelect(citySelect);
+            citySelect.value = '';
+        }
+    }
+
+    function filterByGovernorate(governorateSelect) {
+        const governorateId = governorateSelect.value;
+        const row = governorateSelect.closest('.row, .card-body');
+        const citySelect = $('select[name*="city_id"]', row);
+
+        if (citySelect) {
+            filterSelect(citySelect, 'data-governorate', governorateId);
+            if (!citySelect.value || !isOptionVisible(citySelect, citySelect.value)) {
                 citySelect.value = '';
             }
-        },
+        }
+    }
 
-        filterByGovernorate(governorateSelect) {
-            const governorateId = governorateSelect.value;
+    function filterSelect(select, attribute, value) {
+        $$('option', select).forEach(option => {
+            const show = option.value === '' || option.getAttribute(attribute) === value;
+            option.style.display = show ? 'block' : 'none';
+            option.disabled = !show;
+        });
+    }
 
-            // البحث عن المدن في نفس الصف (row)
-            const row = governorateSelect.closest('.row, .card-body');
-            const citySelect = Utils.select('select[name*="city_id"]', row);
-
-            if (citySelect) {
-                this.filterSelect(citySelect, 'data-governorate', governorateId);
-                // إعادة تعيين المدينة فقط إذا لم تكن مختارة مسبقاً
-                if (!citySelect.value || !this.isOptionVisible(citySelect, citySelect.value)) {
-                    citySelect.value = '';
-                }
+    function clearSelect(select) {
+        $$('option', select).forEach(option => {
+            if (option.value !== '') {
+                option.style.display = 'none';
+                option.disabled = true;
             }
-        },
+        });
+    }
 
-        filterSelect(select, attribute, value) {
-            Utils.selectAll('option', select).forEach(option => {
-                const show = option.value === '' || option.getAttribute(attribute) === value;
-                option.style.display = show ? 'block' : 'none';
-                option.disabled = !show;
-            });
-        },
+    function isOptionVisible(select, value) {
+        const option = $(`option[value="${value}"]`, select);
+        return option && option.style.display !== 'none' && !option.disabled;
+    }
 
-        clearSelect(select) {
-            Utils.selectAll('option', select).forEach(option => {
-                if (option.value !== '') {
-                    option.style.display = 'none';
-                    option.disabled = true;
+    // تأكيد العمليات
+    function initConfirmations() {
+        $$('form.js-confirm, form.js-confirm-delete').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                const msg = form.dataset.confirm || 'هل أنت متأكد؟';
+                if (!confirm(msg)) {
+                    e.preventDefault();
                 }
             });
-        },
+        });
 
-        isOptionVisible(select, value) {
-            const option = Utils.select(`option[value="${value}"]`, select);
-            return option && option.style.display !== 'none' && !option.disabled;
-        }
-    };
-
-    // Confirmation Manager
-    const ConfirmationManager = {
-        init() {
-            this.bindFormConfirmations();
-            this.bindElementConfirmations();
-        },
-
-        bindFormConfirmations() {
-            Utils.selectAll('form.js-confirm, form.js-confirm-delete').forEach(form => {
-                Utils.on(form, 'submit', (e) => {
-                    const msg = form.dataset.confirm || form.getAttribute('data-confirm') || 'Are you sure?';
-                    if (!window.confirm(msg)) {
-                        e.preventDefault();
-                    }
-                });
+        $$('[data-confirm]').forEach(element => {
+            element.addEventListener('click', (e) => {
+                const msg = element.getAttribute('data-confirm');
+                if (!confirm(msg)) {
+                    e.preventDefault();
+                }
             });
-        },
-
-        bindElementConfirmations() {
-            Utils.selectAll('[data-confirm]').forEach(element => {
-                Utils.on(element, 'click', (e) => {
-                    const msg = element.getAttribute('data-confirm');
-                    if (!window.confirm(msg)) {
-                        e.preventDefault();
-                    }
-                });
-            });
-        }
-    };
-
-    // Main initialization
-    AdminPanel.init = function () {
-        SidebarManager.init();
-        DropdownManager.init();
-        TableManager.init();
-        FormManager.init();
-        ModalManager.init();
-        UserBalanceManager.init();
-        LocationFilter.init();
-        ConfirmationManager.init();
-        NotificationManager.init();
-    };
-
-    // Initialize when DOM is ready
-    function initAdmin() {
-        if (typeof AdminPanel.init === 'function') {
-            AdminPanel.init();
-        }
+        });
     }
 
+    // تهيئة كل شيء
+    function init() {
+        initSidebar();
+        initDropdowns();
+        initTables();
+        initForms();
+        initModals();
+        initNotifications();
+        initLocationFilter();
+        initConfirmations();
+    }
+
+    // بدء التطبيق
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAdmin);
+        document.addEventListener('DOMContentLoaded', init);
     } else {
-        initAdmin();
+        init();
     }
 
-    // Expose utility functions for external use
-    if (typeof window.AdminPanel !== 'undefined') {
-        window.AdminPanel.Utils = Utils;
-        window.AdminPanel.NotificationManager = NotificationManager;
-        window.AdminPanel.ModalManager = ModalManager;
-        window.AdminPanel.LocationFilter = LocationFilter;
-    }
+    // تصدير الدوال للاستخدام الخارجي
+    window.AdminPanel = {
+        showNotification,
+        openModal,
+        closeModal
+    };
 
 })();
