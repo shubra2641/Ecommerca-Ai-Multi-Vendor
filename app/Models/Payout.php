@@ -6,7 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Payout extends Model
 {
-    protected $fillable = ['vendor_withdrawal_id', 'user_id', 'amount', 'currency', 'status', 'admin_note', 'executed_at', 'proof_path'];
+    protected $fillable = [
+        'vendor_withdrawal_id',
+        'user_id',
+        'amount',
+        'currency',
+        'status',
+        'admin_note',
+        'executed_at',
+        'proof_path',
+    ];
 
     protected $casts = [
         'amount' => 'decimal:2',

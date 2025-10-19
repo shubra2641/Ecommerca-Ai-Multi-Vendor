@@ -64,7 +64,7 @@ class HomeController extends Controller
             $fallbackCta = $ctaArr ? (array_values($ctaArr)[0] ?? null) : null;
             $computedTitle = $titlesArr[$locale] ??
                 ($titlesArr[$defaultLocale] ??
-                ($fallbackTitle ?: ucfirst(str_replace('_', ' ', $sec->key))));
+                    ($fallbackTitle ?: ucfirst(str_replace('_', ' ', $sec->key))));
             $computedSub = $subArr[$locale] ?? ($subArr[$defaultLocale] ?? ($fallbackSub ?: ''));
             $computedCta = $ctaArr[$locale] ?? ($ctaArr[$defaultLocale] ?? ($fallbackCta ?: null));
             $sectionTitles[$sec->key] = ['title' => $computedTitle, 'subtitle' => $computedSub];
@@ -214,11 +214,11 @@ class HomeController extends Controller
         $showcaseSections = collect();
         foreach (
             [
-            'showcase_latest',
-            'showcase_best_selling',
-            'showcase_discount',
-            'showcase_most_rated',
-            'showcase_brands'
+                'showcase_latest',
+                'showcase_best_selling',
+                'showcase_discount',
+                'showcase_most_rated',
+                'showcase_brands'
             ] as $sk
         ) {
             $secCfg = $sectionsIndex->get($sk);
@@ -237,7 +237,7 @@ class HomeController extends Controller
                         ->orderByDesc('approved_reviews_count')
                         ->take($limit)->get(),
                     'showcase_brands' => Brand::active()
-                        ->withCount(['products' => fn ($q) => $q->active()])
+                        ->withCount(['products' => fn($q) => $q->active()])
                         ->orderByDesc('products_count')
                         ->take($limit)->get(),
                     default => collect(),
@@ -251,7 +251,9 @@ class HomeController extends Controller
             if ($type === 'products') {
                 $items = $items->map(function ($p) use ($sk) {
                     try {
-                        $image = $p->main_image ? asset('storage/' . $p->main_image) : asset('images/product-placeholder.svg');
+                        $image = $p->main_image
+                            ? asset('storage/' . $p->main_image)
+                            : asset('images/product-placeholder.svg');
                     } catch (\Throwable $e) {
                         $image = asset('images/product-placeholder.svg');
                     }
@@ -272,12 +274,14 @@ class HomeController extends Controller
                     $extra = '';
                     if ($sk === 'showcase_discount' && $p->effectivePrice() < $p->price) {
                         try {
-                            $extra .= '<span class="mini-old">' . e(currency_format($p->price)) . '</span>';
+                            $extra .= '<span class="mini-old">' .
+                                e(currency_format($p->price)) . '</span>';
                         } catch (\Throwable $e) {
                         }
                     }
                     if ($sk === 'showcase_most_rated' && $p->approved_reviews_avg) {
-                        $extra .= '<span class="mini-rating">★ ' . number_format($p->approved_reviews_avg, 1) . '</span>';
+                        $extra .= '<span class="mini-rating">★ ' .
+                            number_format($p->approved_reviews_avg, 1) . '</span>';
                     }
                     $p->mini_extra_html = $extra;
                     $flags = [];
@@ -298,7 +302,9 @@ class HomeController extends Controller
                 'type' => $type,
             ]);
         }
-        $showcaseSections = $showcaseSections->sortBy(fn ($s) => optional($sectionsIndex->get($s['key']))->sort_order ?? 9999)->values();
+        $showcaseSections = $showcaseSections->sortBy(
+            fn($s) => optional($sectionsIndex->get($s['key']))->sort_order ?? 9999
+        )->values();
         // Extract brand section separately & compute grid column count excluding brands
         $brandSec = $showcaseSections->firstWhere('type', 'brands');
         $showcaseSectionsActiveCount = $showcaseSections->where('type', '!=', 'brands')->count();

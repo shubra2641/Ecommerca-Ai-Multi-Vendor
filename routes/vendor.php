@@ -27,18 +27,24 @@ Route::middleware(['auth', 'can:access-vendor', 'role:vendor'])->group(function 
     Route::get('withdrawals', [WithdrawalController::class, 'index'])->name('vendor.withdrawals.index');
     Route::get('withdrawals/create', [WithdrawalController::class, 'create'])->name('vendor.withdrawals.create');
     Route::post('withdrawals', [WithdrawalController::class, 'store'])->name('vendor.withdrawals.store');
-    Route::get('withdrawals/{withdrawal}/receipt', [WithdrawalController::class, 'receipt'])->name('vendor.withdrawals.receipt');
+    Route::get('withdrawals/{withdrawal}/receipt', [WithdrawalController::class, 'receipt'])
+        ->name('vendor.withdrawals.receipt');
     // Vendor orders
     Route::get('orders', [VendorOrderController::class, 'index'])->name('vendor.orders.index');
     Route::get('orders/export', [VendorOrderController::class, 'export'])->name('vendor.orders.export');
-    Route::post('orders/export/request', [VendorOrderController::class, 'requestExport'])->name('vendor.orders.export.request');
+    Route::post('orders/export/request', [VendorOrderController::class, 'requestExport'])
+        ->name('vendor.orders.export.request');
     Route::get('orders/{id}', [VendorOrderController::class, 'show'])->name('vendor.orders.show');
 
     // Vendor notifications (mirroring admin endpoints)
-    Route::get('notifications/latest', [VendorNotificationController::class, 'latest'])->name('vendor.notifications.latest');
-    Route::get('notifications/unread-count', [VendorNotificationController::class, 'unreadCount'])->name('vendor.notifications.unreadCount');
-    Route::post('notifications/{id}/read', [VendorNotificationController::class, 'markRead'])->name('vendor.notifications.read');
-    Route::post('notifications/mark-all-read', [VendorNotificationController::class, 'markAll'])->name('vendor.notifications.markAll');
+    Route::get('notifications/latest', [VendorNotificationController::class, 'latest'])
+        ->name('vendor.notifications.latest');
+    Route::get('notifications/unread-count', [VendorNotificationController::class, 'unreadCount'])
+        ->name('vendor.notifications.unreadCount');
+    Route::post('notifications/{id}/read', [VendorNotificationController::class, 'markRead'])
+        ->name('vendor.notifications.read');
+    Route::post('notifications/mark-all-read', [VendorNotificationController::class, 'markAll'])
+        ->name('vendor.notifications.markAll');
     Route::get('notifications', [VendorNotificationController::class, 'index'])->name('vendor.notifications.index');
     // Active languages for multilingual product fields
     Route::get('languages', [VendorLanguagesController::class, 'index']);

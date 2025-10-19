@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Migrations;
+
 use Illuminate\Database\Migrations\Migration;
 
 // migration sanitized - provide a guarded no-op class so the migrator can require the file safely.

@@ -16,31 +16,13 @@
 <section class="page-content">
     <div class="container">
         <div class="page-wrapper">
-            @php($allBlocks = $page->blocks()->where('enabled',true)->orderBy('sort_order')->get())
-            @php($rows = $allBlocks->where('type','row')->whereNull('parent_id'))
-            @if($rows->count())
-            <article class="page-body page-builder-output">
-                @foreach($rows as $row)
-                @includeIf('front.page-blocks.row', ['block'=>$row])
-                @endforeach
-            </article>
-            @elseif($allBlocks->whereNull('parent_id')->count())
-            <!-- Fallback: top-level non-row blocks (legacy pages without rows) -->
-            <article class="page-body page-builder-output">
-                @foreach($allBlocks->whereNull('parent_id') as $block)
-                @includeIf('front.page-blocks.' . $block->type, ['block'=>$block])
-                @endforeach
-            </article>
-            @else
-            <article class="page-body content-style page-builder-output">
-                {{-- Raw page body: allow HTML produced by Page Builder or editor. --}}
+            <article class="page-body content-style">
                 <h1 class="page-title">{{ $page->title($locale) }}</h1>
                 @if($desc = $page->seoDescription($locale))
                 <p class="page-description">{{ $desc }}</p>
                 @endif
                 @clean($page->body($locale))
             </article>
-            @endif
             @if($page->slug === 'contact-us')
             <div class="contact-section">
                 <div class="contact-info">

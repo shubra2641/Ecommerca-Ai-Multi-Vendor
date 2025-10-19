@@ -44,7 +44,11 @@ class PaymentGateway extends Model
         try {
             $rawOriginal = $this->getRawOriginal('config');
             $orig = $this->getOriginal('config');
-            Log::debug('PaymentGateway#getCredentials start: rawOriginal type=' . gettype($rawOriginal) . ' orig type=' . gettype($orig) . ' attrConfig type=' . gettype($this->config));
+            Log::debug(
+                'PaymentGateway#getCredentials start: rawOriginal type=' . gettype($rawOriginal) .
+                ' orig type=' . gettype($orig) .
+                ' attrConfig type=' . gettype($this->config)
+            );
             // Truncate values (avoid leaking secrets) when present
             if (is_string($rawOriginal) && $rawOriginal !== '') {
                 Log::debug('PaymentGateway#getCredentials rawOriginal (truncated): ' . substr($rawOriginal, 0, 120));
@@ -61,21 +65,32 @@ class PaymentGateway extends Model
         if (is_array($this->config)) {
             $full = $this->config;
         } else {
-            $raw = $this->getRawOriginal('config') ?? $this->getOriginal('config') ?? $this->config;
+            $raw = $this->getRawOriginal('config')
+                ?? $this->getOriginal('config')
+                ?? $this->config;
             if (is_string($raw) && $raw !== '') {
                 // Try decryptString -> decrypt -> raw JSON decode
                 try {
                     try {
                         $decrypted = Crypt::decryptString($raw);
-                        Log::debug('PaymentGateway#getCredentials decrypted using decryptString (len=' . strlen($decrypted) . ')');
+                        Log::debug(
+                            'PaymentGateway#getCredentials decrypted using decryptString (len=' .
+                            strlen($decrypted) . ')'
+                        );
                     } catch (\Throwable $_e) {
                         $decrypted = Crypt::decrypt($raw);
-                        Log::debug('PaymentGateway#getCredentials decrypted using decrypt (len=' . strlen($decrypted) . ')');
+                        Log::debug(
+                            'PaymentGateway#getCredentials decrypted using decrypt (len=' .
+                            strlen($decrypted) . ')'
+                        );
                     }
 
                     // DEBUG: log a truncated snippet of the decrypted payload for test triage
                     try {
-                        Log::debug('PaymentGateway#getCredentials decrypted snippet: ' . substr($decrypted, 0, 200));
+                        Log::debug(
+                            'PaymentGateway#getCredentials decrypted snippet: ' .
+                            substr($decrypted, 0, 200)
+                        );
                     } catch (\Throwable $_e) {
                         // ignore
                     }
@@ -85,26 +100,44 @@ class PaymentGateway extends Model
                     if (! is_array($decoded)) {
                         // Extra debugging for test triage: log decode attempts
                         try {
-                            Log::debug('PaymentGateway#getCredentials debug: decrypted var_export: ' . var_export($decrypted, true));
-                            Log::debug('PaymentGateway#getCredentials debug: json_decode direct: ' . var_export(json_decode($decrypted, true), true));
+                            Log::debug(
+                                'PaymentGateway#getCredentials debug: decrypted var_export: ' .
+                                var_export($decrypted, true)
+                            );
+                            Log::debug(
+                                'PaymentGateway#getCredentials debug: json_decode direct: ' .
+                                var_export(json_decode($decrypted, true), true)
+                            );
                             $trimmed = trim($decrypted, " \n\r\t\x0B\x00\"'");
-                            Log::debug('PaymentGateway#getCredentials debug: json_decode trimmed: ' . var_export(json_decode($trimmed, true), true));
+                            Log::debug(
+                                'PaymentGateway#getCredentials debug: json_decode trimmed: ' .
+                                var_export(json_decode($trimmed, true), true)
+                            );
                             $unescaped = stripcslashes($decrypted);
-                            Log::debug('PaymentGateway#getCredentials debug: json_decode unescaped: ' . var_export(json_decode($unescaped, true), true));
+                            Log::debug(
+                                'PaymentGateway#getCredentials debug: json_decode unescaped: ' .
+                                var_export(json_decode($unescaped, true), true)
+                            );
                         } catch (\Throwable $_dbg) {
                             // ignore
                         }
                     }
                     if (is_array($decoded)) {
                         $full = $decoded;
-                        Log::debug('PaymentGateway#getCredentials decoded decrypted payload keys: ' . implode(',', array_keys($decoded)));
+                        Log::debug(
+                            'PaymentGateway#getCredentials decoded decrypted payload keys: ' .
+                            implode(',', array_keys($decoded))
+                        );
                     }
                 } catch (\Throwable $e) {
                     // Not encrypted or decryption failed: maybe raw JSON or other encoded form
                     $decoded = $this->tryDecodeJsonVariants($raw);
                     if (is_array($decoded)) {
                         $full = $decoded;
-                        Log::debug('PaymentGateway#getCredentials decoded raw JSON keys: ' . implode(',', array_keys($decoded)));
+                        Log::debug(
+                            'PaymentGateway#getCredentials decoded raw JSON keys: ' .
+                            implode(',', array_keys($decoded))
+                        );
                     }
                 }
             }
@@ -118,21 +151,33 @@ class PaymentGateway extends Model
                         try {
                             try {
                                 $decrypted = Crypt::decryptString($rawDb);
-                                Log::debug('PaymentGateway#getCredentials DB decrypted using decryptString (len=' . strlen($decrypted) . ')');
+                                Log::debug(
+                                    'PaymentGateway#getCredentials DB decrypted using decryptString (len=' .
+                                    strlen($decrypted) . ')'
+                                );
                             } catch (\Throwable $_e) {
                                 $decrypted = Crypt::decrypt($rawDb);
-                                Log::debug('PaymentGateway#getCredentials DB decrypted using decrypt (len=' . strlen($decrypted) . ')');
+                                Log::debug(
+                                    'PaymentGateway#getCredentials DB decrypted using decrypt (len=' .
+                                    strlen($decrypted) . ')'
+                                );
                             }
                             $decoded = json_decode($decrypted, true);
                             if (is_array($decoded)) {
                                 $full = $decoded;
-                                Log::debug('PaymentGateway#getCredentials DB decoded decrypted payload keys: ' . implode(',', array_keys($decoded)));
+                                Log::debug(
+                                    'PaymentGateway#getCredentials DB decoded decrypted payload keys: ' .
+                                    implode(',', array_keys($decoded))
+                                );
                             }
                         } catch (\Throwable $e) {
                             $decoded = json_decode($rawDb, true);
                             if (is_array($decoded)) {
                                 $full = $decoded;
-                                Log::debug('PaymentGateway#getCredentials DB decoded raw JSON keys: ' . implode(',', array_keys($decoded)));
+                                Log::debug(
+                                    'PaymentGateway#getCredentials DB decoded raw JSON keys: ' .
+                                    implode(',', array_keys($decoded))
+                                );
                             }
                         }
                     }
@@ -206,12 +251,18 @@ class PaymentGateway extends Model
                         }
                         $decoded = json_decode($decrypted, true);
                         if (is_array($decoded)) {
-                            foreach (['api_key', 'secret_key', 'public_key', 'merchant_id', 'webhook_secret'] as $k) {
+                            foreach (
+                                ['api_key', 'secret_key', 'public_key', 'merchant_id', 'webhook_secret'] as $k
+                            ) {
                                 if (array_key_exists($k, $decoded) && empty($merged[$k])) {
                                     $merged[$k] = $decoded[$k];
                                 }
                             }
-                            if (isset($decoded['additional_config']) && is_array($decoded['additional_config']) && empty($merged['additional_config'])) {
+                            if (
+                                isset($decoded['additional_config']) &&
+                                is_array($decoded['additional_config']) &&
+                                empty($merged['additional_config'])
+                            ) {
                                 $merged['additional_config'] = $decoded['additional_config'];
                             }
                             if (isset($decoded['sandbox_mode']) && empty($merged['sandbox_mode'])) {

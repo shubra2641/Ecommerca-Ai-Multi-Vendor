@@ -54,7 +54,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth', 'role:admin', 'can:access-admin', \App\Http\Middleware\EnsureEmailActivated::class])->group(function () {
+Route::middleware([
+    'auth',
+    'role:admin',
+    'can:access-admin',
+    \App\Http\Middleware\EnsureEmailActivated::class
+])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     // Reports routes
@@ -73,19 +78,27 @@ Route::middleware(['auth', 'role:admin', 'can:access-admin', \App\Http\Middlewar
     // Notify interests management
     Route::prefix('notify')->name('admin.notify.')->group(function () {
         Route::get('/', [AdminNotifyController::class, 'index'])->name('index');
-        Route::put('/{interest}/mark', [AdminNotifyController::class, 'markNotified'])->name('mark');
-        Route::delete('/{interest}', [AdminNotifyController::class, 'destroy'])->name('delete');
+        Route::put('/{interest}/mark', [AdminNotifyController::class, 'markNotified'])
+            ->name('mark');
+        Route::delete('/{interest}', [AdminNotifyController::class, 'destroy'])
+            ->name('delete');
     });
     // Interest reports
-    Route::get('notify/top-products', [InterestReportController::class, 'topProducts'])->name('admin.notify.topProducts');
-    Route::get('notify/{product}/price-chart', [InterestReportController::class, 'priceChart'])->name('admin.notify.priceChart');
+    Route::get('notify/top-products', [InterestReportController::class, 'topProducts'])
+        ->name('admin.notify.topProducts');
+    Route::get('notify/{product}/price-chart', [InterestReportController::class, 'priceChart'])
+        ->name('admin.notify.priceChart');
 
     // Quick admin notifications
     // API endpoint used by header widget
-    Route::get('/notifications/latest', [NotificationController::class, 'latest'])->name('admin.notifications.latest');
-    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('admin.notifications.unreadCount');
-    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('admin.notifications.read');
-    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAll'])->name('admin.notifications.markAll');
+    Route::get('/notifications/latest', [NotificationController::class, 'latest'])
+        ->name('admin.notifications.latest');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])
+        ->name('admin.notifications.unreadCount');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])
+        ->name('admin.notifications.read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAll'])
+        ->name('admin.notifications.markAll');
     // Index page to view all notifications (header links to this)
     Route::get('/notifications', [NotificationController::class, 'index'])->name('admin.notifications.index');
     // Send notifications (admin)

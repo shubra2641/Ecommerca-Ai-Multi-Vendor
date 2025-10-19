@@ -85,10 +85,14 @@ Route::middleware(\App\Http\Middleware\CheckMaintenanceMode::class)->group(funct
     Route::post('/cart/remove-coupon', [CartController::class, 'removeCoupon'])->name('cart.removeCoupon');
     Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
     Route::get('/checkout', [CheckoutController::class, 'showForm'])->name('checkout.form')->middleware('auth');
-    Route::post('/checkout/submit', [CheckoutController::class, 'submitForm'])->name('checkout.submit')->middleware('auth');
+    Route::post('/checkout/submit', [CheckoutController::class, 'submitForm'])
+        ->name('checkout.submit')
+        ->middleware('auth');
 
     // product reviews
-    Route::post('/product/{product}/reviews', [ProductReviewController::class, 'store'])->name('reviews.store')->middleware('auth');
+    Route::post('/product/{product}/reviews', [ProductReviewController::class, 'store'])
+        ->name('reviews.store')
+        ->middleware('auth');
 
     // Checkout endpoints
     Route::post(
@@ -118,8 +122,12 @@ Route::middleware(\App\Http\Middleware\CheckMaintenanceMode::class)->group(funct
     // PayPal webhook removed: PayPal gateway support has been removed.
 
     // Success / Cancel pages for Stripe Checkout
-    Route::middleware('auth')->get('/checkout/success', [CheckoutController::class, 'checkoutSuccess'])->name('checkout.success');
-    Route::middleware('auth')->get('/checkout/cancel', [CheckoutController::class, 'checkoutCancel'])->name('checkout.cancel');
+    Route::middleware('auth')
+        ->get('/checkout/success', [CheckoutController::class, 'checkoutSuccess'])
+        ->name('checkout.success');
+    Route::middleware('auth')
+        ->get('/checkout/cancel', [CheckoutController::class, 'checkoutCancel'])
+        ->name('checkout.cancel');
 
     // Legacy external payment verification & start routes removed.
 
@@ -224,26 +232,37 @@ Route::prefix('vendor')->name('vendor.')->group(function () {
 // the web (CSRF-protected) middleware.
 
 // Public signed download route for vendor export files
-Route::get('/vendor/orders/export/file/{filename}', [VendorOrderController::class, 'downloadExport'])->name('vendor.orders.export.file');
+Route::get('/vendor/orders/export/file/{filename}', [VendorOrderController::class, 'downloadExport'])
+    ->name('vendor.orders.export.file');
 
 // Debug route removed from web routes.
 
 // Simulated payment redirect routes for local/testing (accept POST for gateways that POST JSON)
 // Removed simulated gateway redirect routes
-Route::get('/payments/paypal/{payment}/return', [PaypalController::class, 'return'])->name('paypal.return');
-Route::get('/payments/paypal/{payment}/cancel', [PaypalController::class, 'cancel'])->name('paypal.cancel');
-Route::get('/payments/tap/{payment}/return', [GatewayReturnController::class, 'tapReturn'])->name('tap.return');
+Route::get('/payments/paypal/{payment}/return', [PaypalController::class, 'return'])
+    ->name('paypal.return');
+Route::get('/payments/paypal/{payment}/cancel', [PaypalController::class, 'cancel'])
+    ->name('paypal.cancel');
+Route::get('/payments/tap/{payment}/return', [GatewayReturnController::class, 'tapReturn'])
+    ->name('tap.return');
 
 // Generic return handlers for other redirect gateways
-Route::get('/payments/paytabs/{payment}/return', [GatewayReturnController::class, 'paytabsReturn'])->name('paytabs.return');
+Route::get('/payments/paytabs/{payment}/return', [GatewayReturnController::class, 'paytabsReturn'])
+    ->name('paytabs.return');
 
-Route::get('/payments/weaccept/{payment}/return', [GatewayReturnController::class, 'weacceptReturn'])->name('weaccept.return');
+Route::get('/payments/weaccept/{payment}/return', [GatewayReturnController::class, 'weacceptReturn'])
+    ->name('weaccept.return');
 
-Route::get('/payments/payeer/{payment}/return', [GatewayReturnController::class, 'payeerReturn'])->name('payeer.return');
+Route::get('/payments/payeer/{payment}/return', [GatewayReturnController::class, 'payeerReturn'])
+    ->name('payeer.return');
 
 // Local iframe host for providers that return iframe URLs (e.g. PayMob/WeAccept)
-Route::middleware('auth')->get('/payments/iframe', [GatewayReturnController::class, 'iframeHost'])->name('payments.iframe');
-Route::middleware('auth')->get('/payments/iframe/{payment}', [GatewayReturnController::class, 'iframeForPayment'])->name('payments.iframe.payment');
+Route::middleware('auth')
+    ->get('/payments/iframe', [GatewayReturnController::class, 'iframeHost'])
+    ->name('payments.iframe');
+Route::middleware('auth')
+    ->get('/payments/iframe/{payment}', [GatewayReturnController::class, 'iframeForPayment'])
+    ->name('payments.iframe.payment');
 
 // Payrexx gateway removed from this deployment (route intentionally omitted)
 

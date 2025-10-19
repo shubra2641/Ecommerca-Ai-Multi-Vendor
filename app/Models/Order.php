@@ -10,8 +10,19 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'status', 'total', 'currency', 'shipping_address', 'shipping_address_id', 'payment_method', 'payment_status',
-        'items_subtotal', 'shipping_price', 'shipping_zone_id', 'shipping_estimated_days', 'has_backorder',
+        'user_id',
+        'status',
+        'total',
+        'currency',
+        'shipping_address',
+        'shipping_address_id',
+        'payment_method',
+        'payment_status',
+        'items_subtotal',
+        'shipping_price',
+        'shipping_zone_id',
+        'shipping_estimated_days',
+        'has_backorder',
     ];
 
     protected $casts = [

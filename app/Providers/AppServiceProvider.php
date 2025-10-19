@@ -53,16 +53,26 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(VendorWithdrawal::class, VendorWithdrawalPolicy::class);
 
         // Shared active languages (for switchers in multiple layouts)
-        View::composer(['components.language-switcher', 'vendor.partials.vendor-top', 'layouts.guest'], function ($view) {
-            $languages = \Illuminate\Support\Facades\Cache::remember('languages_all', 3600, function () {
-                try {
-                    return Language::where('is_active', 1)->orderByDesc('is_default')->orderBy('name')->get();
-                } catch (\Throwable $e) {
-                    return collect();
-                }
-            });
-            $view->with('languages', $languages);
-        });
+        View::composer(
+            ['components.language-switcher', 'vendor.partials.vendor-top', 'layouts.guest'],
+            function ($view) {
+                $languages = \Illuminate\Support\Facades\Cache::remember(
+                    'languages_all',
+                    3600,
+                    function () {
+                        try {
+                            return Language::where('is_active', 1)
+                                ->orderByDesc('is_default')
+                                ->orderBy('name')
+                                ->get();
+                        } catch (\Throwable $e) {
+                            return collect();
+                        }
+                    }
+                );
+                $view->with('languages', $languages);
+            }
+        );
 
         // Header specific heavy data
         View::composer('front.partials.header', HeaderComposer::class);
@@ -79,7 +89,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Admin specific composers (removing inline @php from admin views)
         View::composer('admin.orders.show', \App\View\Composers\AdminOrderComposer::class);
-        View::composer('admin.products.products.index', \App\View\Composers\AdminProductsIndexComposer::class);
+        View::composer(
+            'admin.products.products.index',
+            \App\View\Composers\AdminProductsIndexComposer::class
+        );
         View::composer('admin.products.categories.index', \App\View\Composers\AdminCategoriesIndexComposer::class);
         View::composer('admin.products.products._form', \App\View\Composers\AdminProductFormComposer::class);
         View::composer('admin.shipping.index', \App\View\Composers\AdminShippingComposer::class);
@@ -129,7 +142,10 @@ class AppServiceProvider extends ServiceProvider
         // Error role specific composer (removes inline @php for dashboard resolution)
         View::composer('errors.404-role', \App\View\Composers\ErrorRoleComposer::class);
         // Site branding (settings/font/logo) for multiple layouts & logo component
-        View::composer(['components.application-logo', 'layouts.admin', 'layouts.guest'], \App\View\Composers\SiteBrandingComposer::class);
+        View::composer(
+            ['components.application-logo', 'layouts.admin', 'layouts.guest'],
+            \App\View\Composers\SiteBrandingComposer::class
+        );
 
         // Provide site setting & selected font globally for front views (remove inline @php in layout)
         View::composer(['front.*'], function ($view) {
@@ -137,14 +153,17 @@ class AppServiceProvider extends ServiceProvider
             if ($cached === null) {
                 try {
                     $cached = [
-                        'setting' => \Illuminate\Support\Facades\Cache::remember('site_settings', 3600, fn () => \App\Models\Setting::first()),
+                        'setting' => \Illuminate\Support\Facades\Cache::remember('site_settings', 3600, fn() => \App\Models\Setting::first()),
                     ];
                 } catch (\Throwable $e) {
                     $cached = ['setting' => null];
                 }
                 $font = null;
                 try {
-                    $font = cache()->get('settings.font_family', $cached['setting']->font_family ?? 'Inter');
+                    $font = cache()->get(
+                        'settings.font_family',
+                        $cached['setting']->font_family ?? 'Inter'
+                    );
                 } catch (\Throwable $e) {
                     $font = 'Inter';
                 }
@@ -191,13 +210,17 @@ class AppServiceProvider extends ServiceProvider
 
         // Provide pending returns count to admin navigation via view composer
         View::composer('layouts.navigation', function ($view) {
-            $pending = \Illuminate\Support\Facades\Cache::remember('pending_returns_count', 300, function () {
-                try {
-                    return \App\Models\OrderItem::where('return_requested', true)->count();
-                } catch (\Throwable $e) {
-                    return 0;
+            $pending = \Illuminate\Support\Facades\Cache::remember(
+                'pending_returns_count',
+                300,
+                function () {
+                    try {
+                        return \App\Models\OrderItem::where('return_requested', true)->count();
+                    } catch (\Throwable $e) {
+                        return 0;
+                    }
                 }
-            });
+            );
 
             $pendingVendorProducts = \Illuminate\Support\Facades\Cache::remember('pending_vendor_products_count', 300, function () {
                 try {

@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Migrations;
+
 // Disabled backup of migration
 // Original moved to disabled to prevent class collisions during automated runs.
 
