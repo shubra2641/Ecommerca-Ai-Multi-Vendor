@@ -56,19 +56,19 @@ class PaymentGatewayService
     {
         $chargeId = $this->getChargeId($payment, $gateway);
         $secret = $this->getGatewaySecret($gateway);
-        
+
         if (!$secret || !$chargeId) {
             throw new \RuntimeException('Missing gateway secret or charge id for verify');
         }
 
         $response = $this->makeVerificationRequest($gateway, $secret, $chargeId);
-        
+
         if (!$response['success']) {
             return ['payment' => $payment, 'status' => 'pending', 'charge' => null];
         }
 
         $this->updatePaymentStatus($payment, $response['status'], $gateway);
-        
+
         if ($payment->status === 'paid') {
             $this->handleSuccessfulPayment($payment);
         }
@@ -79,12 +79,12 @@ class PaymentGatewayService
     private function initPayPalPayment(?Order $order, PaymentGateway $gateway, ?int $orderId, ?array $snapshot = null): array
     {
         $config = $this->getPayPalConfig($gateway);
-        
+
         return DB::transaction(function () use ($order, $orderId, $snapshot, $config) {
             $payment = $this->createPayment('paypal', $order, $orderId, $snapshot);
             $accessToken = $this->getPayPalToken($config);
             $orderData = $this->createPayPalOrder($order, $snapshot, $payment->id, $accessToken, $config);
-            
+
             $this->updatePaymentPayload($payment, $orderData);
             return ['payment' => $payment, 'redirect_url' => $orderData['approval_url'], 'paypal_order' => $orderData['raw']];
         });
@@ -93,11 +93,11 @@ class PaymentGatewayService
     private function initTapPayment(?Order $order, PaymentGateway $gateway, ?int $orderId, ?array $snapshot = null): array
     {
         $config = $this->getTapConfig($gateway, $order, $snapshot);
-        
+
         return DB::transaction(function () use ($order, $orderId, $snapshot, $config) {
             $payment = $this->createPayment('tap', $order, $orderId, $snapshot);
             $chargeData = $this->createTapCharge($order, $snapshot, $payment->id, $config);
-            
+
             $this->updatePaymentPayload($payment, $chargeData);
             return ['payment' => $payment, 'redirect_url' => $chargeData['redirect_url']];
         });
@@ -106,11 +106,11 @@ class PaymentGatewayService
     private function initGenericGateway(array $snapshot, PaymentGateway $gateway, string $slug): array
     {
         $config = $this->getGenericConfig($gateway, $snapshot, $slug);
-        
+
         return DB::transaction(function () use ($snapshot, $config, $slug) {
             $payment = $this->createPayment($slug, null, null, $snapshot);
             $chargeData = $this->createGenericCharge($snapshot, $payment->id, $config, $slug);
-            
+
             $this->updatePaymentPayload($payment, $chargeData);
             return ['payment' => $payment, 'redirect_url' => $chargeData['redirect_url'], 'raw' => $chargeData['raw']];
         });
@@ -120,7 +120,7 @@ class PaymentGatewayService
     {
         $cfg = $gateway->config ?? [];
         $mode = ($cfg['paypal_mode'] ?? 'sandbox') === 'live' ? 'live' : 'sandbox';
-        
+
         return [
             'client_id' => $cfg['paypal_client_id'] ?? null,
             'secret' => $cfg['paypal_secret'] ?? null,
@@ -133,7 +133,7 @@ class PaymentGatewayService
     {
         $cfg = $gateway->config ?? [];
         $currency = strtoupper($cfg['tap_currency'] ?? ($order?->currency ?? $snapshot['currency'] ?? 'USD'));
-        
+
         return [
             'secret' => $cfg['tap_secret_key'] ?? null,
             'currency' => $currency
@@ -144,7 +144,7 @@ class PaymentGatewayService
     {
         $cfg = $gateway->config ?? [];
         $currency = strtoupper($cfg[$slug . '_currency'] ?? ($snapshot['currency'] ?? 'USD'));
-        
+
         return [
             'api_base' => rtrim($cfg['api_base'] ?? ('https://api.' . $slug . '.com'), '/'),
             'secret' => $cfg['secret_key'] ?? ($cfg['api_key'] ?? null),
@@ -244,11 +244,11 @@ class PaymentGatewayService
             'metadata' => ['order_id' => $order?->id, 'payment_id' => $paymentId],
             'redirect' => ['url' => route('tap.return', ['payment' => $paymentId])],
             'customer' => ['first_name' => $customerName, 'email' => $customerEmail],
-                'source' => ['id' => 'src_all'],
-            ];
+            'source' => ['id' => 'src_all'],
+        ];
 
         $response = Http::withToken($config['secret'])->acceptJson()->post('https://api.tap.company/v2/charges', $payload);
-        
+
         if (!$response->ok()) {
             throw new \Exception('Charge error: ' . $response->status());
         }
@@ -266,17 +266,17 @@ class PaymentGatewayService
         $payload = [
             'amount' => (float) number_format($snapshot['total'] ?? 0, 2, '.', ''),
             'currency' => $config['currency'],
-            'description' => 'Checkout',
+                'description' => 'Checkout',
             'metadata' => ['order_id' => null, 'payment_id' => $paymentId],
             'redirect' => ['url' => route($slug . '.return', ['payment' => $paymentId])],
-            'customer' => [
-                'first_name' => $snapshot['customer_name'] ?? 'Customer',
-                'email' => $snapshot['customer_email'] ?? 'customer@example.com',
-            ],
+                'customer' => [
+                    'first_name' => $snapshot['customer_name'] ?? 'Customer',
+                    'email' => $snapshot['customer_email'] ?? 'customer@example.com',
+                ],
         ];
 
         $response = Http::withToken($config['secret'])->acceptJson()->post($config['api_base'] . '/charges', $payload);
-        
+
         if (!$response->ok()) {
             throw new \Exception('Charge error: ' . $response->status());
         }
@@ -304,13 +304,13 @@ class PaymentGatewayService
     {
         $cfg = $gateway->config ?? [];
         $apiBase = rtrim($cfg['api_base'] ?? ('https://api.' . $gateway->slug . '.com'), '/');
-        
+
         try {
             $resp = Http::withToken($secret)->acceptJson()->get($apiBase . '/charges/' . $chargeId);
-            
+
             if (!$resp->ok()) {
                 Log::warning($gateway->slug . '.verify.error', [
-                    'payment_id' => $gateway->id, 
+                    'payment_id' => $gateway->id,
                     'status' => $resp->status()
                 ]);
                 return ['success' => false, 'status' => 'pending', 'data' => null];
@@ -319,11 +319,11 @@ class PaymentGatewayService
             $json = $resp->json();
             $status = $json['status'] ?? $json['data']['status'] ?? null;
             $finalStatus = $this->mapPaymentStatus($status);
-            
+
             return ['success' => true, 'status' => $finalStatus, 'data' => $json];
         } catch (\Throwable $e) {
             Log::warning($gateway->slug . '.verify.exception', [
-                'payment_id' => $gateway->id, 
+                'payment_id' => $gateway->id,
                 'error' => $e->getMessage()
             ]);
             return ['success' => false, 'status' => 'pending', 'data' => null];
@@ -353,7 +353,7 @@ class PaymentGatewayService
     private function updatePaymentPayload(Payment $payment, array $data): void
     {
         $payload = $payment->payload ?? [];
-        
+
         if (isset($data['order_id'])) {
             $payload['paypal_order_id'] = $data['order_id'];
         }
@@ -428,7 +428,7 @@ class PaymentGatewayService
                                     'payment_method' => $payment->method,
                                     'payment_status' => 'paid',
                                 ]);
-                
+
                 foreach ($snapshot['items'] ?? [] as $item) {
                                     \App\Models\OrderItem::create([
                                         'order_id' => $order->id,
