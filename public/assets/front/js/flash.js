@@ -4,7 +4,7 @@
  */
 
 /* eslint-env browser */
-(function () {
+(function() {
     'use strict';
 
     const FlashManager = {

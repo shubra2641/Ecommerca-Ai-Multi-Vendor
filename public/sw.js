@@ -2,6 +2,7 @@
  * Simple and reliable Service Worker
  * For PWA - E-commerce Store
  */
+/* global caches, URL, Response */
 
 const CACHE_NAME = 'ecommerce-store-v1';
 const OFFLINE_URL = '/offline.html';
@@ -25,7 +26,8 @@ self.addEventListener('install', (event) => {
             .then(() => {
                 return self.skipWaiting();
             })
-            .catch(error => {
+            .catch(() => {
+                // Ignore cache errors
             })
     );
 });
@@ -95,8 +97,8 @@ async function handleRequest(request) {
 
         // Default: Network First
         return await networkFirst(request);
-    } catch (error) {
-        return await handleOffline(request);
+    } catch {
+        return handleOffline(request);
     }
 }
 
@@ -117,8 +119,8 @@ async function cacheFirst(request) {
         }
 
         return networkResponse;
-    } catch (error) {
-        return await handleOffline(request);
+    } catch {
+        return handleOffline(request);
     }
 }
 
@@ -133,7 +135,7 @@ async function networkFirst(request) {
         }
 
         return networkResponse;
-    } catch (error) {
+    } catch {
         const cache = await caches.open(CACHE_NAME);
         const cachedResponse = await cache.match(request);
 
@@ -141,7 +143,7 @@ async function networkFirst(request) {
             return cachedResponse;
         }
 
-        return await handleOffline(request);
+        return handleOffline(request);
     }
 }
 
@@ -236,7 +238,8 @@ self.addEventListener('message', (event) => {
 });
 
 // Handle errors
-self.addEventListener('error', (event) => {
+self.addEventListener('error', () => {
+    // Handle service worker errors
 });
 
 self.addEventListener('unhandledrejection', (event) => {

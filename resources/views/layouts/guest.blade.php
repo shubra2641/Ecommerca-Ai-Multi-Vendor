@@ -13,6 +13,7 @@
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
+
 </head>
 
 <body class="guest-layout">
@@ -109,7 +110,7 @@
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
     <!-- Unified Customer JS - All functionality consolidated -->
     <script src="{{ asset('assets/customer/js/customer.js') }}"></script>
-    
+
 </body>
 
 </html>

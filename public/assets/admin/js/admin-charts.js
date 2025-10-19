@@ -31,19 +31,35 @@
             const element = document.querySelector(selector);
             if (!element) { return null; }
 
-            try {
-                if (element.tagName?.toLowerCase() === 'script') {
-                    return JSON.parse(element.textContent || element.innerText || '{}');
-                }
+            if (element.tagName?.toLowerCase() === 'script') {
+                return this.parseScriptElement(element);
+            }
 
-                const payload = element.getAttribute('data-payload') || element.textContent || element.innerText || '';
-                try {
-                    return JSON.parse(payload);
-                } catch (err) {
-                    return JSON.parse(atob(payload));
-                }
-            } catch (err) {
+            return this.parseDataElement(element);
+        },
+
+        parseScriptElement(element) {
+            try {
+                return JSON.parse(element.textContent || element.innerText || '{}');
+            } catch {
                 return null;
+            }
+        },
+
+        parseDataElement(element) {
+            try {
+                const payload = element.getAttribute('data-payload') || element.textContent || element.innerText || '';
+                return this.parsePayload(payload);
+            } catch {
+                return null;
+            }
+        },
+
+        parsePayload(payload) {
+            try {
+                return JSON.parse(payload);
+            } catch {
+                return JSON.parse(atob(payload));
             }
         },
 
@@ -115,7 +131,7 @@
                         data: data.values || data.data || [],
                         borderColor: data.borderColor || CONFIG.CHART_COLORS.primary,
                         backgroundColor: data.backgroundColor || 'rgba(0,123,255,0.1)',
-                        tension: data.tension || 0.4,
+                        tension: data.tension || 0.4, // eslint-disable-line no-magic-numbers
                         fill: data.fill !== false
                     }]
                 },
@@ -211,7 +227,7 @@
                 setTimeout(() => {
                     if (icon) { icon.classList.remove('fa-spin'); }
                     location.reload();
-                }, 1000);
+                }, 1000); // eslint-disable-line no-magic-numbers
             });
         },
 
@@ -227,8 +243,9 @@
 
                     setTimeout(() => {
                         btn.innerHTML = originalHtml;
+                        // eslint-disable-next-line no-alert
                         alert(`تم التصدير بنجاح: ${format.toUpperCase()}`);
-                    }, 1200);
+                    }, 1200); // eslint-disable-line no-magic-numbers
                 });
             });
         },
@@ -237,7 +254,7 @@
             try {
                 const tooltipElements = document.querySelectorAll('[data-bs-toggle="tooltip"]');
                 tooltipElements.forEach(el => new bootstrap.Tooltip(el));
-            } catch (e) {
+            } catch {
                 // Bootstrap may not be loaded
             }
         }
@@ -252,51 +269,59 @@
                 return;
             }
 
+            this.createReportsCharts(data);
+            UIHandler.init();
+            Utils.hideLoaders();
+        },
+
+        createReportsCharts(data) {
             const chartData = data.chartData || {};
             const stats = data.stats || {};
 
-            // User Analytics Chart
+            this.createUserAnalyticsChart(chartData);
+            this.createUserDistributionChart(stats);
+        },
+
+        createUserAnalyticsChart(chartData) {
             const userAnalyticsEl = document.getElementById('userAnalyticsChart');
-            if (userAnalyticsEl && chartData) {
-                try {
-                    ChartBuilder.createLineChart(userAnalyticsEl.getContext('2d'), {
-                        labels: chartData.labels || [],
-                        values: chartData.userData || chartData.values || [],
-                        label: Utils.translate('New Users', 'New Users'),
-                        borderColor: chartData.borderColor,
-                        backgroundColor: chartData.backgroundColor,
-                        tension: chartData.tension,
-                        fill: chartData.fill
-                    });
-                } catch (e) {
-                    // Chart creation failed
-                }
-            }
+            if (!userAnalyticsEl || !chartData) { return; }
 
-            // User Distribution Chart
+            try {
+                ChartBuilder.createLineChart(userAnalyticsEl.getContext('2d'), {
+                    labels: chartData.labels || [],
+                    values: chartData.userData || chartData.values || [],
+                    label: Utils.translate('New Users', 'New Users'),
+                    borderColor: chartData.borderColor,
+                    backgroundColor: chartData.backgroundColor,
+                    tension: chartData.tension,
+                    fill: chartData.fill
+                });
+            } catch {
+                // Chart creation failed
+            }
+        },
+
+        createUserDistributionChart(stats) {
             const userDistributionEl = document.getElementById('userDistributionChart');
-            if (userDistributionEl) {
-                try {
-                    ChartBuilder.createDoughnutChart(userDistributionEl.getContext('2d'), {
-                        labels: [
-                            Utils.translate('Active Users', 'Active'),
-                            Utils.translate('Pending Users', 'Pending'),
-                            Utils.translate('Inactive Users', 'Inactive')
-                        ],
-                        values: [
-                            stats.activeUsers || 0,
-                            stats.pendingUsers || 0,
-                            stats.inactiveUsers || 0
-                        ],
-                        colors: [CONFIG.CHART_COLORS.primary, CONFIG.CHART_COLORS.warning, CONFIG.CHART_COLORS.danger]
-                    });
-                } catch (e) {
-                    // Chart creation failed
-                }
-            }
+            if (!userDistributionEl) { return; }
 
-            UIHandler.init();
-            Utils.hideLoaders();
+            try {
+                ChartBuilder.createDoughnutChart(userDistributionEl.getContext('2d'), {
+                    labels: [
+                        Utils.translate('Active Users', 'Active'),
+                        Utils.translate('Pending Users', 'Pending'),
+                        Utils.translate('Inactive Users', 'Inactive')
+                    ],
+                    values: [
+                        stats.activeUsers || 0,
+                        stats.pendingUsers || 0,
+                        stats.inactiveUsers || 0
+                    ],
+                    colors: [CONFIG.CHART_COLORS.primary, CONFIG.CHART_COLORS.warning, CONFIG.CHART_COLORS.danger]
+                });
+            } catch {
+                // Chart creation failed
+            }
         },
 
         financial() {
@@ -306,43 +331,49 @@
                 return;
             }
 
-            const charts = data.charts || {};
-
-            // Balance Distribution Chart
-            const balanceDistEl = document.getElementById('balanceDistributionChart');
-            if (balanceDistEl && charts.balanceDistribution) {
-                try {
-                    ChartBuilder.createDoughnutChart(balanceDistEl.getContext('2d'), {
-                        labels: charts.balanceDistribution.labels || [],
-                        values: charts.balanceDistribution.values || [],
-                        colors: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
-                    }, {
-                        plugins: { legend: { position: 'bottom' } }
-                    });
-                } catch (e) {
-                    // Chart creation failed
-                }
-            }
-
-            // Monthly Trends Chart
-            const monthlyTrendsEl = document.getElementById('monthlyTrendsChart');
-            if (monthlyTrendsEl && charts.monthlyTrends) {
-                try {
-                    ChartBuilder.createLineChart(monthlyTrendsEl.getContext('2d'), {
-                        labels: charts.monthlyTrends.labels || [],
-                        values: charts.monthlyTrends.values || [],
-                        label: charts.monthlyTrends.label || Utils.translate('Monthly Financial Trends', 'Monthly Financial Trends'),
-                        borderColor: '#4e73df',
-                        backgroundColor: 'rgba(78,115,223,0.1)',
-                        fill: true
-                    });
-                } catch (e) {
-                    // Chart creation failed
-                }
-            }
-
+            this.createFinancialCharts(data.charts || {});
             UIHandler.init();
             Utils.hideLoaders();
+        },
+
+        createFinancialCharts(charts) {
+            this.createBalanceDistributionChart(charts);
+            this.createMonthlyTrendsChart(charts);
+        },
+
+        createBalanceDistributionChart(charts) {
+            const balanceDistEl = document.getElementById('balanceDistributionChart');
+            if (!balanceDistEl || !charts.balanceDistribution) { return; }
+
+            try {
+                ChartBuilder.createDoughnutChart(balanceDistEl.getContext('2d'), {
+                    labels: charts.balanceDistribution.labels || [],
+                    values: charts.balanceDistribution.values || [],
+                    colors: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
+                }, {
+                    plugins: { legend: { position: 'bottom' } }
+                });
+            } catch {
+                // Chart creation failed
+            }
+        },
+
+        createMonthlyTrendsChart(charts) {
+            const monthlyTrendsEl = document.getElementById('monthlyTrendsChart');
+            if (!monthlyTrendsEl || !charts.monthlyTrends) { return; }
+
+            try {
+                ChartBuilder.createLineChart(monthlyTrendsEl.getContext('2d'), {
+                    labels: charts.monthlyTrends.labels || [],
+                    values: charts.monthlyTrends.values || [],
+                    label: charts.monthlyTrends.label || Utils.translate('Monthly Financial Trends', 'Monthly Financial Trends'),
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78,115,223,0.1)',
+                    fill: true
+                });
+            } catch {
+                // Chart creation failed
+            }
         },
 
         dashboard() {
@@ -352,82 +383,90 @@
                 return;
             }
 
-            const charts = data.charts || {};
-
-            // Users Chart
-            const usersEl = document.getElementById('userChart');
-            if (usersEl && charts.users) {
-                try {
-                    ChartBuilder.createLineChart(usersEl.getContext('2d'), {
-                        labels: charts.users.labels || [],
-                        values: charts.users.data || [],
-                        label: Utils.translate('Users', 'Users'),
-                        borderColor: CONFIG.CHART_COLORS.primary,
-                        backgroundColor: 'rgba(0,123,255,0.1)',
-                        tension: 0.4,
-                        fill: true
-                    });
-                } catch (e) {
-                    // Chart creation failed
-                }
-            }
-
-            // Sales Chart (Multi-dataset)
-            const salesEl = document.getElementById('salesChart');
-            if (salesEl && charts.sales) {
-                try {
-                    ChartBuilder.createMultiLineChart(salesEl.getContext('2d'), {
-                        labels: charts.sales.labels || [],
-                        datasets: [
-                            {
-                                label: Utils.translate('Orders', 'Orders'),
-                                data: charts.sales.orders || [],
-                                borderColor: CONFIG.CHART_COLORS.info,
-                                backgroundColor: 'rgba(23,162,184,0.15)',
-                                tension: 0.3,
-                                fill: true,
-                                yAxisID: 'y'
-                            },
-                            {
-                                label: Utils.translate('Revenue', 'Revenue'),
-                                data: charts.sales.revenue || [],
-                                borderColor: CONFIG.CHART_COLORS.success,
-                                backgroundColor: 'rgba(40,167,69,0.15)',
-                                tension: 0.3,
-                                fill: true,
-                                yAxisID: 'y1'
-                            }
-                        ]
-                    });
-                } catch (e) {
-                    // Chart creation failed
-                }
-            }
-
-            // Order Status Chart
-            const orderStatusEl = document.getElementById('orderStatusChart');
-            if (orderStatusEl && charts.ordersStatus) {
-                try {
-                    ChartBuilder.createDoughnutChart(orderStatusEl.getContext('2d'), {
-                        labels: charts.ordersStatus.labels || [],
-                        values: charts.ordersStatus.data || [],
-                        colors: [
-                            CONFIG.CHART_COLORS.primary,
-                            CONFIG.CHART_COLORS.success,
-                            CONFIG.CHART_COLORS.warning,
-                            CONFIG.CHART_COLORS.danger,
-                            CONFIG.CHART_COLORS.info
-                        ]
-                    }, {
-                        plugins: { legend: { position: 'bottom' } }
-                    });
-                } catch (e) {
-                    // Chart creation failed
-                }
-            }
-
+            this.createDashboardCharts(data.charts || {});
             UIHandler.init();
             Utils.hideLoaders();
+        },
+
+        createDashboardCharts(charts) {
+            this.createUsersChart(charts);
+            this.createSalesChart(charts);
+            this.createOrderStatusChart(charts);
+        },
+
+        createUsersChart(charts) {
+            const usersEl = document.getElementById('userChart');
+            if (!usersEl || !charts.users) { return; }
+
+            try {
+                ChartBuilder.createLineChart(usersEl.getContext('2d'), {
+                    labels: charts.users.labels || [],
+                    values: charts.users.data || [],
+                    label: Utils.translate('Users', 'Users'),
+                    borderColor: CONFIG.CHART_COLORS.primary,
+                    backgroundColor: 'rgba(0,123,255,0.1)',
+                    tension: 0.4,
+                    fill: true
+                });
+            } catch {
+                // Chart creation failed
+            }
+        },
+
+        createSalesChart(charts) {
+            const salesEl = document.getElementById('salesChart');
+            if (!salesEl || !charts.sales) { return; }
+
+            try {
+                ChartBuilder.createMultiLineChart(salesEl.getContext('2d'), {
+                    labels: charts.sales.labels || [],
+                    datasets: [
+                        {
+                            label: Utils.translate('Orders', 'Orders'),
+                            data: charts.sales.orders || [],
+                            borderColor: CONFIG.CHART_COLORS.info,
+                            backgroundColor: 'rgba(23,162,184,0.15)',
+                            tension: 0.3,
+                            fill: true,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: Utils.translate('Revenue', 'Revenue'),
+                            data: charts.sales.revenue || [],
+                            borderColor: CONFIG.CHART_COLORS.success,
+                            backgroundColor: 'rgba(40,167,69,0.15)',
+                            tension: 0.3,
+                            fill: true,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                });
+            } catch {
+                // Chart creation failed
+            }
+        },
+
+        createOrderStatusChart(charts) {
+            const orderStatusEl = document.getElementById('orderStatusChart');
+            if (!orderStatusEl || !charts.ordersStatus) { return; }
+
+            try {
+                ChartBuilder.createDoughnutChart(orderStatusEl.getContext('2d'), {
+                    labels: charts.ordersStatus.labels || [],
+                    values: charts.ordersStatus.data || [],
+                    colors: [
+                        CONFIG.CHART_COLORS.primary,
+                        CONFIG.CHART_COLORS.success,
+                        CONFIG.CHART_COLORS.warning,
+                        CONFIG.CHART_COLORS.danger,
+                        CONFIG.CHART_COLORS.info
+                    ]
+                }, {
+                    plugins: { legend: { position: 'bottom' } }
+                });
+            } catch {
+                // Chart creation failed
+            }
         }
     };
 
@@ -446,7 +485,7 @@
                     // No specific data found, just hide loaders
                     Utils.hideLoaders();
                 }
-            } catch (e) {
+            } catch {
                 // Initialization failed
                 Utils.hideLoaders();
             }

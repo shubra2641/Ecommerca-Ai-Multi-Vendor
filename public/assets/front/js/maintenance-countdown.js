@@ -1,5 +1,5 @@
 // Extracted countdown script (progressive, minimal)
-(function () {
+(function() {
     const el = document.getElementById('countdown');
     if (!el) {
         return;

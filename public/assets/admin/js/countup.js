@@ -29,7 +29,8 @@
         const EASE_POWER = 3;
         const EASE_DIVISOR = 2;
         const EASE_NEGATIVE_MULTIPLIER = -2;
-        const ease = t => t < EASE_HALF ? EASE_MULTIPLIER * t * t * t : 1 - Math.pow(EASE_NEGATIVE_MULTIPLIER * t + 2, EASE_POWER) / EASE_DIVISOR; // cubic in-out
+        const EASE_OFFSET = 2;
+        const ease = t => t < EASE_HALF ? EASE_MULTIPLIER * t * t * t : 1 - Math.pow(EASE_NEGATIVE_MULTIPLIER * t + EASE_OFFSET, EASE_POWER) / EASE_DIVISOR; // cubic in-out
         function step(now) {
             const p = Math.min(1, (now - startTime) / duration);
             const val = startVal + (target - startVal) * ease(p);
