@@ -60,11 +60,13 @@ class FooterSettingsController extends Controller
         foreach ($result as $key => &$link) {
             if ($request->hasFile("app_links.$key.image")) {
                 $file = $request->file("app_links.$key.image");
-                $filename = 'app_badge_' . $key . '_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $filename = 'app_badge_' . $key . '_' . time() . '_' .
+                    uniqid() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('uploads/footer', $filename, 'public');
                 $link['image'] = $path;
             } else {
-                $link['image'] = $link['existing_image'] ?? ($setting->footer_app_links[$key]['image'] ?? null);
+                $link['image'] = $link['existing_image'] ??
+                    ($setting->footer_app_links[$key]['image'] ?? null);
             }
             $link['enabled'] = (bool) ($link['enabled'] ?? false);
             $link['order'] = $link['order'] ?? 0;
@@ -99,7 +101,11 @@ class FooterSettingsController extends Controller
     {
         $setting = Setting::first();
         $activeLanguages = $this->activeLanguages();
-        $appLinks = $this->normalizeAppLinks($setting->footer_app_links ?? [], $setting, app(UpdateFooterSettingsRequest::class));
+        $appLinks = $this->normalizeAppLinks(
+            $setting->footer_app_links ?? [],
+            $setting,
+            app(UpdateFooterSettingsRequest::class)
+        );
         // Sections visibility defaults
         $sections = array_merge([
             'support_bar' => true,
@@ -113,11 +119,20 @@ class FooterSettingsController extends Controller
         $pages = collect();
         $footerPageTitles = [];
 
-        return view('admin.footer.settings', compact('setting', 'activeLanguages', 'appLinks', 'sections', 'pages', 'footerPageTitles'));
+        return view('admin.footer.settings', compact(
+            'setting',
+            'activeLanguages',
+            'appLinks',
+            'sections',
+            'pages',
+            'footerPageTitles'
+        ));
     }
 
-    public function update(UpdateFooterSettingsRequest $request, \App\Services\HtmlSanitizer $sanitizer): RedirectResponse
-    {
+    public function update(
+        UpdateFooterSettingsRequest $request,
+        \App\Services\HtmlSanitizer $sanitizer
+    ): RedirectResponse {
         $setting = Setting::first() ?? new Setting();
         $data = $request->validated();
 
@@ -138,13 +153,21 @@ class FooterSettingsController extends Controller
 
         // Sections visibility (explicit each submit)
         $sections = collect(['support_bar', 'apps', 'social', 'pages', 'payments'])
-            ->mapWithKeys(fn ($sec) => [$sec => (bool) ($data['sections'][$sec] ?? false)])
+            ->mapWithKeys(fn ($sec) => [
+                $sec => (bool) ($data['sections'][$sec] ?? false)
+            ])
             ->toArray();
 
         $payload = [];
         $payload['footer_app_links'] = $appLinks; // replace set
-        $payload['footer_support_heading'] = $this->mergeLang($setting->footer_support_heading, $data['footer_support_heading'] ?? []);
-        $payload['footer_support_subheading'] = $this->mergeLang($setting->footer_support_subheading, $data['footer_support_subheading'] ?? []);
+        $payload['footer_support_heading'] = $this->mergeLang(
+            $setting->footer_support_heading,
+            $data['footer_support_heading'] ?? []
+        );
+        $payload['footer_support_subheading'] = $this->mergeLang(
+            $setting->footer_support_subheading,
+            $data['footer_support_subheading'] ?? []
+        );
         $payload['rights_i18n'] = $this->mergeLang($setting->rights_i18n, $data['rights_i18n'] ?? []);
         // sanitize rights translations
         foreach ($payload['rights_i18n'] as $lc => $v) {

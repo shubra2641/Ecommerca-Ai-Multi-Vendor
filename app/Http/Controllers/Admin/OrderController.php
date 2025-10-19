@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
+use App\Models\ProductVariation;
+use App\Models\User;
 use App\Services\StockService;
 use Illuminate\Http\Request;
 
@@ -120,8 +122,11 @@ class OrderController extends Controller
         return view('admin.orders.payments', compact('payments'));
     }
 
-    public function updateStatus(\App\Http\Requests\Admin\UpdateOrderStatusRequest $request, $orderId, \App\Services\HtmlSanitizer $sanitizer)
-    {
+    public function updateStatus(
+        \App\Http\Requests\Admin\UpdateOrderStatusRequest $request,
+        $orderId,
+        \App\Services\HtmlSanitizer $sanitizer
+    ) {
         $order = Order::findOrFail($orderId);
         $data = $request->validated();
 
@@ -177,7 +182,7 @@ class OrderController extends Controller
                 $itemsByVendor[$vendorId][] = $it;
             }
             foreach ($itemsByVendor as $vendorId => $items) {
-                $vendor = \App\Models\User::find($vendorId);
+                $vendor = User::find($vendorId);
                 if ($vendor) {
                     $vendor->notify(new \App\Notifications\VendorOrderStatusUpdated($order, $data['status']));
                 }
@@ -204,7 +209,7 @@ class OrderController extends Controller
             $product = $item->product;
             $qty = (int) $item->qty;
             if ($item->meta && is_array($item->meta) && ! empty($item->meta['variant_id'])) {
-                $variation = \App\Models\ProductVariation::find($item->meta['variant_id']);
+                $variation = ProductVariation::find($item->meta['variant_id']);
                 if ($variation) {
                     StockService::releaseVariation($variation, $qty);
                 }

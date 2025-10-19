@@ -76,7 +76,11 @@ class PaymentGatewayController extends Controller
 
         // If this is an AJAX request, return JSON so frontend can handle it without redirect
         if (request()->wantsJson() || request()->ajax()) {
-            return response()->json(['success' => true, 'enabled' => $paymentGateway->enabled, 'message' => __('Gateway status updated')]);
+            return response()->json([
+                'success' => true,
+                'enabled' => $paymentGateway->enabled,
+                'message' => __('Gateway status updated')
+            ]);
         }
 
         return back()->with('success', __('Gateway status updated'));

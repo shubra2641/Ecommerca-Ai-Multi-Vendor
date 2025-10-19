@@ -69,7 +69,10 @@ class CartController extends Controller
                 $variantLabel = $variation->name ?? null;
                 if (! $variantLabel && ! empty($variation->attribute_data)) {
                     try {
-                        $variantLabel = collect($variation->attribute_data)->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ');
+                        $variantLabel = collect($variation->attribute_data)
+                            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                            ->values()
+                            ->join(', ');
                     } catch (\Throwable $e) {
                         $variantLabel = null;
                     }
@@ -86,7 +89,9 @@ class CartController extends Controller
 
             // On sale & percent (moved from Blade)
             $onSale = ($product->sale_price ?? null) && ($product->sale_price < ($product->price ?? 0));
-            $salePercent = ($onSale && $product->price) ? (int) round((($product->price - $product->sale_price) / $product->price) * 100) : null;
+            $salePercent = ($onSale && $product->price) ?
+                (int) round((($product->price - $product->sale_price) / $product->price) * 100) :
+                null;
 
             $items[] = [
                 'product' => $product,
@@ -100,8 +105,12 @@ class CartController extends Controller
                 'on_sale' => $onSale,
                 'sale_percent' => $salePercent,
                 'original_price' => $product->price,
-                'stock_display' => ($product->stock_qty ?? null) !== null ? ((($product->stock_qty ?? 0) > 0) ? (($product->stock_qty) . ' in stock') : 'Out of stock') : null,
-                'seller_name' => (method_exists($product, 'seller') && $product->seller) ? $product->seller->name : null,
+                'stock_display' => ($product->stock_qty ?? null) !== null ?
+                    ((($product->stock_qty ?? 0) > 0) ?
+                        (($product->stock_qty) . ' in stock') : 'Out of stock') :
+                    null,
+                'seller_name' => (method_exists($product, 'seller') && $product->seller) ?
+                    $product->seller->name : null,
                 'short_desc' => $product->short_description ? \Str::limit($product->short_description, 120) : null,
             ];
         }
@@ -190,7 +199,11 @@ class CartController extends Controller
                     $available = max(0, (int) $variation->stock_qty - (int) $variation->reserved_qty);
                     if ($available < $qty) {
                         if ($request->wantsJson()) {
-                            return response()->json(['success' => false, 'message' => __('Requested quantity exceeds available stock'), 'cart_count' => count($this->getCart())], 400);
+                            return response()->json([
+                                'success' => false,
+                                'message' => __('Requested quantity exceeds available stock'),
+                                'cart_count' => count($this->getCart())
+                            ], 400);
                         }
 
                         return back()->with('error', __('Requested quantity exceeds available stock'));
@@ -205,7 +218,11 @@ class CartController extends Controller
                 $available = max(0, (int) ($product->stock_qty ?? 0) - (int) ($product->reserved_qty ?? 0));
                 if ($available < $qty) {
                     if ($request->wantsJson()) {
-                        return response()->json(['success' => false, 'message' => __('Requested quantity exceeds available stock'), 'cart_count' => count($this->getCart())], 400);
+                        return response()->json([
+                            'success' => false,
+                            'message' => __('Requested quantity exceeds available stock'),
+                            'cart_count' => count($this->getCart())
+                        ], 400);
                     }
 
                     return back()->with('error', __('Requested quantity exceeds available stock'));

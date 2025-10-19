@@ -63,7 +63,8 @@ class InterestReportController extends Controller
         $first = $changes->first();
         $last = $changes->last();
         $netChange = $first && $last ? $last->new_price - $first->old_price : 0;
-        $netPercent = ($first && $last && $first->old_price > 0) ? (($last->new_price - $first->old_price) / $first->old_price) * 100 : 0;
+        $netPercent = ($first && $last && $first->old_price > 0) ?
+            (($last->new_price - $first->old_price) / $first->old_price) * 100 : 0;
         $biggestDrop = $changes->sortBy('percent')->first(); // most negative percent
         $maxIncrease = $changes->sortByDesc('percent')->first();
         // Interest overlay: active interest counts evolution (approx by grouping creation times)
@@ -112,7 +113,10 @@ class InterestReportController extends Controller
             }
         }
         // Threshold selection
-        $threshold = (float) ($submitted ? $request->get('thr', config('interest.price_drop_min_percent', 5)) : ($saved['thr'] ?? config('interest.price_drop_min_percent', 5)));
+        $threshold = (float) ($submitted ?
+            $request->get('thr', config('interest.price_drop_min_percent', 5)) :
+            ($saved['thr'] ?? config('interest.price_drop_min_percent', 5))
+        );
         if ($threshold < 1) {
             $threshold = 1;
         } if ($threshold > 90) {
@@ -120,9 +124,33 @@ class InterestReportController extends Controller
         }
         // Persist filters
         session(['price_chart.filters' => [
-            'from' => $from, 'to' => $to, 'ma' => $window, 'show_sma' => $showSma, 'show_ema' => $showEma, 'thr' => $threshold,
+            'from' => $from,
+            'to' => $to,
+            'ma' => $window,
+            'show_sma' => $showSma,
+            'show_ema' => $showEma,
+            'thr' => $threshold,
         ]]);
 
-        return view('admin.notify.price-chart', compact('product', 'changes', 'count', 'netChange', 'netPercent', 'biggestDrop', 'maxIncrease', 'interestSeries', 'from', 'to', 'window', 'sma', 'ema', 'showSma', 'showEma', 'largestAbsDrop', 'largestAbsDropDiff', 'threshold'));
+        return view('admin.notify.price-chart', compact(
+            'product',
+            'changes',
+            'count',
+            'netChange',
+            'netPercent',
+            'biggestDrop',
+            'maxIncrease',
+            'interestSeries',
+            'from',
+            'to',
+            'window',
+            'sma',
+            'ema',
+            'showSma',
+            'showEma',
+            'largestAbsDrop',
+            'largestAbsDropDiff',
+            'threshold'
+        ));
     }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +34,10 @@ class DashboardController extends Controller
 
             try {
                 $tables = DB::select('SHOW TABLES');
-                $dbSizeRow = DB::select('SELECT SUM(data_length + index_length) / 1024 / 1024 AS db_size_mb FROM information_schema.tables WHERE table_schema = DATABASE()');
+                $dbSizeRow = DB::select(
+                    'SELECT SUM(data_length + index_length) / 1024 / 1024 AS db_size_mb ' .
+                        'FROM information_schema.tables WHERE table_schema = DATABASE()'
+                );
                 $dbSize = isset($dbSizeRow[0]->db_size_mb) ? (float) $dbSizeRow[0]->db_size_mb : 0.0;
 
                 $dbInfo = [
@@ -56,7 +61,10 @@ class DashboardController extends Controller
                 'totalBalance' => User::sum('balance'),
                 'activeUsers' => User::whereNotNull('approved_at')->count(),
                 'newUsersToday' => User::whereDate('created_at', today())->count(),
-                'newUsersThisWeek' => User::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+                'newUsersThisWeek' => User::whereBetween('created_at', [
+                    now()->startOfWeek(),
+                    now()->endOfWeek()
+                ])->count(),
                 'newUsersThisMonth' => User::whereMonth('created_at', now()->month)->count(),
                 'totalAdmins' => User::where('role', 'admin')->count(),
                 'totalCustomers' => User::where('role', 'user')->count(),
@@ -89,7 +97,16 @@ class DashboardController extends Controller
         // Get system health data
         $systemHealth = $this->getSystemHealth();
 
-        return view('admin.dashboard', compact('stats', 'chartData', 'salesChartData', 'orderStatusChartData', 'topStats', 'topUsers', 'systemHealth', 'period'));
+        return view('admin.dashboard', compact(
+            'stats',
+            'chartData',
+            'salesChartData',
+            'orderStatusChartData',
+            'topStats',
+            'topUsers',
+            'systemHealth',
+            'period'
+        ));
     }
 
 
@@ -214,22 +231,30 @@ class DashboardController extends Controller
                 ->toArray();
 
             $totalOrders = \App\Models\Order::count();
-            $ordersToday = \App\Models\Order::whereBetween('created_at', $todayRange)->count();
-            $ordersThisWeek = \App\Models\Order::whereBetween('created_at', $weekRange)->count();
+            $ordersToday = \App\Models\Order::whereBetween('created_at', $todayRange)
+                ->count();
+            $ordersThisWeek = \App\Models\Order::whereBetween('created_at', $weekRange)
+                ->count();
             $ordersThisMonth = \App\Models\Order::where('created_at', '>=', $monthRangeStart)->count();
 
             $revenueTotal = $paid->clone()->sum('total');
-            $revenueToday = \App\Models\Order::where('payment_status', 'paid')->whereBetween('created_at', $todayRange)->sum('total');
-            $revenueWeek = \App\Models\Order::where('payment_status', 'paid')->whereBetween('created_at', $weekRange)->sum('total');
-            $revenueMonth = \App\Models\Order::where('payment_status', 'paid')->where('created_at', '>=', $monthRangeStart)->sum('total');
+            $revenueToday = Order::where('payment_status', 'paid')
+                ->whereBetween('created_at', $todayRange)->sum('total');
+            $revenueWeek = Order::where('payment_status', 'paid')
+                ->whereBetween('created_at', $weekRange)->sum('total');
+            $revenueMonth = Order::where('payment_status', 'paid')
+                ->where('created_at', '>=', $monthRangeStart)->sum('total');
 
             $avgOrder = $paid->clone()->avg('total');
 
             // Products / inventory
             $productQ = \App\Models\Product::query();
             $totalProducts = $productQ->count();
-            $lowStock = $productQ->where('manage_stock', 1)->get()->filter(fn ($p) => ($p->availableStock() ?? 0) > 0 && ($p->availableStock() ?? 0) <= 5)->count();
-            $outOfStock = $productQ->where('manage_stock', 1)->get()->filter(fn ($p) => ($p->availableStock() ?? 0) <= 0)->count();
+            $lowStock = $productQ->where('manage_stock', 1)->get()
+                ->filter(fn($p) => ($p->availableStock() ?? 0) > 0 &&
+                    ($p->availableStock() ?? 0) <= 5)->count();
+            $outOfStock = $productQ->where('manage_stock', 1)->get()
+                ->filter(fn($p) => ($p->availableStock() ?? 0) <= 0)->count();
             $onSale = \App\Models\Product::whereNotNull('sale_price')->whereColumn('sale_price', '<', 'price')->count();
 
             // Payment metrics
@@ -268,7 +293,10 @@ class DashboardController extends Controller
     private function getSalesChartData(): array
     {
         $from = now()->subDays(29)->startOfDay();
-        $raw = \App\Models\Order::selectRaw('DATE(created_at) as day, COUNT(*) as orders, SUM(CASE WHEN payment_status = "paid" THEN total ELSE 0 END) as revenue')
+        $raw = \App\Models\Order::selectRaw(
+            'DATE(created_at) as day, COUNT(*) as orders, ' .
+                'SUM(CASE WHEN payment_status = "paid" THEN total ELSE 0 END) as revenue'
+        )
             ->where('created_at', '>=', $from)
             ->groupBy('day')
             ->orderBy('day')

@@ -24,16 +24,24 @@ class MaintenanceSettingsController extends Controller
         }
         $activeLanguages = Cache::remember('active_languages_full', 3600, function () {
             try {
-                $rows = DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get(['code', 'name', 'is_default']);
+                $rows = DB::table('languages')
+                    ->where('is_active', 1)
+                    ->orderBy('is_default', 'desc')
+                    ->get(['code', 'name', 'is_default']);
                 if ($rows->count()) {
                     return $rows;
                 }
             } catch (\Throwable $e) {
             }
-            $configured = config('app.locales') ?? [config('app.locale', 'en')];
+            $configured = config('app.locales') ??
+                [config('app.locale', 'en')];
 
             return collect(array_map(function ($code) {
-                return (object) ['code' => $code, 'name' => strtoupper($code), 'is_default' => $code === config('app.locale')];
+                return (object) [
+                    'code' => $code,
+                    'name' => strtoupper($code),
+                    'is_default' => $code === config('app.locale')
+                ];
             }, $configured));
         });
 

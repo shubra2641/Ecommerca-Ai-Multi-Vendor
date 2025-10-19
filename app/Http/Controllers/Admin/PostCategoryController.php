@@ -72,7 +72,8 @@ class PostCategoryController extends Controller
                     $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
                 }
                 $payload[$f . '_translations'] = array_filter($clean);
-                $payload[$f] = $payload[$f . '_translations'][$fallback] ?? collect($payload[$f . '_translations'])->first(fn ($v) => ! empty($v));
+                $payload[$f] = $payload[$f . '_translations'][$fallback] ??
+                    collect($payload[$f . '_translations'])->first(fn ($v) => ! empty($v));
             }
         }
         PostCategory::create($payload);
@@ -105,7 +106,9 @@ class PostCategoryController extends Controller
             'parent_id' => 'nullable|exists:post_categories,id',
         ]);
         $fallback = config('app.fallback_locale');
-        $defaultName = $data['name'][$fallback] ?? collect($data['name'])->first(fn ($v) => ! empty($v)) ?? $category->getRawOriginal('name');
+        $defaultName = $data['name'][$fallback] ??
+            collect($data['name'])->first(fn ($v) => ! empty($v)) ??
+            $category->getRawOriginal('name');
         $slugTranslations = $data['slug'] ?? ($category->slug_translations ?? []);
         foreach ($data['name'] as $loc => $v) {
             if (! isset($slugTranslations[$loc]) || $slugTranslations[$loc] === '') {
@@ -127,7 +130,8 @@ class PostCategoryController extends Controller
                     $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
                 }
                 $payload[$f . '_translations'] = array_filter($clean);
-                $payload[$f] = $payload[$f . '_translations'][$fallback] ?? collect($payload[$f . '_translations'])->first(fn ($v) => ! empty($v));
+                $payload[$f] = $payload[$f . '_translations'][$fallback] ??
+                    collect($payload[$f . '_translations'])->first(fn ($v) => ! empty($v));
             }
         }
         $category->update($payload);
@@ -179,7 +183,9 @@ class PostCategoryController extends Controller
             ], 429);
         }
         $prompt = sprintf(
-            "Generate JSON with keys seo_description (<=160 chars), seo_tags (<=12 comma keywords), description (1-2 paragraphs) for a blog category named '%s'. Language: %s. Return ONLY JSON.",
+            "Generate JSON with keys seo_description (<=160 chars), " .
+            "seo_tags (<=12 comma keywords), description (1-2 paragraphs) " .
+            "for a blog category named '%s'. Language: %s. Return ONLY JSON.",
             $request->name,
             $locale
         );
@@ -187,13 +193,18 @@ class PostCategoryController extends Controller
         $payload = [
             'model' => $model,
             'messages' => [
-                ['role' => 'system', 'content' => 'You are a helpful blogging taxonomy assistant. Output concise valid JSON only.'],
+                ['role' => 'system',
+                    'content' => 'You are a helpful blogging taxonomy assistant. ' .
+                        'Output concise valid JSON only.'],
                 ['role' => 'user', 'content' => $prompt],
             ],
             'temperature' => 0.6,
         ];
         try {
-            $resp = \Http::withToken($apiKey)->acceptJson()->timeout(25)->post('https://api.openai.com/v1/chat/completions', $payload);
+            $resp = \Http::withToken($apiKey)
+                ->acceptJson()
+                ->timeout(25)
+                ->post('https://api.openai.com/v1/chat/completions', $payload);
         } catch (\Throwable $e) {
             \Log::warning('AI blog category HTTP exception: ' . $e->getMessage());
 
@@ -208,12 +219,17 @@ class PostCategoryController extends Controller
                 'provider_status' => $providerStatus,
                 'provider_body' => $providerBody,
                 'provider_message' => data_get($providerBody, 'error.message'),
-                'retry_after' => $resp->header('Retry-After') ? (int) $resp->header('Retry-After') : null,
+                'retry_after' => $resp->header('Retry-After') ?
+                    (int) $resp->header('Retry-After') : null,
             ], $providerStatus);
         }
         $rawText = data_get($providerBody, 'choices.0.message.content');
         if (! $rawText) {
-            return response()->json(['error' => 'empty_output', 'provider_status' => $providerStatus, 'provider_body' => $providerBody], 502);
+            return response()->json([
+                'error' => 'empty_output',
+                'provider_status' => $providerStatus,
+                'provider_body' => $providerBody
+            ], 502);
         }
         $seoDescription = '';
         $seoTags = '';

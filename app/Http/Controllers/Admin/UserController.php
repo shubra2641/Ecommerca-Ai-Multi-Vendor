@@ -354,7 +354,9 @@ class UserController extends Controller
             'available_balance' => number_format($user->balance, 2) . ' ' . $symbol,
             'total_added' => number_format($totalAdded, 2) . ' ' . $symbol,
             'total_deducted' => number_format($totalDeducted, 2) . ' ' . $symbol,
-            'last_updated' => $lastTransaction ? $lastTransaction->created_at->format('Y-m-d H:i:s') : $user->updated_at->format('Y-m-d H:i:s'),
+            'last_updated' => $lastTransaction ?
+                $lastTransaction->created_at->format('Y-m-d H:i:s') :
+                $user->updated_at->format('Y-m-d H:i:s'),
             'transaction_count' => $transactionCount,
         ];
 

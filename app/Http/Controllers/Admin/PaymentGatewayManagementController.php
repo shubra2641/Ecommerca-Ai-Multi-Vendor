@@ -112,8 +112,10 @@ class PaymentGatewayManagementController extends Controller
             'total_gateways' => PaymentGateway::count(),
             'enabled_gateways' => PaymentGateway::where('enabled', true)->count(),
             'total_transactions' => Payment::where('created_at', '>=', $thirty)->count(),
-            'successful_transactions' => Payment::where('created_at', '>=', $thirty)->where('status', 'completed')->count(),
-            'total_revenue' => (float) Payment::where('created_at', '>=', $thirty)->where('status', 'completed')->sum('amount'),
+            'successful_transactions' => Payment::where('created_at', '>=', $thirty)
+                ->where('status', 'completed')->count(),
+            'total_revenue' => (float) Payment::where('created_at', '>=', $thirty)
+                ->where('status', 'completed')->sum('amount'),
         ];
     }
 

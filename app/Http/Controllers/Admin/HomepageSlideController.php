@@ -19,7 +19,13 @@ class HomepageSlideController extends Controller
             try {
                 return \DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
             } catch (\Throwable $e) {
-                return collect([(object) ['code' => config('app.locale', 'en'), 'is_default' => 1, 'name' => strtoupper(config('app.locale', 'en'))]]);
+                return collect([
+                    (object) [
+                        'code' => config('app.locale', 'en'),
+                        'is_default' => 1,
+                        'name' => strtoupper(config('app.locale', 'en'))
+                    ]
+                ]);
             }
         });
     }
@@ -35,8 +41,13 @@ class HomepageSlideController extends Controller
     public function store(Request $request, HtmlSanitizer $sanitizer): RedirectResponse
     {
         $data = $request->validate([
-            'image' => ['required', 'image', 'max:2048'], 'link_url' => ['nullable', 'url', 'max:255'], 'sort_order' => ['nullable', 'integer', 'between:0,65535'], 'enabled' => ['nullable', 'boolean'],
-            'title_i18n' => ['nullable', 'array'], 'subtitle_i18n' => ['nullable', 'array'], 'button_text_i18n' => ['nullable', 'array'],
+            'image' => ['required', 'image', 'max:2048'],
+            'link_url' => ['nullable', 'url', 'max:255'],
+            'sort_order' => ['nullable', 'integer', 'between:0,65535'],
+            'enabled' => ['nullable', 'boolean'],
+            'title_i18n' => ['nullable', 'array'],
+            'subtitle_i18n' => ['nullable', 'array'],
+            'button_text_i18n' => ['nullable', 'array'],
         ]);
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('uploads/homepage/slides', 'public');
@@ -62,7 +73,8 @@ class HomepageSlideController extends Controller
         }
         $data['title'] = $data['title_i18n'][$defaultLocale] ?? null;
         $data['subtitle'] = $data['subtitle_i18n'][$defaultLocale] ?? null;
-        $data['button_text'] = $data['button_text_i18n'][$defaultLocale] ?? null;
+        $data['button_text'] = $data['button_text_i18n'][$defaultLocale] ??
+            null;
         HomepageSlide::create($data);
         Cache::forget('homepage_slides_enabled');
 
@@ -72,8 +84,13 @@ class HomepageSlideController extends Controller
     public function update(Request $request, HomepageSlide $slide, HtmlSanitizer $sanitizer): RedirectResponse
     {
         $data = $request->validate([
-            'image' => ['nullable', 'image', 'max:2048'], 'link_url' => ['nullable', 'url', 'max:255'], 'sort_order' => ['nullable', 'integer', 'between:0,65535'], 'enabled' => ['nullable', 'boolean'],
-            'title_i18n' => ['nullable', 'array'], 'subtitle_i18n' => ['nullable', 'array'], 'button_text_i18n' => ['nullable', 'array'],
+            'image' => ['nullable', 'image', 'max:2048'],
+            'link_url' => ['nullable', 'url', 'max:255'],
+            'sort_order' => ['nullable', 'integer', 'between:0,65535'],
+            'enabled' => ['nullable', 'boolean'],
+            'title_i18n' => ['nullable', 'array'],
+            'subtitle_i18n' => ['nullable', 'array'],
+            'button_text_i18n' => ['nullable', 'array'],
         ]);
         if ($request->hasFile('image')) {
             if ($slide->image && Storage::disk('public')->exists($slide->image)) {
@@ -102,21 +119,30 @@ class HomepageSlideController extends Controller
             }
         }
         if (isset($data['subtitle_i18n'])) {
-            $data['subtitle_i18n'] = $merge($slide->subtitle_i18n, $data['subtitle_i18n']);
+            $data['subtitle_i18n'] = $merge(
+                $slide->subtitle_i18n,
+                $data['subtitle_i18n']
+            );
             foreach ($data['subtitle_i18n'] as $lc => $v) {
                 $data['subtitle_i18n'][$lc] = $sanitizer->clean($v);
             }
         }
         if (isset($data['button_text_i18n'])) {
-            $data['button_text_i18n'] = $merge($slide->button_text_i18n, $data['button_text_i18n']);
+            $data['button_text_i18n'] = $merge(
+                $slide->button_text_i18n,
+                $data['button_text_i18n']
+            );
             foreach ($data['button_text_i18n'] as $lc => $v) {
                 $data['button_text_i18n'][$lc] = $sanitizer->clean($v);
             }
         }
         $defaultLocale = config('app.locale', 'en');
-        $data['title'] = ($data['title_i18n'][$defaultLocale] ?? $slide->title_i18n[$defaultLocale] ?? $slide->title);
-        $data['subtitle'] = ($data['subtitle_i18n'][$defaultLocale] ?? $slide->subtitle_i18n[$defaultLocale] ?? $slide->subtitle);
-        $data['button_text'] = ($data['button_text_i18n'][$defaultLocale] ?? $slide->button_text_i18n[$defaultLocale] ?? $slide->button_text);
+        $data['title'] = ($data['title_i18n'][$defaultLocale] ??
+            $slide->title_i18n[$defaultLocale] ?? $slide->title);
+        $data['subtitle'] = ($data['subtitle_i18n'][$defaultLocale] ??
+            $slide->subtitle_i18n[$defaultLocale] ?? $slide->subtitle);
+        $data['button_text'] = ($data['button_text_i18n'][$defaultLocale] ??
+            $slide->button_text_i18n[$defaultLocale] ?? $slide->button_text);
         $slide->update($data);
         Cache::forget('homepage_slides_enabled');
 

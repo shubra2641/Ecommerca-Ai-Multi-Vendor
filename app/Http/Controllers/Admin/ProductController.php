@@ -11,6 +11,7 @@ use App\Models\ProductAttribute;
 use App\Models\ProductVariation;
 use App\Models\ProductSerial;
 use App\Models\Setting;
+use App\Models\User;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -39,7 +40,7 @@ class ProductController extends Controller
         if ($search = $request->input('q')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%");
+                    ->orWhere('sku', 'like', "%{$search}%");
             });
         }
 
@@ -115,7 +116,7 @@ class ProductController extends Controller
         }
 
         return redirect()->route('admin.products.edit', $product)
-                       ->with('success', 'Product created successfully');
+            ->with('success', 'Product created successfully');
     }
 
     /**
@@ -214,7 +215,16 @@ class ProductController extends Controller
             'Content-Disposition' => "attachment; filename={$fileName}",
         ];
 
-        $columns = ['product_id', 'product_name', 'variation_id', 'sku', 'manage_stock', 'stock_qty', 'reserved_qty', 'available_stock'];
+        $columns = [
+            'product_id',
+            'product_name',
+            'variation_id',
+            'sku',
+            'manage_stock',
+            'stock_qty',
+            'reserved_qty',
+            'available_stock'
+        ];
 
         $callback = function () use ($columns) {
             $out = fopen('php://output', 'w');
@@ -345,7 +355,14 @@ class ProductController extends Controller
      */
     private function handleTranslations(ProductRequest $request, array &$data)
     {
-        $translationFields = ['name', 'short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords'];
+        $translationFields = [
+            'name',
+            'short_description',
+            'description',
+            'seo_title',
+            'seo_description',
+            'seo_keywords'
+        ];
 
         foreach ($translationFields as $field) {
             if ($request->has($field) && is_array($request->input($field))) {
@@ -422,8 +439,8 @@ class ProductController extends Controller
 
             if (isset($variationData['id'])) {
                 $variation = ProductVariation::where('product_id', $product->id)
-                                           ->where('id', $variationData['id'])
-                                           ->first();
+                    ->where('id', $variationData['id'])
+                    ->first();
                 if ($variation) {
                     $variation->update($data);
                     $variationIds[] = $variation->id;
@@ -505,20 +522,22 @@ class ProductController extends Controller
         switch ($stock) {
             case 'na':
                 $query->where(function ($q) {
-                    $q->where('manage_stock', 0)->orWhereNull('manage_stock');
+                    $q->where('manage_stock', 0)
+                        ->orWhereNull('manage_stock');
                 });
                 break;
             case 'low':
                 $query->where('manage_stock', 1)
-                      ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low]);
+                    ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low]);
                 break;
             case 'soon':
                 $query->where('manage_stock', 1)
-                      ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ? AND (stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low, $soon]);
+                    ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ? AND ' .
+                        '(stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low, $soon]);
                 break;
             case 'in':
                 $query->where('manage_stock', 1)
-                      ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ?', [$soon]);
+                    ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ?', [$soon]);
                 break;
         }
     }
@@ -535,7 +554,7 @@ class ProductController extends Controller
 
             if ($available <= $lowThreshold) {
                 try {
-                    $admins = \App\Models\User::where('role', 'admin')->get();
+                    $admins = User::where('role', 'admin')->get();
                     if ($admins->count()) {
                         \Illuminate\Support\Facades\Notification::sendNow(
                             $admins,
@@ -559,7 +578,8 @@ class ProductController extends Controller
                         ->queue(new \App\Mail\ProductRejected($product, null));
                 }
             } catch (\Throwable $e) {
-                Log::warning('Failed sending product status mail: ' . $e->getMessage());
+                Log::warning('Failed sending product status mail: ' .
+                    $e->getMessage());
             }
         }
     }
@@ -569,7 +589,10 @@ class ProductController extends Controller
      */
     private function callOpenAI(string $name, string $locale, string $apiKey)
     {
-        $prompt = "Generate JSON with keys short_description (<=200 chars), seo_description (<=160 chars), seo_keywords (<=12 comma keywords), description (2 paragraphs) based on product name: \"{$name}\" Language: {$locale}. Return ONLY JSON.";
+        $prompt = "Generate JSON with keys short_description (<=200 chars), " .
+            "seo_description (<=160 chars), seo_keywords (<=12 comma keywords), " .
+            "description (2 paragraphs) based on product name: \"{$name}\" " .
+            "Language: {$locale}. Return ONLY JSON.";
 
         $payload = [
             'model' => config('services.openai.model', 'gpt-4o-mini'),
@@ -582,9 +605,9 @@ class ProductController extends Controller
 
         try {
             $response = Http::withToken($apiKey)
-                          ->acceptJson()
-                          ->timeout(25)
-                          ->post('https://api.openai.com/v1/chat/completions', $payload);
+                ->acceptJson()
+                ->timeout(25)
+                ->post('https://api.openai.com/v1/chat/completions', $payload);
 
             if (!$response->ok()) {
                 return [

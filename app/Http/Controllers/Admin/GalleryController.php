@@ -180,10 +180,14 @@ class GalleryController extends Controller
     public function destroy(GalleryImage $image): RedirectResponse
     {
         $setting = \App\Models\Setting::first();
-        $inUse = $setting && $setting->logo && ($setting->logo === $image->webp_path || $setting->logo === $image->original_path);
+        $inUse = $setting && $setting->logo &&
+            ($setting->logo === $image->webp_path || $setting->logo === $image->original_path);
 
         if ($inUse && request()->query('force') !== '1') {
-            return back()->with('warning', __('This image is currently used as the site logo. Confirm deletion to proceed.'));
+            return back()->with(
+                'warning',
+                __('This image is currently used as the site logo. Confirm deletion to proceed.')
+            );
         }
 
         if ($inUse && request()->query('force') === '1') {
@@ -222,7 +226,10 @@ class GalleryController extends Controller
             $setting = new \App\Models\Setting();
         }
         // delete old logo file if exists and different
-        if ($setting->logo && $setting->logo !== $image->original_path && \Storage::disk('public')->exists($setting->logo)) {
+        if (
+            $setting->logo && $setting->logo !== $image->original_path &&
+            \Storage::disk('public')->exists($setting->logo)
+        ) {
             \Storage::disk('public')->delete($setting->logo);
         }
         // prefer webp if available
