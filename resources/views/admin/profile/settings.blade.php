@@ -7,7 +7,7 @@
     @include('admin.partials.page-header', [
         'title' => __('System Settings'),
         'subtitle' => __('Manage system configuration and preferences'),
-        'actions' => '<button type="button" class="btn btn-outline-primary js-refresh-system" data-action="refresh-system-info"><i class="fas fa-sync-alt me-1"></i> '.e(__('Refresh Info')).'</button>'
+        'actions' => '<a href="'.route('admin.settings', ['refresh' => '1']).'" class="btn btn-outline-primary"><i class="fas fa-sync-alt me-1"></i> '.e(__('Refresh Info')).'</a>'
     ])
 
     <div class="row">

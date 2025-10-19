@@ -126,56 +126,7 @@ class DashboardController extends Controller
      */
     private function getRegistrationChartDataByPeriod($period)
     {
-        $months = [];
-        $data = [];
-        $vendorData = [];
-        $adminData = [];
-
-        switch ($period) {
-            case '6m':
-                $periodCount = 6;
-                break;
-            case '1y':
-                $periodCount = 12;
-                break;
-            case 'all':
-                $periodCount = 24; // Last 2 years
-                break;
-            default:
-                $periodCount = 6;
-        }
-
-        for ($i = $periodCount - 1; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $months[] = $date->format('M Y');
-
-            // Total users
-            $totalCount = User::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-            $data[] = $totalCount;
-
-            // Vendor users
-            $vendorCount = User::where('role', 'vendor')
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-            $vendorData[] = $vendorCount;
-
-            // Admin users
-            $adminCount = User::where('role', 'admin')
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-            $adminData[] = $adminCount;
-        }
-
-        return [
-            'labels' => $months,
-            'data' => $data,
-            'vendorData' => $vendorData,
-            'adminData' => $adminData,
-        ];
+        return $this->getChartDataByPeriod($period);
     }
 
     /**
@@ -590,48 +541,20 @@ class DashboardController extends Controller
      */
     private function getChartDataByPeriod($period)
     {
+        $periodCount = $this->getPeriodCount($period);
         $months = [];
         $data = [];
         $vendorData = [];
         $adminData = [];
 
-        switch ($period) {
-            case '6m':
-                $periodCount = 6;
-                break;
-            case '1y':
-                $periodCount = 12;
-                break;
-            case 'all':
-                $periodCount = 24; // Last 2 years
-                break;
-            default:
-                $periodCount = 6;
-        }
-
         for ($i = $periodCount - 1; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $months[] = $date->format('M Y');
 
-            // Total users
-            $totalCount = User::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-            $data[] = $totalCount;
-
-            // Vendor users
-            $vendorCount = User::where('role', 'vendor')
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-            $vendorData[] = $vendorCount;
-
-            // Admin users
-            $adminCount = User::where('role', 'admin')
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-            $adminData[] = $adminCount;
+            $userCounts = $this->getUserCountsForMonth($date);
+            $data[] = $userCounts['total'];
+            $vendorData[] = $userCounts['vendor'];
+            $adminData[] = $userCounts['admin'];
         }
 
         return [
@@ -639,6 +562,34 @@ class DashboardController extends Controller
             'data' => $data,
             'vendorData' => $vendorData,
             'adminData' => $adminData,
+        ];
+    }
+
+    /**
+     * Get period count based on period string
+     */
+    private function getPeriodCount($period)
+    {
+        return match ($period) {
+            '6m' => 6,
+            '1y' => 12,
+            'all' => 24,
+            default => 6,
+        };
+    }
+
+    /**
+     * Get user counts for a specific month
+     */
+    private function getUserCountsForMonth($date)
+    {
+        $baseQuery = User::whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month);
+
+        return [
+            'total' => $baseQuery->count(),
+            'vendor' => (clone $baseQuery)->where('role', 'vendor')->count(),
+            'admin' => (clone $baseQuery)->where('role', 'admin')->count(),
         ];
     }
 

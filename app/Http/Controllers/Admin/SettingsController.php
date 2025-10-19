@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\UpdateSettingsRequest;
 use App\Models\Setting;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -35,8 +36,20 @@ class SettingsController extends Controller
     /**
      * Display the settings form.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
+        // Handle refresh parameter
+        if ($request->has('refresh') && $request->get('refresh') == '1') {
+            // Clear any cached settings data
+            cache()->forget('settings.font_family');
+            cache()->forget('settings.maintenance_enabled');
+            cache()->forget('settings.maintenance_reopen_at');
+            cache()->forget('maintenance_settings');
+            
+            // Clear view cache
+            \Artisan::call('view:clear');
+        }
+
         $setting = Setting::first();
         if (! $setting) {
             // provide an empty Setting instance to avoid null property access in views
