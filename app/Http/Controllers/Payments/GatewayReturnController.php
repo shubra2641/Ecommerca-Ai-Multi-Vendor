@@ -69,7 +69,7 @@ class GatewayReturnController extends Controller
     private function handleGatewayReturn(Payment $payment, string $gatewaySlug)
     {
         $gateway = $this->getEnabledGateway($gatewaySlug);
-        
+
         if (!$gateway) {
             return $this->redirectWithError($payment, $gatewaySlug . ' gateway disabled');
         }
@@ -83,10 +83,10 @@ class GatewayReturnController extends Controller
             return $this->processStandardReturn($payment, $gateway, $gatewaySlug);
         } catch (\Throwable $e) {
             Log::error("{$gatewaySlug}.return.error", [
-                'payment_id' => $payment->id, 
+                'payment_id' => $payment->id,
                 'msg' => $e->getMessage()
             ]);
-            
+
             return $this->handleReturnError($payment, $gatewaySlug, $e->getMessage());
         }
     }
@@ -112,7 +112,7 @@ class GatewayReturnController extends Controller
         $result = $this->paymentGatewayService->verifyGenericGatewayCharge($payment, $gateway);
         $message = $this->getStatusMessage($result['status']);
 
-            if ($payment->order_id) {
+        if ($payment->order_id) {
             return $this->handleOrderPayment($payment, $result['status'], $message);
         }
 
@@ -208,7 +208,7 @@ class GatewayReturnController extends Controller
     private function handleCartPayment(Payment $payment, string $status, string $message, string $gatewaySlug)
     {
         $this->restoreCartFromSnapshot($payment, $gatewaySlug);
-        
+
         $level = $status === 'failed' ? 'error' : ($status === 'paid' ? 'success' : 'info');
         return redirect()->route('checkout.cancel')->with($level, $message);
     }
@@ -221,7 +221,7 @@ class GatewayReturnController extends Controller
         }
 
         $this->restoreCartFromSnapshot($payment, $gatewaySlug);
-        
+
         return view('payments.failure')
             ->with('order', null)
             ->with('payment', $payment)
@@ -252,7 +252,7 @@ class GatewayReturnController extends Controller
     {
         $successParam = request()->query('success');
         $pendingParam = request()->query('pending');
-        
+
         if (is_null($successParam) && is_null($pendingParam)) {
             return null;
         }
@@ -269,7 +269,7 @@ class GatewayReturnController extends Controller
                 'paid' => 'Payment successful',
                 'failed' => 'Payment failed',
                 default => 'Payment pending confirmation'
-            };
+        };
     }
 
     private function createOrderFromSnapshot(array $snapshot, Payment $payment): ?Order
@@ -291,7 +291,7 @@ class GatewayReturnController extends Controller
                     if (empty($item['product_id'])) {
                         continue;
                     }
-                    
+
                     OrderItem::create([
                         'order_id' => $order->id,
                         'product_id' => $item['product_id'] ?? null,
@@ -315,7 +315,7 @@ class GatewayReturnController extends Controller
     private function restoreCartFromSnapshot(Payment $payment, string $gatewaySlug): void
     {
         $snapshot = $payment->payload['checkout_snapshot'] ?? null;
-        
+
         if (!$snapshot || empty($snapshot['items'])) {
             return;
         }
@@ -324,7 +324,7 @@ class GatewayReturnController extends Controller
         foreach ($snapshot['items'] as $item) {
             if (empty($item['product_id'])) {
                         continue;
-                    }
+            }
             $cart[$item['product_id']] = [
                 'qty' => $item['qty'] ?? 1,
                 'price' => $item['price'] ?? 0

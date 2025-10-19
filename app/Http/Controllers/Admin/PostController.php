@@ -50,7 +50,7 @@ class PostController extends Controller
     {
         $data = $this->validatePostData($request);
         $payload = $this->buildPostPayload($data, $sanitizer);
-        
+
         $post = Post::create($payload);
         $post->tags()->sync($data['tags'] ?? []);
         $this->flushBlogCache();
@@ -72,7 +72,7 @@ class PostController extends Controller
     {
         $data = $this->validatePostData($request);
         $payload = $this->buildPostPayload($data, $sanitizer, $post);
-        
+
         $post->update($payload);
         $post->tags()->sync($data['tags'] ?? []);
         $this->flushBlogCache($post);
@@ -93,7 +93,7 @@ class PostController extends Controller
             'published' => !$post->published,
             'published_at' => !$post->published ? null : now()
         ]);
-        
+
         $this->flushBlogCache($post);
         return back()->with('success', __('Status updated'));
     }
@@ -137,7 +137,7 @@ class PostController extends Controller
     {
         $fallback = config('app.fallback_locale');
         $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn($v) => !empty($v)) ?? '';
-        
+
         $payload = [
             'title' => $defaultTitle,
             'title_translations' => array_filter($data['title']),
@@ -200,7 +200,7 @@ class PostController extends Controller
     private function flushBlogCache(?Post $post = null): void
     {
         $locales = [app()->getLocale(), config('app.fallback_locale')];
-        
+
         // Clear pagination cache
         foreach ($locales as $locale) {
             foreach (range(1, 5) as $page) {
@@ -208,7 +208,9 @@ class PostController extends Controller
             }
         }
 
-        if (!$post) return;
+        if (!$post) {
+            return;
+        }
 
         // Clear post-specific cache
         foreach ($locales as $locale) {

@@ -13,7 +13,7 @@ class AddressService
     public function handleAddressSelection(Request $request): ?Address
     {
         $selectedAddressId = $request->input('selected_address_id');
-        
+
         if ($selectedAddressId) {
             return Address::where('id', $selectedAddressId)
                 ->where('user_id', $request->user()?->id)

@@ -105,10 +105,10 @@ class ProductController extends Controller
         $data['slug'] = $this->generateUniqueSlug($data['name']);
 
         $product = Product::create($data);
-        
+
         // Sync relationships
         $this->syncProductRelations($product, $request);
-        
+
         // Handle variations
         if ($product->type === 'variable') {
             $this->syncVariations($product, $request);
@@ -126,7 +126,7 @@ class ProductController extends Controller
         $product->load(['tags', 'variations']);
         $data = $this->getFormData();
         $data['product'] = $product;
-        
+
         return view('admin.products.products.edit', $data);
     }
 
@@ -140,10 +140,10 @@ class ProductController extends Controller
 
         $oldActive = $product->active;
         $product->update($data);
-        
+
         // Sync relationships
         $this->syncProductRelations($product, $request);
-        
+
         // Handle variations
         if ($product->type === 'variable') {
             $this->syncVariations($product, $request);
@@ -170,7 +170,7 @@ class ProductController extends Controller
     public function export(Request $request)
     {
         $fileName = 'products_export_' . date('Ymd_His') . '.csv';
-        
+
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename={$fileName}",
@@ -181,7 +181,7 @@ class ProductController extends Controller
         $callback = function () use ($columns) {
             $out = fopen('php://output', 'w');
             fputcsv($out, $columns);
-            
+
             Product::with('tags')->chunk(200, function ($items) use ($out) {
                 foreach ($items as $product) {
                     fputcsv($out, [
@@ -208,7 +208,7 @@ class ProductController extends Controller
     public function variationsExport(Request $request)
     {
         $fileName = 'variations_inventory_' . date('Ymd_His') . '.csv';
-        
+
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename={$fileName}",
@@ -219,7 +219,7 @@ class ProductController extends Controller
         $callback = function () use ($columns) {
             $out = fopen('php://output', 'w');
             fputcsv($out, $columns);
-            
+
             ProductVariation::with('product')->chunk(200, function ($items) use ($out) {
                 foreach ($items as $variation) {
                     $available = ($variation->stock_qty ?? 0) - ($variation->reserved_qty ?? 0);
@@ -247,7 +247,7 @@ class ProductController extends Controller
     public function aiSuggest(Request $request)
     {
         $this->authorize('access-admin');
-        
+
         $request->validate([
             'name' => 'required|string|min:3',
             'locale' => 'nullable|string|max:10',
@@ -264,7 +264,7 @@ class ProductController extends Controller
 
         $locale = $request->locale ?: app()->getLocale();
         $cacheKey = 'ai_suggest_cache:' . md5($request->name . '|' . $locale);
-        
+
         if ($cached = Cache::get($cacheKey)) {
             return response()->json($cached + ['cached' => true]);
         }
@@ -273,11 +273,11 @@ class ProductController extends Controller
         $userId = auth()->id() ?: 0;
         $rateKey = 'ai_suggest_rate:' . $userId . ':' . now()->format('YmdHi');
         $count = Cache::increment($rateKey);
-        
+
         if ($count === 1) {
             Cache::put($rateKey, 1, 65);
         }
-        
+
         $perMinuteLimit = (int) env('AI_SUGGEST_RATE_PER_MIN', 10);
         if ($count > $perMinuteLimit) {
             return response()->json([
@@ -287,7 +287,7 @@ class ProductController extends Controller
         }
 
         $result = $this->callOpenAI($request->name, $locale, $setting->ai_openai_api_key);
-        
+
         if (isset($result['error'])) {
             return response()->json($result, 422);
         }
@@ -320,23 +320,23 @@ class ProductController extends Controller
     private function prepareProductData(ProductRequest $request, HtmlSanitizer $sanitizer, ?Product $product = null)
     {
         $data = $request->validated();
-        
+
         // Handle translations
         $this->handleTranslations($request, $data);
-        
+
         // Sanitize HTML fields
         $this->sanitizeHtmlFields($data, $sanitizer);
-        
+
         // Clean gallery data
         if (isset($data['gallery'])) {
             $data['gallery'] = $this->cleanGallery($data['gallery']);
         }
-        
+
         // Handle serials
         if ($request->filled('__serials_to_sync')) {
             $this->syncSerials($product, $request->input('__serials_to_sync'));
         }
-        
+
         return $data;
     }
 
@@ -346,7 +346,7 @@ class ProductController extends Controller
     private function handleTranslations(ProductRequest $request, array &$data)
     {
         $translationFields = ['name', 'short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords'];
-        
+
         foreach ($translationFields as $field) {
             if ($request->has($field) && is_array($request->input($field))) {
                 $translations = $request->input($field);
@@ -371,7 +371,7 @@ class ProductController extends Controller
     private function sanitizeHtmlFields(array &$data, HtmlSanitizer $sanitizer)
     {
         $htmlFields = ['short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords'];
-        
+
         foreach ($htmlFields as $field) {
             if (isset($data[$field . '_translations'])) {
                 foreach ($data[$field . '_translations'] as $locale => $value) {
@@ -389,11 +389,11 @@ class ProductController extends Controller
         $slug = Str::slug($name);
         $baseSlug = $slug;
         $counter = 1;
-        
+
         while (Product::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
             $slug = $baseSlug . '-' . $counter++;
         }
-        
+
         return $slug;
     }
 
@@ -412,14 +412,14 @@ class ProductController extends Controller
     {
         $variations = $request->input('variations', []);
         $variationIds = [];
-        
+
         foreach ($variations as $variationData) {
             if (empty($variationData['price'])) {
                 continue;
             }
-            
+
             $data = $this->prepareVariationData($variationData);
-            
+
             if (isset($variationData['id'])) {
                 $variation = ProductVariation::where('product_id', $product->id)
                                            ->where('id', $variationData['id'])
@@ -433,7 +433,7 @@ class ProductController extends Controller
                 $variationIds[] = $variation->id;
             }
         }
-        
+
         // Delete unused variations
         $product->variations()->whereNotIn('id', $variationIds)->delete();
     }
@@ -465,12 +465,16 @@ class ProductController extends Controller
      */
     private function syncSerials(?Product $product, array $serials)
     {
-        if (!$product) return;
-        
+        if (!$product) {
+            return;
+        }
+
         foreach ($serials as $serial) {
             $serial = trim($serial);
-            if (empty($serial)) continue;
-            
+            if (empty($serial)) {
+                continue;
+            }
+
             ProductSerial::firstOrCreate([
                 'product_id' => $product->id,
                 'serial' => $serial,
@@ -486,7 +490,7 @@ class ProductController extends Controller
         if (is_string($gallery)) {
             $gallery = json_decode($gallery, true) ?: [];
         }
-        
+
         return array_values(array_filter(array_map('trim', $gallery), fn($v) => !empty($v)));
     }
 
@@ -497,7 +501,7 @@ class ProductController extends Controller
     {
         $low = config('catalog.stock_low_threshold', 5);
         $soon = config('catalog.stock_soon_threshold', 10);
-        
+
         switch ($stock) {
             case 'na':
                 $query->where(function ($q) {
@@ -528,13 +532,13 @@ class ProductController extends Controller
         if ($product->manage_stock) {
             $available = (int) $product->stock_qty - (int) ($product->reserved_qty ?? 0);
             $lowThreshold = (int) config('catalog.stock_low_threshold', 5);
-            
+
             if ($available <= $lowThreshold) {
                 try {
                     $admins = \App\Models\User::where('role', 'admin')->get();
                     if ($admins->count()) {
                         \Illuminate\Support\Facades\Notification::sendNow(
-                            $admins, 
+                            $admins,
                             new \App\Notifications\AdminStockLowNotification($product, $available)
                         );
                     }
@@ -543,7 +547,7 @@ class ProductController extends Controller
                 }
             }
         }
-        
+
         // Product status change notification
         if ($oldActive !== $product->active && $product->vendor) {
             try {
@@ -566,7 +570,7 @@ class ProductController extends Controller
     private function callOpenAI(string $name, string $locale, string $apiKey)
     {
         $prompt = "Generate JSON with keys short_description (<=200 chars), seo_description (<=160 chars), seo_keywords (<=12 comma keywords), description (2 paragraphs) based on product name: \"{$name}\" Language: {$locale}. Return ONLY JSON.";
-        
+
         $payload = [
             'model' => config('services.openai.model', 'gpt-4o-mini'),
             'messages' => [
@@ -575,20 +579,20 @@ class ProductController extends Controller
             ],
             'temperature' => 0.6,
         ];
-        
+
         try {
             $response = Http::withToken($apiKey)
                           ->acceptJson()
                           ->timeout(25)
                           ->post('https://api.openai.com/v1/chat/completions', $payload);
-            
+
             if (!$response->ok()) {
                 return [
                     'error' => 'provider_error',
                     'message' => 'AI service unavailable',
                 ];
             }
-            
+
             $content = $response->json('choices.0.message.content');
             if (!$content) {
                 return [
@@ -596,9 +600,8 @@ class ProductController extends Controller
                     'message' => 'No content generated',
                 ];
             }
-            
+
             return $this->parseAIResponse($content);
-            
         } catch (\Throwable $e) {
             Log::warning('AI HTTP exception: ' . $e->getMessage());
             return [
@@ -627,7 +630,7 @@ class ProductController extends Controller
                 // Fall through to heuristic parsing
             }
         }
-        
+
         // Heuristic parsing fallback
         $lines = preg_split('/\n+/', trim($content));
         $result = [
@@ -636,11 +639,13 @@ class ProductController extends Controller
             'seo_keywords' => '',
             'description' => '',
         ];
-        
+
         foreach ($lines as $line) {
             $line = trim($line);
-            if (empty($line)) continue;
-            
+            if (empty($line)) {
+                continue;
+            }
+
             if (empty($result['short_description']) && mb_strlen($line) <= 200) {
                 $result['short_description'] = $line;
             } elseif (empty($result['seo_description']) && mb_strlen($line) <= 160) {
@@ -651,7 +656,7 @@ class ProductController extends Controller
                 $result['description'] .= $line . "\n\n";
             }
         }
-        
+
         return [
             'short_description' => mb_substr($result['short_description'], 0, 200),
             'seo_description' => mb_substr($result['seo_description'], 0, 160),

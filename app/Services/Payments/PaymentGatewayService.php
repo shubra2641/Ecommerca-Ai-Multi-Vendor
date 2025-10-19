@@ -77,7 +77,7 @@ class PaymentGatewayService
 
             $json = $resp->json();
             $status = $json['status'] ?? $json['data']['status'] ?? null;
-            
+
             if (in_array(strtoupper($status), ['CAPTURED', 'AUTHORIZED', 'PAID', 'SUCCESS'], true)) {
                 $finalStatus = 'paid';
             } elseif (in_array(strtoupper($status), ['FAILED', 'CANCELLED', 'DECLINED'], true)) {

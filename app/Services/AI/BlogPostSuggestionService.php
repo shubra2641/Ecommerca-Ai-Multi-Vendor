@@ -12,7 +12,7 @@ class BlogPostSuggestionService
     public function generateSuggestions(string $title, ?string $locale = null): JsonResponse
     {
         $setting = Setting::first();
-        
+
         if (!$setting?->ai_enabled || $setting?->ai_provider !== 'openai') {
             return response()->json(['error' => 'AI disabled'], 422);
         }
@@ -38,7 +38,7 @@ class BlogPostSuggestionService
         try {
             $response = $this->callOpenAI($title, $locale, $setting->ai_openai_api_key);
             $result = $this->parseResponse($response);
-            
+
             cache()->put($cacheKey, $result, 600);
             return response()->json($result);
         } catch (\Throwable $e) {
@@ -51,7 +51,7 @@ class BlogPostSuggestionService
     {
         $userId = auth()->id() ?: 0;
         $rateKey = 'ai_blog_post_rate:' . $userId . ':' . now()->format('YmdHi');
-        
+
         $count = cache()->increment($rateKey);
         if ($count === 1) {
             cache()->put($rateKey, 1, 65);
@@ -63,7 +63,7 @@ class BlogPostSuggestionService
     private function callOpenAI(string $title, string $locale, string $apiKey): \Illuminate\Http\Client\Response
     {
         $prompt = "Generate JSON with keys excerpt (<=300 chars), body_intro (2 paragraphs), seo_description (<=160 chars), seo_tags (<=12 comma keywords) for blog post titled '{$title}'. Language: {$locale}. Return ONLY JSON.";
-        
+
         $response = Http::withToken($apiKey)
             ->acceptJson()
             ->timeout(25)
@@ -86,7 +86,7 @@ class BlogPostSuggestionService
     private function parseResponse(\Illuminate\Http\Client\Response $response): array
     {
         $rawText = data_get($response->json(), 'choices.0.message.content');
-        
+
         if (!$rawText) {
             throw new \Exception('Empty response from AI');
         }
@@ -116,7 +116,7 @@ class BlogPostSuggestionService
 
         foreach ($lines as $line) {
             $line = trim($line);
-            
+
             if ($excerpt === '' && mb_strlen($line) <= 320) {
                 $excerpt = $line;
             } elseif ($seoDescription === '' && mb_strlen($line) <= 180) {

@@ -27,7 +27,7 @@ class CheckoutController extends Controller
             session('applied_coupon_id'),
             auth()->user()
         );
-        
+
         if (!$vm['coupon'] && session()->has('applied_coupon_id')) {
             session()->forget('applied_coupon_id');
         }
@@ -66,7 +66,7 @@ class CheckoutController extends Controller
             case 'redirect':
                 session()->forget('cart');
                 session()->flash('refresh_admin_notifications', true);
-                
+
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => true,
@@ -108,7 +108,7 @@ class CheckoutController extends Controller
             $qty = (int) $it['qty'];
             $price = $product->price ?? 0;
             $total += $price * $qty;
-            
+
             $items[] = [
                 'product' => $product,
                 'qty' => $qty,
@@ -234,7 +234,7 @@ class CheckoutController extends Controller
             $gatewayQuery->where('slug', $data['gateway']);
         }
         $gateway = $gatewayQuery->first();
-        
+
         if (!$gateway) {
             return response()->json(['error' => 'no_enabled_gateway'], 422);
         }
@@ -261,19 +261,19 @@ class CheckoutController extends Controller
             $stripeCfg = method_exists($gateway, 'getStripeConfig') ? $gateway->getStripeConfig() : [];
             $secret = $stripeCfg['secret_key'] ?? null;
             $publishable = $stripeCfg['publishable_key'] ?? null;
-            
+
             if (!$secret || !$publishable) {
                 return response()->json(['error' => 'stripe_not_configured'], 422);
             }
-            
+
             try {
                 if (!class_exists(\Stripe\Stripe::class)) {
                     return response()->json(['error' => 'stripe_library_missing'], 500);
                 }
-                
+
                 \Stripe\Stripe::setApiKey($secret);
                 $currency = strtolower($order->currency ?? 'usd');
-                
+
                 $session = \Stripe\Checkout\Session::create([
                     'mode' => 'payment',
                     'payment_method_types' => ['card'],
@@ -294,7 +294,7 @@ class CheckoutController extends Controller
                     ->where('method', 'stripe')
                     ->where('status', 'pending')
                     ->first();
-                    
+
                 if (!$payment) {
                     $payment = Payment::create([
                         'order_id' => $order->id,
@@ -306,7 +306,7 @@ class CheckoutController extends Controller
                         'payload' => [],
                     ]);
                 }
-                
+
                 $payload = $payment->payload ?: [];
                 $payload['stripe_session_id'] = $session->id;
                 $payment->payload = $payload;
@@ -333,7 +333,7 @@ class CheckoutController extends Controller
     {
         $payload = $request->getContent();
         $event = json_decode($payload, true);
-        
+
         if (!$event) {
             return response()->json(['error' => 'invalid_payload'], 400);
         }
@@ -341,7 +341,7 @@ class CheckoutController extends Controller
         if (($event['type'] ?? '') === 'checkout.session.completed') {
             $session = $event['data']['object'];
             $orderId = $session['metadata']['order_id'] ?? null;
-            
+
             if ($orderId) {
                 $order = Order::find($orderId);
                 if ($order) {
@@ -350,9 +350,9 @@ class CheckoutController extends Controller
                         ->where('status', 'pending')
                         ->orderBy('id')
                         ->first();
-                        
+
                     $amount = ($session['amount_total'] ?? ($order->total * 100)) / 100;
-                    
+
                     if ($payment) {
                         $payment->status = 'completed';
                         $payment->amount = $amount;
@@ -389,7 +389,7 @@ class CheckoutController extends Controller
     {
         $orderId = $request->query('order');
         $order = $orderId ? Order::find($orderId) : null;
-        
+
         if (!$order) {
             if (session()->has('stripe_pending_cart')) {
                 session()->put('cart', session('stripe_pending_cart'));
@@ -400,7 +400,7 @@ class CheckoutController extends Controller
                 ->with('payment', null)
                 ->with('error_message', __('Payment was canceled. Your cart has been restored.'));
         }
-        
+
         if (auth()->id() !== $order->user_id) {
             abort(403);
         }
@@ -420,7 +420,7 @@ class CheckoutController extends Controller
             if (auth()->id() !== $order->user_id) {
                 abort(403);
             }
-            
+
             if ($order->payment_status !== 'paid') {
                 $order->payment_status = 'cancelled';
             }

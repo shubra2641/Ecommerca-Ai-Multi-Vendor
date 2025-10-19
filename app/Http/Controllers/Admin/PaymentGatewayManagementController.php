@@ -125,7 +125,7 @@ class PaymentGatewayManagementController extends Controller
     private function getGatewayPerformance()
     {
         $gateways = PaymentGateway::all();
-        
+
         return $gateways->map(function ($g) {
             $total = $g->payments()->count();
             $completed = $g->payments()->where('status', 'completed')->count();

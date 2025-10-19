@@ -14,10 +14,10 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         // Get period from request, default to 6m
-        $period = $request->get('period', '6m'); 
+        $period = $request->get('period', '6m');
         // Check if refresh was requested
         $refresh = $request->get('refresh', false);
-        
+
         // If refresh is requested, clear cache
         if ($refresh) {
             Cache::forget('dashboard_stats');

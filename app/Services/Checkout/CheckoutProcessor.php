@@ -24,12 +24,14 @@ class CheckoutProcessor
         $items = [];
         foreach ($cart as $pid => $row) {
             $product = \App\Models\Product::find($pid);
-            if (!$product) continue;
-            
+            if (!$product) {
+                continue;
+            }
+
             $qty = $row['qty'];
             $price = $row['price'];
             $total += $price * $qty;
-            
+
             $items[] = [
                 'product' => $product,
                 'qty' => $qty,
@@ -105,7 +107,7 @@ class CheckoutProcessor
             'currency' => $order->currency,
             'status' => 'pending',
         ]);
-        
+
         return [
             'type' => 'offline',
             'redirect_url' => route('orders.show', $order),
@@ -119,13 +121,13 @@ class CheckoutProcessor
     {
         $stripeCfg = method_exists($gateway, 'getStripeConfig') ? $gateway->getStripeConfig() : [];
         $secret = $stripeCfg['secret_key'] ?? null;
-        
+
         if (!$secret || !class_exists(\Stripe\Stripe::class)) {
             throw new \Exception(__('Stripe not configured'));
         }
 
         \Stripe\Stripe::setApiKey($secret);
-        
+
         $session = \Stripe\Checkout\Session::create([
             'mode' => 'payment',
             'payment_method_types' => ['card'],
@@ -151,7 +153,7 @@ class CheckoutProcessor
             'status' => 'pending',
             'payload' => ['stripe_session_id' => $session->id],
         ]);
-        
+
         return [
             'type' => 'stripe',
             'redirect_url' => $session->url,

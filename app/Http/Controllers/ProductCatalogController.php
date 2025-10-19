@@ -16,9 +16,9 @@ class ProductCatalogController extends Controller
      */
     protected function baseQuery()
     {
-        $select = ['id', 'name', 'slug', 'price', 'sale_price', 'product_category_id', 'manage_stock', 'stock_qty', 'reserved_qty', 'type', 'main_image', 'is_featured', 'active', 'vendor_id']; 
+        $select = ['id', 'name', 'slug', 'price', 'sale_price', 'product_category_id', 'manage_stock', 'stock_qty', 'reserved_qty', 'type', 'main_image', 'is_featured', 'active', 'vendor_id'];
         $q = Product::query()->select($select)->with(['category', 'brand'])->active();
-        
+
         return $q;
     }
 
@@ -183,7 +183,7 @@ class ProductCatalogController extends Controller
 
         $query = $this->applyFilters($query, $request);
         $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
-        
+
         $commonData = $this->getCommonData($request);
         $selectedBrands = (array) $request->get('brand', []);
 
@@ -206,7 +206,7 @@ class ProductCatalogController extends Controller
 
         $query = $this->applyFilters($query, $request);
         $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
-        
+
         $commonData = $this->getCommonData($request);
 
         return view('front.products.category', array_merge($commonData, compact('category', 'products')));
@@ -222,7 +222,7 @@ class ProductCatalogController extends Controller
 
         $query = $this->applyFilters($query, $request);
         $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
-        
+
         $commonData = $this->getCommonData($request);
 
         return view('front.products.tag', array_merge($commonData, compact('tag', 'products')));
@@ -247,7 +247,9 @@ class ProductCatalogController extends Controller
         $attributeMap = [];
         if ($product->type === 'variable') {
             foreach ($product->variations as $v) {
-                if (!$v->active) continue;
+                if (!$v->active) {
+                    continue;
+                }
                 foreach (($v->attribute_data ?? []) as $attr => $val) {
                     $attributeMap[$attr] = $attributeMap[$attr] ?? [];
                     if (!in_array($val, $attributeMap[$attr])) {
@@ -271,7 +273,7 @@ class ProductCatalogController extends Controller
         $this->convertPrices(collect([$product]));
 
         $currentCurrency = session('currency_id') ? \App\Models\Currency::find(session('currency_id')) : \App\Models\Currency::getDefault();
-        
+
         // Reviews data
         $reviewsCount = (int) ($product->approved_reviews_count ?? 0);
         $rating = $reviewsCount ? (float) ($product->approved_reviews_avg ?? 0) : 0;
@@ -283,7 +285,9 @@ class ProductCatalogController extends Controller
         }
         if (!empty($product->gallery) && is_array($product->gallery)) {
             foreach ($product->gallery as $img) {
-                if ($img) $images->push($img);
+                if ($img) {
+                    $images->push($img);
+                }
             }
         }
         if ($product->type === 'variable' && $product->variations->count()) {
@@ -357,8 +361,10 @@ class ProductCatalogController extends Controller
         $usedAttrs = is_array($product->used_attributes) ? $product->used_attributes : array_keys($attributeMap);
         $variationAttributes = [];
         foreach ($attributeMap as $attrName => $values) {
-            if (!in_array($attrName, $usedAttrs)) continue;
-            
+            if (!in_array($attrName, $usedAttrs)) {
+                continue;
+            }
+
             $lower = strtolower($attrName);
             $icon = '⚙️';
             if (in_array($lower, ['color', 'colour', 'color_name', 'colour_name'])) {
@@ -368,7 +374,7 @@ class ProductCatalogController extends Controller
             } elseif (in_array($lower, ['material', 'fabric'])) {
                 $icon = '🧵';
             }
-            
+
             $isColor = in_array($lower, ['color', 'colour', 'color_name', 'colour_name']);
             $variationAttributes[] = [
                 'name' => $attrName,
@@ -390,13 +396,25 @@ class ProductCatalogController extends Controller
 
         // Spec count
         $specCount = 0;
-        if ($product->sku) $specCount++;
-        if ($product->weight) $specCount++;
-        if ($product->length) $specCount++;
-        if ($product->width) $specCount++;
-        if ($product->height) $specCount++;
+        if ($product->sku) {
+            $specCount++;
+        }
+        if ($product->weight) {
+            $specCount++;
+        }
+        if ($product->length) {
+            $specCount++;
+        }
+        if ($product->width) {
+            $specCount++;
+        }
+        if ($product->height) {
+            $specCount++;
+        }
         $specCount++;
-        if ($product->refund_days) $specCount++;
+        if ($product->refund_days) {
+            $specCount++;
+        }
 
         // Flags
         $isOut = ($available === 0);
@@ -448,12 +466,41 @@ class ProductCatalogController extends Controller
         }
 
         return view('front.products.show', compact(
-            'product', 'attributeMap', 'related', 'currentCurrency', 'rating', 'reviewsCount',
-            'gallery', 'mainImage', 'onSale', 'basePrice', 'origPrice', 'discountPercent',
-            'available', 'stockClass', 'levelLabel', 'interestCount', 'minP', 'maxP',
-            'variationAttributes', 'usedAttrs', 'tagsCount', 'tagsFirst', 'tagsMore',
-            'hasDims', 'dims', 'specCount', 'isOut', 'hasDiscount', 'brandName',
-            'formattedReviewsCount', 'reviews', 'reviewStats', 'purchased', 'stars', 'inCart'
+            'product',
+            'attributeMap',
+            'related',
+            'currentCurrency',
+            'rating',
+            'reviewsCount',
+            'gallery',
+            'mainImage',
+            'onSale',
+            'basePrice',
+            'origPrice',
+            'discountPercent',
+            'available',
+            'stockClass',
+            'levelLabel',
+            'interestCount',
+            'minP',
+            'maxP',
+            'variationAttributes',
+            'usedAttrs',
+            'tagsCount',
+            'tagsFirst',
+            'tagsMore',
+            'hasDims',
+            'dims',
+            'specCount',
+            'isOut',
+            'hasDiscount',
+            'brandName',
+            'formattedReviewsCount',
+            'reviews',
+            'reviewStats',
+            'purchased',
+            'stars',
+            'inCart'
         ));
     }
 
@@ -466,7 +513,7 @@ class ProductCatalogController extends Controller
         if ($cached !== null) {
             return $cached;
         }
-        
+
         try {
             $cid = session('currency_id');
             if ($cid) {
