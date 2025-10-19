@@ -45,7 +45,6 @@ class SettingsController extends Controller
             cache()->forget('settings.maintenance_enabled');
             cache()->forget('settings.maintenance_reopen_at');
             cache()->forget('maintenance_settings');
-            
             // Clear view cache
             \Artisan::call('view:clear');
         }

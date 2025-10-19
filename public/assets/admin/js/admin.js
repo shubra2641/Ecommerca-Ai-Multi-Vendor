@@ -98,6 +98,9 @@
     }
 
     function openDropdown(dropdown, toggle, menu) {
+        // Close all other dropdowns first
+        closeAllDropdowns(dropdown);
+
         addClass(dropdown, 'show');
         addClass(menu, 'show');
         toggle.setAttribute('aria-expanded', 'true');
@@ -116,7 +119,7 @@
             if (dropdown !== excludeDropdown) {
                 const toggle = $('.dropdown-toggle', dropdown);
                 const menu = $('.dropdown-menu', dropdown);
-                if (toggle && menu) {
+                if (toggle && menu && hasClass(dropdown, 'show')) {
                     closeDropdown(dropdown, toggle, menu);
                 }
             }

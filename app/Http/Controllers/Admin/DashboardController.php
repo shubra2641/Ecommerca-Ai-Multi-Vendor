@@ -14,8 +14,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         // Get period from request, default to 6m
-        $period = $request->get('period', '6m');
-        
+        $period = $request->get('period', '6m'); 
         // Check if refresh was requested
         $refresh = $request->get('refresh', false);
         
@@ -308,7 +307,7 @@ class DashboardController extends Controller
             $data = [];
             $colors = [
                 'pending' => '#ffc107',
-                'processing' => '#17a2b8', 
+                'processing' => '#17a2b8',
                 'shipped' => '#28a745',
                 'delivered' => '#6f42c1',
                 'cancelled' => '#dc3545',

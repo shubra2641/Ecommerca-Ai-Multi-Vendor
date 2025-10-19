@@ -90,8 +90,8 @@ class ShippingZoneController extends Controller
         }
 
         return view('admin.shipping_zones.edit', [
-            'zone' => $shipping_zone, 
-            'countries' => $countries, 
+            'zone' => $shipping_zone,
+            'countries' => $countries,
             'rules' => $rules
         ]);
     }

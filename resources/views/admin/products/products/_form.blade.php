@@ -221,7 +221,7 @@
                             <div class="col-12">
                                 <label class="form-label d-flex justify-content-between align-items-center">
                                     <span>{{ __('SEO Description') }}</span>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary js-ai-generate-seo" data-lang="{{ $lang->code }}" data-loading="0">
+                                    <button type="button" class="btn btn-sm btn-outline-primary js-ai-generate" data-lang="{{ $lang->code }}" data-loading="0">
                                         <i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('AI Generate') }}
                                     </button>
                                 </label>

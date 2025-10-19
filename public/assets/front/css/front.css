@@ -5696,10 +5696,6 @@ select.form-control {
     border       : 1px solid #ddd;
     border-radius: 6px;
 }
-.brand-list {
-    max-height: 180px;
-    overflow  : auto;
-}
 /* Brand item count styles moved to brands section */
 
 /* Chips, grid and filters to match existing structure */
@@ -6097,6 +6093,14 @@ select.form-control {
     width: 20px;
     height: 20px;
     transition: transform var(--transition-fast);
+    background: transparent;
+    border: 0;
+    padding: 6px;
+    border-radius: 6px;
+  }
+  
+  .btn-icon svg {
+    display: block;
   }
   
   .btn:hover .btn-icon {
@@ -8334,8 +8338,6 @@ th{background:#f5f5f5}
 .qty-input-group{display:inline-flex;align-items:center;border:1px solid #ddd;border-radius:6px;overflow:hidden;}
 .qty-input{width:64px;padding:6px 8px;border:0;text-align:center;}
 .qty-btn{background:#f5f5f5;border:0;padding:6px 10px;cursor:pointer;}
-.btn-icon{background:transparent;border:0;padding:6px;border-radius:6px;}
-.btn-icon svg{display:block;}
 .visually-hidden{position:absolute;left:-9999px;}
 
 /* ===== UNIFIED BREADCRUMB STYLES ===== */
