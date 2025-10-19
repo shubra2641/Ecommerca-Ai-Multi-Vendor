@@ -38,7 +38,8 @@ class ProfileController extends Controller
         $payload = [
             'name' => is_string($request->name) ? $sanitizer->clean($request->name) : $request->name,
             'email' => is_string($request->email) ? $sanitizer->clean($request->email) : $request->email,
-            'phone_number' => is_string($request->phone_number) ? $sanitizer->clean($request->phone_number) : $request->phone_number,
+            'phone_number' => is_string($request->phone_number) ?
+                $sanitizer->clean($request->phone_number) : $request->phone_number,
         ];
         $user->update($payload);
 
@@ -74,7 +75,8 @@ class ProfileController extends Controller
 
         // Here you would save settings to database or config
         $siteName = $sanitizer->clean($request->input('site_name'));
-        $siteDescription = $request->filled('site_description') ? $sanitizer->clean($request->input('site_description')) : null;
+        $siteDescription = $request->filled('site_description') ?
+            $sanitizer->clean($request->input('site_description')) : null;
 
         // Persist to Setting model (lightweight)
         $s = \App\Models\Setting::first();

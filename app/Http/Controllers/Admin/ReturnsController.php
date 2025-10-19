@@ -11,7 +11,10 @@ class ReturnsController extends Controller
 {
     public function index()
     {
-        $items = OrderItem::where('return_requested', true)->with('product', 'order')->orderByDesc('updated_at')->paginate(50);
+        $items = OrderItem::where('return_requested', true)
+            ->with('product', 'order')
+            ->orderByDesc('updated_at')
+            ->paginate(50);
 
         return view('admin.returns.index', compact('items'));
     }
@@ -21,8 +24,11 @@ class ReturnsController extends Controller
         return view('admin.returns.show', compact('item'));
     }
 
-    public function update(Request $request, OrderItem $item, HtmlSanitizer $sanitizer)
-    {
+    public function update(
+        Request $request,
+        OrderItem $item,
+        HtmlSanitizer $sanitizer
+    ) {
         $data = $request->validate([
             'return_status' => 'required|string|in:received,in_repair,shipped_back,delivered,completed,cancelled,pending,rejected,approved',
             'admin_note' => 'nullable|string',

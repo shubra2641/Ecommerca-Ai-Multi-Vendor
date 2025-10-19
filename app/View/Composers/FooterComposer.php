@@ -47,7 +47,7 @@ class FooterComposer
         }
         $appLinks = $setting->footer_app_links ?? [];
         $orderedApps = collect($appLinks)
-            ->filter(fn ($a) => ($a['enabled'] ?? false) && ($a['url'] ?? null))
+            ->filter(fn($a) => ($a['enabled'] ?? false) && ($a['url'] ?? null))
             ->sortBy('order');
         $labels = $setting->footer_labels ?? [];
         $helpCenterLabel = $labels['help_center'][$locale] ??

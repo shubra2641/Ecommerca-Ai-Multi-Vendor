@@ -33,11 +33,17 @@ class ReportsController extends Controller
                 'maxBalance' => User::max('balance'),
                 'minBalance' => User::min('balance'),
                 'usersToday' => User::whereDate('created_at', today())->count(),
-                'usersThisWeek' => User::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+                'usersThisWeek' => User::whereBetween('created_at', [
+                    now()->startOfWeek(),
+                    now()->endOfWeek()
+                ])->count(),
                 'usersThisMonth' => User::whereMonth('created_at', now()->month)->count(),
                 'usersThisYear' => User::whereYear('created_at', now()->year)->count(),
                 'activeToday' => User::whereDate('created_at', today())->count(),
-                'activeThisWeek' => User::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+                'activeThisWeek' => User::whereBetween('created_at', [
+                    now()->startOfWeek(),
+                    now()->endOfWeek()
+                ])->count(),
             ];
         });
 
@@ -161,9 +167,18 @@ class ReportsController extends Controller
         $totals = [
             'total_products' => \App\Models\Product::count(),
             'manage_stock_count' => \App\Models\Product::where('manage_stock', 1)->count(),
-            'out_of_stock' => \App\Models\Product::where('manage_stock', 1)->get()->filter(fn ($x) => ($x->availableStock() ?? 0) <= 0)->count(),
-            'serials_low' => \App\Models\Product::where('has_serials', 1)->get()->filter(fn ($x) => $x->serials()->whereNull('sold_at')->count() <= 5)->count(),
-            'average_stock' => (int) round(\App\Models\Product::where('manage_stock', 1)->get()->map(fn ($x) => $x->availableStock() ?? 0)->avg()),
+            'out_of_stock' => \App\Models\Product::where('manage_stock', 1)
+                ->get()
+                ->filter(fn ($x) => ($x->availableStock() ?? 0) <= 0)
+                ->count(),
+            'serials_low' => \App\Models\Product::where('has_serials', 1)
+                ->get()
+                ->filter(fn ($x) => $x->serials()->whereNull('sold_at')->count() <= 5)
+                ->count(),
+            'average_stock' => (int) round(\App\Models\Product::where('manage_stock', 1)
+                ->get()
+                ->map(fn ($x) => $x->availableStock() ?? 0)
+                ->avg()),
         ];
 
         return view('admin.reports.inventory', compact('products', 'totals'));
@@ -339,7 +354,8 @@ class ReportsController extends Controller
         return [
             'total_space' => disk_total_space($storagePath),
             'free_space' => disk_free_space($storagePath),
-            'used_space' => disk_total_space($storagePath) - disk_free_space($storagePath),
+            'used_space' => disk_total_space($storagePath) -
+                disk_free_space($storagePath),
         ];
     }
 

@@ -153,7 +153,7 @@ class FooterSettingsController extends Controller
 
         // Sections visibility (explicit each submit)
         $sections = collect(['support_bar', 'apps', 'social', 'pages', 'payments'])
-            ->mapWithKeys(fn ($sec) => [
+            ->mapWithKeys(fn($sec) => [
                 $sec => (bool) ($data['sections'][$sec] ?? false)
             ])
             ->toArray();

@@ -10,6 +10,7 @@ use App\Http\Requests\ProductIdRequest;
 use App\Models\Coupon;
 use App\Models\Currency;
 use App\Models\Product;
+use App\Models\ProductVariation;
 use App\Models\WishlistItem;
 use Illuminate\Http\Request;
 use Throwable;
@@ -51,7 +52,7 @@ class CartController extends Controller
 
             $variation = null;
             if ($vid) {
-                $variation = \App\Models\ProductVariation::find($vid);
+                $variation = ProductVariation::find($vid);
                 // ignore if variation not found
                 if ($variation && $variation->product_id !== $product->id) {
                     $variation = null;
@@ -70,7 +71,7 @@ class CartController extends Controller
                 if (! $variantLabel && ! empty($variation->attribute_data)) {
                     try {
                         $variantLabel = collect($variation->attribute_data)
-                            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                             ->values()
                             ->join(', ');
                     } catch (\Throwable $e) {
@@ -192,7 +193,7 @@ class CartController extends Controller
         // enforce stock limits server-side
         $variation = null;
         if (! empty($data['variation_id'])) {
-            $variation = \App\Models\ProductVariation::find($data['variation_id']);
+            $variation = ProductVariation::find($data['variation_id']);
             if ($variation && $variation->product_id === $product->id) {
                 // determine available for variation
                 if ($variation->manage_stock) {
@@ -234,7 +235,7 @@ class CartController extends Controller
         $key = (string) $product->id;
         $variation = null;
         if (! empty($data['variation_id'])) {
-            $variation = \App\Models\ProductVariation::find($data['variation_id']);
+            $variation = ProductVariation::find($data['variation_id']);
             if ($variation && $variation->product_id === $product->id) {
                 $key .= ':' . $variation->id;
             } else {
@@ -292,7 +293,7 @@ class CartController extends Controller
             $product = Product::find($pid);
             $available = null;
             if ($vid) {
-                $variation = \App\Models\ProductVariation::find($vid);
+                $variation = ProductVariation::find($vid);
                 if ($variation && $variation->product_id === $product->id && $variation->manage_stock) {
                     $available = max(0, (int) $variation->stock_qty - (int) $variation->reserved_qty);
                 }

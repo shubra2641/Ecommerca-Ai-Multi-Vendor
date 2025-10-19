@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -218,24 +219,24 @@ class DashboardController extends Controller
     private function getOrderAggregates(): array
     {
         try {
-            $orders = \App\Models\Order::query();
+            $orders = Order::query();
             $paid = $orders->clone()->where('payment_status', 'paid');
 
             $todayRange = [now()->startOfDay(), now()->endOfDay()];
             $weekRange = [now()->startOfWeek(), now()->endOfWeek()];
             $monthRangeStart = now()->startOfMonth();
 
-            $byStatus = \App\Models\Order::selectRaw('status, COUNT(*) as aggregate')
+            $byStatus = Order::selectRaw('status, COUNT(*) as aggregate')
                 ->groupBy('status')
                 ->pluck('aggregate', 'status')
                 ->toArray();
 
-            $totalOrders = \App\Models\Order::count();
-            $ordersToday = \App\Models\Order::whereBetween('created_at', $todayRange)
+            $totalOrders = Order::count();
+            $ordersToday = Order::whereBetween('created_at', $todayRange)
                 ->count();
-            $ordersThisWeek = \App\Models\Order::whereBetween('created_at', $weekRange)
+            $ordersThisWeek = Order::whereBetween('created_at', $weekRange)
                 ->count();
-            $ordersThisMonth = \App\Models\Order::where('created_at', '>=', $monthRangeStart)->count();
+            $ordersThisMonth = Order::where('created_at', '>=', $monthRangeStart)->count();
 
             $revenueTotal = $paid->clone()->sum('total');
             $revenueToday = Order::where('payment_status', 'paid')
@@ -248,17 +249,17 @@ class DashboardController extends Controller
             $avgOrder = $paid->clone()->avg('total');
 
             // Products / inventory
-            $productQ = \App\Models\Product::query();
+            $productQ = Product::query();
             $totalProducts = $productQ->count();
             $lowStock = $productQ->where('manage_stock', 1)->get()
                 ->filter(fn($p) => ($p->availableStock() ?? 0) > 0 &&
                     ($p->availableStock() ?? 0) <= 5)->count();
             $outOfStock = $productQ->where('manage_stock', 1)->get()
                 ->filter(fn($p) => ($p->availableStock() ?? 0) <= 0)->count();
-            $onSale = \App\Models\Product::whereNotNull('sale_price')->whereColumn('sale_price', '<', 'price')->count();
+            $onSale = Product::whereNotNull('sale_price')->whereColumn('sale_price', '<', 'price')->count();
 
             // Payment metrics
-            $paymentQ = \App\Models\Payment::query();
+            $paymentQ = Payment::query();
             $paymentsTotal = $paymentQ->count();
             $paymentsSuccess = $paymentQ->where('status', 'completed')->count();
             $paymentsFailed = $paymentQ->whereIn('status', ['failed', 'rejected', 'cancelled'])->count();
@@ -293,7 +294,7 @@ class DashboardController extends Controller
     private function getSalesChartData(): array
     {
         $from = now()->subDays(29)->startOfDay();
-        $raw = \App\Models\Order::selectRaw(
+        $raw = Order::selectRaw(
             'DATE(created_at) as day, COUNT(*) as orders, ' .
                 'SUM(CASE WHEN payment_status = "paid" THEN total ELSE 0 END) as revenue'
         )
@@ -326,7 +327,7 @@ class DashboardController extends Controller
     private function getOrderStatusChartData(): array
     {
         try {
-            $orderStatuses = \App\Models\Order::selectRaw('status, COUNT(*) as count')
+            $orderStatuses = Order::selectRaw('status, COUNT(*) as count')
                 ->groupBy('status')
                 ->pluck('count', 'status')
                 ->toArray();

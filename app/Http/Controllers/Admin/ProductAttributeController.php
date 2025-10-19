@@ -50,7 +50,10 @@ class ProductAttributeController extends Controller
 
     public function update(Request $r, ProductAttribute $productAttribute, HtmlSanitizer $sanitizer)
     {
-        $data = $r->validate(['name' => 'required', 'slug' => 'nullable|unique:product_attributes,slug,' . $productAttribute->id]);
+        $data = $r->validate([
+            'name' => 'required',
+            'slug' => 'nullable|unique:product_attributes,slug,' . $productAttribute->id
+        ]);
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
         }
@@ -86,7 +89,10 @@ class ProductAttributeController extends Controller
 
     public function updateValue(Request $r, ProductAttribute $productAttribute, ProductAttributeValue $value, HtmlSanitizer $sanitizer)
     {
-        $data = $r->validate(['value' => 'required', 'slug' => 'nullable|unique:product_attribute_values,slug,' . $value->id]);
+        $data = $r->validate([
+            'value' => 'required',
+            'slug' => 'nullable|unique:product_attribute_values,slug,' . $value->id
+        ]);
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['value']);
         }
