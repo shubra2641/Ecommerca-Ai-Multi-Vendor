@@ -518,30 +518,34 @@
                     class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                     <div>
                         <h5 class="card-title mb-0"><?php echo e(__('User Registration Trends')); ?></h5>
-                        <small class="text-muted" id="chart-last-updated"><?php echo e(__('Last 6 months overview')); ?></small>
+                        <small class="text-muted" id="chart-last-updated">
+                            <?php if($period === '6m'): ?>
+                                <?php echo e(__('Last 6 months overview')); ?>
+
+                            <?php elseif($period === '1y'): ?>
+                                <?php echo e(__('Last 12 months overview')); ?>
+
+                            <?php else: ?>
+                                <?php echo e(__('All time overview')); ?>
+
+                            <?php endif; ?>
+                        </small>
                     </div>
                     <div
                         class="chart-controls-wrapper d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 <?php if(app()->getLocale()==='ar'): ?> ms-sm-auto flex-sm-row-reverse <?php else: ?> ms-sm-auto <?php endif; ?>">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="auto-refresh-toggle">
-                            <label class="form-check-label" for="auto-refresh-toggle">
-                                <span class="d-none d-sm-inline"><?php echo e(__('Auto Refresh')); ?></span>
-                                <span class="d-sm-none"><?php echo e(__('Auto')); ?></span>
-                            </label>
-                        </div>
-                        <button class="btn btn-sm btn-outline-secondary" id="refresh-dashboard" data-bs-toggle="tooltip"
+                        <a href="<?php echo e(route('admin.dashboard', ['refresh' => '1'])); ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip"
                             title="<?php echo e(__('Refresh dashboard data')); ?>">
                             <i class="fas fa-sync-alt"></i>
                             <span class="d-none d-md-inline ms-1"><?php echo e(__('Refresh')); ?></span>
-                        </button>
+                        </a>
                         <div class="btn-group btn-group-sm chart-period-buttons <?php if(app()->getLocale()==='ar'): ?> order-sm-first <?php endif; ?>"
                             role="group">
-                            <button type="button" class="btn btn-outline-secondary chart-period-btn active"
-                                data-period="6m">6M</button>
-                            <button type="button" class="btn btn-outline-secondary chart-period-btn"
-                                data-period="1y">1Y</button>
-                            <button type="button" class="btn btn-outline-secondary chart-period-btn"
-                                data-period="all"><?php echo e(__('All')); ?></button>
+                            <a href="<?php echo e(route('admin.dashboard', ['period' => '6m'])); ?>" 
+                                class="btn btn-outline-secondary <?php echo e($period === '6m' ? 'active' : ''); ?>">6M</a>
+                            <a href="<?php echo e(route('admin.dashboard', ['period' => '1y'])); ?>" 
+                                class="btn btn-outline-secondary <?php echo e($period === '1y' ? 'active' : ''); ?>">1Y</a>
+                            <a href="<?php echo e(route('admin.dashboard', ['period' => 'all'])); ?>" 
+                                class="btn btn-outline-secondary <?php echo e($period === 'all' ? 'active' : ''); ?>"><?php echo e(__('All')); ?></a>
                         </div>
                     </div>
                 </div>

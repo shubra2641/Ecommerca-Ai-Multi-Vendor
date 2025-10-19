@@ -46,10 +46,14 @@
                                             <label class="form-label fw-semibold">{{ __('Governorate') }}</label>
                                             <select name="rules[{{ $index }}][governorate_id]" class="form-select">
                                                 <option value="">{{ __('Select Governorate') }}</option>
-                                                @foreach(\App\Models\Governorate::where('country_id', $rule->country_id)->get() as $governorate)
-                                                    <option value="{{ $governorate->id }}" {{ $rule->governorate_id == $governorate->id ? 'selected' : '' }}>
-                                                        {{ $governorate->name }}
-                                                    </option>
+                                                @foreach($countries as $country)
+                                                    @foreach($country->governorates as $governorate)
+                                                        <option value="{{ $governorate->id }}" 
+                                                                {{ $rule->governorate_id == $governorate->id ? 'selected' : '' }}
+                                                                data-country="{{ $country->id }}">
+                                                            {{ $governorate->name }}
+                                                        </option>
+                                                    @endforeach
                                                 @endforeach
                                             </select>
                                         </div>
@@ -57,13 +61,18 @@
                                             <label class="form-label fw-semibold">{{ __('City') }}</label>
                                             <select name="rules[{{ $index }}][city_id]" class="form-select">
                                                 <option value="">{{ __('Select City') }}</option>
-                                                @if($rule->governorate_id)
-                                                    @foreach(\App\Models\City::where('governorate_id', $rule->governorate_id)->get() as $city)
-                                                        <option value="{{ $city->id }}" {{ $rule->city_id == $city->id ? 'selected' : '' }}>
-                                                            {{ $city->name }}
-                                                        </option>
+                                                @foreach($countries as $country)
+                                                    @foreach($country->governorates as $governorate)
+                                                        @foreach($governorate->cities as $city)
+                                                            <option value="{{ $city->id }}" 
+                                                                    {{ $rule->city_id == $city->id ? 'selected' : '' }}
+                                                                    data-governorate="{{ $governorate->id }}" 
+                                                                    data-country="{{ $country->id }}">
+                                                                {{ $city->name }}
+                                                            </option>
+                                                        @endforeach
                                                     @endforeach
-                                                @endif
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div class="col-md-3">
@@ -120,12 +129,28 @@
                                     <label class="form-label fw-semibold">{{ __('Governorate') }}</label>
                                     <select name="rules[new][governorate_id]" class="form-select">
                                         <option value="">{{ __('Select Governorate') }}</option>
+                                        @foreach($countries as $country)
+                                            @foreach($country->governorates as $governorate)
+                                                <option value="{{ $governorate->id }}" data-country="{{ $country->id }}">
+                                                    {{ $governorate->name }}
+                                                </option>
+                                            @endforeach
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold">{{ __('City') }}</label>
                                     <select name="rules[new][city_id]" class="form-select">
                                         <option value="">{{ __('Select City') }}</option>
+                                        @foreach($countries as $country)
+                                            @foreach($country->governorates as $governorate)
+                                                @foreach($governorate->cities as $city)
+                                                    <option value="{{ $city->id }}" data-governorate="{{ $governorate->id }}" data-country="{{ $country->id }}">
+                                                        {{ $city->name }}
+                                                    </option>
+                                                @endforeach
+                                            @endforeach
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-3">

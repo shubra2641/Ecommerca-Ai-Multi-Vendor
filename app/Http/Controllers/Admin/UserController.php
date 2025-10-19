@@ -375,29 +375,9 @@ class UserController extends Controller
             ->limit(50)
             ->get();
 
-        $history = $balanceHistories->map(function ($transaction) {
-            return [
-                'id' => $transaction->id,
-                'type' => $transaction->type,
-                'amount' => $transaction->amount,
-                'previous_balance' => $transaction->previous_balance,
-                'new_balance' => $transaction->new_balance,
-                'note' => $transaction->note,
-                'admin' => $transaction->admin ? $transaction->admin->name : 'System',
-                'date' => $transaction->created_at->format('Y-m-d H:i:s'),
-                'formatted_amount' => number_format($transaction->amount, 2),
-                'formatted_date' => $transaction->created_at->format('M d, Y H:i'),
-                'type_label' => $transaction->getTypeLabel(),
-                'type_icon' => $transaction->getTypeIcon(),
-                // Use existing color class helper
-                'type_color' => method_exists($transaction, 'getTypeColorClass') ? $transaction->getTypeColorClass() : 'secondary',
-            ];
-        });
-
-        return response()->json([
-            'success' => true,
-            'history' => $history->values()->all(),
-            'total' => $history->count(),
+        return view('admin.users.balance-history', [
+            'user' => $user,
+            'balanceHistories' => $balanceHistories
         ]);
     }
 

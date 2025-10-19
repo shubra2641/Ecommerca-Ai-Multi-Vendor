@@ -47,6 +47,7 @@
     <script src="<?php echo e(asset('assets/admin/js/admin.js')); ?>"></script>
     <script src="<?php echo e(asset('assets/front/js/flash.js')); ?>"></script>
     <script src="<?php echo e(asset('assets/admin/js/admin-charts.js')); ?>" defer></script>
+    
 </body>
 
 </html><?php /**PATH D:\xampp1\htdocs\easy\resources\views/layouts/admin.blade.php ENDPATH**/ ?>

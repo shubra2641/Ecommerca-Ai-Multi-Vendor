@@ -122,7 +122,10 @@ class PaymentGatewayManagementController extends Controller
         return Payment::with(['gateway', 'order.user'])->latest()->limit(10)->get();
     }
 
-
+    private function getGatewayPerformance()
+    {
+        $gateways = PaymentGateway::all();
+        
         return $gateways->map(function ($g) {
             $total = $g->payments()->count();
             $completed = $g->payments()->where('status', 'completed')->count();

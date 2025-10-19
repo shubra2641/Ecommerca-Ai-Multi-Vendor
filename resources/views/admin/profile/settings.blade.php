@@ -3,138 +3,129 @@
 @section('title', __('System Settings'))
 
 @section('content')
-<div class="page-header">
-    <div class="page-header-content">
-        <h1 class="page-title">{{ __('System Settings') }}</h1>
-        <p class="page-description">{{ __('Manage system configuration and preferences') }}</p>
-    </div>
-    <div class="page-actions">
-    <button type="button" class="btn btn-outline-primary js-refresh-system" data-action="refresh-system-info">
-            <i class="fas fa-sync-alt"></i>
-            {{ __('Refresh Info') }}
-        </button>
-    </div>
-</div>
+<div class="container-fluid">
+    @include('admin.partials.page-header', [
+        'title' => __('System Settings'),
+        'subtitle' => __('Manage system configuration and preferences'),
+        'actions' => '<button type="button" class="btn btn-outline-primary js-refresh-system" data-action="refresh-system-info"><i class="fas fa-sync-alt me-1"></i> '.e(__('Refresh Info')).'</button>'
+    ])
 
-<div class="row">
-    <!-- General Settings -->
-    <div class="col-lg-8">
-    <div class="card modern-card">
-            <div class="card-header">
-                <h3 class="card-title">
+    <div class="row">
+        <!-- General Settings -->
+        <div class="col-lg-8">
+            <div class="card modern-card">
+                <div class="card-header d-flex align-items-center gap-2">
                     <i class="fas fa-cog text-primary"></i>
-                    {{ __('General Settings') }}
-                </h3>
-            </div>
-            <div class="card-body">
-                <form action="{{ route('admin.settings.update') }}" method="POST" class="settings-form"
-                    enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
+                    <h5 class="card-title mb-0">{{ __('General Settings') }}</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('admin.settings.update') }}" method="POST" class="settings-form"
+                        enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="site_name" class="form-label">{{ __('Site Name') }}</label>
-                                <input type="text" id="site_name" name="site_name"
-                                    class="form-control @error('site_name') is-invalid @enderror"
-                                    value="{{ old('site_name', $setting->site_name ?? '') }}">
-                                @error('site_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="logo" class="form-label">{{ __('Logo') }}</label>
-                                <input type="file" id="logo" name="logo" class="form-control">
-                                @if(!empty($setting->logo))
-                                <div class="mt-2 d-flex align-items-center gap-3">
-                                    <img src="{{ asset('storage/'.$setting->logo) }}" alt="Logo"
-                                        class="h-60 max-h-60">
-                                    <form action="{{ route('admin.settings.logo.delete') }}" method="POST" class="js-confirm" data-confirm="{{ __('Delete logo?') }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-sm btn-outline-danger" type="submit"><i
-                                                class="fas fa-trash"></i> {{ __('Delete Logo') }}</button>
-                                    </form>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="site_name" class="form-label">{{ __('Site Name') }}</label>
+                                    <input type="text" id="site_name" name="site_name"
+                                        class="form-control @error('site_name') is-invalid @enderror"
+                                        value="{{ old('site_name', $setting->site_name ?? '') }}">
+                                    @error('site_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
-                                @endif
-                                @error('logo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="logo" class="form-label">{{ __('Logo') }}</label>
+                                    <input type="file" id="logo" name="logo" class="form-control">
+                                    @if(!empty($setting->logo))
+                                    <div class="mt-2 d-flex align-items-center gap-3">
+                                        <img src="{{ asset('storage/'.$setting->logo) }}" alt="Logo"
+                                            class="img-thumbnail" style="max-height: 60px;">
+                                        <form action="{{ route('admin.settings.logo.delete') }}" method="POST" class="js-confirm" data-confirm="{{ __('Delete logo?') }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-sm btn-outline-danger" type="submit"><i
+                                                    class="fas fa-trash me-1"></i> {{ __('Delete Logo') }}</button>
+                                        </form>
+                                    </div>
+                                    @endif
+                                    @error('logo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="seo_description" class="form-label">{{ __('SEO Description') }}</label>
-                                <textarea id="seo_description" name="seo_description" rows="3"
-                                    class="form-control @error('seo_description') is-invalid @enderror">{{ old('seo_description', $setting->seo_description ?? '') }}</textarea>
-                                @error('seo_description') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="seo_description" class="form-label">{{ __('SEO Description') }}</label>
+                                    <textarea id="seo_description" name="seo_description" rows="3"
+                                        class="form-control @error('seo_description') is-invalid @enderror">{{ old('seo_description', $setting->seo_description ?? '') }}</textarea>
+                                    @error('seo_description') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="contact_email" class="form-label">{{ __('Contact Email') }}</label>
-                                <input type="email" id="contact_email" name="contact_email"
-                                    class="form-control @error('contact_email') is-invalid @enderror"
-                                    value="{{ old('contact_email', $setting->contact_email ?? '') }}">
-                                @error('contact_email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="contact_email" class="form-label">{{ __('Contact Email') }}</label>
+                                    <input type="email" id="contact_email" name="contact_email"
+                                        class="form-control @error('contact_email') is-invalid @enderror"
+                                        value="{{ old('contact_email', $setting->contact_email ?? '') }}">
+                                    @error('contact_email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="contact_phone" class="form-label">{{ __('Contact Phone') }}</label>
+                                    <input type="text" id="contact_phone" name="contact_phone"
+                                        class="form-control @error('contact_phone') is-invalid @enderror"
+                                        value="{{ old('contact_phone', $setting->contact_phone ?? '') }}">
+                                    @error('contact_phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="contact_phone" class="form-label">{{ __('Contact Phone') }}</label>
-                                <input type="text" id="contact_phone" name="contact_phone"
-                                    class="form-control @error('contact_phone') is-invalid @enderror"
-                                    value="{{ old('contact_phone', $setting->contact_phone ?? '') }}">
-                                @error('contact_phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <!-- Legacy social media fields removed. Manage links via Social Links section. -->
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="custom_css" class="form-label">{{ __('Custom CSS') }}</label>
+                                    <textarea id="custom_css" name="custom_css" rows="4"
+                                        class="form-control @error('custom_css') is-invalid @enderror">{{ old('custom_css', $setting->custom_css ?? '') }}</textarea>
+                                    @error('custom_css') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- Legacy social media fields removed. Manage links via Social Links section. -->
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="custom_css" class="form-label">{{ __('Custom CSS') }}</label>
-                                <textarea id="custom_css" name="custom_css" rows="4"
-                                    class="form-control @error('custom_css') is-invalid @enderror">{{ old('custom_css', $setting->custom_css ?? '') }}</textarea>
-                                @error('custom_css') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="custom_js" class="form-label">{{ __('Custom JS') }}</label>
+                                    <textarea id="custom_js" name="custom_js" rows="4"
+                                        class="form-control @error('custom_js') is-invalid @enderror">{{ old('custom_js', $setting->custom_js ?? '') }}</textarea>
+                                    @error('custom_js') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="custom_js" class="form-label">{{ __('Custom JS') }}</label>
-                                <textarea id="custom_js" name="custom_js" rows="4"
-                                    class="form-control @error('custom_js') is-invalid @enderror">{{ old('custom_js', $setting->custom_js ?? '') }}</textarea>
-                                @error('custom_js') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="rights" class="form-label">{{ __('Footer Rights Text') }}</label>
-                                <input type="text" id="rights" name="rights" maxlength="255"
-                                    class="form-control @error('rights') is-invalid @enderror"
-                                    value="{{ old('rights', $setting->rights ?? '') }}"
-                                    placeholder="© {{ date('Y') }} {{ config('app.name') }}. {{ __('All rights reserved.') }}">
-                                <small
-                                    class="form-text text-muted">{{ __('Shown in the site footer. Basic text only.') }}</small>
-                                @error('rights') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="rights" class="form-label">{{ __('Footer Rights Text') }}</label>
+                                    <input type="text" id="rights" name="rights" maxlength="255"
+                                        class="form-control @error('rights') is-invalid @enderror"
+                                        value="{{ old('rights', $setting->rights ?? '') }}"
+                                        placeholder="© {{ date('Y') }} {{ config('app.name') }}. {{ __('All rights reserved.') }}">
+                                    <small class="form-text text-muted">{{ __('Shown in the site footer. Basic text only.') }}</small>
+                                    @error('rights') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="app_timezone" class="form-label">{{ __('Timezone') }}</label>
-                                <select id="app_timezone" name="app_timezone"
-                                    class="form-control @error('app_timezone') is-invalid @enderror" required>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="app_timezone" class="form-label">{{ __('Timezone') }}</label>
+                                    <select id="app_timezone" name="app_timezone"
+                                        class="form-control @error('app_timezone') is-invalid @enderror" required>
                                     <option value="UTC" {{ config('app.timezone') === 'UTC' ? 'selected' : '' }}>UTC
                                     </option>
                                     <option value="America/New_York"
@@ -168,43 +159,43 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="app_locale" class="form-label">{{ __('Default Language') }}</label>
-                                <select id="app_locale" name="app_locale"
-                                    class="form-control @error('app_locale') is-invalid @enderror" required>
-                                    <option value="en" {{ config('app.locale') === 'en' ? 'selected' : '' }}>
-                                        {{ __('English') }}
-                                    </option>
-                                    <option value="ar" {{ config('app.locale') === 'ar' ? 'selected' : '' }}>
-                                        {{ __('Arabic') }}
-                                    </option>
-                                </select>
-                                @error('app_locale')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="app_locale" class="form-label">{{ __('Default Language') }}</label>
+                                    <select id="app_locale" name="app_locale"
+                                        class="form-control @error('app_locale') is-invalid @enderror" required>
+                                        <option value="en" {{ config('app.locale') === 'en' ? 'selected' : '' }}>
+                                            {{ __('English') }}
+                                        </option>
+                                        <option value="ar" {{ config('app.locale') === 'ar' ? 'selected' : '' }}>
+                                            {{ __('Arabic') }}
+                                        </option>
+                                    </select>
+                                    @error('app_locale')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="font_family" class="form-label">{{ __('Font Family') }}</label>
-                                <select id="font_family" name="font_family" class="form-control js-preview-font @error('font_family') is-invalid @enderror">
-                                    @foreach(($profileAvailableFonts ?? []) as $font)
-                                        <option value="{{ $font }}" {{ old('font_family', $setting->font_family ?? 'Inter') === $font ? 'selected' : '' }}>{{ $font }}@if($font==='Inter') ({{ __('Default') }})@endif</option>
-                                    @endforeach
-                                </select>
-                                <small class="form-text text-muted">{{ __('Only locally bundled fonts are listed to ensure CSP & SRI compliance.') }}</small>
-                                <input type="hidden" id="current_font_loaded"
-                                    value="{{ old('font_family', $setting->font_family ?? 'Inter') }}">
-                                @error('font_family')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="font_family" class="form-label">{{ __('Font Family') }}</label>
+                                    <select id="font_family" name="font_family" class="form-control js-preview-font @error('font_family') is-invalid @enderror">
+                                        @foreach(($profileAvailableFonts ?? []) as $font)
+                                            <option value="{{ $font }}" {{ old('font_family', $setting->font_family ?? 'Inter') === $font ? 'selected' : '' }}>{{ $font }}@if($font==='Inter') ({{ __('Default') }})@endif</option>
+                                        @endforeach
+                                    </select>
+                                    <small class="form-text text-muted">{{ __('Only locally bundled fonts are listed to ensure CSP & SRI compliance.') }}</small>
+                                    <input type="hidden" id="current_font_loaded"
+                                        value="{{ old('font_family', $setting->font_family ?? 'Inter') }}">
+                                    @error('font_family')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
-                    </div>
 
 
                     <div class="row">
@@ -349,14 +340,14 @@
                         </div>
                     </div>
 
-                    <div class="form-actions">
+                    <div class="card-footer bg-transparent">
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i>
+                                <i class="fas fa-save me-1"></i>
                                 {{ __('Save Settings') }}
                             </button>
                             <button type="button" class="btn btn-outline-secondary js-reset-form" data-action="reset-settings-form">
-                                <i class="fas fa-undo"></i>
+                                <i class="fas fa-undo me-1"></i>
                                 {{ __('Reset') }}
                             </button>
                         </div>
@@ -366,113 +357,93 @@
         </div>
     </div>
 
-    <!-- System Information -->
-    <div class="col-lg-4">
-    <div class="card modern-card">
-            <div class="card-header">
-                <h3 class="card-title">
+        <!-- System Information -->
+        <div class="col-lg-4">
+            <div class="card modern-card">
+                <div class="card-header d-flex align-items-center gap-2">
                     <i class="fas fa-info-circle text-info"></i>
-                    {{ __('System Information') }}
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="system-info">
-                    <div class="info-item">
-                        <div class="info-label">{{ __('Laravel Version') }}</div>
-                        <div class="info-value">
-                            <span class="badge badge-primary">{{ app()->version() }}</span>
+                    <h5 class="card-title mb-0">{{ __('System Information') }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-list">
+                        <div class="info-item d-flex justify-content-between align-items-center py-2">
+                            <span class="fw-bold">{{ __('Laravel Version') }}</span>
+                            <span class="badge bg-primary">{{ app()->version() }}</span>
                         </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">{{ __('PHP Version') }}</div>
-                        <div class="info-value">
+                        <div class="info-item d-flex justify-content-between align-items-center py-2">
+                            <span class="fw-bold">{{ __('PHP Version') }}</span>
                             <span class="badge bg-info">{{ PHP_VERSION }}</span>
                         </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">{{ __('Environment') }}</div>
-                        <div class="info-value">
-                            <span
-                                class="badge badge-{{ app()->environment() === 'production' ? 'success' : 'warning' }}">
+                        <div class="info-item d-flex justify-content-between align-items-center py-2">
+                            <span class="fw-bold">{{ __('Environment') }}</span>
+                            <span class="badge bg-{{ app()->environment() === 'production' ? 'success' : 'warning' }}">
                                 {{ ucfirst(app()->environment()) }}
                             </span>
                         </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">{{ __('Debug Mode') }}</div>
-                        <div class="info-value">
-                            <span class="badge badge-{{ config('app.debug') ? 'danger' : 'success' }}">
+                        <div class="info-item d-flex justify-content-between align-items-center py-2">
+                            <span class="fw-bold">{{ __('Debug Mode') }}</span>
+                            <span class="badge bg-{{ config('app.debug') ? 'danger' : 'success' }}">
                                 {{ config('app.debug') ? __('Enabled') : __('Disabled') }}
                             </span>
                         </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">{{ __('Current Language') }}</div>
-                        <div class="info-value">
+                        <div class="info-item d-flex justify-content-between align-items-center py-2">
+                            <span class="fw-bold">{{ __('Current Language') }}</span>
                             <span class="badge bg-secondary">{{ app()->getLocale() }}</span>
                         </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">{{ __('Total Users') }}</div>
-                        <div class="info-value">
-                            <span class="badge badge-dark">{{ App\Models\User::count() }}</span>
+                        <div class="info-item d-flex justify-content-between align-items-center py-2">
+                            <span class="fw-bold">{{ __('Total Users') }}</span>
+                            <span class="badge bg-dark">{{ App\Models\User::count() }}</span>
                         </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">{{ __('Total Languages') }}</div>
-                        <div class="info-value">
+                        <div class="info-item d-flex justify-content-between align-items-center py-2">
+                            <span class="fw-bold">{{ __('Total Languages') }}</span>
                             <span class="badge bg-secondary">{{ App\Models\Language::count() }}</span>
                         </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">{{ __('Total Currencies') }}</div>
-                        <div class="info-value">
+                        <div class="info-item d-flex justify-content-between align-items-center py-2">
+                            <span class="fw-bold">{{ __('Total Currencies') }}</span>
                             <span class="badge bg-warning">{{ App\Models\Currency::count() }}</span>
                         </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">{{ __('Server Time') }}</div>
-                        <div class="info-value">
+                        <div class="info-item d-flex justify-content-between align-items-center py-2">
+                            <span class="fw-bold">{{ __('Server Time') }}</span>
                             <span class="text-muted" id="server-time">{{ now()->format('Y-m-d H:i:s') }}</span>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Quick Actions -->
-    <div class="card modern-card">
-            <div class="card-header">
-                <h3 class="card-title">{{ __('System Maintenance') }}</h3>
-            </div>
-            <div class="card-body">
-                <div class="quick-actions">
-                    <form action="{{ route('admin.cache.clear') }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-warning btn-sm btn-block">
-                            <i class="fas fa-trash"></i>
-                            {{ __('Clear Cache') }}
-                        </button>
-                    </form>
+            <!-- System Maintenance -->
+            <div class="card modern-card">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <i class="fas fa-tools text-warning"></i>
+                    <h5 class="card-title mb-0">{{ __('System Maintenance') }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <form action="{{ route('admin.cache.clear') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-warning w-100">
+                                <i class="fas fa-trash me-1"></i>
+                                {{ __('Clear Cache') }}
+                            </button>
+                        </form>
 
-                    <form action="{{ route('admin.logs.clear') }}" method="POST" class="inline-form">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-secondary btn-sm btn-block">
-                            <i class="fas fa-file-alt"></i>
-                            {{ __('Clear Logs') }}
-                        </button>
-                    </form>
+                        <form action="{{ route('admin.logs.clear') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-file-alt me-1"></i>
+                                {{ __('Clear Logs') }}
+                            </button>
+                        </form>
 
-                    <form action="{{ route('admin.optimize') }}" method="POST" class="inline-form">
-                        @csrf
-                        <button type="submit" class="btn btn-success btn-sm btn-block">
-                            <i class="fas fa-rocket"></i>
-                            {{ __('Optimize System') }}
-                        </button>
-                    </form>
+                        <form action="{{ route('admin.optimize') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-rocket me-1"></i>
+                                {{ __('Optimize System') }}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
     </div>
 </div>
 @endsection

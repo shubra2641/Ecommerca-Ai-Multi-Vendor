@@ -39,12 +39,28 @@
                                 <label class="form-label fw-semibold">{{ __('Governorate') }}</label>
                                 <select name="rules[0][governorate_id]" class="form-select">
                                     <option value="">{{ __('Select Governorate') }}</option>
+                                    @foreach($countries as $country)
+                                        @foreach($country->governorates as $governorate)
+                                            <option value="{{ $governorate->id }}" data-country="{{ $country->id }}">
+                                                {{ $governorate->name }}
+                                            </option>
+                                        @endforeach
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold">{{ __('City') }}</label>
                                 <select name="rules[0][city_id]" class="form-select">
                                     <option value="">{{ __('Select City') }}</option>
+                                    @foreach($countries as $country)
+                                        @foreach($country->governorates as $governorate)
+                                            @foreach($governorate->cities as $city)
+                                                <option value="{{ $city->id }}" data-governorate="{{ $governorate->id }}" data-country="{{ $country->id }}">
+                                                    {{ $city->name }}
+                                                </option>
+                                            @endforeach
+                                        @endforeach
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="col-md-3">

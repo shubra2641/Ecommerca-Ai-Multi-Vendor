@@ -42,6 +42,8 @@ class UpdateSettingsRequest extends FormRequest
                 'dimensions:max_width=2000,max_height=2000',
             ],
             'seo_description' => ['nullable', 'string', 'max:500'],
+            'contact_email' => ['nullable', 'email', 'max:255'],
+            'contact_phone' => ['nullable', 'string', 'max:50'],
             'custom_css' => ['nullable', 'string', 'max:10000'],
             'custom_js' => ['nullable', 'string', 'max:10000'],
             'rights' => ['nullable', 'string', 'max:255'],

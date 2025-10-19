@@ -109,6 +109,7 @@
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
     <!-- Unified Customer JS - All functionality consolidated -->
     <script src="{{ asset('assets/customer/js/customer.js') }}"></script>
+    
 </body>
 
 </html>

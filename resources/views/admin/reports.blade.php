@@ -309,41 +309,8 @@
         </div>
     </div>
 
-    <!-- Recent Activities and System Health -->
+    <!-- System Health -->
     <div class="col-lg-4">
-        <!-- Recent Activities -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-history me-2"></i>
-                    {{ __('Recent Activities') }}
-                </h5>
-            </div>
-            <div class="card-body">
-                @if(isset($recentActivities) && count($recentActivities) > 0)
-                <div class="activity-list">
-                    @foreach($recentActivities as $activity)
-                    <div class="activity-item">
-                        <div class="activity-icon bg-{{ $activity['type'] ?? 'primary' }}">
-                            <i class="fas fa-{{ $activity['icon'] ?? 'info-circle' }}"></i>
-                        </div>
-                        <div class="activity-content">
-                            <h6 class="activity-title">{{ $activity['title'] ?? __('Activity') }}</h6>
-                            <p class="activity-description">{{ $activity['description'] ?? '' }}</p>
-                            <small class="activity-time">{{ $activity['time'] ?? now()->diffForHumans() }}</small>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-                @else
-                <div class="text-center py-4">
-                    <i class="fas fa-clock text-muted mb-2 reports-icon"></i>
-                    <p class="text-muted">{{ __('No recent activities') }}</p>
-                </div>
-                @endif
-            </div>
-        </div>
-
         <!-- System Health -->
     <div class="card modern-card">
             <div class="card-header">

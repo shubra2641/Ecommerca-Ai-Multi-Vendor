@@ -491,30 +491,31 @@
                     class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                     <div>
                         <h5 class="card-title mb-0">{{ __('User Registration Trends') }}</h5>
-                        <small class="text-muted" id="chart-last-updated">{{ __('Last 6 months overview') }}</small>
+                        <small class="text-muted" id="chart-last-updated">
+                            @if($period === '6m')
+                                {{ __('Last 6 months overview') }}
+                            @elseif($period === '1y')
+                                {{ __('Last 12 months overview') }}
+                            @else
+                                {{ __('All time overview') }}
+                            @endif
+                        </small>
                     </div>
                     <div
                         class="chart-controls-wrapper d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 @if(app()->getLocale()==='ar') ms-sm-auto flex-sm-row-reverse @else ms-sm-auto @endif">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="auto-refresh-toggle">
-                            <label class="form-check-label" for="auto-refresh-toggle">
-                                <span class="d-none d-sm-inline">{{ __('Auto Refresh') }}</span>
-                                <span class="d-sm-none">{{ __('Auto') }}</span>
-                            </label>
-                        </div>
-                        <button class="btn btn-sm btn-outline-secondary" id="refresh-dashboard" data-bs-toggle="tooltip"
+                        <a href="{{ route('admin.dashboard', ['refresh' => '1']) }}" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip"
                             title="{{ __('Refresh dashboard data') }}">
                             <i class="fas fa-sync-alt"></i>
                             <span class="d-none d-md-inline ms-1">{{ __('Refresh') }}</span>
-                        </button>
+                        </a>
                         <div class="btn-group btn-group-sm chart-period-buttons @if(app()->getLocale()==='ar') order-sm-first @endif"
                             role="group">
-                            <button type="button" class="btn btn-outline-secondary chart-period-btn active"
-                                data-period="6m">6M</button>
-                            <button type="button" class="btn btn-outline-secondary chart-period-btn"
-                                data-period="1y">1Y</button>
-                            <button type="button" class="btn btn-outline-secondary chart-period-btn"
-                                data-period="all">{{ __('All') }}</button>
+                            <a href="{{ route('admin.dashboard', ['period' => '6m']) }}" 
+                                class="btn btn-outline-secondary {{ $period === '6m' ? 'active' : '' }}">6M</a>
+                            <a href="{{ route('admin.dashboard', ['period' => '1y']) }}" 
+                                class="btn btn-outline-secondary {{ $period === '1y' ? 'active' : '' }}">1Y</a>
+                            <a href="{{ route('admin.dashboard', ['period' => 'all']) }}" 
+                                class="btn btn-outline-secondary {{ $period === 'all' ? 'active' : '' }}">{{ __('All') }}</a>
                         </div>
                     </div>
                 </div>

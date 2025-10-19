@@ -26,7 +26,11 @@ class ShippingZoneController extends Controller
 
     public function create(Request $request)
     {
-        $countries = Country::where('active', 1)->get();
+        $countries = Country::where('active', 1)->with(['governorates' => function($query) {
+            $query->where('active', 1)->with(['cities' => function($q) {
+                $q->where('active', 1);
+            }]);
+        }])->get();
 
         return view('admin.shipping_zones.create', [
             'countries' => $countries
@@ -66,7 +70,11 @@ class ShippingZoneController extends Controller
 
     public function edit(ShippingZone $shipping_zone, Request $request)
     {
-        $countries = Country::where('active', 1)->get();
+        $countries = Country::where('active', 1)->with(['governorates' => function($query) {
+            $query->where('active', 1)->with(['cities' => function($q) {
+                $q->where('active', 1);
+            }]);
+        }])->get();
         $rules = $shipping_zone->rules()->get();
 
         // Handle rule removal

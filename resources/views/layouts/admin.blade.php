@@ -47,6 +47,7 @@
     <script src="{{ asset('assets/admin/js/admin.js') }}"></script>
     <script src="{{ asset('assets/front/js/flash.js') }}"></script>
     <script src="{{ asset('assets/admin/js/admin-charts.js') }}" defer></script>
+    
 </body>
 
 </html>

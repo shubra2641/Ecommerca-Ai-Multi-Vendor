@@ -11,8 +11,19 @@ use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Get period from request, default to 6m
+        $period = $request->get('period', '6m');
+        
+        // Check if refresh was requested
+        $refresh = $request->get('refresh', false);
+        
+        // If refresh is requested, clear cache
+        if ($refresh) {
+            Cache::forget('dashboard_stats');
+        }
+
         $stats = Cache::remember('dashboard_stats', 60, function () {
             $dbInfo = [
                 'tables_count' => 0,
@@ -61,11 +72,14 @@ class DashboardController extends Controller
         });
 
 
-        // Get chart data for user registrations
-        $chartData = $this->getRegistrationChartData();
+        // Get chart data for user registrations based on period
+        $chartData = $this->getRegistrationChartDataByPeriod($period);
 
         // Get sales chart data (orders + revenue last 30 days)
         $salesChartData = $this->getSalesChartData();
+
+        // Get order status distribution data
+        $orderStatusChartData = $this->getOrderStatusChartData();
 
         // Get top statistics for quick overview
         $topStats = $this->getTopStatistics();
@@ -76,7 +90,7 @@ class DashboardController extends Controller
         // Get system health data
         $systemHealth = $this->getSystemHealth();
 
-        return view('admin.dashboard', compact('stats', 'chartData', 'salesChartData', 'topStats', 'topUsers', 'systemHealth'));
+        return view('admin.dashboard', compact('stats', 'chartData', 'salesChartData', 'orderStatusChartData', 'topStats', 'topUsers', 'systemHealth', 'period'));
     }
 
 
@@ -104,6 +118,63 @@ class DashboardController extends Controller
             'data' => $data,
             'vendorData' => $this->getVendorRegistrationData($months),
             'adminData' => $this->getAdminRegistrationData($months),
+        ];
+    }
+
+    /**
+     * Get registration chart data based on period
+     */
+    private function getRegistrationChartDataByPeriod($period)
+    {
+        $months = [];
+        $data = [];
+        $vendorData = [];
+        $adminData = [];
+
+        switch ($period) {
+            case '6m':
+                $periodCount = 6;
+                break;
+            case '1y':
+                $periodCount = 12;
+                break;
+            case 'all':
+                $periodCount = 24; // Last 2 years
+                break;
+            default:
+                $periodCount = 6;
+        }
+
+        for ($i = $periodCount - 1; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $months[] = $date->format('M Y');
+
+            // Total users
+            $totalCount = User::whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+            $data[] = $totalCount;
+
+            // Vendor users
+            $vendorCount = User::where('role', 'vendor')
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+            $vendorData[] = $vendorCount;
+
+            // Admin users
+            $adminCount = User::where('role', 'admin')
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+            $adminData[] = $adminCount;
+        }
+
+        return [
+            'labels' => $months,
+            'data' => $data,
+            'vendorData' => $vendorData,
+            'adminData' => $adminData,
         ];
     }
 
@@ -269,6 +340,47 @@ class DashboardController extends Controller
             'orders' => $ordersData,
             'revenue' => $revenueData,
         ];
+    }
+
+    /**
+     * Get order status distribution data for pie chart
+     */
+    private function getOrderStatusChartData(): array
+    {
+        try {
+            $orderStatuses = \App\Models\Order::selectRaw('status, COUNT(*) as count')
+                ->groupBy('status')
+                ->pluck('count', 'status')
+                ->toArray();
+
+            $labels = [];
+            $data = [];
+            $colors = [
+                'pending' => '#ffc107',
+                'processing' => '#17a2b8', 
+                'shipped' => '#28a745',
+                'delivered' => '#6f42c1',
+                'cancelled' => '#dc3545',
+                'refunded' => '#fd7e14'
+            ];
+
+            foreach ($orderStatuses as $status => $count) {
+                $labels[] = ucfirst($status);
+                $data[] = $count;
+            }
+
+            return [
+                'labels' => $labels,
+                'data' => $data,
+                'colors' => array_values($colors)
+            ];
+        } catch (\Exception $e) {
+            return [
+                'labels' => [],
+                'data' => [],
+                'colors' => []
+            ];
+        }
     }
 
     /**

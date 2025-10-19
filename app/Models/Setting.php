@@ -16,6 +16,8 @@ class Setting extends Model
         'site_name',
         'logo',
         'seo_description',
+        'contact_email',
+        'contact_phone',
         'custom_css',
         'custom_js',
         'rights',

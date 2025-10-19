@@ -6,12 +6,12 @@
     @include('admin.partials.page-header', [
         'title' => __('User Balance Management'),
         'subtitle' => __('Manage balance for') . ' ' . $user->name,
-        'actions' => '<a href="'.route('admin.users.show', $user).'" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i> '.e(__('Back to User')).'</a> <button type="button" class="btn btn-outline-info btn-refresh-balance"><i class="fas fa-sync me-1"></i> '.e(__('Refresh')).'</button> <button type="button" class="btn btn-primary btn-view-history"><i class="fas fa-history me-1"></i> '.e(__('View History')).'</button>'
+        'actions' => '<a href="'.route('admin.users.show', $user).'" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i> '.e(__('Back to User')).'</a> <button type="button" class="btn btn-primary btn-view-history"><i class="fas fa-history me-1"></i> '.e(__('View History')).'</button>'
     ])
 
     <div class="row" data-user-id="{{ $user->id }}">
         <div class="col-lg-8">
-            <div class="card modern-card border-0 shadow-sm mb-4">
+            <div class="card modern-card">
                 <div class="card-body">
                     <div class="row g-3 align-items-center">
                         <div class="col-md-6">
@@ -21,9 +21,9 @@
                         </div>
                         <div class="col-md-6 text-md-end">
                             <div class="d-inline-block">
-                                <button type="button" class="btn btn-outline-secondary btn-refresh-balance me-2"><i class="fas fa-sync me-1"></i> {{ __('Refresh') }}</button>
+                                <a href="{{ route('admin.users.balance', $user) }}" class="btn btn-outline-info me-2"><i class="fas fa-sync me-1"></i> {{ __('Refresh') }}</a>
                                 <a href="{{ route('admin.users.show', $user) }}" class="btn btn-outline-secondary me-2"><i class="fas fa-arrow-left me-1"></i> {{ __('Back to User') }}</a>
-                                <button type="button" class="btn btn-primary btn-view-history"><i class="fas fa-history me-1"></i> {{ __('View History') }}</button>
+                                <a href="{{ route('admin.users.balance.history', $user) }}" class="btn btn-primary"><i class="fas fa-history me-1"></i> {{ __('View History') }}</a>
                             </div>
                         </div>
                     </div>
@@ -68,7 +68,7 @@
             </div>
 
             <!-- Recent Transactions Preview -->
-                <div class="card modern-card border-0 shadow-sm">
+                <div class="card modern-card">
                 <div class="card-header d-flex align-items-center gap-2 justify-content-between">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fas fa-history text-info"></i>
@@ -90,69 +90,76 @@
 
         <div class="col-lg-4">
             <!-- User Summary -->
-            <div class="card modern-card border-0 shadow-sm mb-4">
+            <div class="card modern-card">
                 <div class="card-header d-flex align-items-center gap-2">
                     <i class="fas fa-user text-primary"></i>
                     <h5 class="card-title mb-0">{{ __('User Summary') }}</h5>
                 </div>
                 <div class="card-body">
-                    <div class="user-profile">
-                        <div class="user-avatar">
-                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                    <div class="user-profile text-center mb-4">
+                        <div class="user-avatar-large mb-3">
+                            {{ strtoupper(substr($user->name, 0, 2)) }}
                         </div>
-                        <div class="user-info">
-                            <h4>{{ $user->name }}</h4>
-                            <p>{{ $user->email }}</p>
-                            <span
-                                class="badge bg-{{ $user->role === 'admin' ? 'primary' : ($user->role === 'vendor' ? 'success' : 'secondary') }}">
-                                {{ ucfirst($user->role) }}
-                            </span>
-                        </div>
+                        <h4 class="mb-2">{{ $user->name }}</h4>
+                        <p class="text-muted mb-2">{{ $user->email }}</p>
+                        <span class="badge bg-{{ $user->role === 'admin' ? 'primary' : ($user->role === 'vendor' ? 'success' : 'secondary') }}">
+                            {{ ucfirst($user->role) }}
+                        </span>
                     </div>
 
                     <div class="user-details">
-                        <div class="detail-item">
-                            <label>{{ __('Phone') }}</label>
-                            <span>{{ $user->phone ?? __('Not provided') }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>{{ __('Registered') }}</label>
-                            <span>{{ $user->created_at->format('M d, Y') }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>{{ __('Last Updated') }}</label>
-                            <span>{{ $user->updated_at->diffForHumans() }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>{{ __('Status') }}</label>
-                            <span>
-                                @if($user->approved_at)
-                                <span class="badge bg-success">{{ __('Approved') }}</span>
-                                @else
-                                <span class="badge bg-warning">{{ __('Pending') }}</span>
-                                @endif
-                            </span>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <label class="form-label fw-bold">{{ __('Phone') }}</label>
+                                    <div class="info-value">{{ $user->phone ?? __('Not provided') }}</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <label class="form-label fw-bold">{{ __('Registered') }}</label>
+                                    <div class="info-value">{{ $user->created_at->format('M d, Y') }}</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <label class="form-label fw-bold">{{ __('Last Updated') }}</label>
+                                    <div class="info-value">{{ $user->updated_at->diffForHumans() }}</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <label class="form-label fw-bold">{{ __('Status') }}</label>
+                                    <div class="info-value">
+                                        @if($user->approved_at)
+                                        <span class="badge bg-success">{{ __('Approved') }}</span>
+                                        @else
+                                        <span class="badge bg-warning">{{ __('Pending') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Quick Actions -->
-            <div class="card modern-card border-0 shadow-sm">
+            <div class="card modern-card">
                 <div class="card-header d-flex align-items-center gap-2">
                     <i class="fas fa-bolt text-warning"></i>
                     <h5 class="card-title mb-0">{{ __('Quick Actions') }}</h5>
                 </div>
-                <div class="card-body quick-actions">
+                <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-primary">
                             <i class="fas fa-edit me-1"></i>
                             {{ __('Edit User') }}
                         </a>
-                        <button type="button" class="btn btn-outline-secondary btn-view-history">
+                        <a href="{{ route('admin.users.balance.history', $user) }}" class="btn btn-outline-secondary">
                             <i class="fas fa-history me-1"></i>
                             {{ __('View Balance History') }}
-                        </button>
+                        </a>
                         <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
                             <i class="fas fa-list me-1"></i>
                             {{ __('All Users') }}

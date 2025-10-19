@@ -4,7 +4,7 @@
  * Features: Progressive enhancement, no inline JS, unified structure
  */
 
-/* global window, document, fetch, URL, FormData, setTimeout, clearTimeout, console, Intl, AdminPanel, requestAnimationFrame */
+/* global window, document, fetch, URL, FormData, setTimeout, clearTimeout, Intl, AdminPanel */
 
 (function () {
     'use strict';
@@ -633,7 +633,8 @@
                 if (html) {
                     // Create a temporary container to parse HTML safely
                     const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = html;
+                    // Use textContent instead of innerHTML for security
+                    tempDiv.textContent = html;
 
                     // Move all child nodes to the container
                     while (tempDiv.firstChild) {
@@ -697,6 +698,95 @@
         }
     };
 
+    // Location Filter - فلترة بسيطة للدول والمحافظات والمدن
+    const LocationFilter = {
+        init() {
+            // ربط تغيير الدولة
+            Utils.on(document, 'change', (e) => {
+                if (e.target.name && e.target.name.includes('country_id')) {
+                    this.filterByCountry(e.target);
+                }
+                if (e.target.name && e.target.name.includes('governorate_id')) {
+                    this.filterByGovernorate(e.target);
+                }
+            });
+
+            // تهيئة الفلاتر للقواعد الموجودة
+            this.initializeExistingRules();
+        },
+
+        initializeExistingRules() {
+            // فلترة المحافظات والمدن للقواعد الموجودة بناءً على الدولة المختارة
+            Utils.selectAll('select[name*="country_id"]').forEach(countrySelect => {
+                if (countrySelect.value) {
+                    this.filterByCountry(countrySelect);
+                }
+            });
+        },
+
+        filterByCountry(countrySelect) {
+            const countryId = countrySelect.value;
+
+            // البحث عن المحافظات والمدن في نفس الصف (row)
+            const row = countrySelect.closest('.row, .card-body');
+            const governorateSelect = Utils.select('select[name*="governorate_id"]', row);
+            const citySelect = Utils.select('select[name*="city_id"]', row);
+
+            // فلترة المحافظات
+            if (governorateSelect) {
+                this.filterSelect(governorateSelect, 'data-country', countryId);
+                // إعادة تعيين المحافظة فقط إذا لم تكن مختارة مسبقاً
+                if (!governorateSelect.value || !this.isOptionVisible(governorateSelect, governorateSelect.value)) {
+                    governorateSelect.value = '';
+                }
+            }
+
+            // مسح المدن
+            if (citySelect) {
+                this.clearSelect(citySelect);
+                citySelect.value = '';
+            }
+        },
+
+        filterByGovernorate(governorateSelect) {
+            const governorateId = governorateSelect.value;
+
+            // البحث عن المدن في نفس الصف (row)
+            const row = governorateSelect.closest('.row, .card-body');
+            const citySelect = Utils.select('select[name*="city_id"]', row);
+
+            if (citySelect) {
+                this.filterSelect(citySelect, 'data-governorate', governorateId);
+                // إعادة تعيين المدينة فقط إذا لم تكن مختارة مسبقاً
+                if (!citySelect.value || !this.isOptionVisible(citySelect, citySelect.value)) {
+                    citySelect.value = '';
+                }
+            }
+        },
+
+        filterSelect(select, attribute, value) {
+            Utils.selectAll('option', select).forEach(option => {
+                const show = option.value === '' || option.getAttribute(attribute) === value;
+                option.style.display = show ? 'block' : 'none';
+                option.disabled = !show;
+            });
+        },
+
+        clearSelect(select) {
+            Utils.selectAll('option', select).forEach(option => {
+                if (option.value !== '') {
+                    option.style.display = 'none';
+                    option.disabled = true;
+                }
+            });
+        },
+
+        isOptionVisible(select, value) {
+            const option = Utils.select(`option[value="${value}"]`, select);
+            return option && option.style.display !== 'none' && !option.disabled;
+        }
+    };
+
     // Confirmation Manager
     const ConfirmationManager = {
         init() {
@@ -735,6 +825,7 @@
         FormManager.init();
         ModalManager.init();
         UserBalanceManager.init();
+        LocationFilter.init();
         ConfirmationManager.init();
         NotificationManager.init();
     };
@@ -757,6 +848,7 @@
         window.AdminPanel.Utils = Utils;
         window.AdminPanel.NotificationManager = NotificationManager;
         window.AdminPanel.ModalManager = ModalManager;
+        window.AdminPanel.LocationFilter = LocationFilter;
     }
 
 })();

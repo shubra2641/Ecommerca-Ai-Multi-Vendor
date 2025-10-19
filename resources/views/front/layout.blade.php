@@ -58,7 +58,7 @@
     <script src="{{ asset('assets/front/js/front.js') }}"></script>
     <script src="{{ asset('assets/front/js/pwa.js') }}"></script>
     <script src="{{ asset('assets/front/js/flash.js') }}"></script>
-
+    <script src="{{ asset('assets/front/js/checkout.js') }}"></script>
     @yield('scripts')
 </body>
 
