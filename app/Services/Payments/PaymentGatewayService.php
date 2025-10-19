@@ -283,10 +283,20 @@ class PaymentGatewayService
 
         $data = $response->json();
         return [
-            'redirect_url' => $data['transaction']['url'] ?? $data['redirect_url'] ?? ($data['data']['redirect_url'] ?? null),
-            'charge_id' => $data['id'] ?? ($data['data']['id'] ?? null),
+            'redirect_url' => $this->getRedirectUrl($data),
+            'charge_id' => $this->getChargeIdFromData($data),
             'raw' => $data
         ];
+    }
+
+    private function getRedirectUrl(array $data): ?string
+    {
+        return $data['transaction']['url'] ?? $data['redirect_url'] ?? $data['data']['redirect_url'] ?? null;
+    }
+
+    private function getChargeIdFromData(array $data): ?string
+    {
+        return $data['id'] ?? $data['data']['id'] ?? null;
     }
 
     private function getChargeId(Payment $payment, PaymentGateway $gateway): ?string
@@ -317,7 +327,7 @@ class PaymentGatewayService
             }
 
             $json = $resp->json();
-            $status = $json['status'] ?? $json['data']['status'] ?? null;
+            $status = $this->getStatusFromResponse($json);
             $finalStatus = $this->mapPaymentStatus($status);
 
             return ['success' => true, 'status' => $finalStatus, 'data' => $json];
@@ -328,6 +338,11 @@ class PaymentGatewayService
             ]);
             return ['success' => false, 'status' => 'pending', 'data' => null];
         }
+    }
+
+    private function getStatusFromResponse(array $json): ?string
+    {
+        return $json['status'] ?? $json['data']['status'] ?? null;
     }
 
     private function updatePaymentStatus(Payment $payment, string $status, PaymentGateway $gateway): void
