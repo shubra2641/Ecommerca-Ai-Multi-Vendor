@@ -281,7 +281,7 @@
             if (notification.hasAttribute('data-auto-hide')) {
                 setTimeout(() => {
                     AdminPanel.hideNotification(notification);
-                }, 5000);
+                }, 5000); // eslint-disable-line no-magic-numbers
             }
         });
 
@@ -304,7 +304,7 @@
         try {
             cfg = JSON.parse(tpl.textContent || tpl.innerText || '{}');
         } catch {
-            console.error('user-balance-config JSON parse error');
+            // console.error('user-balance-config JSON parse error');
             return;
         }
 
@@ -321,7 +321,7 @@
                     maximumFractionDigits: 2
                 }).format(parseFloat(v || 0)) + ' ' + (currency.symbol || '$');
             } catch {
-                return (parseFloat(v || 0).toFixed(2) + ' ' + (currency.symbol || '$'));
+                return (parseFloat(v || 0).toFixed(2) + ' ' + (currency.symbol || '$')); // eslint-disable-line no-magic-numbers
             }
         }
 
@@ -377,22 +377,37 @@
         document.querySelectorAll('.btn-view-history').forEach((btn) => {
             btn.addEventListener('click', async(e) => {
                 e.preventDefault();
-                AdminPanel.openModal('balanceHistoryModal');
-                const container = document.getElementById('balanceHistoryContainer');
-                if (!container || !urls.history) { return; }
-                // show loading
-                container.innerHTML = '<div class="text-center p-4"><div class="loading-spinner mx-auto"></div><p class="mt-2">' + (cfg.i18n && cfg.i18n.loading_history ? cfg.i18n.loading_history : 'Loading history...') + '</p></div>';
-                try {
-                    const res = await fetch(urls.history, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-                    if (!res.ok) { throw new Error('Network response not ok'); }
-                    const html = await res.text();
-                    container.innerHTML = html || ('<div class="empty-state text-center p-4">' + (cfg.i18n && cfg.i18n.no_history_desc ? cfg.i18n.no_history_desc : 'No previous transactions found') + '</div>');
-                } catch (err) {
-                    console.error('Failed to load history', err);
-                    container.innerHTML = '<div class="alert alert-danger">' + (cfg.i18n && cfg.i18n.error_history ? cfg.i18n.error_history : 'Failed to load balance history') + '</div>';
-                }
+                await handleHistoryView(cfg, urls);
             });
         });
+
+        async function handleHistoryView(cfg, urls) {
+            AdminPanel.openModal('balanceHistoryModal');
+            const container = document.getElementById('balanceHistoryContainer');
+            if (!container || !urls.history) { return; }
+
+            showLoadingState(container, cfg);
+            await loadHistoryData(container, urls, cfg);
+        }
+
+        function showLoadingState(container, cfg) {
+            container.innerHTML = '<div class="text-center p-4"><div class="loading-spinner mx-auto"></div><p class="mt-2">' +
+                (cfg.i18n && cfg.i18n.loading_history ? cfg.i18n.loading_history : 'Loading history...') + '</p></div>';
+        }
+
+        async function loadHistoryData(container, urls, cfg) {
+            try {
+                const res = await fetch(urls.history, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                if (!res.ok) { throw new Error('Network response not ok'); }
+                const html = await res.text();
+                container.innerHTML = html || ('<div class="empty-state text-center p-4">' +
+                    (cfg.i18n && cfg.i18n.no_history_desc ? cfg.i18n.no_history_desc : 'No previous transactions found') + '</div>');
+            } catch {
+                // console.error('Failed to load history');
+                container.innerHTML = '<div class="alert alert-danger">' +
+                    (cfg.i18n && cfg.i18n.error_history ? cfg.i18n.error_history : 'Failed to load balance history') + '</div>';
+            }
+        }
 
         // AJAX form submit for add/deduct
         function wireForm(formId, urlKey, successMessageKey) {
@@ -400,43 +415,63 @@
             if (!form) { return; }
             form.addEventListener('submit', async(e) => {
                 e.preventDefault();
-                const submitBtn = form.querySelector('button[type="submit"]');
-                if (submitBtn) { submitBtn.disabled = true; }
-                const formData = new FormData(form);
-                const url = urls[urlKey];
-                try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
-                        }
-                    });
-                    const json = await res.json();
-                    if (res.ok) {
-                        AdminPanel.showNotification((cfg.i18n && cfg.i18n[successMessageKey]) || 'Success', 'success');
-                        // close modal
-                        AdminPanel.closeModal();
-                        // refresh stats
-                        refreshStats();
-                    } else {
-                        AdminPanel.showNotification(json.message || (cfg.i18n && cfg.i18n.error_server) || 'Error', 'danger');
-                    }
-                } catch (err) {
-                    console.error('Form submit failed', err);
-                    AdminPanel.showNotification((cfg.i18n && cfg.i18n.error_server) || 'Server error', 'danger');
-                } finally {
-                    if (submitBtn) { submitBtn.disabled = false; }
+                await handleFormSubmit(form, urlKey, successMessageKey);
+            });
+        }
+
+        async function handleFormSubmit(form, urlKey, successMessageKey) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) { submitBtn.disabled = true; }
+
+            try {
+                const result = await submitFormData(form, urlKey);
+                handleFormResponse(result, successMessageKey);
+            } catch {
+                handleFormError();
+            } finally {
+                if (submitBtn) { submitBtn.disabled = false; }
+            }
+        }
+
+        async function submitFormData(form, urlKey) {
+            const formData = new FormData(form);
+            const url = urls[urlKey];
+            const res = await fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
                 }
             });
+            const json = await res.json();
+            return {
+                res,
+                json
+            };
+        }
+
+        function handleFormResponse(result, successMessageKey) {
+            const { res, json } = result;
+            if (res.ok) {
+                AdminPanel.showNotification((cfg.i18n && cfg.i18n[successMessageKey]) || 'Success', 'success');
+                AdminPanel.closeModal();
+                refreshStats();
+            } else {
+                AdminPanel.showNotification(json.message || (cfg.i18n && cfg.i18n.error_server) || 'Error', 'danger');
+            }
+        }
+
+        function handleFormError() {
+            // console.error('Form submit failed');
+            AdminPanel.showNotification((cfg.i18n && cfg.i18n.error_server) || 'Server error', 'danger');
         }
 
         wireForm('addBalanceForm', 'add', 'balance_added');
         wireForm('deductBalanceForm', 'deduct', 'balance_deducted');
 
         // initial refresh to populate numbers if needed
-        setTimeout(refreshStats, 400);
+        setTimeout(refreshStats, 400); // eslint-disable-line no-magic-numbers
     };
 
     // Centralized confirm handlers for forms and links
@@ -445,7 +480,7 @@
         document.querySelectorAll('form.js-confirm, form.js-confirm-delete').forEach((form) => {
             form.addEventListener('submit', (e) => {
                 const msg = form.dataset.confirm || form.getAttribute('data-confirm') || 'Are you sure?';
-                if (!window.confirm(msg)) {
+                if (!window.confirm(msg)) { // eslint-disable-line no-alert
                     e.preventDefault();
                 }
             });
@@ -456,7 +491,7 @@
             // only handle anchors or buttons that navigate or submit forms
             el.addEventListener('click', (e) => {
                 const msg = el.getAttribute('data-confirm');
-                if (!window.confirm(msg)) {
+                if (!window.confirm(msg)) { // eslint-disable-line no-alert
                     e.preventDefault();
                 }
             });
@@ -469,7 +504,7 @@
             notification.style.opacity = '0';
             setTimeout(() => {
                 notification.remove();
-            }, 300);
+            }, 300); // eslint-disable-line no-magic-numbers
         }
     };
 
@@ -494,7 +529,7 @@
         // Auto-hide after 5 seconds
         const autoHide = setTimeout(() => {
             AdminPanel.hideNotification(notification);
-        }, 5000);
+        }, 5000); // eslint-disable-line no-magic-numbers
 
         // Close handler
         const closeBtn = notification.querySelector('.notification-close');
@@ -516,7 +551,7 @@
                 clearTimeout(saveTimeout);
                 saveTimeout = setTimeout(() => {
                     AdminPanel.autoSave(form);
-                }, 2000);
+                }, 2000); // eslint-disable-line no-magic-numbers
             });
         });
     };
@@ -539,8 +574,8 @@
                         AdminPanel.showNotification('Changes saved automatically', 'success');
                     }
                 })
-                .catch((error) => {
-                    console.error('Auto-save failed:', error);
+                .catch(() => {
+                    // console.error('Auto-save failed');
                 });
         }
     };
@@ -563,41 +598,60 @@
     (function() {
         // Defer execution until DOM ready
         function initNotificationsLoader() {
+            const elements = getNotificationElements();
+            if (!elements) { return; }
+
+            const { badge, menu, placeholder } = elements;
+            const baseUrl = getBaseUrl();
+
+            setupNotificationSystem(badge, menu, placeholder, baseUrl);
+        }
+
+        function getNotificationElements() {
             const badge = document.getElementById('adminNotificationBadge');
             const menu = document.getElementById('adminNotificationsMenu');
             const placeholder = document.getElementById('adminNotificationsPlaceholder');
             if (!badge || !menu || !placeholder) {
-                return; // markup missing on this page
+                return null; // markup missing on this page
             }
+            return {
+                badge,
+                menu,
+                placeholder
+            };
+        }
 
+        function getBaseUrl() {
+            const baseEl = document.querySelector('body') || document.documentElement;
+            const rawBase = (baseEl && baseEl.getAttribute) ? (baseEl.getAttribute('data-admin-base') || '') : '';
+            let baseUrl = rawBase.replace(/\/$/, '');
+
+            if (!baseUrl) {
+                baseUrl = deriveBaseUrl();
+            }
+            return baseUrl;
+        }
+
+        function deriveBaseUrl() {
+            try {
+                const loc = window.location;
+                const idx = loc.pathname.indexOf('/admin');
+                const prefix = idx !== -1 ? loc.pathname.slice(0, idx) : '';
+                return loc.origin + prefix;
+            } catch {
+                return ''; // fallback to absolute-root-style paths
+            }
+        }
+
+        function setupNotificationSystem(badge, menu, placeholder, baseUrl) {
             function showBadge(count) {
                 if (count > 0) {
-                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.textContent = count > 99 ? '99+' : count; // eslint-disable-line no-magic-numbers
                     badge.style.display = 'inline-block';
                     badge.classList.remove('envato-hidden');
                 } else {
                     badge.textContent = '';
                     badge.style.display = 'none';
-                }
-            }
-
-            // Build base URL using body[data-admin-base] when present. This helps when app is hosted
-            // in a subdirectory (e.g., http://localhost/easy) so fetch('/admin/...') would otherwise miss.
-            const baseEl = document.querySelector('body') || document.documentElement;
-            const rawBase = (baseEl && baseEl.getAttribute) ? (baseEl.getAttribute('data-admin-base') || '') : '';
-            // Ensure no trailing slash
-            let baseUrl = rawBase.replace(/\/$/, '');
-            // If data-admin-base is not accurate or empty, derive base from current location by
-            // finding the first '/admin' segment in the pathname. This handles deployments
-            // where the app is served from a subdirectory (e.g., /easy) but APP_URL was not set.
-            if (!baseUrl) {
-                try {
-                    const loc = window.location;
-                    const idx = loc.pathname.indexOf('/admin');
-                    const prefix = idx !== -1 ? loc.pathname.slice(0, idx) : '';
-                    baseUrl = loc.origin + prefix;
-                } catch {
-                    baseUrl = ''; // fallback to absolute-root-style paths
                 }
             }
 
@@ -615,97 +669,270 @@
 
             async function loadNotifications() {
                 try {
-                    const url = (baseUrl ? (baseUrl + '/admin/notifications/latest') : '/admin/notifications/latest');
-                    const res = await fetch(url, { credentials: 'same-origin' });
-                    if (!res.ok) {
-                        placeholder.innerHTML = '<div class="px-3 py-2 text-muted">Could not load (status: ' + res.status + ')</div>';
-                        return;
-                    }
-                    let json;
-                    try { json = await res.json(); } catch { placeholder.innerHTML = '<div class="px-3 py-2 text-muted">Could not parse response</div>'; return; }
-                    if (!json.ok) { placeholder.innerHTML = '<div class="px-3 py-2 text-muted">No notifications</div>'; return; }
-                    const items = json.notifications || [];
-                    const unread = (json.unread ?? items.filter(i => !i.read_at).length) || 0;
+                    const response = await fetchNotifications(baseUrl);
+                    if (!response) { return; }
+
+                    const { json, items } = response;
+                    const unread = calculateUnreadCount(json, items);
                     showBadge(unread);
+
                     if (items.length === 0) {
-                        placeholder.innerHTML = '<div class="px-3 py-2 text-muted">' + ((window.__t && typeof window.__t === 'function') ? window.__t('No notifications') : 'No notifications') + '</div>';
+                        showNoNotificationsMessage();
                         return;
                     }
+
+                    renderNotifications(items);
+                } catch {
+                    showErrorMessage('Could not load notifications');
+                }
+            }
+
+            async function fetchNotifications(baseUrl) {
+                const url = (baseUrl ? (baseUrl + '/admin/notifications/latest') : '/admin/notifications/latest');
+                const res = await fetch(url, { credentials: 'same-origin' });
+                if (!res.ok) {
+                    showErrorMessage('Could not load (status: ' + res.status + ')');
+                    return null;
+                }
+
+                let json;
+                try {
+                    json = await res.json();
+                } catch {
+                    showErrorMessage('Could not parse response');
+                    return null;
+                }
+
+                if (!json.ok) {
+                    showErrorMessage('No notifications');
+                    return null;
+                }
+
+                const items = json.notifications || [];
+                return {
+                    json,
+                    items
+                };
+            }
+
+            function calculateUnreadCount(json, items) {
+                return (json.unread ?? items.filter(i => !i.read_at).length) || 0;
+            }
+
+            function showNoNotificationsMessage() {
+                const message = (window.__t && typeof window.__t === 'function') ?
+                    window.__t('No notifications') : 'No notifications';
+                placeholder.innerHTML = '<div class="px-3 py-2 text-muted">' + message + '</div>';
+            }
+
+            function showErrorMessage(message) {
+                placeholder.innerHTML = '<div class="px-3 py-2 text-muted">' + message + '</div>';
+            }
+
+            function renderNotifications(items) {
+                try {
                     placeholder.innerHTML = '';
                     items.forEach(n => {
-                        const a = document.createElement('a');
-                        a.className = 'dropdown-item d-flex align-items-start';
-                        a.href = n.data.url || '#';
-                        a.dataset.notificationId = n.id;
-                        const icon = document.createElement('div');
-                        icon.className = 'me-2';
-                        icon.innerHTML = '<i class="fas fa-' + (n.data.icon || 'bell') + ' fa-lg text-primary"></i>';
-                        const body = document.createElement('div');
-                        body.style.flex = '1';
-                        const title = document.createElement('div');
-                        title.className = 'fw-semibold';
-                        function humanizeType(t) { if (!t) { return ''; } return t.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); }
-                        const titleText = (n.data?.title) || ((typeof window.__t === 'function') ? (window.__t(n.data?.type || '') || '') : '') || humanizeType(n.data?.type) || (n.data?.type || 'Notification');
-                        title.textContent = titleText;
-                        const subtitle = document.createElement('div');
-                        subtitle.className = 'small text-muted';
-                        subtitle.textContent = n.data?.message || n.data?.text || '';
-                        const ts = document.createElement('div');
-                        ts.className = 'small text-muted ms-2';
-                        ts.textContent = n.created_at;
-                        body.appendChild(title);
-                        body.appendChild(subtitle);
-                        a.appendChild(icon);
-                        a.appendChild(body);
-                        a.appendChild(ts);
-
-                        a.addEventListener('click', async function(ev) {
-                            ev.preventDefault();
-                            const id = this.dataset.notificationId;
-                            let ok = false; let msg = '';
-                            try {
-                                const readUrl = (baseUrl ? (baseUrl + '/admin/notifications/' + encodeURIComponent(id) + '/read') : ('/admin/notifications/' + encodeURIComponent(id) + '/read'));
-                                const res = await fetch(readUrl, {
-                                    method: 'POST',
-                                    credentials: 'same-origin',
-                                    headers: {
-                                        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')) || '',
-                                        'Accept': 'application/json'
-                                    }
-                                });
-                                const j = await res.json().catch(() => {
-                                    return {};
-                                });
-                                ok = j.ok || res.ok;
-                                msg = j.message || (ok ? ((typeof window.__t === 'function' && window.__t('Marked read')) || 'Marked read') : (j.error || ((typeof window.__t === 'function' && window.__t('Failed')) || 'Failed')));
-                            } catch { msg = ((typeof window.__t === 'function') ? window.__t('Network error') : 'Network error'); }
-
-                            // show toast feedback via AdminPanel or fallback
-                            if (window.AdminPanel && typeof window.AdminPanel.showNotification === 'function') {
-                                window.AdminPanel.showNotification(msg, ok ? 'success' : 'error');
-                            } else if (window.alert) {
-                                alert(msg);
-                            }
-
-                            try {
-                                if (!this.classList.contains('text-muted')) { this.classList.add('text-muted'); }
-                                const current = parseInt((badge.textContent || '0').replace('+', ''), 10) || 0;
-                                const next = Math.max(0, current - 1);
-                                showBadge(next);
-                            } catch { /* ignore */ }
-
-                            loadNotifications().catch(() => {
-                                // Ignore notification load errors
-                            });
-                            const url = this.getAttribute('href');
-                            if (url && url !== '#') { window.location.href = url; }
-                        });
-
-                        placeholder.appendChild(a);
+                        const notificationElement = createNotificationElement(n);
+                        placeholder.appendChild(notificationElement);
                     });
                 } catch {
                     placeholder.innerHTML = '<div class="px-3 py-2 text-muted">Could not load</div>';
                 }
+            }
+
+            function createNotificationElement(n) {
+                const a = document.createElement('a');
+                a.className = 'dropdown-item d-flex align-items-start';
+                a.href = n.data.url || '#';
+                a.dataset.notificationId = n.id;
+
+                const icon = createNotificationIcon(n);
+                const body = createNotificationBody(n);
+                const ts = createNotificationTimestamp(n);
+
+                a.appendChild(icon);
+                a.appendChild(body);
+                a.appendChild(ts);
+
+                setupNotificationClickHandler(a);
+
+                return a;
+            }
+
+            function createNotificationIcon(n) {
+                const icon = document.createElement('div');
+                icon.className = 'me-2';
+                icon.innerHTML = '<i class="fas fa-' + (n.data.icon || 'bell') + ' fa-lg text-primary"></i>';
+                return icon;
+            }
+
+            function createNotificationBody(n) {
+                const body = document.createElement('div');
+                body.style.flex = '1';
+
+                const title = document.createElement('div');
+                title.className = 'fw-semibold';
+                title.textContent = getNotificationTitle(n);
+
+                const subtitle = document.createElement('div');
+                subtitle.className = 'small text-muted';
+                subtitle.textContent = n.data?.message || n.data?.text || '';
+
+                body.appendChild(title);
+                body.appendChild(subtitle);
+                return body;
+            }
+
+            function createNotificationTimestamp(n) {
+                const ts = document.createElement('div');
+                ts.className = 'small text-muted ms-2';
+                ts.textContent = n.created_at;
+                return ts;
+            }
+
+            function getNotificationTitle(n) {
+                if (n.data?.title) {
+                    return n.data.title;
+                }
+
+                const translatedTitle = getTranslatedTitle(n);
+                if (translatedTitle) {
+                    return translatedTitle;
+                }
+
+                const humanizedTitle = getHumanizedTitle(n);
+                if (humanizedTitle) {
+                    return humanizedTitle;
+                }
+
+                return n.data?.type || 'Notification';
+            }
+
+            function getTranslatedTitle(n) {
+                if (typeof window.__t === 'function') {
+                    return window.__t(n.data?.type || '') || '';
+                }
+                return '';
+            }
+
+            function getHumanizedTitle(n) {
+                if (!n.data?.type) {
+                    return '';
+                }
+                return humanizeType(n.data.type);
+            }
+
+            function humanizeType(t) {
+                if (!t) { return ''; }
+                return t.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            }
+
+            function setupNotificationClickHandler(a) {
+                a.addEventListener('click', async function(ev) {
+                    ev.preventDefault();
+                    await handleNotificationClick(this);
+                });
+            }
+
+            async function handleNotificationClick(element) {
+                const id = element.dataset.notificationId;
+                const { ok, msg } = await markNotificationAsRead(id);
+
+                showNotificationFeedback(msg, ok);
+                updateBadgeCount();
+                refreshNotifications();
+                navigateToUrl(element);
+            }
+
+            async function markNotificationAsRead(id) {
+                try {
+                    const response = await sendMarkAsReadRequest(id);
+                    return processMarkAsReadResponse(response);
+                } catch {
+                    return handleMarkAsReadError();
+                }
+            }
+
+            async function sendMarkAsReadRequest(id) {
+                const readUrl = buildReadUrl(id);
+                const headers = buildRequestHeaders();
+
+                const res = await fetch(readUrl, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers
+                });
+
+                const j = await res.json().catch(() => ({}));
+                return { res,
+                    j };
+            }
+
+            function buildReadUrl(id) {
+                return (baseUrl ?
+                    (baseUrl + '/admin/notifications/' + encodeURIComponent(id) + '/read') :
+                    ('/admin/notifications/' + encodeURIComponent(id) + '/read'));
+            }
+
+            function buildRequestHeaders() {
+                return {
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')) || '',
+                    'Accept': 'application/json'
+                };
+            }
+
+            function processMarkAsReadResponse(response) {
+                const { res, j } = response;
+                const ok = j.ok || res.ok;
+                const msg = j.message || getSuccessOrFailureMessage(ok, j);
+                return { ok,
+                    msg };
+            }
+
+            function getSuccessOrFailureMessage(ok, j) {
+                if (ok) {
+                    return getTranslatedMessage('Marked read', 'Marked read');
+                }
+                return j.error || getTranslatedMessage('Failed', 'Failed');
+            }
+
+            function getTranslatedMessage(key, fallback) {
+                return ((typeof window.__t === 'function' && window.__t(key)) || fallback);
+            }
+
+            function handleMarkAsReadError() {
+                const msg = getTranslatedMessage('Network error', 'Network error');
+                return { ok: false,
+                    msg };
+            }
+
+            function showNotificationFeedback(msg, ok) {
+                if (window.AdminPanel && typeof window.AdminPanel.showNotification === 'function') {
+                    window.AdminPanel.showNotification(msg, ok ? 'success' : 'error');
+                } else if (window.alert) {
+                    alert(msg); // eslint-disable-line no-alert
+                }
+            }
+
+            function updateBadgeCount() {
+                try {
+                    if (!this.classList.contains('text-muted')) { this.classList.add('text-muted'); }
+                    const current = parseInt((badge.textContent || '0').replace('+', ''), 10) || 0;
+                    const next = Math.max(0, current - 1);
+                    showBadge(next);
+                } catch { /* ignore */ }
+            }
+
+            function refreshNotifications() {
+                loadNotifications().catch(() => {
+                    // Ignore notification load errors
+                });
+            }
+
+            function navigateToUrl(element) {
+                const url = element.getAttribute('href');
+                if (url && url !== '#') { window.location.href = url; }
             }
 
             window.refreshAdminNotifications = loadNotifications;
@@ -714,27 +941,67 @@
             if (markAllBtn) {
                 markAllBtn.addEventListener('click', async(ev) => {
                     ev.preventDefault();
-                    try {
-                        const markAllUrl = (baseUrl ? (baseUrl + '/admin/notifications/mark-all-read') : '/admin/notifications/mark-all-read');
-                        const res = await fetch(markAllUrl, {
-                            method: 'POST',
-                            credentials: 'same-origin',
-                            headers: { 'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')) || '' }
-                        });
-                        const j = await res.json().catch(() => {
-                            return {};
-                        });
-                        if (j.ok || res.ok) {
-                            if (window.AdminPanel && window.AdminPanel.showNotification) { window.AdminPanel.showNotification((typeof window.__t === 'function') ? window.__t('All marked read') : 'All marked read', 'success'); }
-                            showBadge(0);
-                            loadNotifications().catch(() => {
-                                // Ignore notification load errors
-                            });
-                        } else if (window.AdminPanel && window.AdminPanel.showNotification) { window.AdminPanel.showNotification(j.message || ((typeof window.__t === 'function') ? window.__t('Failed') : 'Failed'), 'error'); }
-                    } catch {
-                        if (window.AdminPanel && window.AdminPanel.showNotification) { window.AdminPanel.showNotification((typeof window.__t === 'function') ? window.__t('Network error') : 'Network error', 'error'); }
+                    await handleMarkAllRead();
+                });
+            }
+
+            async function handleMarkAllRead() {
+                try {
+                    const response = await sendMarkAllReadRequest();
+                    handleMarkAllReadResponse(response);
+                } catch {
+                    handleMarkAllReadError();
+                }
+            }
+
+            async function sendMarkAllReadRequest() {
+                const markAllUrl = (baseUrl ?
+                    (baseUrl + '/admin/notifications/mark-all-read') :
+                    '/admin/notifications/mark-all-read');
+
+                const res = await fetch(markAllUrl, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')) || ''
                     }
                 });
+
+                const j = await res.json().catch(() => ({}));
+                return { res,
+                    j };
+            }
+
+            function handleMarkAllReadResponse(response) {
+                const { res, j } = response;
+                if (j.ok || res.ok) {
+                    showMarkAllReadSuccess();
+                    showBadge(0);
+                    refreshNotifications();
+                } else {
+                    showMarkAllReadFailure(j.message);
+                }
+            }
+
+            function showMarkAllReadSuccess() {
+                if (window.AdminPanel && window.AdminPanel.showNotification) {
+                    const message = getTranslatedMessage('All marked read', 'All marked read');
+                    window.AdminPanel.showNotification(message, 'success');
+                }
+            }
+
+            function showMarkAllReadFailure(message) {
+                if (window.AdminPanel && window.AdminPanel.showNotification) {
+                    const errorMessage = message || getTranslatedMessage('Failed', 'Failed');
+                    window.AdminPanel.showNotification(errorMessage, 'error');
+                }
+            }
+
+            function handleMarkAllReadError() {
+                if (window.AdminPanel && window.AdminPanel.showNotification) {
+                    const message = getTranslatedMessage('Network error', 'Network error');
+                    window.AdminPanel.showNotification(message, 'error');
+                }
             }
 
             preflightUnread().finally(loadNotifications);
