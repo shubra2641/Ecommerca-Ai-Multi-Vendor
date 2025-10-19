@@ -23,7 +23,8 @@ class HomeController extends Controller
      * - $sections/$enabledSections: HomepageSections records (ordering, enabling, limits)
      * - $sectionTitles/$sectionMeta: i18n + CTA metadata resolved with locale fallback chain
      * - $categories             : Root categories (legacy limited list for header / quick access)
-     * - $landingMainCategories / $landingCategories (alias): Main circular category list (limit derived from sections config)
+     * - $landingMainCategories / $landingCategories (alias):
+     *   Main circular category list (limit derived from sections config)
      * - $latestProducts         : Recent active products with review aggregates (cached 15m)
      * - $flashSaleProducts      : Active discount window products ordered by discount ratio (cached 5m)
      * - $flashSaleEndsAt        : Earliest future sale_end for countdown (nullable)
@@ -61,7 +62,9 @@ class HomeController extends Controller
             $fallbackTitle = $titlesArr ? (array_values($titlesArr)[0] ?? null) : null;
             $fallbackSub = $subArr ? (array_values($subArr)[0] ?? null) : null;
             $fallbackCta = $ctaArr ? (array_values($ctaArr)[0] ?? null) : null;
-            $computedTitle = $titlesArr[$locale] ?? ($titlesArr[$defaultLocale] ?? ($fallbackTitle ?: ucfirst(str_replace('_', ' ', $sec->key))));
+            $computedTitle = $titlesArr[$locale] ??
+                ($titlesArr[$defaultLocale] ??
+                ($fallbackTitle ?: ucfirst(str_replace('_', ' ', $sec->key))));
             $computedSub = $subArr[$locale] ?? ($subArr[$defaultLocale] ?? ($fallbackSub ?: ''));
             $computedCta = $ctaArr[$locale] ?? ($ctaArr[$defaultLocale] ?? ($fallbackCta ?: null));
             $sectionTitles[$sec->key] = ['title' => $computedTitle, 'subtitle' => $computedSub];
@@ -122,7 +125,8 @@ class HomeController extends Controller
                 });
         });
 
-        // Flash sale (discounted) products: assumption -> active discount window using sale_start/end & sale_price < price
+        // Flash sale (discounted) products: assumption -> active discount window
+        // using sale_start/end & sale_price < price
         // If a dedicated flash sale flag/relationship exists later, adjust this query accordingly.
         $flashSaleProducts = Cache::remember('landing_flash_products', 300, function () use ($sectionsIndex) {
             $now = now();
@@ -208,7 +212,15 @@ class HomeController extends Controller
 
         // Showcase mini sections aggregate (no logic left in Blade)
         $showcaseSections = collect();
-        foreach (['showcase_latest', 'showcase_best_selling', 'showcase_discount', 'showcase_most_rated', 'showcase_brands'] as $sk) {
+        foreach (
+            [
+            'showcase_latest',
+            'showcase_best_selling',
+            'showcase_discount',
+            'showcase_most_rated',
+            'showcase_brands'
+            ] as $sk
+        ) {
             $secCfg = $sectionsIndex->get($sk);
             if (! $secCfg || ! $secCfg->enabled) {
                 continue;
@@ -220,8 +232,14 @@ class HomeController extends Controller
                     'showcase_latest' => Product::active()->latest()->take($limit)->get(),
                     'showcase_best_selling' => Product::active()->bestSeller()->latest('id')->take($limit)->get(),
                     'showcase_discount' => Product::active()->onSale()->latest('sale_start')->take($limit)->get(),
-                    'showcase_most_rated' => Product::active()->orderByDesc('approved_reviews_avg')->orderByDesc('approved_reviews_count')->take($limit)->get(),
-                    'showcase_brands' => Brand::active()->withCount(['products' => fn ($q) => $q->active()])->orderByDesc('products_count')->take($limit)->get(),
+                    'showcase_most_rated' => Product::active()
+                        ->orderByDesc('approved_reviews_avg')
+                        ->orderByDesc('approved_reviews_count')
+                        ->take($limit)->get(),
+                    'showcase_brands' => Brand::active()
+                        ->withCount(['products' => fn ($q) => $q->active()])
+                        ->orderByDesc('products_count')
+                        ->take($limit)->get(),
                     default => collect(),
                 };
             });
