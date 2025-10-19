@@ -2,28 +2,26 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
-class NotificationController extends Controller
+class NotificationController extends BaseAdminController
 {
+    protected NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     public function latest(Request $request)
     {
-        $user = $request->user();
+        $user = $this->getCurrentUser($request);
         $limit = config('notifications.dropdown_limit', 10);
-        $notifications = $user->notifications()->latest()->limit($limit)->get()->map(function ($n) {
-            return [
-                'id' => $n->id,
-                'data' => $n->data,
-                'read_at' => $n->read_at,
-                'created_at' => $n->created_at->diffForHumans(),
-            ];
-        });
+        $notifications = $this->notificationService->getLatest($user, $limit);
 
-        return response()->json([
-            'ok' => true,
+        return $this->successResponse(__('Notifications retrieved successfully'), [
             'notifications' => $notifications,
-            'unread' => $user->unreadNotifications()->count(),
+            'unread' => $this->notificationService->getUnreadCount($user),
             'limit' => $limit,
             'poll_interval_ms' => config('notifications.poll_interval_ms', 30000),
         ]);
@@ -31,13 +29,16 @@ class NotificationController extends Controller
 
     public function unreadCount(Request $request)
     {
-        return response()->json(['ok' => true, 'unread' => $request->user()->unreadNotifications()->count()]);
+        $user = $this->getCurrentUser($request);
+        return $this->successResponse(__('Unread count retrieved'), [
+            'unread' => $this->notificationService->getUnreadCount($user)
+        ]);
     }
 
     public function index(Request $request)
     {
-        $user = $request->user();
-        $notifications = $user->notifications()->latest()->paginate(25);
+        $user = $this->getCurrentUser($request);
+        $notifications = $this->notificationService->getPaginated($user, 25);
 
         return view('admin.notifications.index', compact('notifications'));
     }
@@ -54,10 +55,12 @@ class NotificationController extends Controller
 
     public function markAll(Request $request)
     {
-        $user = $request->user();
-        $user->unreadNotifications()->update(['read_at' => now()]);
+        $user = $this->getCurrentUser($request);
+        $count = $this->notificationService->markAllAsRead($user);
 
-        return response()->json(['ok' => true]);
+        return $this->successResponse(__('All notifications marked as read'), [
+            'marked_count' => $count
+        ]);
     }
 
     /**
@@ -65,23 +68,10 @@ class NotificationController extends Controller
      */
     public function getStats(Request $request)
     {
-        $user = $request->user();
+        $user = $this->getCurrentUser($request);
+        $stats = $this->notificationService->getStats($user);
 
-        $stats = [
-            'total' => $user->notifications()->count(),
-            'unread' => $user->unreadNotifications()->count(),
-            'read' => $user->readNotifications()->count(),
-            'today' => $user->notifications()->whereDate('created_at', today())->count(),
-            'this_week' => $user->notifications()->whereBetween('created_at', [
-                now()->startOfWeek(),
-                now()->endOfWeek()
-            ])->count(),
-        ];
-
-        return response()->json([
-            'success' => true,
-            'stats' => $stats
-        ]);
+        return $this->successResponse(__('Statistics retrieved successfully'), $stats);
     }
 
     /**
@@ -89,29 +79,15 @@ class NotificationController extends Controller
      */
     public function markRead(Request $request, $id)
     {
-        $user = $request->user();
-        $notification = $user->notifications()->where('id', $id)->first();
+        $user = $this->getCurrentUser($request);
+        $success = $this->notificationService->markAsRead($user, $id);
 
-        if (!$notification) {
-            return response()->json([
-                'success' => false,
-                'message' => __('Notification not found')
-            ], 404);
+        if (!$success) {
+            return $this->errorResponse(__('Notification not found'), null, 404);
         }
 
-        if ($notification->read_at) {
-            return response()->json([
-                'success' => true,
-                'message' => __('Notification already marked as read')
-            ]);
-        }
-
-        $notification->markAsRead();
-
-        return response()->json([
-            'success' => true,
-            'message' => __('Notification marked as read'),
-            'unread_count' => $user->unreadNotifications()->count()
+        return $this->successResponse(__('Notification marked as read'), [
+            'unread_count' => $this->notificationService->getUnreadCount($user)
         ]);
     }
 
@@ -120,22 +96,15 @@ class NotificationController extends Controller
      */
     public function markAllRead(Request $request)
     {
-        $user = $request->user();
-        $unreadCount = $user->unreadNotifications()->count();
+        $user = $this->getCurrentUser($request);
+        $count = $this->notificationService->markAllAsRead($user);
 
-        if ($unreadCount === 0) {
-            return response()->json([
-                'success' => true,
-                'message' => __('No unread notifications to mark')
-            ]);
+        if ($count === 0) {
+            return $this->successResponse(__('No unread notifications to mark'));
         }
 
-        $user->unreadNotifications()->update(['read_at' => now()]);
-
-        return response()->json([
-            'success' => true,
-            'message' => __('All notifications marked as read'),
-            'marked_count' => $unreadCount
+        return $this->successResponse(__('All notifications marked as read'), [
+            'marked_count' => $count
         ]);
     }
 
@@ -144,22 +113,14 @@ class NotificationController extends Controller
      */
     public function delete(Request $request, $id)
     {
-        $user = $request->user();
-        $notification = $user->notifications()->where('id', $id)->first();
+        $user = $this->getCurrentUser($request);
+        $success = $this->notificationService->delete($user, $id);
 
-        if (!$notification) {
-            return response()->json([
-                'success' => false,
-                'message' => __('Notification not found')
-            ], 404);
+        if (!$success) {
+            return $this->errorResponse(__('Notification not found'), null, 404);
         }
 
-        $notification->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => __('Notification deleted successfully')
-        ]);
+        return $this->successResponse(__('Notification deleted successfully'));
     }
 
     /**
@@ -167,14 +128,10 @@ class NotificationController extends Controller
      */
     public function clearAll(Request $request)
     {
-        $user = $request->user();
-        $count = $user->notifications()->count();
+        $user = $this->getCurrentUser($request);
+        $count = $this->notificationService->clearAll($user);
 
-        $user->notifications()->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => __('All notifications cleared'),
+        return $this->successResponse(__('All notifications cleared'), [
             'cleared_count' => $count
         ]);
     }

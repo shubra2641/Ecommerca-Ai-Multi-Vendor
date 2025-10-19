@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\UsersBalanceExport;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AdjustBalanceRequest;
 use App\Models\User;
+use App\Services\BalanceService;
 use App\Services\HtmlSanitizer;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -14,8 +14,14 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 
-class UserController extends Controller
+class UserController extends BaseAdminController
 {
+    protected BalanceService $balanceService;
+
+    public function __construct(BalanceService $balanceService)
+    {
+        $this->balanceService = $balanceService;
+    }
     public function index(Request $request)
     {
         $query = User::query();
@@ -263,34 +269,14 @@ class UserController extends Controller
         $amount = (float) $validated['amount'];
         $note = $validated['note'] ?? null;
 
-        $oldBalance = (float) $user->balance;
-        $user->increment('balance', $amount);
-        $user->refresh();
+        $result = $this->balanceService->addBalance($user, $amount, $note, Auth::id());
 
-        // Log the transaction
-        \App\Models\BalanceHistory::createTransaction(
-            $user,
-            'credit',
-            $amount,
-            (float) $oldBalance,
-            (float) $user->balance,
-            $note,
-            Auth::id()
-        );
-
-        // Return JSON response
-        return response()->json([
-            'success' => true,
-            'message' => __('Balance added successfully'),
-            'new_balance' => $user->balance,
-            'formatted_balance' => number_format($user->balance, 2),
-            'transaction' => [
-                'type' => 'credit',
-                'amount' => $amount,
-                'note' => $note,
-                'date' => now()->format('Y-m-d H:i:s'),
+        return $this->successResponse(__('Balance added successfully'), [
+            'new_balance' => $result['new_balance'],
+            'formatted_balance' => $result['formatted_balance'],
+            'transaction' => array_merge($result['transaction'], [
                 'admin' => Auth::user()->name,
-            ],
+            ]),
         ]);
     }
 
@@ -300,41 +286,18 @@ class UserController extends Controller
         $amount = (float) $validated['amount'];
         $note = $validated['note'] ?? null;
 
-        if ($amount > (float) $user->balance) {
-            return response()->json([
-                'success' => false,
-                'message' => __('Amount exceeds current balance'),
-            ], 422);
+        $result = $this->balanceService->deductBalance($user, $amount, $note, Auth::id());
+
+        if (!$result['success']) {
+            return $this->errorResponse($result['message'], null, 422);
         }
 
-        $oldBalance = (float) $user->balance;
-        $user->decrement('balance', $amount);
-        $user->refresh();
-
-        // Log the transaction
-        \App\Models\BalanceHistory::createTransaction(
-            $user,
-            'debit',
-            $amount,
-            (float) $oldBalance,
-            (float) $user->balance,
-            $note,
-            Auth::id()
-        );
-
-        // Return JSON response
-        return response()->json([
-            'success' => true,
-            'message' => __('Balance deducted successfully'),
-            'new_balance' => $user->balance,
-            'formatted_balance' => number_format($user->balance, 2),
-            'transaction' => [
-                'type' => 'debit',
-                'amount' => $amount,
-                'note' => $note,
-                'date' => now()->format('Y-m-d H:i:s'),
+        return $this->successResponse(__('Balance deducted successfully'), [
+            'new_balance' => $result['new_balance'],
+            'formatted_balance' => $result['formatted_balance'],
+            'transaction' => array_merge($result['transaction'], [
                 'admin' => Auth::user()->name,
-            ],
+            ]),
         ]);
     }
 
@@ -412,34 +375,9 @@ class UserController extends Controller
      */
     public function getBalanceStats(User $user)
     {
-        $totalAdded = $user->balanceHistories()->whereIn('type', ['credit', 'bonus', 'refund'])->sum('amount');
-        $totalDeducted = $user->balanceHistories()->whereIn('type', ['debit', 'penalty'])->sum('amount');
-        $transactionCount = $user->balanceHistories()->count();
-        $lastTransaction = $user->balanceHistories()->latest()->first();
+        $stats = $this->balanceService->getStats($user);
 
-        // Format values with currency symbol
-        $defaultCurrency = \App\Models\Currency::getDefault();
-        $symbol = $defaultCurrency ? $defaultCurrency->symbol : '$';
-
-        $stats = [
-            'balance' => $user->balance,
-            'total_added' => $totalAdded,
-            'total_deducted' => $totalDeducted,
-            'net_balance_change' => $totalAdded - $totalDeducted,
-            'transaction_count' => $transactionCount,
-            'last_transaction' => $lastTransaction ? $lastTransaction->created_at->format('Y-m-d H:i:s') : null,
-            'formatted' => [
-                'balance' => number_format($user->balance, 2) . ' ' . $symbol,
-                'total_added' => number_format($totalAdded, 2) . ' ' . $symbol,
-                'total_deducted' => number_format($totalDeducted, 2) . ' ' . $symbol,
-                'net_change' => number_format($totalAdded - $totalDeducted, 2) . ' ' . $symbol,
-            ]
-        ];
-
-        return response()->json([
-            'success' => true,
-            'stats' => $stats,
-        ]);
+        return $this->successResponse(__('Balance statistics retrieved'), $stats);
     }
 
     /**
@@ -447,17 +385,11 @@ class UserController extends Controller
      */
     public function getBalanceHistory(User $user, Request $request)
     {
-        $perPage = $request->get('per_page', 20);
-        $page = $request->get('page', 1);
-
-        $balanceHistories = $user->balanceHistories()
-            ->with('admin')
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage, ['*'], 'page', $page);
+        $params = $this->getPaginationParams($request);
+        $balanceHistories = $this->balanceService->getHistory($user, $params['per_page'], $params['page']);
 
         if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
+            return $this->successResponse(__('Balance history retrieved'), [
                 'data' => $balanceHistories->items(),
                 'pagination' => [
                     'current_page' => $balanceHistories->currentPage(),
@@ -487,77 +419,19 @@ class UserController extends Controller
             'note' => 'nullable|string|max:255'
         ]);
 
-        $userIds = $request->user_ids;
-        $operation = $request->operation;
-        $amount = (float) $request->amount;
-        $note = $request->note;
+        $result = $this->balanceService->handleBulkOperation(
+            $request->user_ids,
+            $request->operation,
+            (float) $request->amount,
+            $request->note,
+            Auth::id()
+        );
 
-        $results = [];
-        $successCount = 0;
-        $errorCount = 0;
-
-        foreach ($userIds as $userId) {
-            try {
-                $user = User::findOrFail($userId);
-                $oldBalance = (float) $user->balance;
-
-                if ($operation === 'add') {
-                    $user->increment('balance', $amount);
-                } else {
-                    if ($amount > $oldBalance) {
-                        $results[] = [
-                            'user_id' => $userId,
-                            'user_name' => $user->name,
-                            'success' => false,
-                            'message' => __('Amount exceeds current balance')
-                        ];
-                        $errorCount++;
-                        continue;
-                    }
-                    $user->decrement('balance', $amount);
-                }
-
-                $user->refresh();
-
-                // Log the transaction
-                \App\Models\BalanceHistory::createTransaction(
-                    $user,
-                    $operation === 'add' ? 'credit' : 'debit',
-                    $amount,
-                    $oldBalance,
-                    (float) $user->balance,
-                    $note,
-                    Auth::id()
-                );
-
-                $results[] = [
-                    'user_id' => $userId,
-                    'user_name' => $user->name,
-                    'success' => true,
-                    'message' => __('Balance updated successfully'),
-                    'new_balance' => $user->balance
-                ];
-                $successCount++;
-            } catch (\Exception $e) {
-                $results[] = [
-                    'user_id' => $userId,
-                    'user_name' => $user->name ?? 'Unknown',
-                    'success' => false,
-                    'message' => $e->getMessage()
-                ];
-                $errorCount++;
-            }
-        }
-
-        return response()->json([
-            'success' => $errorCount === 0,
-            'message' => __('Bulk operation completed'),
-            'summary' => [
-                'total' => count($userIds),
-                'success' => $successCount,
-                'errors' => $errorCount
-            ],
-            'results' => $results
-        ]);
+        return $this->jsonResponse(
+            $result['success'],
+            __('Bulk operation completed'),
+            $result,
+            $result['success'] ? 200 : 400
+        );
     }
 }
