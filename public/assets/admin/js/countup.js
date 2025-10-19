@@ -1,6 +1,6 @@
 // Lightweight count-up animation shared by admin & vendor dashboards
 // Elements: add data-countup, data-target (number), optional: data-decimals, data-prefix, data-suffix, data-duration(ms)
-(function () {
+(function() {
     function formatNumber(value, decimals, locale, prefix, suffix) {
         const opts = decimals > 0 ? {
             minimumFractionDigits: decimals,

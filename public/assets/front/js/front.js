@@ -1,5 +1,5 @@
 // Header dropdown & currency interactions
-(function () {
+(function() {
     const doc = document;
     function closeAll(except) {
         doc.querySelectorAll('[data-dropdown].open').forEach(d => {
@@ -37,7 +37,7 @@
         });
     }
     function initCurrencySwitch() {
-        doc.addEventListener('click', async (e) => {
+        doc.addEventListener('click', async(e) => {
             const btn = e.target.closest('.currency-chip');
             if (!btn) {
                 return;
