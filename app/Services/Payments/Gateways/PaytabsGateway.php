@@ -132,7 +132,8 @@ class PaytabsGateway
                     ]);
                     throw $e;
                 }
-            });
+            }
+        );
     }
 
     public function verifyCharge(\App\Models\Payment $payment, PaymentGateway $gateway): array

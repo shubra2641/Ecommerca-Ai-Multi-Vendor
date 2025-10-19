@@ -236,16 +236,17 @@ class ProductCategoryController extends Controller
         }
         $providerStatus = $resp->status();
         $providerBody = $resp->json();
+        $retryAfter = $resp->header('Retry-After') ? (int) $resp->header('Retry-After') : null;
         if (! $resp->ok()) {
             return response()->json([
-                'error' => $providerStatus == 429 ? 'rate_limited_provider' : 'provider_error',
+                'error' => $providerStatus == 429
+                    ? 'rate_limited_provider'
+                    : 'provider_error',
                 'source' => 'provider',
                 'provider_status' => $providerStatus,
                 'provider_body' => $providerBody,
                 'provider_message' => data_get($providerBody, 'error.message'),
-                'retry_after' => $resp->header('Retry-After')
-                    ? (int) $resp->header('Retry-After')
-                    : null,
+                'retry_after' => $retryAfter,
             ], $providerStatus);
         }
         $rawText = data_get($providerBody, 'choices.0.message.content');

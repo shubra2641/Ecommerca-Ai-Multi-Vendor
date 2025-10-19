@@ -47,7 +47,7 @@ class DistributeOrderProceedsListener
 
                 Log::info(
                     'DistributeOrderProceedsListener processing order ' . $order->id .
-                    ' computed vendorAmounts: ' . json_encode($vendorAmounts)
+                        ' computed vendorAmounts: ' . json_encode($vendorAmounts)
                 );
 
                 // Credit each vendor or hold if within return window
@@ -59,7 +59,7 @@ class DistributeOrderProceedsListener
                     if (! $vendor) {
                         Log::warning(
                             'DistributeOrderProceedsListener: vendor not found id=' . $vendorId .
-                            ' for order ' . $order->id
+                                ' for order ' . $order->id
                         );
 
                         continue;
@@ -67,7 +67,7 @@ class DistributeOrderProceedsListener
 
                     // Determine if any items for this vendor in this order are still within refund window
                     $vendorItems = $order->items->filter(
-                        fn ($it) => ($it->product?->vendor_id ?? null) == $vendorId
+                        fn($it) => ($it->product?->vendor_id ?? null) == $vendorId
                     );
                     $hasHeld = false;
                     foreach ($vendorItems as $vi) {
@@ -85,13 +85,13 @@ class DistributeOrderProceedsListener
                             (float) $vendor->balance,
                             (float) $vendor->balance,
                             'Held credit for Order #' . $order->id .
-                            ' (refund window active)',
+                                ' (refund window active)',
                             null,
                             $order
                         );
                         Log::info(
                             'DistributeOrderProceedsListener held vendor ' . $vendorId .
-                            ' amount ' . $amount . ' for order ' . $order->id
+                                ' amount ' . $amount . ' for order ' . $order->id
                         );
                     } else {
                         $previous = (float) $vendor->balance;
@@ -111,7 +111,7 @@ class DistributeOrderProceedsListener
 
                         Log::info(
                             'DistributeOrderProceedsListener credited vendor ' . $vendorId .
-                            ' amount ' . $amount . ' for order ' . $order->id
+                                ' amount ' . $amount . ' for order ' . $order->id
                         );
                     }
                 }
@@ -131,7 +131,7 @@ class DistributeOrderProceedsListener
                         } catch (\Throwable $e) {
                             Log::warning(
                                 'DistributeOrderProceedsListener: failed computing commission fallback for order ' .
-                                $order->id . ' item ' . $it->id . ': ' . $e->getMessage()
+                                    $order->id . ' item ' . $it->id . ': ' . $e->getMessage()
                             );
                         }
                     }
@@ -158,12 +158,12 @@ class DistributeOrderProceedsListener
 
                         Log::info(
                             'DistributeOrderProceedsListener credited admin id ' . $admin->id .
-                            ' amount ' . $platformShare . ' for order ' . $order->id
+                                ' amount ' . $platformShare . ' for order ' . $order->id
                         );
                     } else {
                         Log::warning(
                             'DistributeOrderProceedsListener: no admin user found to credit platform share for order ' .
-                            $order->id
+                                $order->id
                         );
                     }
                 }
@@ -175,7 +175,7 @@ class DistributeOrderProceedsListener
         } catch (\Throwable $e) {
             Log::error(
                 'DistributeOrderProceedsListener failed for order ' . ($order->id ?? 'n/a') .
-                ': ' . $e->getMessage()
+                    ': ' . $e->getMessage()
             );
             throw $e;
         }

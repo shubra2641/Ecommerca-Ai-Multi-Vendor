@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use App\Http\Controllers\Api\PaymentApiController;
 use App\Http\Controllers\Api\SystemController as ApiSystemController;

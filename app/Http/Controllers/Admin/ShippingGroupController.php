@@ -57,7 +57,8 @@ class ShippingGroupController extends Controller
                 }
             }
             if ($overlaps) {
-                session()->flash('warning', __('Some location rows were duplicated and may override each other: :c', ['c' => implode(', ', $overlaps)]));
+                $message = __('Some location rows were duplicated and may override each other: :c', ['c' => implode(', ', $overlaps)]);
+                session()->flash('warning', $message);
             }
         }
 
@@ -109,7 +110,8 @@ class ShippingGroupController extends Controller
                 }
             }
             if ($overlaps) {
-                session()->flash('warning', __('Some location rows were duplicated and may override each other: :c', ['c' => implode(', ', $overlaps)]));
+                $message = __('Some location rows were duplicated and may override each other: :c', ['c' => implode(', ', $overlaps)]);
+                session()->flash('warning', $message);
             }
         }
 

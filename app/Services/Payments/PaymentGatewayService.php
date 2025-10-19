@@ -174,9 +174,9 @@ class PaymentGatewayService
                 ]],
                 'application_context' => [
                     'return_url' =>
-                        route('paypal.return', ['payment' => $payment->id]),
+                    route('paypal.return', ['payment' => $payment->id]),
                     'cancel_url' =>
-                        route('paypal.cancel', ['payment' => $payment->id]),
+                    route('paypal.cancel', ['payment' => $payment->id]),
                     'shipping_preference' => 'NO_SHIPPING',
                 ],
             ];
