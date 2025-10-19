@@ -17,29 +17,17 @@ class CleanupVendorExports extends Command
         $cutoff = now()->subDays($days);
         
         $exports = VendorExport::where('created_at', '<', $cutoff)->get();
-        $deletedCount = $this->deleteExports($exports);
-        
-        $this->info("Cleaned up {$deletedCount} exports older than {$days} days");
-        return 0;
-    }
-
-    private function deleteExports($exports)
-    {
         $count = 0;
         
         foreach ($exports as $export) {
-            $this->deleteExportFile($export);
+            if ($export->path && Storage::disk('local')->exists($export->path)) {
+                Storage::disk('local')->delete($export->path);
+            }
             $export->delete();
             $count++;
         }
         
-        return $count;
-    }
-
-    private function deleteExportFile($export)
-    {
-        if ($export->path && Storage::disk('local')->exists($export->path)) {
-            Storage::disk('local')->delete($export->path);
-        }
+        $this->info("Cleaned up {$count} exports older than {$days} days");
+        return 0;
     }
 }
