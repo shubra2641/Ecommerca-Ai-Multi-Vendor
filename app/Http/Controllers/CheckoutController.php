@@ -45,9 +45,28 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', __('Your cart is empty'));
         }
 
+        // Calculate discount
+        $subtotal = 0;
+        foreach ($cart as $pid => $row) {
+            $product = \App\Models\Product::find($pid);
+            if (!$product) continue;
+            $subtotal += $row['price'] * $row['qty'];
+        }
+        $discount = 0;
+        if (session('applied_coupon_id')) {
+            $coupon = \App\Models\Coupon::find(session('applied_coupon_id'));
+            if ($coupon && $coupon->isValid()) {
+                if ($coupon->type === 'percentage') {
+                    $discount = $subtotal * ($coupon->value / 100);
+                } else {
+                    $discount = min($coupon->value, $subtotal);
+                }
+            }
+        }
+
         try {
             $checkoutProcessor = app(CheckoutProcessor::class);
-            $checkoutData = $checkoutProcessor->processCheckout($request, $cart, $request->validated());
+            $checkoutData = $checkoutProcessor->processCheckout($request, $cart, $request->validated(), $discount);
             $order = $checkoutProcessor->createOrder($checkoutData, $request);
             $paymentResult = $checkoutProcessor->processPayment($order, $checkoutData['gateway'], $request);
 

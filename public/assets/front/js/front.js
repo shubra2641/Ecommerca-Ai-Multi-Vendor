@@ -363,6 +363,7 @@
     }
 
     function initCheckoutShipping() {
+        console.log('initCheckoutShipping called');
         const checkoutRoot = doc.getElementById('checkout-root');
         const translations = {
             selectGovernorate: checkoutRoot?.dataset.selectGovernorate || 'Select Governorate',
@@ -385,7 +386,22 @@
         const shippingDaysDisplay = doc.getElementById('shipping-days-display');
         const shippingInfo = doc.getElementById('shipping-info');
 
+        // Hidden form inputs for server submission
+        const hiddenShippingZoneId = doc.getElementById('input-shipping-zone-id');
+        const hiddenShippingPrice = doc.getElementById('input-shipping-price');
+        const hiddenShippingDays = doc.getElementById('shipping-days-input');
+
+        console.log('DOM elements:', {
+            countrySelect,
+            governorateSelect,
+            citySelect,
+            shippingZoneSelect,
+            hiddenShippingZoneId,
+            hiddenShippingPrice
+        });
+
         if (!countrySelect || !governorateSelect || !citySelect) {
+            console.log('Missing required select elements');
             return;
         }
 
@@ -486,6 +502,7 @@
         }
 
         function updateShippingDisplay(shippingOption) {
+            console.log('updateShippingDisplay called with:', shippingOption);
             if (!shippingOption) {
                 hideShippingInfo();
                 return;
@@ -505,6 +522,20 @@
 
             shippingInfo.classList.remove('hidden');
 
+            // Update hidden form inputs for server submission
+            if (hiddenShippingZoneId) {
+                hiddenShippingZoneId.value = shippingOption.zone_id;
+                console.log('Updated hiddenShippingZoneId to:', shippingOption.zone_id);
+            }
+            if (hiddenShippingPrice) {
+                hiddenShippingPrice.value = shippingOption.price;
+                console.log('Updated hiddenShippingPrice to:', shippingOption.price);
+            }
+            if (hiddenShippingDays) {
+                hiddenShippingDays.value = shippingOption.estimated_days || '';
+                console.log('Updated hiddenShippingDays to:', shippingOption.estimated_days || '');
+            }
+
             // Update order summary
             updateOrderSummary(shippingOption.price);
         }
@@ -513,6 +544,12 @@
             shippingInfo.classList.add('hidden');
             shippingCostInput.value = '';
             shippingDaysInput.value = '';
+
+            // Clear hidden form inputs
+            if (hiddenShippingZoneId) hiddenShippingZoneId.value = '';
+            if (hiddenShippingPrice) hiddenShippingPrice.value = '';
+            if (hiddenShippingDays) hiddenShippingDays.value = '';
+
             updateOrderSummary(0);
         }
 
@@ -549,6 +586,7 @@
         });
 
         shippingZoneSelect.addEventListener('change', function () {
+            console.log('shippingZoneSelect changed to:', this.value);
             const selectedZoneId = this.value;
             if (!selectedZoneId) {
                 hideShippingInfo();
@@ -577,6 +615,52 @@
         }
     }
 
+    function initAddressSelection() {
+        const addressRadios = doc.querySelectorAll('input[name="selected_address"]');
+        const selectedAddressIdHidden = doc.getElementById('selected-address-id');
+        const customerNameInput = doc.getElementById('customer_name');
+        const customerEmailInput = doc.getElementById('customer_email');
+        const customerPhoneInput = doc.getElementById('customer_phone');
+        const customerAddressInput = doc.getElementById('customer_address');
+        const countrySelect = doc.getElementById('country-select');
+        const governorateSelect = doc.getElementById('governorate-select');
+        const citySelect = doc.getElementById('city-select');
+
+        addressRadios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                if (this.checked) {
+                    const label = this.closest('label');
+                    const addrId = label.dataset.addrId;
+                    const country = label.dataset.country;
+                    const governorate = label.dataset.governorate;
+                    const city = label.dataset.city;
+                    const line1 = label.dataset.line1;
+                    const phone = label.dataset.phone;
+                    const name = label.querySelector('.address-name')?.textContent || '';
+
+                    // Set hidden selected_address_id
+                    if (selectedAddressIdHidden) {
+                        selectedAddressIdHidden.value = addrId;
+                    }
+
+                    // Populate form fields
+                    if (customerNameInput) customerNameInput.value = name;
+                    if (customerEmailInput) customerEmailInput.value = doc.querySelector('meta[name="user-email"]')?.content || '';
+                    if (customerPhoneInput) customerPhoneInput.value = phone;
+                    if (customerAddressInput) customerAddressInput.value = line1;
+                    if (countrySelect) countrySelect.value = country;
+                    if (governorateSelect) governorateSelect.value = governorate;
+                    if (citySelect) citySelect.value = city;
+
+                    // Trigger change events to load dependent selects
+                    if (countrySelect) countrySelect.dispatchEvent(new Event('change'));
+                    if (governorateSelect) governorateSelect.dispatchEvent(new Event('change'));
+                    if (citySelect) citySelect.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+    }
+
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
@@ -588,6 +672,7 @@
             initQuantitySelector();
             initProductVariations();
             initCheckoutShipping();
+            initAddressSelection();
         });
     } else {
         initDropdowns();
@@ -598,6 +683,7 @@
         initQuantitySelector();
         initProductVariations();
         initCheckoutShipping();
+        initAddressSelection();
     }
 }());
 

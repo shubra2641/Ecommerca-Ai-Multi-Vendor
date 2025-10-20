@@ -61,6 +61,1110 @@ body {
     overflow-x: hidden;
 }
 
+/* ========================================
+   Admin Order Details - Modern Professional Design
+   ======================================== */
+
+/* Main Container */
+.admin-order-details-modern {
+    background: var(--admin-bg);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.admin-order-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header Section */
+.admin-order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--admin-border);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-left {
+    flex: 1;
+    min-width: 250px;
+}
+
+.admin-order-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--admin-text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.admin-order-title svg {
+    color: var(--admin-primary);
+}
+
+.order-id-badge {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, #2563eb 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.admin-order-subtitle {
+    color: var(--admin-text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Admin Buttons */
+.admin-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.admin-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.admin-btn-primary {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.admin-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.admin-btn-secondary {
+    background: var(--admin-card-bg);
+    color: var(--admin-text-primary);
+    border: 1px solid var(--admin-border);
+}
+
+.admin-btn-secondary:hover {
+    background: var(--admin-bg);
+    border-color: var(--admin-primary);
+}
+
+.admin-btn-outline {
+    background: transparent;
+    color: var(--admin-primary);
+    border: 1px solid var(--admin-primary);
+}
+
+.admin-btn-outline:hover {
+    background: var(--admin-primary);
+    color: white;
+}
+
+.admin-btn-block {
+    width: 100%;
+    justify-content: center;
+}
+
+.admin-btn-large {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.admin-btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+.admin-btn-tiny {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+.admin-btn-success {
+    background: var(--admin-success);
+    color: white;
+}
+
+.admin-btn-success:hover {
+    background: #059669;
+}
+
+.admin-btn-warning {
+    background: var(--admin-warning);
+    color: white;
+}
+
+.admin-btn-warning:hover {
+    background: #d97706;
+}
+
+.admin-btn-danger {
+    background: var(--admin-danger);
+    color: white;
+}
+
+.admin-btn-danger:hover {
+    background: #dc2626;
+}
+
+/* Grid Layout */
+.admin-order-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 2rem;
+}
+
+/* Modern Cards */
+.admin-modern-card {
+    background: var(--admin-card-bg);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    border: 1px solid var(--admin-border);
+}
+
+.admin-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--admin-border);
+    background: linear-gradient(to right, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+}
+
+.admin-card-header svg {
+    color: var(--admin-primary);
+    flex-shrink: 0;
+}
+
+.admin-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    margin: 0;
+    flex: 1;
+}
+
+.admin-badge-count {
+    background: var(--admin-primary-light);
+    color: var(--admin-primary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.admin-card-body {
+    padding: 1.5rem;
+}
+
+/* Summary Card Specific */
+.admin-summary-card .admin-card-body {
+    padding: 0;
+}
+
+.admin-info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.admin-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-info-row:last-child {
+    border-bottom: none;
+}
+
+.admin-info-label {
+    font-size: 0.85rem;
+    color: var(--admin-text-secondary);
+    font-weight: 500;
+}
+
+.admin-info-value {
+    font-size: 0.9rem;
+    color: var(--admin-text-primary);
+    font-weight: 600;
+    text-align: right;
+}
+
+.customer-name {
+    font-weight: 600;
+    color: var(--admin-text-primary);
+}
+
+.customer-email,
+.customer-phone {
+    font-size: 0.85rem;
+    color: var(--admin-text-secondary);
+    margin-top: 0.25rem;
+}
+
+/* Status Badges */
+.admin-status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.admin-status-badge.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.admin-status-badge.status-processing {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.admin-status-badge.status-completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.admin-status-badge.status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.admin-status-badge.status-on-hold {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.admin-status-badge.status-refunded {
+    background: #fce7f3;
+    color: #831843;
+}
+
+.admin-status-badge.status-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.admin-payment-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--admin-primary-light);
+    color: var(--admin-primary);
+}
+
+/* Total Section */
+.admin-total-section {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
+    padding: 1.5rem;
+    margin: 0;
+    text-align: center;
+    border-top: 2px solid var(--admin-border);
+}
+
+.admin-total-label {
+    font-size: 0.9rem;
+    color: var(--admin-text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.admin-total-amount {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--admin-primary) 0%, #2563eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.admin-currency {
+    font-size: 1.2rem;
+    margin-left: 0.25rem;
+}
+
+.admin-card-actions {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--admin-border);
+}
+
+/* Timeline */
+.admin-timeline {
+    position: relative;
+}
+
+.admin-timeline-item {
+    position: relative;
+    padding-left: 2rem;
+    padding-bottom: 1.5rem;
+}
+
+.admin-timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.admin-timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 0.4375rem;
+    top: 1.5rem;
+    bottom: 0;
+    width: 2px;
+    background: var(--admin-border);
+}
+
+.admin-timeline-item:last-child::before {
+    display: none;
+}
+
+.admin-timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0.25rem;
+    width: 1rem;
+    height: 1rem;
+    background: var(--admin-primary);
+    border-radius: 50%;
+    border: 3px solid var(--admin-card-bg);
+    box-shadow: 0 0 0 3px var(--admin-primary-light);
+}
+
+.admin-timeline-status {
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.admin-timeline-date {
+    font-size: 0.85rem;
+    color: var(--admin-text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.admin-timeline-note {
+    font-size: 0.9rem;
+    color: var(--admin-text-primary);
+    background: var(--admin-bg);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.admin-empty-state {
+    text-align: center;
+    color: var(--admin-text-secondary);
+    font-size: 0.9rem;
+    padding: 2rem 1rem;
+}
+
+/* Items List */
+.admin-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.admin-item-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.25rem;
+    background: var(--admin-bg);
+    border-radius: 0.75rem;
+    border: 1px solid var(--admin-border);
+    transition: all 0.2s ease;
+}
+
+.admin-item-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.admin-item-main {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+}
+
+.admin-item-placeholder {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--admin-primary) 0%, #2563eb 100%);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.admin-item-details {
+    flex: 1;
+}
+
+.admin-item-name {
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+
+.admin-item-variant {
+    color: var(--admin-text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.admin-item-badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.admin-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.admin-badge-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.admin-badge-secondary {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.admin-badge-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.admin-badge-info {
+    background: #cffafe;
+    color: #155e75;
+}
+
+.admin-badge-danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.admin-item-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.admin-item-qty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.qty-label {
+    font-size: 0.85rem;
+    color: var(--admin-text-secondary);
+}
+
+.qty-value {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--admin-text-primary);
+}
+
+.admin-item-status {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.admin-item-price {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--admin-primary);
+}
+
+/* Two Columns Layout */
+.admin-two-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.admin-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    margin: 0 0 1rem 0;
+}
+
+.admin-customer-info,
+.admin-address-text {
+    font-size: 0.9rem;
+    color: var(--admin-text-primary);
+    line-height: 1.6;
+}
+
+.customer-name-bold {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.customer-email-text,
+.customer-phone-text {
+    color: var(--admin-text-secondary);
+    font-size: 0.85rem;
+}
+
+.admin-address-text {
+    white-space: pre-line;
+    color: var(--admin-text-secondary);
+}
+
+.admin-notes-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--admin-border);
+}
+
+.admin-notes-title {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--admin-text-primary);
+}
+
+.admin-notes-text {
+    color: var(--admin-text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* Payment Items */
+.admin-payment-item {
+    padding: 1.25rem;
+    background: var(--admin-bg);
+    border-radius: 0.75rem;
+    border: 1px solid var(--admin-border);
+    margin-bottom: 1rem;
+}
+
+.admin-payment-item:last-child {
+    margin-bottom: 0;
+}
+
+.admin-payment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.admin-payment-method {
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    font-size: 1rem;
+}
+
+.admin-payment-amount {
+    color: var(--admin-text-secondary);
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.admin-payment-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.admin-payment-status.status-completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.admin-payment-status.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.admin-payment-status.status-failed {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.admin-payment-attachments {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--admin-border);
+}
+
+.admin-payment-attachments strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--admin-text-primary);
+    font-size: 0.85rem;
+}
+
+.admin-attachment-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--admin-primary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 0.5rem 0;
+    transition: all 0.2s ease;
+}
+
+.admin-attachment-link:hover {
+    text-decoration: underline;
+    gap: 0.75rem;
+}
+
+.admin-attachment-link svg {
+    color: var(--admin-primary);
+}
+
+.admin-payment-actions {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--admin-border);
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Manage Form */
+.admin-manage-card {
+    background: linear-gradient(to bottom, var(--admin-card-bg) 0%, rgba(59, 130, 246, 0.02) 100%);
+}
+
+.admin-manage-form {
+    width: 100%;
+}
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+.admin-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-form-group-wide {
+    grid-column: span 1;
+}
+
+.admin-form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.admin-form-select,
+.admin-form-input {
+    padding: 0.625rem 1rem;
+    border: 1px solid var(--admin-border);
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    background: var(--admin-card-bg);
+    color: var(--admin-text-primary);
+    transition: all 0.2s ease;
+}
+
+.admin-form-select:focus,
+.admin-form-input:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px var(--admin-primary-light);
+}
+
+.admin-form-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .admin-order-grid {
+        grid-template-columns: 320px 1fr;
+    }
+}
+
+@media (max-width: 992px) {
+    .admin-order-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-order-sidebar {
+        order: 2;
+    }
+    
+    .admin-order-main {
+        order: 1;
+    }
+    
+    .admin-two-cols {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-order-details-modern {
+        padding: 1rem 0.5rem;
+    }
+    
+    .admin-order-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .header-actions {
+        width: 100%;
+    }
+    
+    .admin-btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .admin-order-title {
+        font-size: 1.5rem;
+    }
+    
+    .order-id-badge {
+        font-size: 1.25rem;
+    }
+    
+    .admin-card-body {
+        padding: 1rem;
+    }
+    
+    .admin-item-card {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .admin-item-meta {
+        align-items: flex-start;
+        width: 100%;
+    }
+    
+    .admin-form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-form-actions {
+        justify-content: stretch;
+    }
+    
+    .admin-form-actions .admin-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-order-title {
+        font-size: 1.25rem;
+        flex-wrap: wrap;
+    }
+    
+    .order-id-badge {
+        font-size: 1rem;
+    }
+    
+    .admin-item-main {
+        flex-direction: column;
+    }
+    
+    .admin-item-placeholder {
+        width: 100%;
+        height: 80px;
+    }
+}
+
+/* ========================================
+   Admin Payments Page - Minimal Additions
+   ======================================== */
+
+.payment-id-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.payment-id-label svg {
+    color: var(--admin-primary);
+}
+
+.payment-id-text {
+    font-size: 0.85rem;
+    color: var(--admin-text-secondary);
+    font-weight: 600;
+}
+
+.admin-payment-details {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.payment-detail-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+    color: var(--admin-text-secondary);
+}
+
+.payment-detail-item svg {
+    color: var(--admin-text-secondary);
+}
+
+.payment-detail-separator {
+    color: var(--admin-border);
+    font-weight: 300;
+}
+
+.payment-order-link {
+    color: var(--admin-primary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.payment-order-link:hover {
+    text-decoration: underline;
+}
+
+.payment-amount-display {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--admin-text-primary);
+    margin-bottom: 0.5rem;
+    text-align: right;
+}
+
+.admin-card-footer-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--admin-border);
+    background: var(--admin-bg);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: var(--admin-text-secondary);
+}
+
+.pagination-links {
+    display: flex;
+    gap: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .admin-payment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .admin-payment-right {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .payment-amount-display {
+        text-align: left;
+        margin-bottom: 0;
+    }
+    
+    .admin-card-footer-pagination {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+}
+
+/* Additional helper classes to avoid inline styles */
+.admin-item-placeholder-primary {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, #2563eb 100%);
+}
+
+.admin-item-placeholder-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.admin-item-placeholder-cyan {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+}
+
+.admin-item-placeholder-gray {
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+}
+
+.admin-item-name-secondary {
+    color: var(--admin-text-secondary);
+    font-weight: 400;
+}
+
+.admin-payment-amount-currency {
+    font-size: 1rem;
+    color: var(--admin-text-secondary);
+}
+
+.admin-status-flex {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.admin-actions-flex {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.admin-form-grid-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.admin-form-grid-limit {
+    display: grid;
+    grid-template-columns: auto 200px auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+.admin-mt-half {
+    margin-top: 0.5rem;
+}
+
+.admin-mb-1-5 {
+    margin-bottom: 1.5rem;
+}
+
+.admin-status-unread {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.admin-relative {
+    position: relative;
+}
+
+.admin-rank-badge {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    background: var(--admin-primary);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.admin-rank-display {
+    font-size: 2rem;
+}
+
+.admin-notification-icon {
+    margin: 0 auto 1rem;
+    opacity: 0.3;
+}
+
+.admin-product-link {
+    color: var(--admin-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.admin-product-link:hover {
+    text-decoration: underline;
+}
+
+.admin-success-text {
+    color: var(--admin-success);
+}
+
+.admin-flex-end {
+    display: flex;
+    align-items: flex-end;
+}
+
+.admin-placeholder-dynamic {
+    position: relative;
+}
+
 /* Dark Mode Variables */
 body.dark-mode {
     --admin-bg: #0f172a;
@@ -447,33 +1551,7 @@ body.dark-mode {
     background: rgb(0,0,0,0.02);
 }
 
-/* Page Header */
-.page-header {
-    display        : flex;
-    justify-content: space-between;
-    align-items    : center;
-    margin-bottom  : 2rem;
-    padding        : 1.5rem 0;
-    border-bottom  : 1px solid var(--admin-border);
-}
-
-.page-header-content h1.page-title {
-    font-size    : 2rem;
-    font-weight  : 700;
-    color        : var(--text-primary);
-    margin-bottom: 0.5rem;
-}
-
-.page-header-content .page-description {
-    color    : var(--text-secondary);
-    font-size: 1rem;
-    margin   : 0;
-}
-
-.page-actions {
-    display: flex;
-    gap    : 0.75rem;
-}
+/* Page Header - Removed old styles, using new admin-order-header instead */
 
 
 /* Minimal Stats Cards (extracted from stats-cards.css) */
@@ -649,7 +1727,7 @@ body.dark-mode {
     background-color: var(--admin-primary-light);
 }
 
-/* Buttons */
+/* Buttons - Base styles (specific button styles in Admin Order Details section above) */
 .admin-btn,
 .btn {
     padding: 0.5rem 1rem;
@@ -1319,6 +2397,7 @@ body.dark-mode .user-menu-btn:hover {
 
 
 /* ===== Modern Card ( from dashboard.css & admin-refinements.css) ===== */
+/* Old modern-card styles removed - using admin-modern-card for order pages */
 .modern-card {
     background: var(--adm-surface, #ffffff);
     border-radius: 16px;

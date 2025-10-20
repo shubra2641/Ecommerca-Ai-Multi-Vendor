@@ -1,40 +1,86 @@
 @extends('layouts.admin')
+
 @section('title', __('Edit City'))
+
 @section('content')
-<div class="card modern-card">
-	<div class="card-header d-flex align-items-center gap-2">
-		<h5 class="m-0">{{ __('Edit City') }}</h5>
-		<div class="ms-auto">
-			<a href="{{ route('admin.cities.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('Back') }}</a>
+<section class="admin-order-details-modern">
+	<div class="admin-order-wrapper">
+
+		<!-- Header Section -->
+		<div class="admin-order-header">
+			<div class="header-left">
+				<h1 class="admin-order-title">
+					<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+						<path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+					</svg>
+					{{ __('Edit City') }}
+				</h1>
+				<p class="admin-order-subtitle">{{ __('Update city information') }}</p>
+			</div>
+			<div class="header-actions">
+				<a href="{{ route('admin.cities.index') }}" class="admin-btn admin-btn-secondary">
+					<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+						<path d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+					</svg>
+					{{ __('Back') }}
+				</a>
+			</div>
 		</div>
+
+		<form method="POST" action="{{ route('admin.cities.update',$city) }}" class="admin-form">
+			@csrf @method('PUT')
+
+			<!-- City Details -->
+			<div class="admin-modern-card">
+				<div class="admin-card-header">
+					<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+						<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+					</svg>
+					<h3 class="admin-card-title">{{ __('City Details') }}</h3>
+				</div>
+				<div class="admin-card-body">
+					<div class="admin-form-grid">
+						<div class="admin-form-group">
+							<label class="admin-form-label">{{ __('Governorate') }}</label>
+							<select name="governorate_id" class="admin-form-select" required aria-label="{{ __('Governorate') }}">
+								@foreach($governorates as $g)
+								<option value="{{ $g->id }}" {{ $city->governorate_id==$g->id ? 'selected' : '' }}>{{ $g->name }}</option>
+								@endforeach
+							</select>
+						</div>
+						<div class="admin-form-group">
+							<label class="admin-form-label">{{ __('Name') }}</label>
+							<input name="name" class="admin-form-input" value="{{ $city->name }}" required aria-label="{{ __('Name') }}">
+						</div>
+						<div class="admin-form-group admin-flex-end">
+							<div class="form-check form-switch">
+								<input class="form-check-input" type="checkbox" name="active" id="active" {{ $city->active ? 'checked' : '' }}>
+								<label class="form-check-label" for="active">{{ __('Active') }}</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Actions -->
+			<div class="admin-modern-card">
+				<div class="admin-card-body">
+					<div class="admin-form-actions">
+						<a href="{{ route('admin.cities.index') }}" class="admin-btn admin-btn-secondary">
+							{{ __('Cancel') }}
+						</a>
+						<button type="submit" class="admin-btn admin-btn-success admin-btn-large">
+							<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+								<path d="M5 13l4 4L19 7" />
+							</svg>
+							{{ __('Save Changes') }}
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</form>
+
 	</div>
-
-	<form class="admin-form" method="POST" action="{{ route('admin.cities.update',$city) }}">@csrf @method('PUT')
-		<div class="card-body">
-			<div class="mb-3">
-				<label class="form-label">{{ __('Governorate') }}</label>
-				<select name="governorate_id" class="form-select" required aria-label="{{ __('Governorate') }}">
-					@foreach($governorates as $g)
-						<option value="{{ $g->id }}" {{ $city->governorate_id==$g->id? 'selected':'' }}>{{ $g->name }}</option>
-					@endforeach
-				</select>
-			</div>
-
-			<div class="mb-3">
-				<label class="form-label">{{ __('Name') }}</label>
-				<input name="name" class="form-control" value="{{ $city->name }}" required aria-label="{{ __('Name') }}">
-			</div>
-
-			<div class="form-check form-switch mb-3">
-				<input class="form-check-input" type="checkbox" name="active" id="active" {{ $city->active? 'checked':'' }}>
-				<label class="form-check-label" for="active">{{ __('Active') }}</label>
-			</div>
-		</div>
-
-		<div class="card-footer text-end">
-			<a href="{{ route('admin.cities.index') }}" class="btn btn-secondary me-2">{{ __('Cancel') }}</a>
-			<button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
-		</div>
-	</form>
-</div>
+</section>
 @endsection

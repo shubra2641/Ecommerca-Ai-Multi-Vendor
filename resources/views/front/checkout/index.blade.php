@@ -1,6 +1,7 @@
 @extends('front.layout')
 @section('title', __('Checkout').' - '.config('app.name'))
 @section('content')
+<div id="checkout-root" hidden data-config='{{ $checkoutConfigJson ?? "[]" }}' data-select-governorate="{{ __('Select Governorate') }}" data-select-city="{{ __('Select City') }}" data-select-shipping-company="{{ __('Select Shipping Company') }}" data-currency-symbol="{{ $currency_symbol ?? '$' }}" data-base-total="{{ $displayDiscountedTotal ?? $total }}"></div>
 <section class="products-section products-section--checkout">
     <div class="container container--wide">
         <x-breadcrumb :items="[
@@ -193,7 +194,7 @@
                                 <div id="shipping-days" class="shipping-days small text-muted hidden">
                                     {{ __('Estimated delivery') }}: <span id="shipping-days-display"></span> {{ __('days') }}
                                 </div>
-                                <input type="hidden" name="shipping_cost" id="shipping-cost-input" value="">
+                                <input type="hidden" name="shipping_price" id="shipping-cost-input" value="">
                                 <input type="hidden" name="shipping_estimated_days" id="shipping-days-input" value="">
                             </div>
                         </div>
@@ -307,4 +308,3 @@
     </div>
 </section>
 @endsection
-<div id="checkout-root" hidden data-config='{{ $checkoutConfigJson ?? "[]" }}' data-select-governorate="{{ __('Select Governorate') }}" data-select-city="{{ __('Select City') }}" data-select-shipping-company="{{ __('Select Shipping Company') }}" data-currency-symbol="{{ $currency_symbol ?? '$' }}" data-base-total="{{ $displayDiscountedTotal ?? $total }}"></div>

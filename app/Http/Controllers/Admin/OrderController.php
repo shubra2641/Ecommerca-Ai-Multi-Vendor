@@ -23,7 +23,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load('items.product', 'payments', 'user');
+        $order->load('items.product', 'payments.attachments', 'user', 'shippingAddress', 'shippingZone');
         $customerStats = null;
         if ($order->user) {
             $customerStats = [
@@ -33,7 +33,35 @@ class OrderController extends Controller
             ];
         }
 
-        return view('admin.orders.show', compact('order', 'customerStats'));
+        // Compute address text
+        $aovAddressText = '';
+        if ($order->shippingAddress) {
+            $addr = $order->shippingAddress;
+            $aovAddressText = ($addr->line1 ? $addr->line1 . ', ' : '') .
+                ($addr->line2 ? $addr->line2 . ', ' : '') .
+                ($addr->city ? $addr->city->name . ', ' : '') .
+                ($addr->governorate ? $addr->governorate->name . ', ' : '') .
+                ($addr->country ? $addr->country->name : '');
+        } elseif ($order->shipping_address && is_array($order->shipping_address)) {
+            $addr = $order->shipping_address;
+            $aovAddressText = ($addr['customer_address'] ?? '') . ', ' .
+                ($addr['city'] ?? '') . ', ' .
+                ($addr['governorate'] ?? '') . ', ' .
+                ($addr['country'] ?? '');
+        }
+
+        // Offline payments for actions
+        $aovOfflinePayments = [];
+        foreach ($order->payments as $payment) {
+            if ($payment->method === 'offline') {
+                $aovOfflinePayments[$payment->id] = true;
+            }
+        }
+
+        // First payment note
+        $aovFirstPaymentNote = $order->payments->first()?->note ?? null;
+
+        return view('admin.orders.show', compact('order', 'customerStats', 'aovAddressText', 'aovOfflinePayments', 'aovFirstPaymentNote'));
     }
 
     // Mark a payment as accepted (admin verifies transfer)

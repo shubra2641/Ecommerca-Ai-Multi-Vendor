@@ -50,4 +50,14 @@ class Order extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function shippingAddress()
+    {
+        return $this->belongsTo(Address::class, 'shipping_address_id');
+    }
+
+    public function shippingZone()
+    {
+        return $this->belongsTo(ShippingZone::class, 'shipping_zone_id');
+    }
 }

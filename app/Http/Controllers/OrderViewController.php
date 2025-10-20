@@ -18,6 +18,7 @@ class OrderViewController extends Controller
             'orderShipping' => $vm['shipping'],
             'orderTotal' => $vm['total'],
             'orderAttachments' => $vm['attachments'],
+            'shippingZone' => $order->shipping_zone_id ? \App\Models\ShippingZone::find($order->shipping_zone_id) : null,
         ]);
     }
 }

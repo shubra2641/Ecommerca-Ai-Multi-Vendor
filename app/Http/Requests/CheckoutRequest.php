@@ -26,6 +26,8 @@ class CheckoutRequest extends FormRequest
             // shipping selection (optional)
             'shipping_zone_id' => 'nullable|integer|exists:shipping_zones,id',
             'shipping_price' => 'nullable|numeric|min:0',
+            'selected_address_id' => 'nullable|integer|exists:addresses,id',
+            'shipping_estimated_days' => 'nullable|integer|min:0',
         ];
 
         // Conditional: if selected gateway requires transfer_image, enforce upload
