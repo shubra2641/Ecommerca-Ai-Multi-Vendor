@@ -1,124 +1,297 @@
 @extends('layouts.admin')
+
+@section('title', __('Inventory Report'))
+
 @section('content')
-<div class="container-fluid">
-    <div class="page-header mb-3">
-        <div class="page-header-content">
-            <h1 class="page-title">{{ __('Inventory Report') }}</h1>
+<div class="admin-order-details-modern">
+    <div class="admin-order-wrapper">
+        <!-- Header -->
+        <div class="admin-order-header">
+            <div class="admin-order-title">
+                <h1>
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    {{ __('Inventory Report') }}
+                </h1>
+                <p class="admin-order-subtitle">{{ __('Comprehensive inventory analysis and stock management') }}</p>
+            </div>
+            <div class="header-actions">
+                <a href="{{ route('admin.reports.export', 'inventory') }}" class="admin-btn admin-btn-secondary">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    {{ __('Export Report') }}
+                </a>
+            </div>
+        </div>
+
+        <!-- Enhanced Stats Cards -->
+        <div class="admin-stats-grid">
+            <div class="admin-stat-card admin-stat-primary">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" data-countup data-target="{{ (int)($totals['total_products'] ?? 0) }}">{{ $totals['total_products'] ?? 0 }}</div>
+                    <div class="admin-stat-label">{{ __('Total Products') }}</div>
+                    <div class="admin-stat-description">{{ __('All products in catalog') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <span class="admin-stat-trend admin-stat-trend-up">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                        {{ __('Growing') }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="admin-stat-card admin-stat-success">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M3 3v18h18M7 12l3-3 3 3 5-5" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" data-countup data-target="{{ (int)($totals['manage_stock_count'] ?? 0) }}">{{ $totals['manage_stock_count'] ?? 0 }}</div>
+                    <div class="admin-stat-label">{{ __('Stock Tracked') }}</div>
+                    <div class="admin-stat-description">{{ __('Products with stock management') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <span class="admin-stat-trend admin-stat-trend-up">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                        +{{ number_format((($totals['manage_stock_count'] ?? 0) / max($totals['total_products'] ?? 1, 1)) * 100, 1) }}%
+                    </span>
+                </div>
+            </div>
+
+            <div class="admin-stat-card admin-stat-danger">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" data-countup data-target="{{ (int)($totals['out_of_stock'] ?? 0) }}">{{ $totals['out_of_stock'] ?? 0 }}</div>
+                    <div class="admin-stat-label">{{ __('Out of Stock') }}</div>
+                    <div class="admin-stat-description">{{ __('Products need restocking') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <span class="admin-stat-trend admin-stat-trend-neutral">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        {{ __('Action needed') }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="admin-stat-card admin-stat-warning">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" data-countup data-target="{{ (int)($totals['serials_low'] ?? 0) }}">{{ $totals['serials_low'] ?? 0 }}</div>
+                    <div class="admin-stat-label">{{ __('Low Stock') }}</div>
+                    <div class="admin-stat-description">{{ __('Products with ≤5 items') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <span class="admin-stat-trend admin-stat-trend-neutral">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ __('Monitor closely') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <!-- Products Table -->
+        <div class="admin-modern-card">
+            <div class="admin-card-header">
+                <h2 class="admin-card-title">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    {{ __('Products Inventory') }}
+                </h2>
+                <span class="admin-badge-count">{{ count($products ?? []) }}</span>
+            </div>
+            <div class="admin-card-body">
+                @if(count($products ?? []) > 0)
+                <div class="table-responsive">
+                    <table class="table table-striped admin-table">
+                        <thead>
+                            <tr>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('SKU') }}</th>
+                                <th>{{ __('Name') }}</th>
+                                <th>{{ __('Stock Management') }}</th>
+                                <th>{{ __('Available Stock') }}</th>
+                                <th>{{ __('Serials') }}</th>
+                                <th>{{ __('Unsold Serials') }}</th>
+                                <th>{{ __('Variations') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($products as $p)
+                            <tr>
+                                <td>
+                                    <span class="admin-badge admin-badge-secondary">{{ $p['id'] }}</span>
+                                </td>
+                                <td>
+                                    <code class="admin-code">{{ $p['sku'] }}</code>
+                                </td>
+                                <td>
+                                    <div class="admin-item-name">{{ $p['name'] }}</div>
+                                </td>
+                                <td>
+                                    @if($p['manage_stock'])
+                                    <span class="admin-status-badge admin-status-badge-success">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {{ __('Yes') }}
+                                    </span>
+                                    @else
+                                    <span class="admin-status-badge admin-status-badge-secondary">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                        {{ __('No') }}
+                                    </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($p['available_stock'] === null)
+                                    <span class="admin-status-badge admin-status-badge-info">{{ __('Unlimited') }}</span>
+                                    @else
+                                    <span class="admin-stock-value">{{ $p['available_stock'] }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($p['has_serials'])
+                                    <span class="admin-status-badge admin-status-badge-success">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {{ __('Yes') }}
+                                    </span>
+                                    @else
+                                    <span class="admin-status-badge admin-status-badge-secondary">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                        {{ __('No') }}
+                                    </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="admin-stock-value">{{ $p['unsold_serials'] }}</span>
+                                </td>
+                                <td>
+                                    @if(!empty($p['variations']) && $p['variations']->count() > 0)
+                                    <button class="admin-btn admin-btn-small admin-btn-outline" data-bs-toggle="collapse" data-bs-target="#vars-{{ $p['id'] }}">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path d="M9 5l7 7-7 7" />
+                                        </svg>
+                                        {{ $p['variations']->count() }} {{ __('Variations') }}
+                                    </button>
+                                    <div class="collapse mt-2" id="vars-{{ $p['id'] }}">
+                                        <div class="admin-variations-table">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{{ __('SKU') }}</th>
+                                                        <th>{{ __('Name') }}</th>
+                                                        <th>{{ __('Stock') }}</th>
+                                                        <th>{{ __('Available') }}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($p['variations'] as $v)
+                                                    <tr>
+                                                        <td><code class="admin-code">{{ $v['sku'] }}</code></td>
+                                                        <td>{{ e($v['name']) }}</td>
+                                                        <td>
+                                                            @if($v['manage_stock'])
+                                                            <span class="admin-status-badge admin-status-badge-success">{{ __('Yes') }}</span>
+                                                            @else
+                                                            <span class="admin-status-badge admin-status-badge-secondary">{{ __('No') }}</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($v['available_stock'] === null)
+                                                            <span class="admin-status-badge admin-status-badge-info">{{ __('Unlimited') }}</span>
+                                                            @else
+                                                            <span class="admin-stock-value">{{ $v['available_stock'] }}</span>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    @else
+                                    <span class="admin-text-muted">-</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                <div class="admin-empty-state">
+                    <div class="admin-notification-icon">
+                        <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                    <h3>{{ __('No Products Found') }}</h3>
+                    <p>{{ __('No products available for inventory report.') }}</p>
+                </div>
+                @endif
+            </div>
         </div>
     </div>
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card modern-card stats-card stats-card-primary h-100">
-                <div class="stats-card-body">
-                    <div class="stats-card-content">
-                        <div class="stats-number" data-countup data-target="{{ (int)($totals['total_products'] ?? 0) }}">{{ $totals['total_products'] }}</div>
-                        <div class="stats-label">{{ __('Total Products') }}</div>
-                        <div class="stats-trend">
-                            <i class="fas fa-boxes text-primary"></i>
-                            <span class="text-primary">{{ __('All Products') }}</span>
-                        </div>
-                    </div>
-                    <div class="stats-icon"><i class="fas fa-boxes"></i></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card modern-card stats-card stats-card-success h-100">
-                <div class="stats-card-body">
-                    <div class="stats-card-content">
-                        <div class="stats-number" data-countup data-target="{{ (int)($totals['manage_stock_count'] ?? 0) }}">{{ $totals['manage_stock_count'] }}</div>
-                        <div class="stats-label">{{ __('Manage Stock') }}</div>
-                        <div class="stats-trend">
-                            <i class="fas fa-arrow-up text-success"></i>
-                            <span class="text-success">{{ number_format((($totals['manage_stock_count'] / max($totals['total_products'], 1)) * 100), 1) }}% {{ __('tracked') }}</span>
-                        </div>
-                    </div>
-                    <div class="stats-icon"><i class="fas fa-warehouse"></i></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card modern-card stats-card stats-card-danger h-100">
-                <div class="stats-card-body">
-                    <div class="stats-card-content">
-                        <div class="stats-number" data-countup data-target="{{ (int)($totals['out_of_stock'] ?? 0) }}">{{ $totals['out_of_stock'] }}</div>
-                        <div class="stats-label">{{ __('Out of Stock') }}</div>
-                        <div class="stats-trend">
-                            <i class="fas fa-exclamation-triangle text-danger"></i>
-                            <span class="text-danger">{{ __('Need restocking') }}</span>
-                        </div>
-                    </div>
-                    <div class="stats-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card modern-card stats-card stats-card-warning h-100">
-                <div class="stats-card-body">
-                    <div class="stats-card-content">
-                        <div class="stats-number" data-countup data-target="{{ (int)($totals['serials_low'] ?? 0) }}">{{ $totals['serials_low'] }}</div>
-                        <div class="stats-label">{{ __('Serials low (<=5)') }}</div>
-                        <div class="stats-trend">
-                            <i class="fas fa-clock text-warning"></i>
-                            <span class="text-warning">{{ __('Low inventory') }}</span>
-                        </div>
-                    </div>
-                    <div class="stats-icon"><i class="fas fa-clock"></i></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>{{ __('ID') }}</th>
-                <th>{{ __('SKU') }}</th>
-                <th>{{ __('Name') }}</th>
-                <th>{{ __('Manage Stock') }}</th>
-                <th>{{ __('Available Stock') }}</th>
-                <th>{{ __('Has Serials') }}</th>
-                <th>{{ __('Unsold Serials') }}</th>
-                <th>{{ __('Variations') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($products as $p)
-            <tr>
-                <td>{{ $p['id'] }}</td>
-                <td>{{ $p['sku'] }}</td>
-                <td>{{ $p['name'] }}</td>
-                <td>{{ $p['manage_stock'] ? __('Yes') : __('No') }}</td>
-                <td>{{ $p['available_stock'] === null ? __('Unlimited') : $p['available_stock'] }}</td>
-                <td>{{ $p['has_serials'] ? __('Yes') : __('No') }}</td>
-                <td>{{ $p['unsold_serials'] }}</td>
-                <td>
-                    @if(!empty($p['variations']) && $p['variations']->count() > 0)
-                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#vars-{{ $p['id'] }}">{{ $p['variations']->count() }} {{ __('Variations') }}</button>
-                        <div class="collapse mt-2" id="vars-{{ $p['id'] }}">
-                            <table class="table table-sm table-bordered mb-0">
-                                <thead><tr><th>{{ __('SKU') }}</th><th>{{ __('Name') }}</th><th>{{ __('Manage Stock') }}</th><th>{{ __('Available') }}</th></tr></thead>
-                                <tbody>
-                                    @foreach($p['variations'] as $v)
-                                    <tr>
-                                        <td>{{ $v['sku'] }}</td>
-                                        <td>{{ e($v['name']) }}</td>
-                                        <td>{{ $v['manage_stock'] ? __('Yes') : __('No') }}</td>
-                                        <td>{{ $v['available_stock'] === null ? __('Unlimited') : $v['available_stock'] }}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        -
-                    @endif
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+</div>
 </div>
 @endsection

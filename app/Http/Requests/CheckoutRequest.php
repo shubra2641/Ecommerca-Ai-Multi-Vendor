@@ -23,9 +23,9 @@ class CheckoutRequest extends FormRequest
             'city' => 'nullable|integer',
             'notes' => 'nullable|string|max:2000',
             'gateway' => 'required|string',
-            // shipping selection (optional)
-            'shipping_zone_id' => 'nullable|integer|exists:shipping_zones,id',
-            'shipping_price' => 'nullable|numeric|min:0',
+            // shipping selection (required)
+            'shipping_zone_id' => 'required|integer|exists:shipping_zones,id',
+            'shipping_price' => 'required|numeric|min:0',
             'selected_address_id' => 'nullable|integer|exists:addresses,id',
             'shipping_estimated_days' => 'nullable|integer|min:0',
         ];

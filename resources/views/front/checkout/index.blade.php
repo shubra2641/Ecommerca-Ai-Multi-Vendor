@@ -1,7 +1,7 @@
 @extends('front.layout')
 @section('title', __('Checkout').' - '.config('app.name'))
 @section('content')
-<div id="checkout-root" hidden data-config='{{ $checkoutConfigJson ?? "[]" }}' data-select-governorate="{{ __('Select Governorate') }}" data-select-city="{{ __('Select City') }}" data-select-shipping-company="{{ __('Select Shipping Company') }}" data-currency-symbol="{{ $currency_symbol ?? '$' }}" data-base-total="{{ $displayDiscountedTotal ?? $total }}"></div>
+<div id="checkout-root" hidden data-config='{{ $checkoutConfigJson ?? "[]" }}' data-select-governorate="{{ __('Select Governorate') }}" data-select-city="{{ __('Select City') }}" data-select-shipping-company="{{ __('Select Shipping Company') }}" data-currency-symbol="{{ $currency_symbol }}" data-base-total="{{ $displayDiscountedTotal ?? $total }}"></div>
 <section class="products-section products-section--checkout">
     <div class="container container--wide">
         <x-breadcrumb :items="[

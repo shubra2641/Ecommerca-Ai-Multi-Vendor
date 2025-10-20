@@ -6,7 +6,10 @@
 <section class="order-details-modern">
     <div class="container">
         <div class="order-detail-wrapper">
-
+            <x-breadcrumb :items="[
+            ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
+            ['title' =>  __('Order #') . $order->id . ' - ' . config('app.name')],
+        ]" />
             <!-- Header with Back Button -->
             <div class="order-modern-header">
                 <a href="{{ route('user.orders') }}" class="btn-back-modern">

@@ -2,10 +2,6 @@
 
 @section('title', __('Admin Dashboard'))
 
-@section('breadcrumb')
-<li class="breadcrumb-item active">{{ __('Dashboard') }}</li>
-@endsection
-
 @section('content')
 
 <div class="page-header">

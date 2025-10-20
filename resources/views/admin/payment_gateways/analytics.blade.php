@@ -3,228 +3,248 @@
 @section('title', __('Gateway Analytics'))
 
 @section('content')
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">{{ __('Gateway Analytics') }}</h1>
-            <p class="mb-0 text-muted">{{ __('Detailed performance analytics for payment gateways') }}</p>
-        </div>
-        <div class="btn-group">
-            <select class="form-control" id="periodSelect" data-action="change-period">
-                <option value="7">{{ __('Last 7 Days') }}</option>
-                <option value="30" selected>{{ __('Last 30 Days') }}</option>
-                <option value="90">{{ __('Last 90 Days') }}</option>
-                <option value="365">{{ __('Last Year') }}</option>
-            </select>
-            <button type="button" class="btn btn-primary" data-action="export-analytics">
-                <i class="fas fa-download"></i> {{ __('Export') }}
-            </button>
-            <a href="{{ route('admin.payment-gateways-management.dashboard') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> {{ __('Back') }}
-            </a>
-        </div>
-    </div>
+<section class="admin-order-details-modern">
+    <div class="admin-order-wrapper">
 
-    <!-- Analytics Overview -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                {{ __('Total Transactions') }}
+        <!-- Header Section -->
+        <div class="admin-order-header">
+            <div class="header-left">
+                <h1 class="admin-order-title">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    {{ __('Gateway Analytics') }}
+                </h1>
+                <p class="admin-order-subtitle">{{ __('Detailed performance analytics for payment gateways') }}</p>
+            </div>
+            <div class="header-actions">
+                <select class="admin-form-select" id="periodSelect" data-action="change-period">
+                    <option value="7">{{ __('Last 7 Days') }}</option>
+                    <option value="30" selected>{{ __('Last 30 Days') }}</option>
+                    <option value="90">{{ __('Last 90 Days') }}</option>
+                    <option value="365">{{ __('Last Year') }}</option>
+                </select>
+                <button type="button" class="admin-btn admin-btn-primary" data-action="export-analytics">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    {{ __('Export') }}
+                </button>
+                <a href="{{ route('admin.payment-gateways-management.dashboard') }}" class="admin-btn admin-btn-secondary">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    {{ __('Back') }}
+                </a>
+            </div>
+        </div>
+
+        <!-- Analytics Overview -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    {{ __('Total Transactions') }}
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalTransactions">-</div>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalTransactions">-</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-exchange-alt fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                {{ __('Success Rate') }}
+                            <div class="col-auto">
+                                <i class="fas fa-exchange-alt fa-2x text-gray-300"></i>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="successRate">-</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                {{ __('Total Revenue') }}
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    {{ __('Success Rate') }}
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="successRate">-</div>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRevenue">-</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                {{ __('Avg Transaction') }}
+                            <div class="col-auto">
+                                <i class="fas fa-percentage fa-2x text-gray-300"></i>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="avgTransaction">-</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calculator fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Charts Row -->
-    <div class="row mb-4">
-        <!-- Transaction Volume Chart -->
-    document.addEventListener('DOMContentLoaded', function() {
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">{{ __('Transaction Volume') }}</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">{{ __('Chart Options') }}:</div>
-                            <a class="dropdown-item" href="#" data-action="toggle-chart"
-                                data-chart="volume">{{ __('Toggle Chart Type') }}</a>
-                            <a class="dropdown-item" href="#" data-action="download-chart"
-                                data-chart="volume">{{ __('Download Chart') }}</a>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    {{ __('Total Revenue') }}
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRevenue">-</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="chart-area">
-                        <canvas id="volumeChart"></canvas>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    {{ __('Avg Transaction') }}
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="avgTransaction">-</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calculator fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Gateway Comparison -->
-        <div class="col-xl-4 col-lg-5">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">{{ __('Gateway Comparison') }}</h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-pie pt-4 pb-2">
-                        <canvas id="gatewayChart"></canvas>
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <!-- Transaction Volume Chart -->
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ __('Transaction Volume') }}</h6>
+                        <div class="dropdown no-arrow">
+                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                aria-labelledby="dropdownMenuLink">
+                                <div class="dropdown-header">{{ __('Chart Options') }}:</div>
+                                <a class="dropdown-item" href="#" data-action="toggle-chart"
+                                    data-chart="volume">{{ __('Toggle Chart Type') }}</a>
+                                <a class="dropdown-item" href="#" data-action="download-chart"
+                                    data-chart="volume">{{ __('Download Chart') }}</a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mt-4 text-center small" id="gatewayLegend">
-                        <!-- Legend will be populated by JavaScript -->
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="volumeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gateway Comparison -->
+            <div class="col-xl-4 col-lg-5">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ __('Gateway Comparison') }}</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-pie pt-4 pb-2">
+                            <canvas id="gatewayChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-center small" id="gatewayLegend">
+                            <!-- Legend will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Rate Trends -->
+        <div class="row mb-4">
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ __('Success Rate Trends') }}</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="successRateChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ __('Revenue Trends') }}</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Analytics Table -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">{{ __('Gateway Performance Details') }}</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="analyticsTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>{{ __('Gateway') }}</th>
+                                <th>{{ __('Transactions') }}</th>
+                                <th>{{ __('Success Rate') }}</th>
+                                <th>{{ __('Failed') }}</th>
+                                <th>{{ __('Pending') }}</th>
+                                <th>{{ __('Revenue') }}</th>
+                                <th>{{ __('Avg Amount') }}</th>
+                                <th>{{ __('Response Time') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analyticsTableBody">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Analysis -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">{{ __('Error Analysis') }}</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="chart-bar">
+                            <canvas id="errorChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="list-group" id="errorList">
+                            <!-- Error list will be populated by JavaScript -->
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Success Rate Trends -->
-    <div class="row mb-4">
-        <div class="col-lg-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">{{ __('Success Rate Trends') }}</h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-area">
-                        <canvas id="successRateChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">{{ __('Revenue Trends') }}</h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-area">
-                        <canvas id="revenueChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detailed Analytics Table -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">{{ __('Gateway Performance Details') }}</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="analyticsTable" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>{{ __('Gateway') }}</th>
-                            <th>{{ __('Transactions') }}</th>
-                            <th>{{ __('Success Rate') }}</th>
-                            <th>{{ __('Failed') }}</th>
-                            <th>{{ __('Pending') }}</th>
-                            <th>{{ __('Revenue') }}</th>
-                            <th>{{ __('Avg Amount') }}</th>
-                            <th>{{ __('Response Time') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody id="analyticsTableBody">
-                        <!-- Data will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Error Analysis -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">{{ __('Error Analysis') }}</h6>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="chart-bar">
-                        <canvas id="errorChart"></canvas>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="list-group" id="errorList">
-                        <!-- Error list will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-@endsection
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Analytics JavaScript code will be added here
+            console.log('Analytics page loaded');
+        });
+    </script>
+    @endsection

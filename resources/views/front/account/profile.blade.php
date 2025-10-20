@@ -7,6 +7,10 @@
         @include('front.account._sidebar')
         <main class="account-main">
             <div class="profile-panels">
+                <x-breadcrumb :items="[
+            ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
+            ['title' =>  __('Profile') . ' - ' . config('app.name')],
+        ]" />
                 <h1 class="page-title">{{ __('Profile') }}</h1>
                 <p class="page-sub">{{ __('View & Update Your Personal and Contact Information') }}</p>
                 <div class="profile-layout">
@@ -71,7 +75,8 @@
                                         <div class="field">
                                             <label>&nbsp;</label>
                                             <div class="muted small">
-                                                {{ __('Leave password fields empty to keep current password.') }}</div>
+                                                {{ __('Leave password fields empty to keep current password.') }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -85,7 +90,8 @@
                         <div class="user-card">
                             <div class="profile-header">
                                 <div class="avatar">
-                                    {{ strtoupper(substr(auth()->user()->name ?? auth()->user()->email,0,1)) }}</div>
+                                    {{ strtoupper(substr(auth()->user()->name ?? auth()->user()->email,0,1)) }}
+                                </div>
                                 <div class="user-meta">
                                     <div class="user-line">{{ auth()->user()->name ?? __('User') }}</div>
                                     <div class="muted">{{ auth()->user()->email }}</div>
@@ -100,7 +106,7 @@
                                         class="muted">›</span></a>
                             </div>
                         </div>
-                            <div class="panel-block">
+                        <div class="panel-block">
                             <h4>{{ __('Profile Completion') }}</h4>
                             <div class="progress-bar progress-track">
                                 <span data-progress="{{ auth()->user()->profile_completion }}" class="progress-fill"></span>

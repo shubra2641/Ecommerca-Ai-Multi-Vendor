@@ -46,6 +46,11 @@ class Coupon extends Model
         return true;
     }
 
+    public function isValid($total)
+    {
+        return $this->isValidForTotal($total);
+    }
+
     public function applyTo($total)
     {
         if ($this->type === 'percent') {

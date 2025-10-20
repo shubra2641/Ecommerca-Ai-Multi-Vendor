@@ -3,7 +3,12 @@
 @section('content')
 <section class="products-section cart-section">
     <div class="container cart-container">
+        <x-breadcrumb :items="[
+            ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
+            ['title' =>  __('Cart'), 'url' => '#'],
+        ]" />
         <section class="cart-inner">
+
             <div class="panel-card">
                 @if(!count($items))
                 <div class="empty-cart">
@@ -59,43 +64,45 @@
                                             @endif
                                             <input id="qty-input-{{ $loop->index }}" name="lines[{{ $loop->index }}][qty]" type="number" min="1" @if(!is_null($it['available'])) max="{{ $it['available'] }}" @endif value="{{ $it['qty'] }}" class="qty-input" />
                                             @if($it['qty'] < ($it['available'] ?? 999))
-                                            <button type="submit" name="lines[{{ $loop->index }}][qty]" value="{{ $it['qty'] + 1 }}" class="qty-btn qty-increase" aria-label="Increase quantity">+</button>
-                                            @else
-                                            <button type="button" class="qty-btn qty-increase" disabled aria-label="Cannot increase above available stock">+</button>
-                                            @endif
+                                                <button type="submit" name="lines[{{ $loop->index }}][qty]" value="{{ $it['qty'] + 1 }}" class="qty-btn qty-increase" aria-label="Increase quantity">+</button>
+                                                @else
+                                                <button type="button" class="qty-btn qty-increase" disabled aria-label="Cannot increase above available stock">+</button>
+                                                @endif
                                         </div>
                                         <button type="submit" class="btn btn-sm btn-outline">Update</button>
                                     </form>
-                                    
+
                                     {{-- Remove Item Form --}}
                                     <form action="{{ route('cart.remove') }}" method="post" class="remove-form">@csrf
                                         <input type="hidden" name="cart_key" value="{{ $it['cart_key'] }}">
                                         <button type="submit" class="circle-btn icon-btn remove-btn" aria-label="Remove item">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 3v1H4v2h16V4h-5V3H9zm1 5v9h2V8H10zm4 0v9h2V8h-2zM7 8v9h2V8H7z" fill="currentColor"/></svg>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                <path d="M9 3v1H4v2h16V4h-5V3H9zm1 5v9h2V8H10zm4 0v9h2V8h-2zM7 8v9h2V8H7z" fill="currentColor" />
+                                            </svg>
                                         </button>
                                     </form>
-                                    
+
                                     <span class="line-price">{{ $currency_symbol ?? '$' }}{{ number_format($it['display_price'],2) }}</span>
                                     @if(!empty($it['on_sale']))
-                                        <div class="sale-flag">{{ $it['sale_percent'] }}% OFF</div>
+                                    <div class="sale-flag">{{ $it['sale_percent'] }}% OFF</div>
                                     @endif
                                 </div>
                             </div>
 
                             <div class="cart-price">
-                                    <div data-cart-line-price>
-                                        {{ $currency_symbol ?? '$' }}
-                                        {{ number_format($it['display_price'] ?? ($price ?? 0),2) }}
-                                    </div>
-                                    @if(!empty($it['cart_on_sale']))
-                                    <div class="original-price">
-                                        {{ $currency_symbol ?? '$' }}
-                                        {{ number_format($it['display_line_total'] ? ($it['product']->price) : ($it['product']->price),2) }}
-                                    </div>
-                                    <div class="sale-badge">
-                                        {{ $it['cart_sale_percent'] }}% OFF
-                                    </div>
-                                    @endif
+                                <div data-cart-line-price>
+                                    {{ $currency_symbol ?? '$' }}
+                                    {{ number_format($it['display_price'] ?? ($price ?? 0),2) }}
+                                </div>
+                                @if(!empty($it['cart_on_sale']))
+                                <div class="original-price">
+                                    {{ $currency_symbol ?? '$' }}
+                                    {{ number_format($it['display_line_total'] ? ($it['product']->price) : ($it['product']->price),2) }}
+                                </div>
+                                <div class="sale-badge">
+                                    {{ $it['cart_sale_percent'] }}% OFF
+                                </div>
+                                @endif
                             </div>
                         </div>
                         @endforeach
@@ -161,4 +168,3 @@
 @endsection
 
 {{-- JavaScript removed - cart now works without JS --}}
-

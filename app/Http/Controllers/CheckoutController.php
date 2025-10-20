@@ -55,7 +55,7 @@ class CheckoutController extends Controller
         $discount = 0;
         if (session('applied_coupon_id')) {
             $coupon = \App\Models\Coupon::find(session('applied_coupon_id'));
-            if ($coupon && $coupon->isValid()) {
+            if ($coupon && $coupon->isValid($subtotal)) {
                 if ($coupon->type === 'percentage') {
                     $discount = $subtotal * ($coupon->value / 100);
                 } else {

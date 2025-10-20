@@ -3,87 +3,120 @@
 @section('title', __('Add Language'))
 
 @section('content')
-@include('admin.partials.page-header', ['title'=>__('Add Language'),'subtitle'=>__('Create a new language for the system'),'actions'=>'<a href="'.route('admin.languages.index').'" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> '.__('Back to Languages').'</a>'])
-
-<div class="container-fluid">
-
-    <div class="card modern-card">
-        <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-language text-primary"></i>
-                {{ __('Language Information') }}
-            </h3>
+<section class="admin-order-details-modern">
+    <div class="admin-order-wrapper">
+        <!-- Header -->
+        <div class="admin-order-header">
+            <div class="header-left">
+                <div class="admin-header-content">
+                    <div class="admin-header-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                        </svg>
+                    </div>
+                    <div class="admin-header-text">
+                        <h1 class="admin-order-title">{{ __('Add Language') }}</h1>
+                        <p class="admin-order-subtitle">{{ __('Create a new language for the system') }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{{ route('admin.languages.index') }}" class="admin-btn admin-btn-secondary">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    {{ __('Back to Languages') }}
+                </a>
+            </div>
         </div>
-        <div class="card-body">
-            <form action="{{ route('admin.languages.store') }}" method="POST" class="language-form">
-                @csrf
 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="name" class="form-label">{{ __('Language Name') }} <span
-                                class="required">*</span></label>
-                        <input type="text" id="name" name="name"
-                            class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}"
-                            placeholder="{{ __('e.g., English') }}" required>
-                        @error('name')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+        <!-- Language Form -->
+        <div class="admin-modern-card">
+            <div class="admin-card-header">
+                <h2 class="admin-card-title">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                    </svg>
+                    {{ __('Language Information') }}
+                </h2>
+            </div>
+            <div class="admin-card-body">
+                <form action="{{ route('admin.languages.store') }}" method="POST" class="admin-form">
+                    @csrf
+
+                    <div class="admin-form-grid">
+                        <div class="admin-form-group">
+                            <label class="admin-form-label">{{ __('Language Name') }} <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="admin-form-input @error('name') is-invalid @enderror" value="{{ old('name') }}" placeholder="{{ __('e.g., English') }}" required>
+                            @error('name')
+                            <div class="admin-text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="admin-form-group">
+                            <label class="admin-form-label">{{ __('Language Code') }} <span class="text-danger">*</span></label>
+                            <input type="text" name="code" class="admin-form-input @error('code') is-invalid @enderror" value="{{ old('code') }}" placeholder="{{ __('e.g., en') }}" maxlength="2" required>
+                            <div class="admin-text-muted small">{{ __('2-letter ISO language code') }}</div>
+                            @error('code')
+                            <div class="admin-text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="admin-form-group">
+                            <label class="admin-form-label">{{ __('Flag Emoji') }}</label>
+                            <input type="text" name="flag" class="admin-form-input @error('flag') is-invalid @enderror" value="{{ old('flag') }}" placeholder="{{ __('e.g., 🇺🇸') }}" maxlength="10">
+                            <div class="admin-text-muted small">{{ __('Optional flag emoji for visual identification') }}</div>
+                            @error('flag')
+                            <div class="admin-text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="code" class="form-label">{{ __('Language Code') }} <span
-                                class="required">*</span></label>
-                        <input type="text" class="form-control language-code-input @error('code') is-invalid @enderror"
-                            id="code" name="code" value="{{ old('code') }}" placeholder="{{ __('e.g., en') }}"
-                            maxlength="2" required>
-                        @error('code')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="form-text">{{ __('2-letter ISO language code') }}</small>
+                    <div class="admin-form-grid">
+                        <div class="admin-form-group">
+                            <div class="form-check">
+                                <input type="checkbox" name="is_active" id="is_active" class="form-check-input" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="is_active">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="me-2">
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {{ __('Active') }}
+                                </label>
+                            </div>
+                            <div class="admin-text-muted small">{{ __('Whether this language is available for use') }}</div>
+                        </div>
+
+                        <div class="admin-form-group">
+                            <div class="form-check">
+                                <input type="checkbox" name="is_default" id="is_default" class="form-check-input" value="1" {{ old('is_default') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="is_default">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="me-2">
+                                        <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                    </svg>
+                                    {{ __('Set as Default Language') }}
+                                </label>
+                            </div>
+                            <div class="admin-text-muted small">{{ __('This will replace the current default language') }}</div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="flag" class="form-label">{{ __('Flag Emoji') }}</label>
-                        <input type="text" id="flag" name="flag"
-                            class="form-control @error('flag') is-invalid @enderror" value="{{ old('flag') }}"
-                            placeholder="{{ __('e.g., 🇺🇸') }}" maxlength="10">
-                        @error('flag')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="form-text">{{ __('Optional flag emoji for visual identification') }}</small>
+                    <div class="admin-flex-end">
+                        <button type="submit" class="admin-btn admin-btn-primary">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M5 13l4 4L19 7" />
+                            </svg>
+                            {{ __('Create Language') }}
+                        </button>
+                        <a href="{{ route('admin.languages.index') }}" class="admin-btn admin-btn-secondary">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            {{ __('Cancel') }}
+                        </a>
                     </div>
-                </div>
-
-                <div class="form-options">
-                    <div class="form-check">
-                        <input type="checkbox" id="is_active" name="is_active" class="form-check-input" value="1"
-                            {{ old('is_active', true) ? 'checked' : '' }}>
-                        <label for="is_active" class="form-check-label">
-                            {{ __('Active') }}
-                        </label>
-                        <small class="form-text">{{ __('Whether this language is available for use') }}</small>
-                    </div>
-
-                    <div class="form-check">
-                        <input type="checkbox" id="is_default" name="is_default" class="form-check-input" value="1"
-                            {{ old('is_default') ? 'checked' : '' }}>
-                        <label for="is_default" class="form-check-label">
-                            {{ __('Set as Default Language') }}
-                        </label>
-                        <small class="form-text">{{ __('This will replace the current default language') }}</small>
-                    </div>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> {{ __('Create Language') }}
-                    </button>
-                    <a href="{{ route('admin.languages.index') }}" class="btn btn-secondary">
-                        {{ __('Cancel') }}
-                    </a>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+</section>
 @endsection

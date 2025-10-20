@@ -13,6 +13,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\CheckMaintenanceMode::class,
         \App\Http\Middleware\ContentSecurityPolicy::class,
         \App\Http\Middleware\Localization::class,
+        \App\Http\Middleware\CurrencyDetection::class,
     ];
 
     protected $middlewareGroups = [

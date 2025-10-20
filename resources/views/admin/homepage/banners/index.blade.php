@@ -1,104 +1,252 @@
 @extends('layouts.admin')
 @section('title', __('Homepage Banners'))
 @section('content')
-<div class="container py-4">
-    <h1 class="h4 mb-3">{{ __('Homepage Banners') }}</h1>
-    <div class="row g-4">
-        <div class="col-lg-8 order-2 order-lg-1">
-            <div class="card shadow-sm">
-                <div class="table-responsive">
-                    <table class="table table-sm align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>#</th>
-                                <th>{{ __('Placement') }}</th>
-                                <th>{{ __('Image') }}</th>
-                                <th>{{ __('Alt Text') }}</th>
-                                <th>{{ __('Enabled') }}</th>
-                                <th>{{ __('Order') }}</th>
-                                <th>{{ __('Actions') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($banners as $banner)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td><code>{{ $banner->placement_key ?: '-' }}</code></td>
-                                <td class="td-w-130">@if($banner->image)<img
-                                        src="{{ asset('storage/'.$banner->image) }}"
-                                        class="img-fluid rounded img-thumb-70" alt="banner">@endif</td>
-                                <td>{{ $banner->alt_text }}</td>
-                                <td>
-                                    @if($banner->enabled)
-                                    <span class="badge bg-success">{{ __('On') }}</span>
-                                    @else
-                                    <span class="badge bg-secondary">{{ __('Off') }}</span>
-                                    @endif
-                                </td>
-                                <td>{{ $banner->sort_order }}</td>
-                                <td class="text-nowrap">
-                                    <form method="POST" action="{{ route('admin.homepage.banners.update',$banner) }}"
-                                        class="d-inline">
-                                        @csrf @method('PUT')
-                                        <input type="hidden" name="sort_order" value="{{ $banner->sort_order }}">
-                                        <input type="hidden" name="enabled" value="{{ $banner->enabled?0:1 }}">
-                                        <button
-                                            class="btn btn-sm btn-outline-secondary">{{ $banner->enabled?__('Disable'):__('Enable') }}</button>
-                                    </form>
-                                    <form method="POST" action="{{ route('admin.homepage.banners.destroy',$banner) }}"
-                                        class="d-inline js-confirm-delete" data-confirm="{{ __('Delete banner?') }}">
-                                        @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-outline-danger">{{ __('Delete') }}</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="7" class="text-center text-muted small">{{ __('No banners yet.') }}</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+<section class="admin-order-details-modern">
+    <div class="admin-order-wrapper">
+        <!-- Header -->
+        <div class="admin-order-header">
+            <div class="header-left">
+                <div class="admin-header-content">
+                    <div class="admin-header-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
+                            <path d="M8 12L12 8L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M12 8V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="admin-header-text">
+                        <h1 class="admin-order-title">{{ __('Homepage Banners') }}</h1>
+                        <p class="admin-order-subtitle">{{ __('Manage homepage banners and promotional content') }}</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-4 order-1 order-lg-2">
-            <form method="POST" action="{{ route('admin.homepage.banners.store') }}" enctype="multipart/form-data"
-                class="card shadow-sm p-3">
-                @csrf
-                <h5 class="mb-3">{{ __('Add Banner') }}</h5>
-                <div class="mb-3"><label class="form-label">{{ __('Image') }}</label><input name="image" type="file"
-                        accept="image/*" required class="form-control"></div>
-                <div class="accordion mb-3" id="bannerLangAcc">
-                    @foreach($activeLanguages as $lang)
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="bn-head-{{ $lang->code }}">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#bn-body-{{ $lang->code }}">{{ strtoupper($lang->code) }}</button>
-                        </h2>
-                        <div id="bn-body-{{ $lang->code }}" class="accordion-collapse collapse"
-                            data-bs-parent="#bannerLangAcc">
-                            <div class="accordion-body">
-                                <div class="mb-2"><label class="form-label small">{{ __('Alt Text') }}</label><input
-                                        name="alt_text_i18n[{{ $lang->code }}]" class="form-control form-control-sm"
-                                        maxlength="120"></div>
+
+        <div class="row">
+            <!-- Banners List -->
+            <div class="col-lg-8 order-2 order-lg-1">
+                <div class="admin-modern-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
+                                <path d="M8 12L12 8L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M12 8V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            {{ __('Banners List') }}
+                        </h3>
+                        <div class="admin-badge-count">{{ $banners->count() }} {{ __('banners') }}</div>
+                    </div>
+                    <div class="admin-card-body">
+                        @if($banners->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>{{ __('Placement') }}</th>
+                                        <th>{{ __('Image') }}</th>
+                                        <th>{{ __('Alt Text') }}</th>
+                                        <th>{{ __('Status') }}</th>
+                                        <th>{{ __('Order') }}</th>
+                                        <th>{{ __('Actions') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($banners as $banner)
+                                    <tr>
+                                        <td>
+                                            <span class="admin-badge">{{ $loop->iteration }}</span>
+                                        </td>
+                                        <td>
+                                            <code class="admin-code">{{ $banner->placement_key ?: '-' }}</code>
+                                        </td>
+                                        <td>
+                                            @if($banner->image)
+                                            <div class="admin-item-placeholder" style="width: 70px; height: 50px;">
+                                                <img src="{{ asset('storage/'.$banner->image) }}"
+                                                    class="img-fluid rounded"
+                                                    alt="banner"
+                                                    style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            @else
+                                            <div class="admin-item-placeholder admin-item-placeholder-gray" style="width: 70px; height: 50px;">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
+                                                    <circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="2" />
+                                                    <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="2" />
+                                                </svg>
+                                            </div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="admin-item-name">{{ $banner->alt_text ?: '-' }}</div>
+                                        </td>
+                                        <td>
+                                            @if($banner->enabled)
+                                            <span class="admin-status-badge admin-status-badge-completed">{{ __('On') }}</span>
+                                            @else
+                                            <span class="admin-status-badge admin-status-badge-warning">{{ __('Off') }}</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="admin-stock-value">{{ $banner->sort_order }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="admin-actions-flex">
+                                                <form method="POST" action="{{ route('admin.homepage.banners.update',$banner) }}" class="d-inline">
+                                                    @csrf @method('PUT')
+                                                    <input type="hidden" name="sort_order" value="{{ $banner->sort_order }}">
+                                                    <input type="hidden" name="enabled" value="{{ $banner->enabled?0:1 }}">
+                                                    <button class="admin-btn admin-btn-small {{ $banner->enabled ? 'admin-btn-warning' : 'admin-btn-success' }}">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            @if($banner->enabled)
+                                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                                                            <path d="M8 12L12 8L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                            @else
+                                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                                                            <path d="M8 12L12 8L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                            @endif
+                                                        </svg>
+                                                        {{ $banner->enabled ? __('Disable') : __('Enable') }}
+                                                    </button>
+                                                </form>
+                                                <form method="POST" action="{{ route('admin.homepage.banners.destroy',$banner) }}"
+                                                    class="d-inline js-confirm" data-confirm="{{ __('Delete banner?') }}">
+                                                    @csrf @method('DELETE')
+                                                    <button class="admin-btn admin-btn-small admin-btn-danger">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <polyline points="3,6 5,6 21,6" stroke="currentColor" stroke-width="2" />
+                                                            <path d="M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6" stroke="currentColor" stroke-width="2" />
+                                                            <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" stroke-width="2" />
+                                                            <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" stroke-width="2" />
+                                                        </svg>
+                                                        {{ __('Delete') }}
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @else
+                        <div class="admin-empty-state">
+                            <div class="admin-notification-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
+                                    <path d="M8 12L12 8L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M12 8V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </div>
+                            <h3>{{ __('No banners yet.') }}</h3>
+                            <p>{{ __('Create your first banner to get started.') }}</p>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Banner Form -->
+            <div class="col-lg-4 order-1 order-lg-2">
+                <div class="admin-modern-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            {{ __('Add Banner') }}
+                        </h3>
+                    </div>
+                    <form method="POST" action="{{ route('admin.homepage.banners.store') }}" enctype="multipart/form-data" class="admin-card-body">
+                        @csrf
+
+                        <div class="admin-form-group">
+                            <label class="admin-form-label">{{ __('Image') }} <span class="text-danger">*</span></label>
+                            <input name="image" type="file" accept="image/*" required class="admin-form-input">
+                            <div class="admin-text-muted">{{ __('Upload banner image') }}</div>
+                        </div>
+
+                        <div class="admin-form-group">
+                            <label class="admin-form-label">{{ __('Placement Key (optional)') }}</label>
+                            <input name="placement_key" class="admin-form-input" maxlength="64" placeholder="flash_sale">
+                            <div class="admin-text-muted">{{ __('Unique identifier for banner placement') }}</div>
+                        </div>
+
+                        <div class="admin-form-group">
+                            <label class="admin-form-label">{{ __('Link URL') }}</label>
+                            <input name="link_url" type="url" class="admin-form-input" placeholder="https://example.com">
+                            <div class="admin-text-muted">{{ __('Optional link when banner is clicked') }}</div>
+                        </div>
+
+                        <div class="admin-form-group">
+                            <label class="admin-form-label">{{ __('Sort Order') }}</label>
+                            <input name="sort_order" type="number" value="100" class="admin-form-input">
+                            <div class="admin-text-muted">{{ __('Lower numbers appear first') }}</div>
+                        </div>
+
+                        <div class="admin-form-group">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="enabled" value="1" checked id="banner_enabled">
+                                <label for="banner_enabled" class="form-check-label">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" />
+                                    </svg>
+                                    {{ __('Enabled') }}
+                                </label>
                             </div>
                         </div>
-                    </div>
-                    @endforeach
+
+                        <!-- Language Accordion -->
+                        <div class="admin-form-group">
+                            <label class="admin-form-label">{{ __('Alt Text (Multi-language)') }}</label>
+                            <div class="accordion" id="bannerLangAcc">
+                                @foreach($activeLanguages as $lang)
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="bn-head-{{ $lang->code }}">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#bn-body-{{ $lang->code }}">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                                                <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
+                                                <path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2Z" stroke="currentColor" stroke-width="2" />
+                                            </svg>
+                                            {{ strtoupper($lang->code) }}
+                                        </button>
+                                    </h2>
+                                    <div id="bn-body-{{ $lang->code }}" class="accordion-collapse collapse"
+                                        data-bs-parent="#bannerLangAcc">
+                                        <div class="accordion-body">
+                                            <div class="admin-form-group">
+                                                <label class="admin-form-label">{{ __('Alt Text') }}</label>
+                                                <input name="alt_text_i18n[{{ $lang->code }}]"
+                                                    class="admin-form-input"
+                                                    maxlength="120"
+                                                    placeholder="{{ __('Enter alt text for') }} {{ $lang->name }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="admin-card-footer">
+                            <div class="admin-flex-end">
+                                <button type="submit" class="admin-btn admin-btn-primary">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    {{ __('Create Banner') }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div class="mb-3"><label class="form-label">{{ __('Placement Key (optional)') }}</label><input
-                        name="placement_key" class="form-control" maxlength="64" placeholder="flash_sale"></div>
-                <div class="mb-3"><label class="form-label">{{ __('Link URL') }}</label><input name="link_url"
-                        type="url" class="form-control"></div>
-                <div class="mb-3"><label class="form-label">{{ __('Sort Order') }}</label><input name="sort_order"
-                        type="number" value="100" class="form-control"></div>
-                <div class="form-check form-switch mb-3"><input type="checkbox" class="form-check-input" name="enabled"
-                        value="1" checked id="banner_enabled"><label for="banner_enabled"
-                        class="form-check-label">{{ __('Enabled') }}</label></div>
-                <button class="btn btn-primary w-100">{{ __('Create Banner') }}</button>
-            </form>
+            </div>
         </div>
     </div>
-</div>
+</section>
 @endsection
