@@ -4,17 +4,22 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductRequest;
+use App\Mail\ProductApproved;
+use App\Mail\ProductRejected;
 use App\Models\Product;
-use App\Models\ProductCategory;
-use App\Models\ProductTag;
 use App\Models\ProductAttribute;
-use App\Models\ProductVariation;
+use App\Models\ProductCategory;
 use App\Models\ProductSerial;
+use App\Models\ProductTag;
+use App\Models\ProductVariation;
 use App\Models\User;
-use App\Services\HtmlSanitizer;
+use App\Notifications\AdminStockLowNotification;
 use App\Services\AI\SimpleAIService;
+use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -105,8 +110,12 @@ class ProductController extends Controller
             Product::with('category')->chunk(200, function ($products) use ($out) {
                 foreach ($products as $product) {
                     fputcsv($out, [
-                        $product->id, $product->name, $product->sku, $product->price,
-                        $product->stock_qty ?? 0, $product->category?->name,
+                        $product->id,
+                        $product->name,
+                        $product->sku,
+                        $product->price,
+                        $product->stock_qty ?? 0,
+                        $product->category?->name,
                         $product->active ? 'Active' : 'Inactive',
                     ]);
                 }
@@ -129,8 +138,12 @@ class ProductController extends Controller
             ProductVariation::with('product')->chunk(200, function ($variations) use ($out) {
                 foreach ($variations as $variation) {
                     fputcsv($out, [
-                        $variation->product_id, $variation->product?->name, $variation->id,
-                        $variation->sku, $variation->price, $variation->stock_qty ?? 0,
+                        $variation->product_id,
+                        $variation->product?->name,
+                        $variation->id,
+                        $variation->sku,
+                        $variation->price,
+                        $variation->stock_qty ?? 0,
                     ]);
                 }
             });
@@ -343,7 +356,7 @@ class ProductController extends Controller
                 try {
                     $admins = User::where('role', 'admin')->get();
                     if ($admins->count()) {
-                        \Illuminate\Support\Facades\Notification::sendNow($admins, new \App\Notifications\AdminStockLowNotification($product, $available));
+                        Notification::sendNow($admins, new AdminStockLowNotification($product, $available));
                     }
                 } catch (\Throwable $e) {
                     // Silent fail
@@ -354,9 +367,9 @@ class ProductController extends Controller
         if ($oldActive !== null && $oldActive !== $product->active && $product->vendor) {
             try {
                 if ($product->active) {
-                    \Illuminate\Support\Facades\Mail::to($product->vendor->email)->queue(new \App\Mail\ProductApproved($product));
+                    Mail::to($product->vendor->email)->queue(new ProductApproved($product));
                 } else {
-                    \Illuminate\Support\Facades\Mail::to($product->vendor->email)->queue(new \App\Mail\ProductRejected($product, null));
+                    Mail::to($product->vendor->email)->queue(new ProductRejected($product, null));
                 }
             } catch (\Throwable $e) {
                 // Silent fail
