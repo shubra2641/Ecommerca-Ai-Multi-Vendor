@@ -31,7 +31,6 @@ use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\InvoicePdfController;
 use App\Http\Controllers\User\InvoicesController;
 use App\Http\Controllers\User\OrdersController;
-use App\Http\Controllers\User\ProfileController as UserProfileController;
 use App\Http\Controllers\User\ReturnsController;
 use App\Http\Controllers\Vendor\OrderController as VendorOrderController;
 use App\Http\Controllers\WishlistController;
@@ -182,8 +181,8 @@ Route::middleware('auth')->prefix('account')->name('user.')->group(function () {
     // Returns
     Route::get('/returns', [ReturnsController::class, 'index'])->name('returns.index');
     Route::post('/returns/{item}/request', [ReturnsController::class, 'request'])->name('returns.request');
-    Route::get('/profile', [UserProfileController::class, 'show'])->name('profile');
-    Route::put('/profile', [UserProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/invoices', [InvoicesController::class, 'index'])->name('invoices');
     Route::get('/addresses', [AddressesController::class, 'index'])->name('addresses');
     Route::post('/addresses', [AddressesController::class, 'store'])->name('addresses.store');

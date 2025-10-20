@@ -23,7 +23,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $role = $this->getUserRole($user);
-        
+
         return $this->getProfileView($role, $user);
     }
 
@@ -34,10 +34,10 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $role = $this->getUserRole($user);
-        
+
         $data = $this->validateProfileData($request, $user, $role);
         $this->updateUserProfile($user, $data, $role);
-        
+
         return $this->getRedirectResponse($role);
     }
 
@@ -48,10 +48,10 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $role = $this->getUserRole($user);
-        
+
         $this->validatePassword($request);
         $this->updateUserPassword($user, $request->password);
-        
+
         return $this->getPasswordRedirectResponse($role);
     }
 
@@ -62,7 +62,7 @@ class ProfileController extends Controller
     {
         $this->validateSettings($request);
         $this->saveSettings($request, $sanitizer);
-        
+
         return redirect()->route('admin.settings.index')
             ->with('success', __('Settings updated successfully'));
     }
@@ -82,7 +82,7 @@ class ProfileController extends Controller
     {
         $this->validateDeletion($request);
         $this->deleteUser($request->user());
-        
+
         return Redirect::to('/');
     }
 
@@ -91,15 +91,13 @@ class ProfileController extends Controller
      */
     private function getUserRole($user): string
     {
-        if ($user->hasRole('admin')) {
-            return 'admin';
-        }
+        $role = $user->role ?? 'user';
         
-        if ($user->hasRole('vendor')) {
-            return 'vendor';
-        }
-        
-        return 'user';
+        return match ($role) {
+            'admin' => 'admin',
+            'vendor' => 'vendor',
+            default => 'user',
+        };
     }
 
     /**
@@ -142,23 +140,23 @@ class ProfileController extends Controller
     {
         $user->name = $data['name'];
         $user->email = $data['email'];
-        
+
         if (isset($data['phone_number'])) {
             $user->phone_number = $data['phone_number'];
         }
-        
+
         if ($role === 'user' && isset($data['whatsapp_number'])) {
             $user->whatsapp_number = $data['whatsapp_number'];
         }
-        
+
         if ($role === 'user' && !empty($data['password'])) {
             $user->password = Hash::make($data['password']);
         }
-        
+
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
-        
+
         $user->save();
     }
 
@@ -200,10 +198,10 @@ class ProfileController extends Controller
     private function saveSettings(Request $request, HtmlSanitizer $sanitizer): void
     {
         $setting = \App\Models\Setting::first() ?? new \App\Models\Setting();
-        
+
         $setting->site_name = $sanitizer->clean($request->input('site_name'));
-        $setting->site_description = $request->filled('site_description') 
-            ? $sanitizer->clean($request->input('site_description')) 
+        $setting->site_description = $request->filled('site_description')
+            ? $sanitizer->clean($request->input('site_description'))
             : null;
         $setting->timezone = $request->input('timezone');
         $setting->date_format = $request->input('date_format');

@@ -30,7 +30,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\ProductSerialController;
 use App\Http\Controllers\Admin\ProductTagController;
-use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\ReturnsController;
 use App\Http\Controllers\Admin\SendNotificationController;
