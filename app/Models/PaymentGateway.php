@@ -10,8 +10,12 @@ class PaymentGateway extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'slug', 'driver', 'enabled',
-        'requires_transfer_image', 'transfer_instructions',
+        'name',
+        'slug',
+        'driver',
+        'enabled',
+        'requires_transfer_image',
+        'transfer_instructions',
         'config',
     ];
 
