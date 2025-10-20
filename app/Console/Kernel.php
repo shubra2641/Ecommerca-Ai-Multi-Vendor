@@ -13,10 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \App\Console\Commands\NormalizeReturnImages::class,
-        \App\Console\Commands\BackfillNotifications::class,
         \App\Console\Commands\CleanupVendorExports::class,
-        \App\Console\Commands\MigrateFreshProfiled::class,
     ];
 
     /**
