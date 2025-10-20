@@ -47,7 +47,7 @@
         <link rel="preload" href="{{ asset('assets/admin/js/admin.js') }}" as="script">
         <script src="{{ asset('assets/front/js/flash.js') }}"></script>
         <script src="{{ asset('assets/admin/js/admin.js') }}"></script>
-        <script src="{{ asset('assets/admin/js/simple-charts.js') }}"></script>
+        <script src="{{ asset('assets/admin/js/super-simple-charts.js') }}"></script>
 
 </body>
 
