@@ -8,6 +8,8 @@ use App\Models\Setting;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -83,7 +85,7 @@ class SettingsController extends Controller
             cache()->forget('settings.maintenance_reopen_at');
             cache()->forget('maintenance_settings');
             // Clear view cache
-            \Artisan::call('view:clear');
+            Artisan::call('view:clear');
         }
 
         $setting = Setting::first();
@@ -182,11 +184,11 @@ class SettingsController extends Controller
         // Persist maintenance state to cache for fast checks
         if (array_key_exists('maintenance_enabled', $data)) {
             cache()->put('settings.maintenance_enabled', (bool) $data['maintenance_enabled'], 3600);
-            \Cache::forget('maintenance_settings'); // invalidate cached Setting used by CheckMaintenanceMode
+            Cache::forget('maintenance_settings'); // invalidate cached Setting used by CheckMaintenanceMode
         }
         if (isset($data['maintenance_reopen_at'])) {
             cache()->put('settings.maintenance_reopen_at', $data['maintenance_reopen_at'], 3600);
-            \Cache::forget('maintenance_settings');
+            Cache::forget('maintenance_settings');
         }
 
         // Dispatch event for runtime adjustments (optional listener can recompile CSS, etc.)
@@ -352,5 +354,25 @@ class SettingsController extends Controller
     private function looksLikeJsonArray(string $v): bool
     {
         return str_starts_with($v, '[') && str_ends_with($v, ']');
+    }
+
+    /**
+     * Delete logo
+     */
+    public function deleteLogo(): RedirectResponse
+    {
+        $setting = Setting::first();
+        
+        if ($setting && $setting->logo) {
+            // Delete old logo file
+            Storage::disk('public')->delete($setting->logo);
+            
+            // Update setting
+            $setting->update(['logo' => null]);
+            
+            return redirect()->back()->with('success', __('Logo deleted successfully.'));
+        }
+        
+        return redirect()->back()->with('error', __('No logo found to delete.'));
     }
 }

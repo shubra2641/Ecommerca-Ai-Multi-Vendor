@@ -273,7 +273,7 @@ Route::middleware([
     Route::prefix('settings')->name('admin.settings.')->group(function () {
         Route::get('/', [SettingsController::class, 'index'])->name('index');
         Route::put('/', [SettingsController::class, 'update'])->name('update');
-        Route::delete('/logo/delete', [GalleryController::class, 'deleteLogo'])
+        Route::delete('/logo', [SettingsController::class, 'deleteLogo'])
             ->name('logo.delete');
     });
 
@@ -415,7 +415,7 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
     ->group(function () {
         Route::resource('product-categories', ProductCategoryController::class);
         // AI assist endpoint for product categories (generate description + SEO)
-        Route::match(['get','post','put'],'product-categories/ai/suggest', [ProductCategoryController::class, 'aiSuggest'])
+        Route::match(['get', 'post', 'put'], 'product-categories/ai/suggest', [ProductCategoryController::class, 'aiSuggest'])
             ->name('product-categories.ai.suggest');
         Route::get('product-categories/export', [ProductCategoryController::class, 'export'])
             ->name('product-categories.export');
