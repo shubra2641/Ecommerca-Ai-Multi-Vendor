@@ -87,12 +87,14 @@ class CartService
         foreach ($cart as $key => $row) {
             $product = Product::find(explode(':', $key)[0]);
             if ($product) {
+                $lineTotal = $row['price'] * $row['qty'];
                 $items[] = [
                     'product' => $product,
                     'qty' => $row['qty'],
                     'price' => $row['price'],
                     'display_price' => $row['price'],
-                    'line_total' => $row['price'] * $row['qty'],
+                    'line_total' => $lineTotal,
+                    'display_line_total' => $lineTotal,
                     'cart_key' => $key,
                     'available' => $this->getAvailableStock($product, $key),
                 ];
