@@ -26,7 +26,9 @@
                     <button id="adminNotificationsBtn" class="header-btn notification-btn dropdown-toggle"
                         data-bs-toggle="dropdown">
                         <i class="fas fa-bell"></i>
-                        <span id="adminNotificationBadge" class="notification-badge envato-hidden">0</span>
+                        @if($adminUnreadCount > 0)
+                        <span class="notification-badge">{{ $adminUnreadCount }}</span>
+                        @endif
                     </button>
                     <ul id="adminNotificationsMenu" class="dropdown-menu dropdown-menu-end">
                         <li class="dropdown-header">
@@ -39,14 +41,26 @@
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li id="adminNotificationsPlaceholder">
-                            <div class="px-3 py-2 text-muted">{{ __('notifications.loading') }}</div>
-                        </li>
+                        @if($adminNotifications->count() > 0)
+                            @foreach($adminNotifications as $notification)
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-bell"></i>
+                                    {{ $notification->data['title'] ?? 'Notification' }}
+                                    <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                </a>
+                            </li>
+                            @endforeach
+                        @else
+                            <li>
+                                <div class="px-3 py-2 text-muted">لا توجد إشعارات</div>
+                            </li>
+                        @endif
                         <li>
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <a id="adminNotificationsViewAll" class="dropdown-item text-center"
+                            <a class="dropdown-item text-center"
                                 href="{{ route('admin.notifications.index') ?? '#' }}">
                                 {{ __('notifications.view_all') }}
                             </a>
@@ -61,15 +75,12 @@
                         <span>{{ strtoupper(app()->getLocale()) }}</span>
                     </button>
                     <ul class="dropdown-menu">
-                        @foreach(($dashboardAdminLanguages ?? []) as $lang)
-                            <li>
-                                <a class="dropdown-item" href="{{ route('admin.language.switch', [], false) }}?language={{ urlencode($lang->code) }}" role="button">
-                                    @if(!empty($lang->flag))
-                                        <i class="flag-icon flag-icon-{{ e($lang->flag) }}"></i>
-                                    @endif
-                                    {{ $lang->name }}
-                                </a>
-                            </li>
+                        @foreach($dashboardAdminLanguages as $lang)
+                        <li>
+                            <a class="dropdown-item" href="?language={{ $lang->code }}">
+                                {{ $lang->name }}
+                            </a>
+                        </li>
                         @endforeach
                     </ul>
                 </div>

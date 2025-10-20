@@ -118,6 +118,7 @@ class AppServiceProvider extends ServiceProvider
         });
         View::composer('admin.footer.settings', \App\View\Composers\AdminFooterSettingsComposer::class);
         View::composer('admin.dashboard-admin', \App\View\Composers\AdminDashboardAdminComposer::class);
+        View::composer('admin.top-header', \App\View\Composers\AdminDashboardAdminComposer::class);
         View::composer('admin.blog.posts.create', \App\View\Composers\AdminBlogPostCreateComposer::class);
         View::composer('admin.blog.posts.edit', \App\View\Composers\AdminBlogPostEditComposer::class);
 

@@ -9,12 +9,18 @@ class AdminDashboardAdminComposer
 {
     public function compose(View $view): void
     {
-        // Provide active languages list (was inline in dashboard-admin layout)
-        try {
-            $languages = Language::where('is_active', 1)->orderByDesc('is_default')->orderBy('name')->get();
-        } catch (\Throwable $e) {
-            $languages = collect();
-        }
-        $view->with('dashboardAdminLanguages', $languages);
+        // Languages
+        $languages = Language::where('is_active', 1)->get();
+
+        // Notifications
+        $user = auth()->user();
+        $notifications = $user ? $user->notifications()->latest()->take(5)->get() : collect();
+        $unreadCount = $user ? $user->unreadNotifications()->count() : 0;
+
+        $view->with([
+            'dashboardAdminLanguages' => $languages,
+            'adminNotifications' => $notifications,
+            'adminUnreadCount' => $unreadCount,
+        ]);
     }
 }
