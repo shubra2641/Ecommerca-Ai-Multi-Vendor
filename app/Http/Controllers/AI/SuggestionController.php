@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 
 class SuggestionController extends Controller
 {
-    public function __construct(private SimpleAIService $ai)
-    {
-    }
+    public function __construct(private SimpleAIService $ai) {}
 
     public function blogPost(Request $request)
     {
