@@ -16,11 +16,6 @@ class NotificationService
             'total' => $user->notifications()->count(),
             'unread' => $user->unreadNotifications()->count(),
             'read' => $user->readNotifications()->count(),
-            'today' => $user->notifications()->whereDate('created_at', today())->count(),
-            'this_week' => $user->notifications()->whereBetween('created_at', [
-                now()->startOfWeek(),
-                now()->endOfWeek()
-            ])->count(),
         ];
     }
 

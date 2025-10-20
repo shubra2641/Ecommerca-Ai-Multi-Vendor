@@ -126,45 +126,24 @@ class BalanceService
      */
     public function handleBulkOperation(array $userIds, string $operation, float $amount, string $note = null, int $adminId = null): array
     {
-        $results = [];
         $successCount = 0;
         $errorCount = 0;
 
         foreach ($userIds as $userId) {
             try {
                 $user = User::findOrFail($userId);
-
+                
                 if ($operation === 'add') {
-                    $result = $this->addBalance($user, $amount, $note, $adminId);
+                    $this->addBalance($user, $amount, $note, $adminId);
                 } else {
                     $result = $this->deductBalance($user, $amount, $note, $adminId);
+                    if (!$result['success']) {
+                        $errorCount++;
+                        continue;
+                    }
                 }
-
-                if ($result['success']) {
-                    $results[] = [
-                        'user_id' => $userId,
-                        'user_name' => $user->name,
-                        'success' => true,
-                        'message' => __('Balance updated successfully'),
-                        'new_balance' => $result['new_balance']
-                    ];
-                    $successCount++;
-                } else {
-                    $results[] = [
-                        'user_id' => $userId,
-                        'user_name' => $user->name,
-                        'success' => false,
-                        'message' => $result['message']
-                    ];
-                    $errorCount++;
-                }
+                $successCount++;
             } catch (\Exception $e) {
-                $results[] = [
-                    'user_id' => $userId,
-                    'user_name' => 'Unknown',
-                    'success' => false,
-                    'message' => $e->getMessage()
-                ];
                 $errorCount++;
             }
         }
@@ -175,8 +154,7 @@ class BalanceService
                 'total' => count($userIds),
                 'success' => $successCount,
                 'errors' => $errorCount
-            ],
-            'results' => $results
+            ]
         ];
     }
 }

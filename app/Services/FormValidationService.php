@@ -71,20 +71,8 @@ class FormValidationService
             'name.required' => __('Name is required'),
             'email.required' => __('Email is required'),
             'email.email' => __('Email must be valid'),
-            'phone.max' => __('Phone number is too long'),
             'role.required' => __('Role is required'),
-            'role.in' => __('Invalid role selected'),
             'balance.numeric' => __('Balance must be a number'),
-            'balance.min' => __('Balance cannot be negative'),
-            'price.required' => __('Price is required'),
-            'price.numeric' => __('Price must be a number'),
-            'price.min' => __('Price cannot be negative'),
-            'category_id.required' => __('Category is required'),
-            'category_id.exists' => __('Selected category does not exist'),
-            'site_name.required' => __('Site name is required'),
-            'site_email.required' => __('Site email is required'),
-            'site_email.email' => __('Site email must be valid'),
-            'currency.required' => __('Currency is required'),
         ];
     }
 

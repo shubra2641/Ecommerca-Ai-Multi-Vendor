@@ -96,41 +96,4 @@ abstract class BaseAdminController extends Controller
         ];
     }
 
-    /**
-     * Handle bulk operations
-     */
-    protected function handleBulkOperation(array $items, callable $operation): array
-    {
-        $results = [];
-        $successCount = 0;
-        $errorCount = 0;
-
-        foreach ($items as $item) {
-            try {
-                $result = $operation($item);
-                $results[] = [
-                    'item' => $item,
-                    'success' => true,
-                    'result' => $result
-                ];
-                $successCount++;
-            } catch (\Exception $e) {
-                $results[] = [
-                    'item' => $item,
-                    'success' => false,
-                    'error' => $e->getMessage()
-                ];
-                $errorCount++;
-            }
-        }
-
-        return [
-            'results' => $results,
-            'summary' => [
-                'total' => count($items),
-                'success' => $successCount,
-                'errors' => $errorCount
-            ]
-        ];
-    }
 }
