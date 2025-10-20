@@ -145,6 +145,11 @@ class Product extends Model
         return $this->hasMany(\App\Models\ProductSerial::class);
     }
 
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
     public function scopeActive($q)
     {
         return $q->where('active', 1);
