@@ -24,6 +24,7 @@ class HomeController extends Controller
         $data = [
             'setting' => $setting,
             'categories' => $this->getCategories($sections),
+            'landingCategories' => $this->getCategories($sections), // For blade template
             'brands' => $this->getBrands($sections),
             'parentCategories' => $this->getParentCategories(),
             'latestProducts' => $this->getLatestProducts($sections),
