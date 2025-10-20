@@ -22,6 +22,7 @@ class UserController extends BaseAdminController
     {
         $this->balanceService = $balanceService;
     }
+
     public function index(Request $request)
     {
         $query = User::query();
@@ -68,21 +69,13 @@ class UserController extends BaseAdminController
     public function create()
     {
         $user = new User();
-
         return view('admin.users.form', compact('user'));
     }
 
     public function store(\App\Http\Requests\Admin\StoreUserRequest $request, HtmlSanitizer $sanitizer)
     {
         $validated = $request->validated();
-
-        // sanitize basic string fields
-        if (isset($validated['name']) && is_string($validated['name'])) {
-            $validated['name'] = $sanitizer->clean($validated['name']);
-        }
-        if (isset($validated['email']) && is_string($validated['email'])) {
-            $validated['email'] = $sanitizer->clean($validated['email']);
-        }
+        $this->sanitizeUserData($validated, $sanitizer);
 
         User::create([
             'name' => $validated['name'],
@@ -111,14 +104,7 @@ class UserController extends BaseAdminController
     public function update(\App\Http\Requests\Admin\UpdateUserRequest $request, User $user, HtmlSanitizer $sanitizer)
     {
         $validated = $request->validated();
-
-        // sanitize
-        if (isset($validated['name']) && is_string($validated['name'])) {
-            $validated['name'] = $sanitizer->clean($validated['name']);
-        }
-        if (isset($validated['email']) && is_string($validated['email'])) {
-            $validated['email'] = $sanitizer->clean($validated['email']);
-        }
+        $this->sanitizeUserData($validated, $sanitizer);
 
         $data = [
             'name' => $validated['name'],
@@ -130,7 +116,7 @@ class UserController extends BaseAdminController
             'approved_at' => isset($validated['approved']) ? now() : null,
         ];
 
-        if (! empty($validated['password'])) {
+        if (!empty($validated['password'])) {
             $data['password'] = Hash::make($validated['password']);
         }
 
@@ -154,14 +140,12 @@ class UserController extends BaseAdminController
     public function approve(User $user)
     {
         $user->update(['approved_at' => now()]);
-
         return redirect()->back()->with('success', __('User approved successfully.'));
     }
 
     public function pending()
     {
         $users = User::whereNull('approved_at')->latest()->paginate(15);
-
         return view('admin.users.pending', compact('users'));
     }
 
@@ -188,7 +172,6 @@ class UserController extends BaseAdminController
     public function balances()
     {
         $users = User::select('name', 'email', 'role', 'balance')->paginate(20);
-
         return view('admin.balances.index', compact('users'));
     }
 
@@ -199,42 +182,10 @@ class UserController extends BaseAdminController
 
         if ($format === 'pdf') {
             $pdf = Pdf::loadView('exports.balances', compact('users'));
-
             return $pdf->download('user_balances.pdf');
         }
 
         return Excel::download(new UsersBalanceExport($users), 'user_balances.xlsx');
-    }
-
-    protected function getValidationRules(?User $user = null): array
-    {
-        $rules = [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . ($user ? $user->id : ''),
-            'phone' => 'nullable|string|max:20',
-            'whatsapp_number' => 'nullable|string|max:20',
-            'password' => ($user ? 'nullable' : 'required') . '|string|min:8',
-            'role' => 'required|in:admin,vendor,user',
-            'balance' => 'nullable|numeric|min:0',
-            'approved' => 'nullable|boolean',
-        ];
-
-        return $rules;
-    }
-
-    public function exportExcel()
-    {
-        $users = User::select('name', 'email', 'role', 'balance')->get();
-
-        return Excel::download(new UsersBalanceExport($users), 'users_export.xlsx');
-    }
-
-    public function exportPdf()
-    {
-        $users = User::select('name', 'email', 'role', 'balance')->get();
-        $pdf = Pdf::loadView('exports.balances', compact('users'));
-
-        return $pdf->download('users_export.pdf');
     }
 
     public function bulkApprove(Request $request)
@@ -258,10 +209,8 @@ class UserController extends BaseAdminController
     public function balance(User $user)
     {
         $defaultCurrency = \App\Models\Currency::getDefault();
-
         return view('admin.users.balance', compact('user', 'defaultCurrency'));
     }
-
 
     public function addBalance(AdjustBalanceRequest $request, User $user)
     {
@@ -301,55 +250,6 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    /**
-     * Get user balance statistics via AJAX (Legacy)
-     */
-    public function getBalanceStatsOld(User $user)
-    {
-        $totalAdded = $user->balanceHistories()->whereIn('type', ['credit', 'bonus', 'refund'])->sum('amount');
-        $totalDeducted = $user->balanceHistories()->whereIn('type', ['debit', 'penalty'])->sum('amount');
-        $transactionCount = $user->balanceHistories()->count();
-        $lastTransaction = $user->balanceHistories()->latest()->first();
-
-        // Format values with currency symbol
-        $defaultCurrency = \App\Models\Currency::getDefault();
-        $symbol = $defaultCurrency ? $defaultCurrency->symbol : '';
-        $stats = [
-            'available_balance' => number_format($user->balance, 2) . ' ' . $symbol,
-            'total_added' => number_format($totalAdded, 2) . ' ' . $symbol,
-            'total_deducted' => number_format($totalDeducted, 2) . ' ' . $symbol,
-            'last_updated' => $lastTransaction ?
-                $lastTransaction->created_at->format('Y-m-d H:i:s') :
-                $user->updated_at->format('Y-m-d H:i:s'),
-            'transaction_count' => $transactionCount,
-        ];
-
-        return response()->json([
-            'success' => true,
-            'stats' => $stats,
-        ]);
-    }
-
-    /**
-     * Get user balance history via AJAX (Legacy)
-     */
-    public function getBalanceHistoryOld(User $user)
-    {
-        $balanceHistories = $user->balanceHistories()
-            ->with('admin')
-            ->orderBy('created_at', 'desc')
-            ->limit(50)
-            ->get();
-
-        return view('admin.users.balance-history', [
-            'user' => $user,
-            'balanceHistories' => $balanceHistories
-        ]);
-    }
-
-    /**
-     * Refresh user balance data via AJAX
-     */
     public function refreshBalance(User $user)
     {
         $user->refresh();
@@ -370,19 +270,12 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    /**
-     * Get comprehensive balance statistics
-     */
     public function getBalanceStats(User $user)
     {
         $stats = $this->balanceService->getStats($user);
-
         return $this->successResponse(__('Balance statistics retrieved'), $stats);
     }
 
-    /**
-     * Get balance history with pagination
-     */
     public function getBalanceHistory(User $user, Request $request)
     {
         $params = $this->getPaginationParams($request);
@@ -406,9 +299,6 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    /**
-     * Bulk balance operations
-     */
     public function bulkBalanceOperation(Request $request)
     {
         $request->validate([
@@ -433,5 +323,18 @@ class UserController extends BaseAdminController
             $result,
             $result['success'] ? 200 : 400
         );
+    }
+
+    /**
+     * Sanitize user data
+     */
+    protected function sanitizeUserData(array &$data, HtmlSanitizer $sanitizer)
+    {
+        if (isset($data['name']) && is_string($data['name'])) {
+            $data['name'] = $sanitizer->clean($data['name']);
+        }
+        if (isset($data['email']) && is_string($data['email'])) {
+            $data['email'] = $sanitizer->clean($data['email']);
+        }
     }
 }
