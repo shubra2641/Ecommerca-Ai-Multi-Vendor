@@ -9,9 +9,6 @@
             @endif
             <span class="brand-text">{{ $siteName }}</span>
         </div>
-        <button class="sidebar-toggle" id="sidebarToggle">
-            <i class="fas fa-bars"></i>
-        </button>
     </div>
 
     <div class="sidebar-content">

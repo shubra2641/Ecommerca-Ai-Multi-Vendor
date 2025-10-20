@@ -18,31 +18,16 @@
     // Simple sidebar toggle
     AdminPanel.initSidebar = function () {
         const sidebar = document.getElementById('sidebar');
-        const toggle = document.getElementById('sidebarToggle');
+        const toggle = document.getElementById('mobileMenuToggle');
         const overlay = document.querySelector('.sidebar-overlay');
 
-        if (!sidebar || !toggle) {
-            console.log('❌ Sidebar or toggle not found');
-            console.log('Sidebar:', sidebar);
-            console.log('Toggle:', toggle);
-            return;
-        }
-
-        console.log('✅ Sidebar initialized');
-        console.log('Sidebar element:', sidebar);
-        console.log('Toggle element:', toggle);
+        if (!sidebar || !toggle) return;
 
         // Toggle sidebar
         toggle.addEventListener('click', function (e) {
             e.preventDefault();
-            console.log('🔄 Toggle clicked');
-            console.log('Current sidebar classes:', sidebar.className);
             sidebar.classList.toggle('active');
-            console.log('After toggle sidebar classes:', sidebar.className);
-            if (overlay) {
-                overlay.classList.toggle('active');
-                console.log('Overlay classes:', overlay.className);
-            }
+            if (overlay) overlay.classList.toggle('active');
         });
 
         // Close sidebar when clicking overlay
@@ -142,17 +127,13 @@
 
     // Start when page loads
     function start() {
-        console.log('🚀 Starting AdminPanel...');
         AdminPanel.init();
-        console.log('✅ AdminPanel initialized');
     }
 
     // Initialize
     if (document.readyState === 'loading') {
-        console.log('📄 DOM still loading, waiting...');
         document.addEventListener('DOMContentLoaded', start);
     } else {
-        console.log('📄 DOM already loaded, starting immediately');
         start();
     }
 
