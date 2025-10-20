@@ -21,6 +21,8 @@ class CartService
         return view('front.cart.index', [
             'items' => $items,
             'total' => $total,
+            'displayTotal' => $total,
+            'displayDiscount' => 0,
             'currency_symbol' => '$',
         ]);
     }
