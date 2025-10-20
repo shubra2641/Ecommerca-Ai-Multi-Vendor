@@ -95,5 +95,4 @@ abstract class BaseAdminController extends Controller
             'page' => $request->get('page', 1),
         ];
     }
-
 }

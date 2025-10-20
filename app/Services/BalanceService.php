@@ -132,7 +132,6 @@ class BalanceService
         foreach ($userIds as $userId) {
             try {
                 $user = User::findOrFail($userId);
-                
                 if ($operation === 'add') {
                     $this->addBalance($user, $amount, $note, $adminId);
                 } else {
