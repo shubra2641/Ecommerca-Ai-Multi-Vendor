@@ -34,7 +34,8 @@
                             <div class="address-left">
                                 <div class="address-title">{{ __('Deliver to') }}</div>
                                 <div class="small-muted">
-                                    {{ __('Choose one of your saved addresses or enter a new one') }}</div>
+                                    {{ __('Choose one of your saved addresses or enter a new one') }}
+                                </div>
                             </div>
                             <div class="address-actions"><a href="#addresses-manage"
                                     class="btn btn-sm btn-outline">{{ __('Manage') }}</a></div>
@@ -55,7 +56,8 @@
                                     <div class="address-card-body">
                                         <div class="address-name">{{ $addr->name ?? auth()->user()->name }}</div>
                                         <div class="small-muted">
-                                            {{ $addr->line1 }}{{ $addr->line2 ? ', ' . $addr->line2 : '' }}</div>
+                                            {{ $addr->line1 }}{{ $addr->line2 ? ', ' . $addr->line2 : '' }}
+                                        </div>
                                         <div class="small-muted">{{ $addr->phone }}</div>
                                         @if($addr->is_default)<div class="badge small">{{ __('Default') }}</div>@endif
                                     </div>
@@ -64,7 +66,8 @@
                             </div>
                             @else
                             <div class="small-muted">
-                                {{ __('No saved addresses. Please enter a delivery address below.') }}</div>
+                                {{ __('No saved addresses. Please enter a delivery address below.') }}
+                            </div>
                             @endif
                         </div>
                         <div class="mt-3">
@@ -97,12 +100,13 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">{{ __('Country') }}</label>
-                                    <select name="country" class="form-control" required onchange="this.form.submit()">
+                                    <select name="country" id="country-select" class="form-control" required>
                                         <option value="">{{ __('Select Country') }}</option>
                                         @foreach(\App\Models\Country::where('active',1)->get() as $c)
                                         <option value="{{ $c->id }}"
                                             {{ (old('country', $defaultAddress->country_id ?? auth()->user()->country_id ?? '') == $c->id) ? 'selected' : '' }}>
-                                            {{ $c->name }}</option>
+                                            {{ $c->name }}
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -110,48 +114,56 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">{{ __('Governorate') }}</label>
-                                    <select name="governorate" class="form-control" required onchange="this.form.submit()">
+                                    <select name="governorate" id="governorate-select" class="form-control" required>
                                         <option value="">{{ __('Select Governorate') }}</option>
                                         @if(old('country') || (!empty($defaultAddress) && $defaultAddress->country_id) || (auth()->user() && auth()->user()->country_id))
                                         @php
-                                            $selectedCountry = old('country', $defaultAddress->country_id ?? auth()->user()->country_id ?? '');
-                                            $governorates = \App\Models\Governorate::where('country_id', $selectedCountry)->where('active', 1)->get();
-                                            $selectedGovernorate = old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '');
-                                            
-                                            // Auto-select first governorate if none selected and country is selected
-                                            if (!$selectedGovernorate && $selectedCountry && $governorates->count() > 0) {
-                                                $selectedGovernorate = $governorates->first()->id;
-                                            }
+                                        $selectedCountry = old('country', $defaultAddress->country_id ?? auth()->user()->country_id ?? '');
+                                        $governorates = \App\Models\Governorate::where('country_id', $selectedCountry)->where('active', 1)->get();
+                                        $selectedGovernorate = old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '');
+
+                                        // Auto-select first governorate if none selected and country is selected
+                                        if (!$selectedGovernorate && $selectedCountry && $governorates->count() > 0) {
+                                        $selectedGovernorate = $governorates->first()->id;
+                                        }
                                         @endphp
                                         @foreach($governorates as $gov)
                                         <option value="{{ $gov->id }}"
                                             {{ ($selectedGovernorate == $gov->id) ? 'selected' : '' }}>
-                                            {{ $gov->name }}</option>
+                                            {{ $gov->name }}
+                                        </option>
                                         @endforeach
                                         @endif
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">{{ __('City') }}</label>
-                                    <select name="city" class="form-control" required onchange="this.form.submit()">
+                                    <select name="city" id="city-select" class="form-control" required>
                                         <option value="">{{ __('Select City') }}</option>
                                         @if(old('governorate') || (!empty($defaultAddress) && $defaultAddress->governorate_id) || (auth()->user() && auth()->user()->governorate_id))
                                         @php
-                                            $selectedGovernorate = old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '');
-                                            $cities = \App\Models\City::where('governorate_id', $selectedGovernorate)->where('active', 1)->get();
-                                            $selectedCity = old('city', $defaultAddress->city_id ?? auth()->user()->city_id ?? '');
-                                            
-                                            // Auto-select first city if none selected and governorate is selected
-                                            if (!$selectedCity && $selectedGovernorate && $cities->count() > 0) {
-                                                $selectedCity = $cities->first()->id;
-                                            }
+                                        $selectedGovernorate = old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '');
+                                        $cities = \App\Models\City::where('governorate_id', $selectedGovernorate)->where('active', 1)->get();
+                                        $selectedCity = old('city', $defaultAddress->city_id ?? auth()->user()->city_id ?? '');
+
+                                        // Auto-select first city if none selected and governorate is selected
+                                        if (!$selectedCity && $selectedGovernorate && $cities->count() > 0) {
+                                        $selectedCity = $cities->first()->id;
+                                        }
                                         @endphp
                                         @foreach($cities as $city)
                                         <option value="{{ $city->id }}"
                                             {{ ($selectedCity == $city->id) ? 'selected' : '' }}>
-                                            {{ $city->name }}</option>
+                                            {{ $city->name }}
+                                        </option>
                                         @endforeach
                                         @endif
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">{{ __('Shipping Company') }}</label>
+                                    <select name="shipping_zone_id" id="shipping-zone-select" class="form-control">
+                                        <option value="">{{ __('Select Shipping Company') }}</option>
                                     </select>
                                 </div>
                             </div>
@@ -167,70 +179,23 @@
                                 <label class="form-label">{{ __('Notes') }}</label>
                                 <textarea name="notes" class="form-control" rows="12">{{ old('notes') }}</textarea>
                                 @error('notes') <div class="text-danger small">
-                                    {{ $message }}</div>@enderror
+                                    {{ $message }}
+                                </div>@enderror
                             </div>
-                            {{-- Shipping Cost Calculation --}}
-                            @if(old('city') || (!empty($defaultAddress) && $defaultAddress->city_id) || (auth()->user() && auth()->user()->city_id))
-                            @php
-                                $selectedCountry = old('country', $defaultAddress->country_id ?? auth()->user()->country_id ?? '');
-                                $selectedGovernorate = old('governorate', $defaultAddress->governorate_id ?? auth()->user()->governorate_id ?? '');
-                                $selectedCity = old('city', $defaultAddress->city_id ?? auth()->user()->city_id ?? '');
-                                
-                                // Auto-select first available options if not selected
-                                if ($selectedCountry && !$selectedGovernorate) {
-                                    $governorates = \App\Models\Governorate::where('country_id', $selectedCountry)->where('active', 1)->get();
-                                    if ($governorates->count() > 0) {
-                                        $selectedGovernorate = $governorates->first()->id;
-                                    }
-                                }
-                                
-                                if ($selectedGovernorate && !$selectedCity) {
-                                    $cities = \App\Models\City::where('governorate_id', $selectedGovernorate)->where('active', 1)->get();
-                                    if ($cities->count() > 0) {
-                                        $selectedCity = $cities->first()->id;
-                                    }
-                                }
-                                
-                                // Find shipping rule for the selected location
-                                $shippingRule = \App\Models\ShippingRule::where('active', 1)
-                                    ->where(function($query) use ($selectedCity, $selectedGovernorate, $selectedCountry) {
-                                        $query->where('city_id', $selectedCity)
-                                              ->orWhere(function($q) use ($selectedGovernorate) {
-                                                  $q->where('governorate_id', $selectedGovernorate)
-                                                    ->whereNull('city_id');
-                                              })
-                                              ->orWhere(function($q) use ($selectedCountry) {
-                                                  $q->where('country_id', $selectedCountry)
-                                                    ->whereNull('governorate_id')
-                                                    ->whereNull('city_id');
-                                              });
-                                    })
-                                    ->orderBy('city_id', 'desc') // Prioritize city-specific rules
-                                    ->orderBy('governorate_id', 'desc') // Then governorate-specific
-                                    ->orderBy('country_id', 'desc') // Finally country-specific
-                                    ->first();
-                            @endphp
-                            
-                            @if($shippingRule)
-                            <div class="shipping-info mt-3">
+                            {{-- Shipping Cost Display --}}
+                            <div id="shipping-info" class="shipping-info mt-3 hidden">
                                 <div class="shipping-cost">
-                                    <strong>{{ __('Shipping Cost') }}: {{ $currency_symbol ?? '$' }}{{ number_format($shippingRule->price, 2) }}</strong>
+                                    <strong>{{ __('Shipping Cost') }}: <span id="shipping-cost-display"></span></strong>
                                 </div>
-                                @if($shippingRule->estimated_days)
-                                <div class="shipping-days small text-muted">
-                                    {{ __('Estimated delivery') }}: {{ $shippingRule->estimated_days }} {{ __('days') }}
+                                <div class="shipping-company small text-muted">
+                                    {{ __('Shipping Company') }}: <span id="shipping-company-display"></span>
                                 </div>
-                                @endif
-                                <input type="hidden" name="shipping_cost" value="{{ $shippingRule->price }}">
+                                <div id="shipping-days" class="shipping-days small text-muted hidden">
+                                    {{ __('Estimated delivery') }}: <span id="shipping-days-display"></span> {{ __('days') }}
+                                </div>
+                                <input type="hidden" name="shipping_cost" id="shipping-cost-input" value="">
+                                <input type="hidden" name="shipping_estimated_days" id="shipping-days-input" value="">
                             </div>
-                            @else
-                            <div class="shipping-info mt-3">
-                                <div class="alert alert-warning small">
-                                    {{ __('Shipping cost will be calculated at checkout') }}
-                                </div>
-                            </div>
-                            @endif
-                            @endif
                         </div>
                     </div>
                     <div class="panel-card">
@@ -245,14 +210,17 @@
                                     @endif
                                 </div>
                                 <div class="small-muted">{{ $it['qty'] }} ×
-                                    {{ $currency_symbol ?? '$' }}{{ number_format($it['product']->price,2) }}</div>
+                                    {{ $currency_symbol ?? '$' }}{{ number_format($it['product']->price,2) }}
+                                </div>
                             </div>
                             <div class="order-item-price">
-                                {{ $currency_symbol ?? '$' }}{{ number_format($it['lineTotal'],2) }}</div>
+                                {{ $currency_symbol ?? '$' }}{{ number_format($it['lineTotal'],2) }}
+                            </div>
                         </div>
                         @endforeach
                         <div class="mt-2 small text-muted">
-                            {{ __('Get it soon based on shipping option') }}</div>
+                            {{ __('Get it soon based on shipping option') }}
+                        </div>
                     </div>
                     <div class="panel-card">
                         <h3 class="panel-title">{{ __('Payment') }}</h3>
@@ -281,7 +249,8 @@
                         </div>
                         @if(!count($gateways))
                         <div class="alert alert-warning small">
-                            {{ __('No payment gateways available') }}</div>
+                            {{ __('No payment gateways available') }}
+                        </div>
                         @endif
                     </div>
                 </div>
@@ -298,7 +267,7 @@
                                     <span class="product-meta">{{ $it['variant_label'] }}</span>
                                     @endif
                                 </span>
-                                <span>${{ number_format($it['lineTotal'],2) }}</span>
+                                <span>{{ $currency_symbol ?? '$' }}{{ number_format($it['lineTotal'],2) }}</span>
                             </li>
                             @endforeach
                             <li class="summary-line">
@@ -313,7 +282,7 @@
                             @endif
                             <li class="summary-total">
                                 <span>{{ __('Total Incl. VAT') }}</span><span
-                                    class="order-total">${{ number_format($displayDiscountedTotal ?? $total,2) }}</span>
+                                    class="order-total">{{ $currency_symbol ?? '$' }}{{ number_format($displayDiscountedTotal ?? $total,2) }}</span>
                             </li>
                         </ul>
                         <div class="mt-2">
@@ -338,4 +307,4 @@
     </div>
 </section>
 @endsection
-<div id="checkout-root" hidden data-config='{{ e(json_encode($checkoutConfigJson ?? [], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'></div>
+<div id="checkout-root" hidden data-config='{{ $checkoutConfigJson ?? "[]" }}' data-select-governorate="{{ __('Select Governorate') }}" data-select-city="{{ __('Select City') }}" data-select-shipping-company="{{ __('Select Shipping Company') }}" data-currency-symbol="{{ $currency_symbol ?? '$' }}" data-base-total="{{ $displayDiscountedTotal ?? $total }}"></div>

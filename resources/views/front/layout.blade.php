@@ -41,7 +41,7 @@
     </div>
     @include('front.partials.header')
     @include('front.partials.flash')
-     <main class="site-main">
+    <main class="site-main">
         @yield('content')
     </main>
     @includeWhen(View::exists('front.partials.footer_extended'),'front.partials.footer_extended')
@@ -53,12 +53,11 @@
     <!-- Removed local toast test button now that unified notification system is stable -->
     <!-- Essential Dependencies -->
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
-    
+
     <!-- Unified Customer JS - All functionality consolidated -->
     <script src="{{ asset('assets/front/js/front.js') }}"></script>
     <script src="{{ asset('assets/front/js/pwa.js') }}"></script>
     <script src="{{ asset('assets/front/js/flash.js') }}"></script>
-    <script src="{{ asset('assets/front/js/checkout.js') }}"></script>
     @yield('scripts')
 </body>
 

@@ -64,7 +64,7 @@
     }
     // Simple compare badge updater placeholder (other scripts can dispatch window.dispatchEvent(new CustomEvent('compare:update',{detail:{count:n}})))
     function initCompareBadge() {
-        const badge = doc.querySelector('[data-compare-count]');
+        const badge = doc.querySelector('[data-compare_count]');
         if (!badge) {
             return;
         }
@@ -362,6 +362,221 @@
         // No initial update, start with range displayed
     }
 
+    function initCheckoutShipping() {
+        const checkoutRoot = doc.getElementById('checkout-root');
+        const translations = {
+            selectGovernorate: checkoutRoot?.dataset.selectGovernorate || 'Select Governorate',
+            selectCity: checkoutRoot?.dataset.selectCity || 'Select City',
+            selectShippingCompany: checkoutRoot?.dataset.selectShippingCompany || 'Select Shipping Company'
+        };
+        const currencySymbol = checkoutRoot?.dataset.currencySymbol || '$';
+        const baseTotal = parseFloat(checkoutRoot?.dataset.baseTotal || '0') || 0;
+
+        // Get DOM elements
+        const countrySelect = doc.getElementById('country-select');
+        const governorateSelect = doc.getElementById('governorate-select');
+        const citySelect = doc.getElementById('city-select');
+        const shippingZoneSelect = doc.getElementById('shipping-zone-select');
+        const shippingCostDisplay = doc.getElementById('shipping-cost-display');
+        const shippingCompanyDisplay = doc.getElementById('shipping-company-display');
+        const shippingCostInput = doc.getElementById('shipping-cost-input');
+        const shippingDaysInput = doc.getElementById('shipping-days-input');
+        const shippingDaysDiv = doc.getElementById('shipping-days');
+        const shippingDaysDisplay = doc.getElementById('shipping-days-display');
+        const shippingInfo = doc.getElementById('shipping-info');
+
+        if (!countrySelect || !governorateSelect || !citySelect) {
+            return;
+        }
+
+        function clearSelect(select, placeholder) {
+            select.innerHTML = `<option value="">${placeholder}</option>`;
+        }
+
+        function populateSelect(select, options, selectedValue = null) {
+            select.innerHTML = `<option value="">${select.querySelector('option').textContent}</option>`;
+            options.forEach(option => {
+                const opt = doc.createElement('option');
+                opt.value = option.id;
+                opt.textContent = option.name;
+                if (selectedValue && option.id == selectedValue) {
+                    opt.selected = true;
+                }
+                select.appendChild(opt);
+            });
+        }
+
+        function loadGovernorates(countryId) {
+            if (!countryId) {
+                clearSelect(governorateSelect, translations.selectGovernorate || 'Select Governorate');
+                clearSelect(citySelect, translations.selectCity || 'Select City');
+                clearSelect(shippingZoneSelect, translations.selectShippingCompany || 'Select Shipping Company');
+                hideShippingInfo();
+                return;
+            }
+
+            fetch(`/api/locations/governorates?country=${countryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    populateSelect(governorateSelect, data.data);
+                    clearSelect(citySelect, translations.selectCity || 'Select City');
+                    clearSelect(shippingZoneSelect, translations.selectShippingCompany || 'Select Shipping Company');
+                    hideShippingInfo();
+                })
+                .catch(error => console.error('Error loading governorates:', error));
+        }
+
+        function loadCities(governorateId) {
+            if (!governorateId) {
+                clearSelect(citySelect, translations.selectCity || 'Select City');
+                clearSelect(shippingZoneSelect, translations.selectShippingCompany || 'Select Shipping Company');
+                hideShippingInfo();
+                return;
+            }
+
+            fetch(`/api/locations/cities?governorate=${governorateId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data.length > 0) {
+                        populateSelect(citySelect, data.data);
+                        clearSelect(shippingZoneSelect, translations.selectShippingCompany || 'Select Shipping Company');
+                        hideShippingInfo();
+                    } else {
+                        // No cities, load shipping directly for governorate
+                        clearSelect(citySelect, translations.selectCity || 'Select City');
+                        loadShippingOptions(countrySelect.value, governorateId, null);
+                    }
+                })
+                .catch(error => console.error('Error loading cities:', error));
+        }
+
+        function loadShippingOptions(countryId, governorateId = null, cityId = null) {
+            if (!countryId) {
+                hideShippingInfo();
+                return;
+            }
+
+            const params = new URLSearchParams({ country: countryId });
+            if (governorateId) params.append('governorate', governorateId);
+            if (cityId) params.append('city', cityId);
+
+            fetch(`/api/locations/shipping?${params}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data.length === 0) {
+                        clearSelect(shippingZoneSelect, translations.selectShippingCompany || 'Select Shipping Company');
+                        hideShippingInfo();
+                        return;
+                    }
+
+                    populateSelect(shippingZoneSelect, data.data.map(item => ({
+                        id: item.zone_id,
+                        name: `${item.company_name} - ${currencySymbol}${parseFloat(item.price).toFixed(2)}`
+                    })));
+
+                    // Auto-select if only one option
+                    if (data.data.length === 1) {
+                        shippingZoneSelect.value = data.data[0].zone_id;
+                        updateShippingDisplay(data.data[0]);
+                    } else {
+                        hideShippingInfo();
+                    }
+                })
+                .catch(error => console.error('Error loading shipping options:', error));
+        }
+
+        function updateShippingDisplay(shippingOption) {
+            if (!shippingOption) {
+                hideShippingInfo();
+                return;
+            }
+
+            shippingCostDisplay.textContent = `${currencySymbol}${parseFloat(shippingOption.price).toFixed(2)}`;
+            shippingCompanyDisplay.textContent = shippingOption.company_name;
+            shippingCostInput.value = shippingOption.price;
+            shippingDaysInput.value = shippingOption.estimated_days || '';
+
+            if (shippingOption.estimated_days) {
+                shippingDaysDisplay.textContent = shippingOption.estimated_days;
+                shippingDaysDiv.classList.remove('hidden');
+            } else {
+                shippingDaysDiv.classList.add('hidden');
+            }
+
+            shippingInfo.classList.remove('hidden');
+
+            // Update order summary
+            updateOrderSummary(shippingOption.price);
+        }
+
+        function hideShippingInfo() {
+            shippingInfo.classList.add('hidden');
+            shippingCostInput.value = '';
+            shippingDaysInput.value = '';
+            updateOrderSummary(0);
+        }
+
+        function updateOrderSummary(shippingCost) {
+            const shippingAmount = doc.querySelector('.shipping-amount');
+            if (shippingAmount) {
+                shippingAmount.textContent = shippingCost > 0 ? `${currencySymbol}${parseFloat(shippingCost).toFixed(2)}` : '-';
+            }
+
+            // Update total
+            const newTotal = baseTotal + parseFloat(shippingCost || 0);
+            const orderTotal = doc.querySelector('.order-total');
+            if (orderTotal) {
+                orderTotal.textContent = `${currencySymbol}${newTotal.toFixed(2)}`;
+            }
+        }
+
+        // Event listeners
+        countrySelect.addEventListener('change', function () {
+            loadGovernorates(this.value);
+        });
+
+        governorateSelect.addEventListener('change', function () {
+            loadCities(this.value);
+        });
+
+        citySelect.addEventListener('change', function () {
+            if (this.value) {
+                loadShippingOptions(countrySelect.value, governorateSelect.value, this.value);
+            } else {
+                // If city is cleared, load shipping for governorate
+                loadShippingOptions(countrySelect.value, governorateSelect.value, null);
+            }
+        });
+
+        shippingZoneSelect.addEventListener('change', function () {
+            const selectedZoneId = this.value;
+            if (!selectedZoneId) {
+                hideShippingInfo();
+                return;
+            }
+
+            // Find the selected shipping option from the current data
+            const params = new URLSearchParams({ country: countrySelect.value });
+            if (governorateSelect.value) params.append('governorate', governorateSelect.value);
+            if (citySelect.value) params.append('city', citySelect.value);
+
+            fetch(`/api/locations/shipping?${params}`)
+                .then(response => response.json())
+                .then(data => {
+                    const selectedOption = data.data.find(item => item.zone_id == selectedZoneId);
+                    if (selectedOption) {
+                        updateShippingDisplay(selectedOption);
+                    }
+                })
+                .catch(error => console.error('Error updating shipping display:', error));
+        });
+
+        // Initialize with current values if any
+        if (countrySelect.value) {
+            loadGovernorates(countrySelect.value);
+        }
+    }
+
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
@@ -372,6 +587,7 @@
             initHeroSlider();
             initQuantitySelector();
             initProductVariations();
+            initCheckoutShipping();
         });
     } else {
         initDropdowns();
@@ -381,6 +597,7 @@
         initHeroSlider();
         initQuantitySelector();
         initProductVariations();
+        initCheckoutShipping();
     }
 }());
 

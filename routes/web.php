@@ -63,6 +63,7 @@ Route::middleware(\App\Http\Middleware\CheckMaintenanceMode::class)->group(funct
     // Public location endpoints for frontend checkout
     Route::get('/api/locations/governorates', [AdminLocationController::class, 'governorates']);
     Route::get('/api/locations/cities', [AdminLocationController::class, 'cities']);
+    Route::get('/api/locations/shipping', [AdminLocationController::class, 'shipping']);
 
     // Blog front routes
     Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');

@@ -39,4 +39,44 @@ class LocationController extends Controller
 
         return response()->json(['data' => $items]);
     }
+
+    public function shipping(Request $request)
+    {
+        $country = $request->input('country');
+        $governorate = $request->input('governorate');
+        $city = $request->input('city');
+
+        if (!$country) {
+            return response()->json(['data' => []]);
+        }
+
+        $query = \App\Models\ShippingRule::where('active', 1)
+            ->with('zone')
+            ->where('country_id', $country);
+
+        if ($city) {
+            $query->where('city_id', $city);
+        } elseif ($governorate) {
+            $query->where('governorate_id', $governorate)->whereNull('city_id');
+        } else {
+            $query->whereNull('governorate_id')->whereNull('city_id');
+        }
+
+        $rules = $query->orderBy('city_id', 'desc')
+            ->orderBy('governorate_id', 'desc')
+            ->orderBy('country_id', 'desc')
+            ->get();
+
+        $data = $rules->map(function ($rule) {
+            return [
+                'id' => $rule->id,
+                'zone_id' => $rule->zone_id,
+                'company_name' => $rule->zone->name,
+                'price' => $rule->price,
+                'estimated_days' => $rule->estimated_days,
+            ];
+        });
+
+        return response()->json(['data' => $data]);
+    }
 }

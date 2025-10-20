@@ -62,6 +62,9 @@
                 } catch (e) { baseTotal = 0 }
             }
 
+            // Get currency symbol from data attribute
+            const currencySymbol = document.getElementById('checkout-root')?.dataset?.currencySymbol || '$';
+
             function setTotals(shippingPrice) {
                 if (!shippingAmountEl) return;
                 // Normalize price to a finite number. Treat non-finite as unknown.
@@ -74,9 +77,9 @@
                     // explicit free
                     shippingAmountEl.textContent = 'Free';
                 } else {
-                    shippingAmountEl.textContent = '$' + price.toFixed(2);
+                    shippingAmountEl.textContent = currencySymbol + price.toFixed(2);
                 }
-                if (orderTotalEl) orderTotalEl.textContent = '$' + (baseTotal + price).toFixed(2);
+                if (orderTotalEl) orderTotalEl.textContent = currencySymbol + (baseTotal + price).toFixed(2);
             }
 
             // helpers to show/hide without writing inline styles (CSP-safe)
