@@ -51,7 +51,7 @@ class ProductController extends Controller
     {
         $data = $this->prepareProductData($request->validated(), $sanitizer);
         $product = Product::create($data);
-        
+
         $this->syncProductRelations($product, $request);
         $this->handleNotifications($product);
 
@@ -70,7 +70,7 @@ class ProductController extends Controller
         $oldActive = $product->active;
         $data = $this->prepareProductData($request->validated(), $sanitizer);
         $product->update($data);
-        
+
         $this->syncProductRelations($product, $request);
         $this->handleNotifications($product, $oldActive);
 
@@ -168,10 +168,18 @@ class ProductController extends Controller
         }
 
         $merge = [];
-        if (!empty($result['description'])) $merge['description'] = $result['description'];
-        if (!empty($result['short_description'])) $merge['short_description'] = $result['short_description'];
-        if (!empty($result['seo_description'])) $merge['seo_description'] = $result['seo_description'];
-        if (!empty($result['seo_tags'])) $merge['seo_keywords'] = $result['seo_tags'];
+        if (!empty($result['description'])) {
+            $merge['description'] = $result['description'];
+        }
+        if (!empty($result['short_description'])) {
+            $merge['short_description'] = $result['short_description'];
+        }
+        if (!empty($result['seo_description'])) {
+            $merge['seo_description'] = $result['seo_description'];
+        }
+        if (!empty($result['seo_tags'])) {
+            $merge['seo_keywords'] = $result['seo_tags'];
+        }
 
         return back()->with('success', 'AI generated successfully')->withInput($merge);
     }
@@ -208,12 +216,21 @@ class ProductController extends Controller
     protected function getFormData()
     {
         return [
-            'categories' => Cache::remember('product_categories_ordered', 3600, 
-                fn() => ProductCategory::orderBy('name')->get()),
-            'tags' => Cache::remember('product_tags_ordered', 3600, 
-                fn() => ProductTag::orderBy('name')->get()),
-            'attributes' => Cache::remember('product_attributes_with_values', 3600, 
-                fn() => ProductAttribute::with('values')->orderBy('name')->get()),
+            'categories' => Cache::remember(
+                'product_categories_ordered',
+                3600,
+                fn() => ProductCategory::orderBy('name')->get()
+            ),
+            'tags' => Cache::remember(
+                'product_tags_ordered',
+                3600,
+                fn() => ProductTag::orderBy('name')->get()
+            ),
+            'attributes' => Cache::remember(
+                'product_attributes_with_values',
+                3600,
+                fn() => ProductAttribute::with('values')->orderBy('name')->get()
+            ),
         ];
     }
 
@@ -273,7 +290,9 @@ class ProductController extends Controller
         $variationIds = [];
 
         foreach ($variations as $variationData) {
-            if (empty($variationData['price'])) continue;
+            if (empty($variationData['price'])) {
+                continue;
+            }
 
             $data = $this->prepareVariationData($variationData);
 
@@ -316,7 +335,9 @@ class ProductController extends Controller
     {
         foreach ($serials as $serial) {
             $serial = trim($serial);
-            if (empty($serial)) continue;
+            if (empty($serial)) {
+                continue;
+            }
 
             ProductSerial::firstOrCreate([
                 'product_id' => $product->id,
