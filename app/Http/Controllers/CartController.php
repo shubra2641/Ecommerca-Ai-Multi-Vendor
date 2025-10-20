@@ -112,7 +112,7 @@ class CartController extends Controller
                     null,
                 'seller_name' => (method_exists($product, 'seller') && $product->seller) ?
                     $product->seller->name : null,
-                'short_desc' => $product->short_description ? \Str::limit($product->short_description, 120) : null,
+                'short_desc' => $product->short_description ? \Illuminate\Support\Str::limit($product->short_description, 120) : null,
             ];
         }
         // handle applied coupon from session
@@ -345,15 +345,47 @@ class CartController extends Controller
     public function applyCoupon(ApplyCouponRequest $request)
     {
         $data = $request->validated();
-
         $code = strtoupper(trim($data['coupon']));
-        $coupon = Coupon::where('code', $code)->first();
 
-        if (! $coupon) {
+        // Find and validate coupon
+        $coupon = $this->findCouponByCode($code);
+        if (!$coupon) {
             return back()->with('error', __('Invalid coupon code'));
         }
 
-        // compute base total from cart (stored prices are base/default currency)
+        // Calculate cart total
+        $cartTotal = $this->calculateCartTotal();
+
+        // Get displayed total in current currency
+        $displayedTotal = $this->getDisplayedTotal($cartTotal);
+
+        // Validate coupon against total
+        if (!$this->isCouponValidForTotal($coupon, $displayedTotal)) {
+            return back()->with('error', __('Coupon is not valid or expired'));
+        }
+
+        // Store coupon in session
+        session(['applied_coupon_id' => $coupon->id]);
+
+        // Prepare response data
+        $responseData = $this->prepareCouponResponseData($coupon, $cartTotal);
+
+        return $this->sendCouponResponse($request, $responseData, __('Coupon applied'));
+    }
+
+    /**
+     * Find coupon by code
+     */
+    private function findCouponByCode(string $code): ?Coupon
+    {
+        return Coupon::where('code', $code)->first();
+    }
+
+    /**
+     * Calculate total from cart items
+     */
+    private function calculateCartTotal(): float
+    {
         $cart = $this->getCart();
         $total = 0;
 
@@ -361,82 +393,120 @@ class CartController extends Controller
             $total += ($row['price'] * $row['qty']);
         }
 
-        // Recalculate the displayed total on the server using Currency::convertTo so we do not trust client input.
-        $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
+        return $total;
+    }
+
+    /**
+     * Get displayed total in current currency
+     */
+    private function getDisplayedTotal(float $baseTotal): float
+    {
+        $currentCurrency = $this->getCurrentCurrency();
         $defaultCurrency = Currency::getDefault();
 
         try {
-            if (
-                $currentCurrency
-                && $defaultCurrency
-                && $currentCurrency->id !== $defaultCurrency->id
-            ) {
-                $serverDisplayedTotal = $defaultCurrency->convertTo($total, $currentCurrency, 2);
-            } else {
-                $serverDisplayedTotal = $total;
+            if ($this->shouldConvertCurrency($currentCurrency, $defaultCurrency)) {
+                return $defaultCurrency->convertTo($baseTotal, $currentCurrency, 2);
             }
         } catch (Throwable $e) {
             // fallback to base total if conversion fails
-            $serverDisplayedTotal = $total;
         }
 
-        // small tolerance to allow minimal rounding differences (e.g., 1 smallest unit)
+        return $baseTotal;
+    }
+
+    /**
+     * Check if currency conversion is needed
+     */
+    private function shouldConvertCurrency($currentCurrency, $defaultCurrency): bool
+    {
+        return $currentCurrency
+            && $defaultCurrency
+            && $currentCurrency->id !== $defaultCurrency->id;
+    }
+
+    /**
+     * Get current currency from session
+     */
+    private function getCurrentCurrency()
+    {
+        return session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
+    }
+
+    /**
+     * Validate coupon against total with tolerance
+     */
+    private function isCouponValidForTotal(Coupon $coupon, float $total): bool
+    {
         $tolerance = 0.01;
-
         $candidates = [
-            $serverDisplayedTotal - $tolerance,
-            $serverDisplayedTotal,
-            $serverDisplayedTotal + $tolerance,
+            $total - $tolerance,
+            $total,
+            $total + $tolerance,
         ];
-
-        $isValid = false;
 
         foreach ($candidates as $candidate) {
             if ($coupon->isValidForTotal($candidate)) {
-                $isValid = true;
-                break;
+                return true;
             }
         }
 
-        if (! $isValid) {
-            return back()->with('error', __('Coupon is not valid or expired'));
-        }
+        return false;
+    }
 
-        // store applied coupon in session
-        session(['applied_coupon_id' => $coupon->id]);
-
-        // prepare display totals (converted to current currency) for AJAX clients
-        $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
+    /**
+     * Prepare response data for coupon application
+     */
+    private function prepareCouponResponseData(Coupon $coupon, float $baseTotal): array
+    {
+        $currentCurrency = $this->getCurrentCurrency();
         $defaultCurrency = Currency::getDefault();
 
+        $displayTotal = $this->getDisplayedTotal($baseTotal);
+        $discountedTotal = $this->getDiscountedTotal($coupon, $baseTotal, $currentCurrency, $defaultCurrency);
+        $discount = round($displayTotal - $discountedTotal, 2);
+
+        return [
+            'coupon' => $coupon->code,
+            'displayTotal' => $displayTotal,
+            'discountedTotal' => $discountedTotal,
+            'discount' => $discount,
+            'currency_symbol' => $currentCurrency?->symbol ?? Currency::defaultSymbol(),
+        ];
+    }
+
+    /**
+     * Get discounted total in current currency
+     */
+    private function getDiscountedTotal(Coupon $coupon, float $baseTotal, $currentCurrency, $defaultCurrency): float
+    {
+        $discountedBaseTotal = $coupon->applyTo($baseTotal);
+
         try {
-            if ($currentCurrency && $defaultCurrency && $currentCurrency->id !== $defaultCurrency->id) {
-                $displayTotal = $defaultCurrency->convertTo($total, $currentCurrency, 2);
-                $discounted_display = $defaultCurrency->convertTo($coupon->applyTo($total), $currentCurrency, 2);
-            } else {
-                $displayTotal = $total;
-                $discounted_display = $coupon->applyTo($total);
+            if ($this->shouldConvertCurrency($currentCurrency, $defaultCurrency)) {
+                return $defaultCurrency->convertTo($discountedBaseTotal, $currentCurrency, 2);
             }
         } catch (Throwable $e) {
-            $displayTotal = $total;
-            $discounted_display = $coupon->applyTo($total);
+            // fallback to base total if conversion fails
         }
 
-        $discount_display = round($displayTotal - $discounted_display, 2);
+        return $discountedBaseTotal;
+    }
 
+    /**
+     * Send appropriate response for coupon application
+     */
+    private function sendCouponResponse(Request $request, array $data, string $message)
+    {
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'ok',
-                'message' => __('Coupon applied'),
-                'coupon' => $coupon->code,
-                'displayTotal' => $displayTotal,
-                'discountedTotal' => $discounted_display,
-                'discount' => $discount_display,
-                'currency_symbol' => $currentCurrency?->symbol ?? Currency::defaultSymbol(),
+                'message' => $message,
+                ...$data
             ]);
         }
 
-        return back()->with('success', __('Coupon applied'));
+        return back()->with('success', $message);
     }
 
     public function removeCoupon(Request $request)
