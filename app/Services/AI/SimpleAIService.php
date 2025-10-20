@@ -12,36 +12,26 @@ class SimpleAIService
     public function generate(string $title, string $type, ?string $locale = null): JsonResponse
     {
         $setting = Setting::first();
-        
         if (!$setting?->ai_enabled || !$setting?->ai_openai_api_key) {
             return response()->json(['error' => 'AI disabled'], 422);
         }
 
-        $locale = $locale ?: app()->getLocale();
-        $cacheKey = "ai_{$type}_" . md5($title . $locale);
-
+        $cacheKey = "ai_{$type}_" . md5($title . ($locale ?: app()->getLocale()));
         if ($cached = Cache::get($cacheKey)) {
             return response()->json($cached);
         }
 
         try {
-            $prompt = $this->getPrompt($title, $type, $locale);
-            
+            $prompt = $this->getPrompt($title, $type, $locale ?: app()->getLocale());
             $response = Http::withToken($setting->ai_openai_api_key)
                 ->post('https://api.openai.com/v1/chat/completions', [
                     'model' => 'gpt-4o-mini',
-                    'messages' => [
-                        ['role' => 'user', 'content' => $prompt]
-                    ]
+                    'messages' => [['role' => 'user', 'content' => $prompt]]
                 ]);
 
-            $data = $response->json();
-            $content = $data['choices'][0]['message']['content'] ?? '';
-            $result = json_decode($content, true) ?: $this->fallback($title, $type);
-            
+            $result = json_decode($response->json()['choices'][0]['message']['content'] ?? '{}', true) ?: $this->fallback($title, $type);
             Cache::put($cacheKey, $result, 600);
             return response()->json($result);
-            
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -49,18 +39,17 @@ class SimpleAIService
 
     private function getPrompt(string $title, string $type, string $locale): string
     {
-        $prompts = [
-            'product' => "Generate JSON for product '{$title}': description (max 500), short_description (max 200), seo_description (max 160), seo_tags (max 12 keywords). Language: {$locale}",
-            'category' => "Generate JSON for category '{$title}': description (max 300), seo_description (max 160), seo_tags (max 12 keywords). Language: {$locale}",
-            'blog' => "Generate JSON for blog post '{$title}': title, content (max 1000), seo_description (max 160), seo_tags (max 12 keywords). Language: {$locale}"
-        ];
-        
-        return $prompts[$type] ?? $prompts['product'];
+        return match($type) {
+            'product' => "JSON for product '{$title}': description (max 500), short_description (max 200), seo_description (max 160), seo_tags (max 12 keywords). Language: {$locale}",
+            'category' => "JSON for category '{$title}': description (max 300), seo_description (max 160), seo_tags (max 12 keywords). Language: {$locale}",
+            'blog' => "JSON for blog '{$title}': title, content (max 1000), seo_description (max 160), seo_tags (max 12 keywords). Language: {$locale}",
+            default => "JSON for '{$title}': description, seo_description, seo_tags. Language: {$locale}"
+        };
     }
 
     private function fallback(string $title, string $type): array
     {
-        $fallbacks = [
+        return match($type) {
             'product' => [
                 'description' => "High-quality {$title} with excellent features.",
                 'short_description' => "Premium {$title}",
@@ -77,9 +66,8 @@ class SimpleAIService
                 'content' => "Learn about {$title}",
                 'seo_description' => "{$title} guide",
                 'seo_tags' => strtolower($title)
-            ]
-        ];
-        
-        return $fallbacks[$type] ?? $fallbacks['product'];
+            ],
+            default => ['description' => $title, 'seo_description' => $title, 'seo_tags' => strtolower($title)]
+        };
     }
 }
