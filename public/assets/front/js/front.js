@@ -1,5 +1,5 @@
 // Header dropdown & currency interactions
-(function() {
+(function () {
     const doc = document;
     function closeAll(except) {
         doc.querySelectorAll('[data-dropdown].open').forEach(d => {
@@ -37,7 +37,7 @@
         });
     }
     function initCurrencySwitch() {
-        doc.addEventListener('click', async(e) => {
+        doc.addEventListener('click', async (e) => {
             const btn = e.target.closest('.currency-chip');
             if (!btn) {
                 return;
@@ -113,6 +113,58 @@
         const sliderState = createSliderState(sliderElements);
         setupSliderNavigation(sliderElements, sliderState);
         setupAutoPlay(slider, sliderState);
+    }
+
+    function initQuantitySelector() {
+        const qtyDisplay = doc.getElementById('qtyDisplay');
+        const qtyInput = doc.getElementById('qtyInputSide');
+        const increaseBtn = doc.querySelector('.qty-increase');
+        const trashBtn = doc.querySelector('.qty-trash');
+
+        if (qtyDisplay && qtyInput && increaseBtn && trashBtn) {
+            var currentQty = 1;
+            var maxStock = parseInt(qtyInput.getAttribute('max')) || 999;
+
+            function updateQuantity(newQty) {
+                currentQty = Math.max(1, Math.min(newQty, maxStock));
+                qtyDisplay.textContent = currentQty;
+                qtyInput.value = currentQty;
+            }
+
+            increaseBtn.addEventListener('click', function () {
+                updateQuantity(currentQty + 1);
+            });
+
+            trashBtn.addEventListener('click', function () {
+                updateQuantity(currentQty - 1);
+            });
+        }
+    }
+
+    function initQuantitySelector() {
+        const qtyDisplay = doc.getElementById('qtyDisplay');
+        const qtyInput = doc.getElementById('qtyInputSide');
+        const increaseBtn = doc.querySelector('.qty-increase');
+        const trashBtn = doc.querySelector('.qty-trash');
+
+        if (qtyDisplay && qtyInput && increaseBtn && trashBtn) {
+            var currentQty = 1;
+            var maxStock = parseInt(qtyInput.getAttribute('max')) || 999;
+
+            function updateQuantity(newQty) {
+                currentQty = Math.max(1, Math.min(newQty, maxStock));
+                qtyDisplay.textContent = currentQty;
+                qtyInput.value = currentQty;
+            }
+
+            increaseBtn.addEventListener('click', function () {
+                updateQuantity(currentQty + 1);
+            });
+
+            trashBtn.addEventListener('click', function () {
+                updateQuantity(currentQty - 1);
+            });
+        }
     }
 
     function getSliderElements(slider) {
@@ -220,6 +272,7 @@
             initCompareBadge();
             initLoader();
             initHeroSlider();
+            initQuantitySelector();
         });
     } else {
         initDropdowns();
@@ -227,6 +280,7 @@
         initCompareBadge();
         initLoader();
         initHeroSlider();
+        initQuantitySelector();
     }
 }());
 

@@ -77,15 +77,15 @@
                 @endphp
                 @if($minP !== null)
                 @if($minP == $maxP)
-                <span class="price-current">{{ $currency_symbol ?? '$' }} {{ number_format($minP,2) }}</span>
+                <span class="price-current" id="productPrice">{{ $currency_symbol ?? '$' }} {{ number_format($minP,2) }}</span>
                 @else
-                <span class="price-current">{{ $currency_symbol ?? '$' }} {{ number_format($minP,2) }}</span>
+                <span class="price-current" id="productPrice">{{ $currency_symbol ?? '$' }} {{ number_format($minP,2) }}</span>
                 <span class="price-range-sep">-</span>
-                <span class="price-current">{{ $currency_symbol ?? '$' }} {{ number_format($maxP,2) }}</span>
+                <span class="price-current" id="productPriceMax">{{ $currency_symbol ?? '$' }} {{ number_format($maxP,2) }}</span>
                 @endif
                 @endif
                 @else
-                <span class="price-current">{{ $currency_symbol ?? '$' }} {{ number_format($product->effectivePrice(),2) }}</span>
+                <span class="price-current" id="productPrice">{{ $currency_symbol ?? '$' }} {{ number_format($product->effectivePrice(),2) }}</span>
                 @if($product->isOnSale())
                 <span class="price-original">{{ $currency_symbol ?? '$' }} {{ number_format($product->price,2) }}</span>
                 @php
@@ -135,14 +135,16 @@
                     <div class="variation-attr-block" data-attr="{{ $attr['name'] }}">
                         <div class="attr-label"><span class="attr-icon">{{ $attr['icon'] }}</span>{{ $attr['label'] }}</div>
                         <div class="attr-options">
-                            @foreach($attr['values'] as $v)
+                            @foreach($attr['values'] as $index => $v)
                             @if($attr['is_color'])
                             <div class="color-swatch-wrapper">
-                                <button type="button" class="option-btn color attr-option-btn" aria-label="{{ $v }}" title="{{ $v }}" data-attr-value="{{ $v }}" data-swatch="{{ $v }}"></button>
+                                <input type="radio" name="attr_{{ $attr['name'] }}" value="{{ $v }}" id="attr_{{ $attr['name'] }}_{{ $index }}" class="attr-radio" {{ $index === 0 ? 'checked' : '' }}>
+                                <label for="attr_{{ $attr['name'] }}_{{ $index }}" class="option-btn color attr-option-btn" aria-label="{{ $v }}" title="{{ $v }}" data-attr-value="{{ $v }}" data-swatch="{{ $v }}"></label>
                                 <span class="swatch-label">{{ $v }}</span>
                             </div>
                             @else
-                            <button type="button" class="option-btn attr-option-btn" data-attr-value="{{ $v }}">{{ $v }}</button>
+                            <input type="radio" name="attr_{{ $attr['name'] }}" value="{{ $v }}" id="attr_{{ $attr['name'] }}_{{ $index }}" class="attr-radio" {{ $index === 0 ? 'checked' : '' }}>
+                            <label for="attr_{{ $attr['name'] }}_{{ $index }}" class="option-btn attr-option-btn" data-attr-value="{{ $v }}">{{ $v }}</label>
                             @endif
                             @endforeach
                         </div>
@@ -253,9 +255,10 @@
                 @if($product->type === 'variable')
                 <input type="hidden" name="variation_id" id="selectedVariationId" value="">
                 @endif
+                <input type="hidden" name="price" id="selectedPrice" value="{{ $product->effectivePrice() }}">
                 <input type="hidden" name="buy_now" id="buyNowFlag" value="">
                 <div class="quantity-selector">
-                    <input id="qtyInputSide" type="number" name="qty" class="quantity-field hidden-block" value="1" min="1" max="{{ $product->stock_quantity ?: 999 }}">
+                    <input id="qtyInputSide" type="number" name="qty" class="quantity-field" value="1" min="1" max="{{ $product->stock_quantity ?: 999 }}" style="display: none;">
                     <div class="qty-pill" role="group" aria-label="Quantity selector">
                         <button type="button" class="qty-action qty-trash" aria-label="Remove item"><span class="icon-trash">🗑</span></button>
                         <div class="qty-display" id="qtyDisplay">1</div>
@@ -275,13 +278,13 @@
     <div class="container">
         <div class="product-tabs">
             <div class="tab-nav" role="tablist" aria-label="Product details tabs">
-                <button class="tab-btn active" data-tab="description" role="tab" aria-controls="description"
-                    id="tab-desc">{{ __('Description') }}</button>
-                <button class="tab-btn" data-tab="specifications" role="tab" aria-controls="specifications"
+                <a href="#description" class="tab-btn active" role="tab" aria-controls="description"
+                    id="tab-desc">{{ __('Description') }}</a>
+                <a href="#specifications" class="tab-btn" role="tab" aria-controls="specifications"
                     id="tab-specs">{{ __('Specifications') }} <span
-                        class="spec-count-badge">{{ $specCount }}</span></button>
-                <button class="tab-btn" data-tab="reviews" role="tab" aria-controls="reviews"
-                    id="tab-reviews">{{ __('Reviews') }} ({{ $reviewsCount }})</button>
+                        class="spec-count-badge">{{ $specCount }}</span></a>
+                <a href="#reviews" class="tab-btn" role="tab" aria-controls="reviews"
+                    id="tab-reviews">{{ __('Reviews') }} ({{ $reviewsCount }})</a>
             </div>
 
             <div class="tab-content">
@@ -344,9 +347,3 @@
 
 @push('modals')
 @include('front.partials.notify-modal')
-
-@if($product->type === 'variable')
-{{-- Pass variations JSON safely via a hidden DOM element to avoid Blade->JS interpolation issues --}}
-<div id="productVariations" data-json='{{ e(json_encode($product->variations->where("active", true)->values(), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'
-    class="hidden-block"></div>
-@endif
