@@ -241,6 +241,16 @@ Route::middleware([
             Route::post('/ai/suggest', [PostCategoryController::class, 'aiSuggest'])
                 ->name('ai.suggest');
         });
+
+        // AI Suggestions
+        Route::prefix('ai')->name('ai.')->group(function () {
+            Route::post('/blog-post', [\App\Http\Controllers\AI\SuggestionController::class, 'blogPost'])
+                ->name('blog-post');
+            Route::post('/product', [\App\Http\Controllers\AI\SuggestionController::class, 'product'])
+                ->name('product');
+            Route::post('/category', [\App\Http\Controllers\AI\SuggestionController::class, 'category'])
+                ->name('category');
+        });
         // Tags
         Route::prefix('tags')->name('tags.')->group(function () {
             Route::get('/', [TagController::class, 'index'])->name('index');
