@@ -8,9 +8,7 @@ class CategorySuggestionService extends BaseAISuggestionService
 {
     public function generateSuggestions(string $title, ?string $locale = null): JsonResponse
     {
-        if ($error = $this->validateAI()) {
-            return $error;
-        }
+        if ($error = $this->validateAI()) return $error;
 
         $locale = $locale ?: app()->getLocale();
         $cacheKey = $this->getCacheKey($title, $locale, 'category');

@@ -12,37 +12,25 @@ class SuggestionController extends Controller
 {
     public function blogPost(Request $request, BlogPostSuggestionService $service)
     {
-        $title = $request->input('title');
-        $locale = $request->input('locale');
-
-        if (!$title) {
+        if (!$request->input('title')) {
             return response()->json(['error' => 'Title required'], 422);
         }
-
-        return $service->generateSuggestions($title, $locale);
+        return $service->generateSuggestions($request->input('title'), $request->input('locale'));
     }
 
     public function product(Request $request, ProductSuggestionService $service)
     {
-        $title = $request->input('title');
-        $locale = $request->input('locale');
-
-        if (!$title) {
+        if (!$request->input('title')) {
             return response()->json(['error' => 'Title required'], 422);
         }
-
-        return $service->generateSuggestions($title, $locale);
+        return $service->generateSuggestions($request->input('title'), $request->input('locale'));
     }
 
     public function category(Request $request, CategorySuggestionService $service)
     {
-        $title = $request->input('title');
-        $locale = $request->input('locale');
-
-        if (!$title) {
+        if (!$request->input('title')) {
             return response()->json(['error' => 'Title required'], 422);
         }
-
-        return $service->generateSuggestions($title, $locale);
+        return $service->generateSuggestions($request->input('title'), $request->input('locale'));
     }
 }
