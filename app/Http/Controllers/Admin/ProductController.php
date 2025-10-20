@@ -51,10 +51,8 @@ class ProductController extends Controller
     {
         $data = $this->prepareProductData($request->validated(), $sanitizer);
         $product = Product::create($data);
-
         $this->syncProductRelations($product, $request);
         $this->handleNotifications($product);
-
         return redirect()->route('admin.products.index')->with('success', __('Product created successfully.'));
     }
 
@@ -70,10 +68,8 @@ class ProductController extends Controller
         $oldActive = $product->active;
         $data = $this->prepareProductData($request->validated(), $sanitizer);
         $product->update($data);
-
         $this->syncProductRelations($product, $request);
         $this->handleNotifications($product, $oldActive);
-
         return redirect()->route('admin.products.index')->with('success', __('Product updated successfully.'));
     }
 
@@ -100,10 +96,7 @@ class ProductController extends Controller
     public function export(Request $request)
     {
         $fileName = 'products_' . date('Ymd_His') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename={$fileName}",
-        ];
+        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$fileName}"];
 
         $callback = function () {
             $out = fopen('php://output', 'w');
@@ -112,12 +105,8 @@ class ProductController extends Controller
             Product::with('category')->chunk(200, function ($products) use ($out) {
                 foreach ($products as $product) {
                     fputcsv($out, [
-                        $product->id,
-                        $product->name,
-                        $product->sku,
-                        $product->price,
-                        $product->stock_qty ?? 0,
-                        $product->category?->name,
+                        $product->id, $product->name, $product->sku, $product->price,
+                        $product->stock_qty ?? 0, $product->category?->name,
                         $product->active ? 'Active' : 'Inactive',
                     ]);
                 }
@@ -131,10 +120,7 @@ class ProductController extends Controller
     public function variationsExport(Request $request)
     {
         $fileName = 'variations_' . date('Ymd_His') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename={$fileName}",
-        ];
+        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$fileName}"];
 
         $callback = function () {
             $out = fopen('php://output', 'w');
@@ -143,12 +129,8 @@ class ProductController extends Controller
             ProductVariation::with('product')->chunk(200, function ($variations) use ($out) {
                 foreach ($variations as $variation) {
                     fputcsv($out, [
-                        $variation->product_id,
-                        $variation->product?->name,
-                        $variation->id,
-                        $variation->sku,
-                        $variation->price,
-                        $variation->stock_qty ?? 0,
+                        $variation->product_id, $variation->product?->name, $variation->id,
+                        $variation->sku, $variation->price, $variation->stock_qty ?? 0,
                     ]);
                 }
             });
@@ -168,18 +150,10 @@ class ProductController extends Controller
         }
 
         $merge = [];
-        if (!empty($result['description'])) {
-            $merge['description'] = $result['description'];
-        }
-        if (!empty($result['short_description'])) {
-            $merge['short_description'] = $result['short_description'];
-        }
-        if (!empty($result['seo_description'])) {
-            $merge['seo_description'] = $result['seo_description'];
-        }
-        if (!empty($result['seo_tags'])) {
-            $merge['seo_keywords'] = $result['seo_tags'];
-        }
+        if (!empty($result['description'])) $merge['description'] = $result['description'];
+        if (!empty($result['short_description'])) $merge['short_description'] = $result['short_description'];
+        if (!empty($result['seo_description'])) $merge['seo_description'] = $result['seo_description'];
+        if (!empty($result['seo_tags'])) $merge['seo_keywords'] = $result['seo_tags'];
 
         return back()->with('success', 'AI generated successfully')->withInput($merge);
     }
@@ -216,21 +190,9 @@ class ProductController extends Controller
     protected function getFormData()
     {
         return [
-            'categories' => Cache::remember(
-                'product_categories_ordered',
-                3600,
-                fn() => ProductCategory::orderBy('name')->get()
-            ),
-            'tags' => Cache::remember(
-                'product_tags_ordered',
-                3600,
-                fn() => ProductTag::orderBy('name')->get()
-            ),
-            'attributes' => Cache::remember(
-                'product_attributes_with_values',
-                3600,
-                fn() => ProductAttribute::with('values')->orderBy('name')->get()
-            ),
+            'categories' => Cache::remember('product_categories_ordered', 3600, fn() => ProductCategory::orderBy('name')->get()),
+            'tags' => Cache::remember('product_tags_ordered', 3600, fn() => ProductTag::orderBy('name')->get()),
+            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn() => ProductAttribute::with('values')->orderBy('name')->get()),
         ];
     }
 
@@ -290,15 +252,12 @@ class ProductController extends Controller
         $variationIds = [];
 
         foreach ($variations as $variationData) {
-            if (empty($variationData['price'])) {
-                continue;
-            }
+            if (empty($variationData['price'])) continue;
 
             $data = $this->prepareVariationData($variationData);
 
             if (isset($variationData['id'])) {
-                $variation = ProductVariation::where('product_id', $product->id)
-                    ->where('id', $variationData['id'])->first();
+                $variation = ProductVariation::where('product_id', $product->id)->where('id', $variationData['id'])->first();
                 if ($variation) {
                     $variation->update($data);
                     $variationIds[] = $variation->id;
@@ -335,14 +294,9 @@ class ProductController extends Controller
     {
         foreach ($serials as $serial) {
             $serial = trim($serial);
-            if (empty($serial)) {
-                continue;
-            }
+            if (empty($serial)) continue;
 
-            ProductSerial::firstOrCreate([
-                'product_id' => $product->id,
-                'serial' => $serial,
-            ]);
+            ProductSerial::firstOrCreate(['product_id' => $product->id, 'serial' => $serial]);
         }
     }
 
@@ -363,12 +317,9 @@ class ProductController extends Controller
             'na' => $query->where(function ($q) {
                 $q->where('manage_stock', 0)->orWhereNull('manage_stock');
             }),
-            'low' => $query->where('manage_stock', 1)
-                ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low]),
-            'soon' => $query->where('manage_stock', 1)
-                ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ? AND (stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low, $soon]),
-            'in' => $query->where('manage_stock', 1)
-                ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ?', [$soon]),
+            'low' => $query->where('manage_stock', 1)->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low]),
+            'soon' => $query->where('manage_stock', 1)->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ? AND (stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low, $soon]),
+            'in' => $query->where('manage_stock', 1)->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ?', [$soon]),
         };
     }
 
@@ -384,7 +335,6 @@ class ProductController extends Controller
 
     protected function handleNotifications(Product $product, ?bool $oldActive = null)
     {
-        // Stock low notification
         if ($product->manage_stock) {
             $available = (int) $product->stock_qty - (int) ($product->reserved_qty ?? 0);
             $lowThreshold = (int) config('catalog.stock_low_threshold', 5);
@@ -393,10 +343,7 @@ class ProductController extends Controller
                 try {
                     $admins = User::where('role', 'admin')->get();
                     if ($admins->count()) {
-                        \Illuminate\Support\Facades\Notification::sendNow(
-                            $admins,
-                            new \App\Notifications\AdminStockLowNotification($product, $available)
-                        );
+                        \Illuminate\Support\Facades\Notification::sendNow($admins, new \App\Notifications\AdminStockLowNotification($product, $available));
                     }
                 } catch (\Throwable $e) {
                     // Silent fail
@@ -404,15 +351,12 @@ class ProductController extends Controller
             }
         }
 
-        // Product status change notification
         if ($oldActive !== null && $oldActive !== $product->active && $product->vendor) {
             try {
                 if ($product->active) {
-                    \Illuminate\Support\Facades\Mail::to($product->vendor->email)
-                        ->queue(new \App\Mail\ProductApproved($product));
+                    \Illuminate\Support\Facades\Mail::to($product->vendor->email)->queue(new \App\Mail\ProductApproved($product));
                 } else {
-                    \Illuminate\Support\Facades\Mail::to($product->vendor->email)
-                        ->queue(new \App\Mail\ProductRejected($product, null));
+                    \Illuminate\Support\Facades\Mail::to($product->vendor->email)->queue(new \App\Mail\ProductRejected($product, null));
                 }
             } catch (\Throwable $e) {
                 // Silent fail
