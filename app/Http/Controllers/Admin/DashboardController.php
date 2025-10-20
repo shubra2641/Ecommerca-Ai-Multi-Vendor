@@ -139,32 +139,6 @@ class DashboardController extends Controller
     }
 
 
-    /**
-     * Get registration chart data for the last 6 months
-     */
-    private function getRegistrationChartData()
-    {
-        $months = [];
-        $data = [];
-
-        for ($i = 5; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $months[] = $date->format('M Y');
-
-            $count = User::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-
-            $data[] = $count;
-        }
-
-        return [
-            'labels' => $months,
-            'data' => $data,
-            'vendorData' => $this->getVendorRegistrationData($months),
-            'adminData' => $this->getAdminRegistrationData($months),
-        ];
-    }
 
     /**
      * Get registration chart data based on period
@@ -174,43 +148,6 @@ class DashboardController extends Controller
         return $this->getChartDataByPeriod($period);
     }
 
-    /**
-     * Get vendor registration data for chart
-     */
-    private function getVendorRegistrationData($months)
-    {
-        $data = [];
-
-        for ($i = 5; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $count = User::where('role', 'vendor')
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-            $data[] = $count;
-        }
-
-        return $data;
-    }
-
-    /**
-     * Get admin registration data for chart
-     */
-    private function getAdminRegistrationData($months)
-    {
-        $data = [];
-
-        for ($i = 5; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $count = User::where('role', 'admin')
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-            $data[] = $count;
-        }
-
-        return $data;
-    }
 
     /**
      * Get system health status
@@ -469,57 +406,6 @@ class DashboardController extends Controller
     }
 
 
-    public function reports()
-    {
-        $totalUsers = User::count();
-        $totalVendors = User::where('role', 'vendor')->count();
-        $pendingUsers = User::whereNull('approved_at')->count();
-        $totalBalance = User::sum('balance');
-
-
-        // Registration trends
-        $registrationsToday = User::whereDate('created_at', today())->count();
-        $registrationsWeek = User::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
-        $registrationsMonth = User::whereMonth('created_at', now()->month)->count();
-
-        return view('admin.reports', compact(
-            'totalUsers',
-            'totalVendors',
-            'pendingUsers',
-            'totalBalance',
-            'registrationsToday',
-            'registrationsWeek',
-            'registrationsMonth'
-        ));
-    }
-
-    public function usersReport()
-    {
-        return response()->json(['message' => 'Users report feature coming soon']);
-    }
-
-    public function vendorsReport()
-    {
-        return response()->json(['message' => 'Vendors report feature coming soon']);
-    }
-
-    public function financialReport()
-    {
-        return response()->json(['message' => 'Financial report feature coming soon']);
-    }
-
-    public function systemReport()
-    {
-        return response()->json(['message' => 'System report feature coming soon']);
-    }
-
-    public function generateReport()
-    {
-        // Generate Excel report
-        $filename = 'admin-report-' . date('Y-m-d') . '.xlsx';
-
-        return response()->json(['message' => 'Report generated successfully', 'filename' => $filename]);
-    }
 
 
     public function clearCache()
