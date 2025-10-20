@@ -108,7 +108,7 @@ class HomeController extends Controller
             'homepage_banners',
             1800,
             fn() =>
-            HomepageBanner::orderBy('id')->get()
+            HomepageBanner::orderBy('id')->get()->groupBy('placement_key')
         );
     }
 
