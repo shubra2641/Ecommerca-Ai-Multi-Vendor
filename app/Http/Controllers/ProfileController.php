@@ -92,7 +92,7 @@ class ProfileController extends Controller
     private function getUserRole($user): string
     {
         $role = $user->role ?? 'user';
-        
+
         return match ($role) {
             'admin' => 'admin',
             'vendor' => 'vendor',
@@ -117,9 +117,10 @@ class ProfileController extends Controller
      */
     private function validateProfileData(Request $request, $user, string $role): array
     {
+        $userId = (int) $user->id;
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($userId)],
         ];
 
         if ($role === 'user') {
