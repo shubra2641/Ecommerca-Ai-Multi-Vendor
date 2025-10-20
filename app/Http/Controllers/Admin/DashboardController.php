@@ -412,10 +412,9 @@ class DashboardController extends Controller
     private function getTopActiveUsers()
     {
         return User::whereNotNull('approved_at')
-            ->orderBy('last_login_at', 'desc')
             ->orderBy('updated_at', 'desc')
             ->take(5)
-            ->get(['id', 'name', 'email', 'role', 'last_login_at', 'updated_at', 'created_at']);
+            ->get(['id', 'name', 'email', 'role', 'updated_at', 'created_at']);
     }
 
     /**
