@@ -5,7 +5,7 @@
  */
 /* global Chart, atob */
 
-(function() {
+(function () {
     'use strict';
 
     // Configuration

@@ -43,16 +43,17 @@
     'charts' => [
         'users' => [
             'labels' => $chartData['labels'] ?? [],
-            'data'   => $chartData['data'] ?? [],
+            'data' => $chartData['data'] ?? [],
         ],
         'sales' => [
             'labels' => $salesChartData['labels'] ?? [],
             'orders' => $salesChartData['orders'] ?? [],
-            'revenue'=> $salesChartData['revenue'] ?? [],
+            'revenue' => $salesChartData['revenue'] ?? [],
         ],
         'ordersStatus' => [
             'labels' => $orderStatusChartData['labels'] ?? [],
-            'data'   => $orderStatusChartData['data'] ?? [],
+            'data' => $orderStatusChartData['data'] ?? [],
+            'colors' => $orderStatusChartData['colors'] ?? [],
         ],
     ],
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
@@ -61,7 +62,7 @@
 <div class="row mb-4">
     <!-- Total Users -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-danger" data-stat="totalUsers">
+        <div class="stats-card stats-card-danger" data-stat="totalUsers">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="total-users" data-bs-toggle="tooltip"
@@ -91,7 +92,7 @@
 
     <!-- Total Vendors -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-success" data-stat="totalVendors">
+        <div class="stats-card stats-card-success" data-stat="totalVendors">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="total-vendors" data-bs-toggle="tooltip"
@@ -121,7 +122,7 @@
 
     <!-- Pending Users -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-primary" data-stat="pendingUsers">
+        <div class="stats-card stats-card-primary" data-stat="pendingUsers">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="pending-users" data-bs-toggle="tooltip"
@@ -150,7 +151,7 @@
 
     <!-- Active Today -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-info" data-stat="activeToday">
+        <div class="stats-card stats-card-info" data-stat="activeToday">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="active-today" data-bs-toggle="tooltip"
@@ -211,7 +212,7 @@
 
     <!-- New Users Today -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-danger" data-stat="newUsersToday">
+        <div class="stats-card stats-card-danger" data-stat="newUsersToday">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="new-users-today" data-bs-toggle="tooltip"
@@ -240,7 +241,7 @@
 
     <!-- Total Admins -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-danger" data-stat="totalAdmins">
+        <div class="stats-card stats-card-danger" data-stat="totalAdmins">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="total-admins" data-bs-toggle="tooltip"
@@ -269,7 +270,7 @@
 
     <!-- Total Customers -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-info" data-stat="totalCustomers">
+        <div class="stats-card stats-card-info" data-stat="totalCustomers">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="total-customers" data-bs-toggle="tooltip"
@@ -298,7 +299,7 @@
 
     <!-- New Users This Week -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-danger" data-stat="newUsersThisWeek">
+        <div class="stats-card stats-card-danger" data-stat="newUsersThisWeek">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="new-users-week" data-bs-toggle="tooltip"
@@ -327,7 +328,7 @@
 
     <!-- New Users This Month -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-success" data-stat="newUsersThisMonth">
+        <div class="stats-card stats-card-success" data-stat="newUsersThisMonth">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="new-users-month" data-bs-toggle="tooltip"
@@ -356,7 +357,7 @@
 
     <!-- Approved Users -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-info" data-stat="approvedUsers">
+        <div class="stats-card stats-card-info" data-stat="approvedUsers">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="approved-users" data-bs-toggle="tooltip"
@@ -390,7 +391,7 @@
 <div class="row mb-4">
     <!-- Total Orders -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-danger" data-stat="totalOrders">
+        <div class="stats-card stats-card-danger" data-stat="totalOrders">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="total-orders" data-bs-toggle="tooltip"
@@ -413,7 +414,7 @@
 
     <!-- Total Revenue -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-success" data-stat="revenueTotal">
+        <div class="stats-card stats-card-success" data-stat="revenueTotal">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="total-revenue" data-bs-toggle="tooltip"
@@ -436,7 +437,7 @@
 
     <!-- Orders Today -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-primary" data-stat="ordersToday">
+        <div class="stats-card stats-card-primary" data-stat="ordersToday">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="orders-today" data-bs-toggle="tooltip"
@@ -459,7 +460,7 @@
 
     <!-- Revenue Today -->
     <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stats-card stats-card-info" data-stat="revenueToday">
+        <div class="stats-card stats-card-info" data-stat="revenueToday">
             <div class="stats-card-body">
                 <div class="stats-card-content">
                     <div class="stats-number" id="revenue-today" data-bs-toggle="tooltip"
@@ -493,11 +494,11 @@
                         <h5 class="card-title mb-0">{{ __('User Registration Trends') }}</h5>
                         <small class="text-muted" id="chart-last-updated">
                             @if($period === '6m')
-                                {{ __('Last 6 months overview') }}
+                            {{ __('Last 6 months overview') }}
                             @elseif($period === '1y')
-                                {{ __('Last 12 months overview') }}
+                            {{ __('Last 12 months overview') }}
                             @else
-                                {{ __('All time overview') }}
+                            {{ __('All time overview') }}
                             @endif
                         </small>
                     </div>
@@ -510,11 +511,11 @@
                         </a>
                         <div class="btn-group btn-group-sm chart-period-buttons @if(app()->getLocale()==='ar') order-sm-first @endif"
                             role="group">
-                            <a href="{{ route('admin.dashboard', ['period' => '6m']) }}" 
+                            <a href="{{ route('admin.dashboard', ['period' => '6m']) }}"
                                 class="btn btn-outline-secondary {{ $period === '6m' ? 'active' : '' }}">6M</a>
-                            <a href="{{ route('admin.dashboard', ['period' => '1y']) }}" 
+                            <a href="{{ route('admin.dashboard', ['period' => '1y']) }}"
                                 class="btn btn-outline-secondary {{ $period === '1y' ? 'active' : '' }}">1Y</a>
-                            <a href="{{ route('admin.dashboard', ['period' => 'all']) }}" 
+                            <a href="{{ route('admin.dashboard', ['period' => 'all']) }}"
                                 class="btn btn-outline-secondary {{ $period === 'all' ? 'active' : '' }}">{{ __('All') }}</a>
                         </div>
                     </div>
@@ -539,146 +540,8 @@
         </div>
     </div>
 
-</div>
-
-<!-- Sales & Orders Charts -->
-<div class="row mb-4">
-    <div class="col-lg-8 mb-4">
-        <div class="modern-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-area me-2"></i>{{ __('Sales & Revenue') }}</h5>
-                <small class="text-muted">{{ __('Last 30 days') }}</small>
-            </div>
-            <div class="card-body h-380 pos-relative">
-                <canvas id="salesChart" aria-describedby="salesChartFallback"></canvas>
-                <noscript>
-                    <ul id="salesChartFallback" class="chart-fallback list-unstyled small mt-2">
-                        @php($labels = $salesChartData['labels'] ?? [])
-                        @foreach($labels as $i => $lbl)
-                        <li>{{ $lbl }} — {{ __('Orders') }}: {{ $salesChartData['orders'][$i] ?? 0 }},
-                            {{ __('Revenue') }}: {{ $salesChartData['revenue'][$i] ?? 0 }}</li>
-                        @endforeach
-                        @if(empty($labels))
-                        <li>{{ __('No sales data available') }}</li>
-                        @endif
-                    </ul>
-                </noscript>
-            </div>
-        </div>
-    </div>
+    <!-- Top Active Users -->
     <div class="col-lg-4 mb-4">
-        <div class="modern-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-pie me-2"></i>{{ __('Order Status Distribution') }}
-                </h5>
-            </div>
-            <div class="card-body h-380 pos-relative">
-                <canvas id="orderStatusChart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Additional Widgets -->
-<div class="row">
-    <!-- Quick Stats -->
-    <div class="col-lg-6 mb-4">
-        <div class="card modern-card">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="card-title mb-0">{{ __('System Overview') }}</h5>
-                        <small class="text-muted">{{ __('System health and performance') }}</small>
-                    </div>
-                    <button class="btn btn-sm btn-outline-secondary d-lg-none" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#systemOverviewCollapse" aria-expanded="true">
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="collapse show d-lg-block" id="systemOverviewCollapse">
-                    @if(isset($systemHealth))
-                    <div class="progress-item mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="progress-label">
-                                <i class="fas fa-database text-success me-1"></i>
-                                {{ __('Database Connection') }}
-                            </span>
-                            <span class="progress-value">
-                                @if($systemHealth['database'])
-                                <span class="text-success"><i class="fas fa-check-circle"></i>
-                                    {{ __('Connected') }}</span>
-                                @else
-                                <span class="text-danger"><i class="fas fa-times-circle"></i>
-                                    {{ __('Disconnected') }}</span>
-                                @endif
-                            </span>
-                        </div>
-                        <div class="progress">
-                            <div
-                                class="progress-bar {{ $systemHealth['database'] ? 'bg-success w-100p' : 'bg-danger w-0p' }}">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="progress-item mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="progress-label">
-                                <i class="fas fa-memory text-success me-1"></i>
-                                {{ __('Cache System') }}
-                            </span>
-                            <span class="progress-value">
-                                @if($systemHealth['cache'])
-                                <span class="text-success"><i class="fas fa-check-circle"></i>
-                                    {{ __('Working') }}</span>
-                                @else
-                                <span class="text-warning"><i class="fas fa-exclamation-triangle"></i>
-                                    {{ __('Issues') }}</span>
-                                @endif
-                            </span>
-                        </div>
-                        <div class="progress">
-                            <div
-                                class="progress-bar {{ $systemHealth['cache'] ? 'bg-success w-100p' : 'bg-warning w-50p' }}">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="progress-item">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="progress-label">
-                                <i class="fas fa-hdd text-warning me-1"></i>
-                                {{ __('Storage System') }}
-                            </span>
-                            <span class="progress-value">
-                                @if($systemHealth['storage'])
-                                <span class="text-success"><i class="fas fa-check-circle"></i>
-                                    {{ __('Available') }}</span>
-                                @else
-                                <span class="text-danger"><i class="fas fa-times-circle"></i> {{ __('Issues') }}</span>
-                                @endif
-                            </span>
-                        </div>
-                        <div class="progress">
-                            <div
-                                class="progress-bar {{ $systemHealth['storage'] ? 'bg-success w-100p' : 'bg-danger w-0p' }}">
-                            </div>
-                        </div>
-                    </div>
-                    @else
-                    <div class="text-center py-3">
-                        <i class="fas fa-exclamation-triangle text-warning"></i>
-                        <p class="text-muted mt-2">{{ __('System health data not available') }}</p>
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Top Users -->
-    <div class="col-lg-6 mb-4">
         <div class="card modern-card">
             <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
@@ -687,26 +550,22 @@
                         <small class="text-muted">{{ __('Most active users this week') }}</small>
                     </div>
                     <button class="btn btn-sm btn-outline-secondary d-lg-none" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#topUsersCollapse" aria-expanded="true">
+                        data-bs-target="#topUsersCollapseNew" aria-expanded="true">
                         <i class="fas fa-chevron-down"></i>
                     </button>
                 </div>
             </div>
             <div class="card-body">
-                <div class="collapse show d-lg-block" id="topUsersCollapse">
+                <div class="collapse show d-lg-block" id="topUsersCollapseNew">
                     @if(isset($topUsers) && count($topUsers) > 0)
                     <div class="user-list">
                         @foreach($topUsers as $user)
                         <div class="user-item">
                             <div class="user-avatar">
-                                @if($user->avatar)
-                                <img src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}">
-                                @else
                                 <div
                                     class="bg-primary text-white d-flex align-items-center justify-content-center h-100 rounded">
                                     {{ strtoupper(substr($user->name, 0, 1)) }}
                                 </div>
-                                @endif
                             </div>
                             <div class="user-info">
                                 <div class="user-name">{{ $user->name }}</div>
@@ -732,4 +591,46 @@
             </div>
         </div>
     </div>
-    @endsection
+</div>
+
+<!-- Sales & Orders Charts -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-4">
+        <div class="modern-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-area me-2"></i>{{ __('Sales & Revenue') }}</h5>
+                <small class="text-muted">{{ __('Last 30 days') }}</small>
+            </div>
+            <div class="card-body h-380 pos-relative">
+                <canvas id="salesChart" aria-describedby="salesChartFallback"></canvas>
+                <noscript>
+                    <ul id="salesChartFallback" class="chart-fallback list-unstyled small mt-2">
+                        @php($labels = $salesChartData['labels'] ?? [])
+                        @foreach($labels as $i => $lbl)
+                        <li>{{ $lbl }} — {{ __('Orders') }}: {{ $salesChartData['orders'][$i] ?? 0 }},
+                            {{ __('Revenue') }}: {{ $salesChartData['revenue'][$i] ?? 0 }}
+                        </li>
+                        @endforeach
+                        @if(empty($labels))
+                        <li>{{ __('No sales data available') }}</li>
+                        @endif
+                    </ul>
+                </noscript>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="modern-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-pie me-2"></i>{{ __('Order Status Distribution') }}
+                </h5>
+            </div>
+            <div class="card-body h-380 pos-relative">
+                <canvas id="orderStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@endsection
