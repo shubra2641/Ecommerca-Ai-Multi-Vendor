@@ -41,24 +41,24 @@
 
 <!-- Dashboard Data Bridge for Unified Charts -->
 <script id="dashboard-data" type="application/json">
-{
-    "charts": {
-        "users": {
-            "labels": <?php echo json_encode($chartData['labels'] ?? [], 15, 512) ?>,
-            "data": <?php echo json_encode($chartData['data'] ?? [], 15, 512) ?>
-        },
-        "sales": {
-            "labels": <?php echo json_encode($salesChartData['labels'] ?? [], 15, 512) ?>,
-            "orders": <?php echo json_encode($salesChartData['orders'] ?? [], 15, 512) ?>,
-            "revenue": <?php echo json_encode($salesChartData['revenue'] ?? [], 15, 512) ?>
-        },
-        "ordersStatus": {
-            "labels": <?php echo json_encode($orderStatusChartData['labels'] ?? [], 15, 512) ?>,
-            "data": <?php echo json_encode($orderStatusChartData['data'] ?? [], 15, 512) ?>,
-            "colors": <?php echo json_encode($orderStatusChartData['colors'] ?? [], 15, 512) ?>
+    {
+        "charts": {
+            "users": {
+                "labels": <?php echo json_encode($chartData['labels'] ?? [], 15, 512) ?>,
+                "data": <?php echo json_encode($chartData['data'] ?? [], 15, 512) ?>
+            },
+            "sales": {
+                "labels": <?php echo json_encode($salesChartData['labels'] ?? [], 15, 512) ?>,
+                "orders": <?php echo json_encode($salesChartData['orders'] ?? [], 15, 512) ?>,
+                "revenue": <?php echo json_encode($salesChartData['revenue'] ?? [], 15, 512) ?>
+            },
+            "ordersStatus": {
+                "labels": <?php echo json_encode($orderStatusChartData['labels'] ?? [], 15, 512) ?>,
+                "data": <?php echo json_encode($orderStatusChartData['data'] ?? [], 15, 512) ?>,
+                "colors": <?php echo json_encode($orderStatusChartData['colors'] ?? [], 15, 512) ?>
+            }
         }
     }
-}
 </script>
 
 <!-- Statistics Cards -->

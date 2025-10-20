@@ -40,24 +40,24 @@
 
 <!-- Dashboard Data Bridge for Unified Charts -->
 <script id="dashboard-data" type="application/json">
-{
-    "charts": {
-        "users": {
-            "labels": @json($chartData['labels'] ?? []),
-            "data": @json($chartData['data'] ?? [])
-        },
-        "sales": {
-            "labels": @json($salesChartData['labels'] ?? []),
-            "orders": @json($salesChartData['orders'] ?? []),
-            "revenue": @json($salesChartData['revenue'] ?? [])
-        },
-        "ordersStatus": {
-            "labels": @json($orderStatusChartData['labels'] ?? []),
-            "data": @json($orderStatusChartData['data'] ?? []),
-            "colors": @json($orderStatusChartData['colors'] ?? [])
+    {
+        "charts": {
+            "users": {
+                "labels": @json($chartData['labels'] ?? []),
+                "data": @json($chartData['data'] ?? [])
+            },
+            "sales": {
+                "labels": @json($salesChartData['labels'] ?? []),
+                "orders": @json($salesChartData['orders'] ?? []),
+                "revenue": @json($salesChartData['revenue'] ?? [])
+            },
+            "ordersStatus": {
+                "labels": @json($orderStatusChartData['labels'] ?? []),
+                "data": @json($orderStatusChartData['data'] ?? []),
+                "colors": @json($orderStatusChartData['colors'] ?? [])
+            }
         }
     }
-}
 </script>
 
 <!-- Statistics Cards -->
