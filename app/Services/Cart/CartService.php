@@ -17,7 +17,7 @@ class CartService
         $cart = $this->getCart();
         $items = $this->buildItems($cart);
         $total = $this->calculateTotal($items);
-        
+
         return view('front.cart.index', [
             'items' => $items,
             'total' => $total,
@@ -85,7 +85,7 @@ class CartService
     private function buildItems(array $cart): array
     {
         $items = [];
-        
+
         foreach ($cart as $key => $row) {
             $product = Product::find(explode(':', $key)[0]);
             if ($product) {
@@ -102,7 +102,7 @@ class CartService
                 ];
             }
         }
-        
+
         return $items;
     }
 
