@@ -39,24 +39,28 @@
 </div>
 
 <!-- Dashboard Data Bridge for Unified Charts -->
-<script id="dashboard-data" type="application/json">{!! json_encode([
-    'charts' => [
-        'users' => [
-            'labels' => $chartData['labels'] ?? [],
-            'data' => $chartData['data'] ?? [],
-        ],
-        'sales' => [
-            'labels' => $salesChartData['labels'] ?? [],
-            'orders' => $salesChartData['orders'] ?? [],
-            'revenue' => $salesChartData['revenue'] ?? [],
-        ],
-        'ordersStatus' => [
-            'labels' => $orderStatusChartData['labels'] ?? [],
-            'data' => $orderStatusChartData['data'] ?? [],
-            'colors' => $orderStatusChartData['colors'] ?? [],
-        ],
-    ],
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
+<script id="dashboard-data" type="application/json">
+    {
+        !!json_encode([
+            'charts' => [
+                'users' => [
+                    'labels' => $chartData['labels'] ?? [],
+                    'data' => $chartData['data'] ?? [],
+                ],
+                'sales' => [
+                    'labels' => $salesChartData['labels'] ?? [],
+                    'orders' => $salesChartData['orders'] ?? [],
+                    'revenue' => $salesChartData['revenue'] ?? [],
+                ],
+                'ordersStatus' => [
+                    'labels' => $orderStatusChartData['labels'] ?? [],
+                    'data' => $orderStatusChartData['data'] ?? [],
+                    'colors' => $orderStatusChartData['colors'] ?? [],
+                ],
+            ],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!
+    }
+</script>
 
 <!-- Statistics Cards -->
 <div class="row mb-4">
@@ -574,8 +578,8 @@
                                 </div>
                             </div>
                             <div class="user-badge">
-                                <span class="badge badge-{{ $user->is_active ? 'success' : 'warning' }}">
-                                    {{ $user->is_active ? __('Active') : __('Inactive') }}
+                                <span class="badge badge-success">
+                                    {{ __('Active') }}
                                 </span>
                             </div>
                         </div>

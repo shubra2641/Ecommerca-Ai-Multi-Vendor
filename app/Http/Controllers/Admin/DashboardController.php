@@ -88,7 +88,7 @@ class DashboardController extends Controller
 
         // Get order status distribution data
         $orderStatusChartData = $this->getOrderStatusChartData();
-        
+
         // Debug: Log chart data to ensure it's being generated
         \Log::info('Dashboard Chart Data:', [
             'chartData' => $chartData,
@@ -412,11 +412,10 @@ class DashboardController extends Controller
     private function getTopActiveUsers()
     {
         return User::whereNotNull('approved_at')
-            ->where('is_active', true)
             ->orderBy('last_login_at', 'desc')
             ->orderBy('updated_at', 'desc')
             ->take(5)
-            ->get(['id', 'name', 'email', 'role', 'is_active', 'last_login_at', 'updated_at', 'created_at']);
+            ->get(['id', 'name', 'email', 'role', 'last_login_at', 'updated_at', 'created_at']);
     }
 
     /**
