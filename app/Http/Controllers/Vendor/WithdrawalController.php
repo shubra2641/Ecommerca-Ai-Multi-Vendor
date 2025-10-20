@@ -18,7 +18,7 @@ class WithdrawalController extends Controller
         $user = Auth::user();
         $userId = $user->id;
         $heldOnly = request('held') === '1';
-        
+
         $withdrawals = VendorWithdrawal::where('user_id', $userId)
             ->when($heldOnly, fn($q) => $q->whereNotNull('held_at'))
             ->latest()
@@ -47,14 +47,14 @@ class WithdrawalController extends Controller
         $user = Auth::user();
         $setting = Setting::first();
         $rawGateways = $setting->withdrawal_gateways ?? ['Bank Transfer'];
-        
+
         // Simplify gateway processing
         $gateways = [];
         if (is_string($rawGateways)) {
             $decoded = json_decode($rawGateways, true);
             $rawGateways = is_array($decoded) ? $decoded : array_filter(explode("\n", $rawGateways));
         }
-        
+
         foreach ((array)$rawGateways as $gateway) {
             $label = is_array($gateway) ? ($gateway['label'] ?? $gateway['name'] ?? '') : $gateway;
             if ($label) {
@@ -77,7 +77,7 @@ class WithdrawalController extends Controller
     {
         $user = Auth::user();
         $setting = Setting::first();
-        
+
         // Simple validation
         $min = $setting->min_withdrawal_amount ?? 1;
         $request->validate([
@@ -103,7 +103,7 @@ class WithdrawalController extends Controller
         try {
             // Update balance
             DB::table('users')->where('id', $user->id)->update(['balance' => (float) $user->balance - $netAmount]);
-            
+
             // Create withdrawal
             $withdrawal = VendorWithdrawal::create([
                 'user_id' => $user->id,
@@ -160,7 +160,6 @@ class WithdrawalController extends Controller
             }
 
             return redirect()->route('vendor.withdrawals.index')->with('success', __('Withdrawal request submitted'));
-            
         } catch (\Throwable $e) {
             DB::rollBack();
             return back()->withErrors(['amount' => __('Failed to create withdrawal: :msg', ['msg' => $e->getMessage()])])->withInput();
@@ -170,11 +169,11 @@ class WithdrawalController extends Controller
     public function receipt(VendorWithdrawal $withdrawal)
     {
         $this->authorize('view', $withdrawal);
-        
+
         if ($withdrawal->user_id !== Auth::id()) {
             abort(403);
         }
-        
+
         if ($withdrawal->status !== 'completed') {
             return redirect()->route('vendor.withdrawals.index')->with('error', __('Receipt available after completion'));
         }

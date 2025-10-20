@@ -16,7 +16,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $period = $request->get('period', '6m');
-        
+
         if ($request->get('refresh', false)) {
             Cache::forget('dashboard_stats');
         }
@@ -71,7 +71,7 @@ class DashboardController extends Controller
         $labels = [];
         $orders = [];
         $revenue = [];
-        
+
         for ($i = 29; $i >= 0; $i--) {
             $date = now()->subDays($i);
             $dayKey = $date->format('Y-m-d');
@@ -86,7 +86,7 @@ class DashboardController extends Controller
     private function getOrderStatusData()
     {
         $statuses = Order::selectRaw('status, COUNT(*) as count')->groupBy('status')->pluck('count', 'status')->toArray();
-        
+
         if (empty($statuses)) {
             return [
                 'labels' => ['Pending', 'Processing', 'Shipped', 'Delivered'],

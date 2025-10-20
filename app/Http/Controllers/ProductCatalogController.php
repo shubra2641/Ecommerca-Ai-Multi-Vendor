@@ -7,37 +7,102 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductTag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class ProductCatalogController extends Controller
 {
     /**
-     * Base query for products
+     * Main catalog index
      */
-    protected function baseQuery()
+    public function index(Request $request)
     {
-        $select = [
-            'id',
-            'name',
-            'slug',
-            'price',
-            'sale_price',
-            'product_category_id',
-            'manage_stock',
-            'stock_qty',
-            'reserved_qty',
-            'type',
-            'main_image',
-            'is_featured',
-            'active',
-            'vendor_id'
+        $query = $this->buildBaseQuery();
+        $query = $this->applyFilters($query, $request);
+        $products = $this->getProducts($query, $request);
+        $data = $this->getViewData($request);
+
+        return view('front.products.index', array_merge($data, compact('products')));
+    }
+
+    /**
+     * Category page
+     */
+    public function category($slug, Request $request)
+    {
+        $category = ProductCategory::where('slug', $slug)->firstOrFail();
+        $query = $this->buildBaseQuery();
+        $query = $this->applyCategoryFilter($query, $category);
+        $query = $this->applyFilters($query, $request);
+        $products = $this->getProducts($query, $request);
+        $data = $this->getViewData($request);
+
+        return view('front.products.category', array_merge($data, compact('category', 'products')));
+    }
+
+    /**
+     * Tag page
+     */
+    public function tag($slug, Request $request)
+    {
+        $tag = ProductTag::where('slug', $slug)->firstOrFail();
+        $query = $this->buildBaseQuery();
+        $query->whereHas('tags', function ($t) use ($tag) {
+            $t->where('product_tags.id', $tag->id);
+        });
+        $query = $this->applyFilters($query, $request);
+        $products = $this->getProducts($query, $request);
+        $data = $this->getViewData($request);
+
+        return view('front.products.tag', array_merge($data, compact('tag', 'products')));
+    }
+
+    /**
+     * Product detail page
+     */
+    public function show($slug)
+    {
+        $product = $this->getProduct($slug);
+        $this->convertPrices(collect([$product]));
+
+        $data = [
+            'product' => $product,
+            'related' => $this->getRelatedProducts($product),
+            'currentCurrency' => $this->getCurrentCurrency(),
+            'gallery' => $this->getProductGallery($product),
+            'pricing' => $this->getPricingData($product),
+            'stock' => $this->getStockData($product),
+            'reviews' => $this->getReviewsData($product),
+            'user' => $this->getUserData($product),
         ];
-        $q = Product::query()
-            ->select($select)
+
+        return view('front.products.show', $data);
+    }
+
+    /**
+     * Build base query for products
+     */
+    protected function buildBaseQuery()
+    {
+        return Product::query()
+            ->select([
+                'id',
+                'name',
+                'slug',
+                'price',
+                'sale_price',
+                'product_category_id',
+                'manage_stock',
+                'stock_qty',
+                'reserved_qty',
+                'type',
+                'main_image',
+                'is_featured',
+                'active',
+                'vendor_id'
+            ])
             ->with(['category', 'brand'])
             ->active();
-
-        return $q;
     }
 
     /**
@@ -102,241 +167,185 @@ class ProductCatalogController extends Controller
     }
 
     /**
-     * Process products for display
+     * Apply category filter
      */
-    protected function processProducts($products)
+    protected function applyCategoryFilter($query, $category)
     {
-        // Add availability
-        foreach ($products as $p) {
-            $p->list_available = $p->manage_stock ? max(0, ($p->stock_qty ?? 0) - ($p->reserved_qty ?? 0)) : null;
-        }
-
-        // Convert prices
-        $this->convertPrices($products);
-
-        return $products;
-    }
-
-    /**
-     * Convert product prices for display
-     */
-    protected function convertPrices($products)
-    {
-        try {
-            $sessionCurrencyId = session('currency_id');
-            if ($sessionCurrencyId) {
-                $target = \App\Models\Currency::find($sessionCurrencyId);
-                $default = \App\Models\Currency::getDefault();
-                if ($target && $default && $target->id !== $default->id) {
-                    foreach ($products as $p) {
-                        $p->display_price = $default->convertTo($p->price, $target, 2);
-                    }
-                } else {
-                    foreach ($products as $p) {
-                        $p->display_price = $p->price;
-                    }
-                }
-            } else {
-                foreach ($products as $p) {
-                    $p->display_price = $p->price;
-                }
-            }
-        } catch (\Throwable $e) {
-            foreach ($products as $p) {
-                $p->display_price = $p->price;
-            }
-        }
-    }
-
-    /**
-     * Get common data for views
-     */
-    protected function getCommonData(Request $request)
-    {
-        $categories = Cache::remember('product_category_tree', 600, function () {
-            return ProductCategory::with('children.children')->whereNull('parent_id')->get();
-        });
-
-        $brandList = Cache::remember('product_brands_list', 600, function () {
-            return Brand::active()->withCount('products')->orderByDesc('products_count')->take(30)->get();
-        });
-
-        $wishlistIds = [];
-        if ($request->user()?->id) {
-            $wishlistIds = (array) Cache::remember(
-                'wishlist_ids_' . $request->user()->id,
-                60,
-                function () use ($request) {
-                    return \App\Models\WishlistItem::where('user_id', $request->user()->id)
-                        ->pluck('product_id')
-                        ->all();
-                }
-            );
-        } else {
-            $wishlistSession = session('wishlist');
-            $wishlistIds = is_array($wishlistSession) && $wishlistSession ? $wishlistSession : [];
-        }
-
-        $compareIds = session('compare', []);
-        $currentCurrency = $this->resolveCurrentCurrency();
-
-        return compact('categories', 'brandList', 'wishlistIds', 'compareIds', 'currentCurrency');
-    }
-
-    /**
-     * Main catalog index
-     */
-    public function index(Request $request)
-    {
-        $query = $this->baseQuery();
-
-        // Category filter
-        if ($cat = $request->get('category')) {
-            $slugMap = Cache::remember(
-                'product_category_slug_id_map',
-                600,
-                fn() => ProductCategory::pluck('id', 'slug')->all()
-            );
-            $id = $slugMap[$cat] ?? null;
-            if ($id) {
-                $childIds = Cache::remember(
-                    'category_children_ids_' . $id,
-                    600,
-                    fn() => ProductCategory::where('parent_id', $id)->pluck('id')->all()
-                );
-                $query->where(function ($qq) use ($id, $childIds) {
-                    $qq->where('product_category_id', $id)
-                        ->orWhereIn('product_category_id', $childIds);
-                });
-            }
-        }
-
-        // Tag filter
-        if ($tag = $request->get('tag')) {
-            $query->whereHas('tags', fn($t) => $t->where('slug', $tag));
-        }
-
-        $query = $this->applyFilters($query, $request);
-        $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
-
-        $commonData = $this->getCommonData($request);
-        $selectedBrands = (array) $request->get('brand', []);
-
-        return view('front.products.index', array_merge($commonData, compact('products', 'selectedBrands')));
-    }
-
-    /**
-     * Category page
-     */
-    public function category($slug, Request $request)
-    {
-        $category = ProductCategory::where('slug', $slug)->firstOrFail();
         $childIds = Cache::remember('category_children_ids_' . $category->id, 600, function () use ($category) {
             return $category->children()->pluck('id')->all();
         });
 
-        $query = $this->baseQuery()->where(function ($qq) use ($category, $childIds) {
-            $qq->where('product_category_id', $category->id)->orWhereIn('product_category_id', $childIds);
+        return $query->where(function ($qq) use ($category, $childIds) {
+            $qq->where('product_category_id', $category->id)
+                ->orWhereIn('product_category_id', $childIds);
         });
-
-        $query = $this->applyFilters($query, $request);
-        $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
-
-        $commonData = $this->getCommonData($request);
-
-        return view('front.products.category', array_merge($commonData, compact('category', 'products')));
     }
 
     /**
-     * Tag page
+     * Get products with processing
      */
-    public function tag($slug, Request $request)
+    protected function getProducts($query, Request $request)
     {
-        $tag = ProductTag::where('slug', $slug)->firstOrFail();
-        $query = $this->baseQuery()->whereHas('tags', function ($t) use ($tag) {
-            $t->where('product_tags.id', $tag->id);
-        });
-
-        $query = $this->applyFilters($query, $request);
-        $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
-
-        $commonData = $this->getCommonData($request);
-
-        return view('front.products.tag', array_merge($commonData, compact('tag', 'products')));
+        $products = $query->simplePaginate(24)->withQueryString();
+        $this->processProducts($products);
+        return $products;
     }
 
     /**
-     * Product detail page
+     * Process products for display
      */
-    public function show($slug)
+    protected function processProducts($products)
     {
-        $product = Product::with(['category', 'tags', 'variations'])
-            ->withCount([
-                'reviews as approved_reviews_count' => function ($q) {
-                    $q->where('approved', true);
+        foreach ($products as $product) {
+            $product->list_available = $product->manage_stock
+                ? max(0, ($product->stock_qty ?? 0) - ($product->reserved_qty ?? 0))
+                : null;
+        }
+        $this->convertPrices($products);
+    }
+
+    /**
+     * Convert product prices
+     */
+    protected function convertPrices($products)
+    {
+        if ($products->isEmpty()) return;
+
+        try {
+            $sessionCurrencyId = session('currency_id');
+            if (!$sessionCurrencyId) {
+                $this->setDefaultPrices($products);
+                return;
+            }
+
+            $target = \App\Models\Currency::find($sessionCurrencyId);
+            $default = \App\Models\Currency::getDefault();
+
+            if (!$target || !$default || $target->id === $default->id) {
+                $this->setDefaultPrices($products);
+                return;
+            }
+
+            foreach ($products as $product) {
+                $product->display_price = $default->convertTo($product->price, $target, 2);
+            }
+        } catch (\Throwable $e) {
+            $this->setDefaultPrices($products);
+        }
+    }
+
+    /**
+     * Set default prices
+     */
+    protected function setDefaultPrices($products)
+    {
+        foreach ($products as $product) {
+            $product->display_price = $product->price;
+        }
+    }
+
+    /**
+     * Get view data
+     */
+    protected function getViewData(Request $request)
+    {
+        return [
+            'categories' => Cache::remember('product_category_tree', 600, function () {
+                return ProductCategory::with('children.children')->whereNull('parent_id')->get();
+            }),
+            'brandList' => Cache::remember('product_brands_list', 600, function () {
+                return Brand::active()->withCount('products')->orderByDesc('products_count')->take(30)->get();
+            }),
+            'wishlistIds' => $this->getWishlistIds($request),
+            'compareIds' => session('compare', []),
+            'currentCurrency' => $this->getCurrentCurrency(),
+            'selectedBrands' => (array) $request->get('brand', []),
+        ];
+    }
+
+    /**
+     * Get wishlist IDs
+     */
+    protected function getWishlistIds(Request $request)
+    {
+        if ($request->user()?->id) {
+            return (array) Cache::remember(
+                'wishlist_ids_' . $request->user()->id,
+                60,
+                function () use ($request) {
+                    return \App\Models\WishlistItem::where('user_id', $request->user()->id)
+                        ->pluck('product_id')->all();
                 }
-            ])
-            ->withAvg([
-                'reviews as approved_reviews_avg' => function ($q) {
-                    $q->where('approved', true);
-                }
-            ], 'rating')
+            );
+        }
+        return session('wishlist', []);
+    }
+
+    /**
+     * Get current currency
+     */
+    protected function getCurrentCurrency()
+    {
+        static $cached = null;
+        if ($cached !== null) return $cached;
+
+        try {
+            $cid = session('currency_id');
+            $cached = $cid ? \App\Models\Currency::find($cid) : \App\Models\Currency::getDefault();
+            return $cached ?: \App\Models\Currency::getDefault();
+        } catch (\Throwable $e) {
+            return \App\Models\Currency::getDefault();
+        }
+    }
+
+    /**
+     * Get product with details
+     */
+    protected function getProduct($slug)
+    {
+        return Product::with(['category', 'tags', 'variations'])
+            ->withCount(['reviews as approved_reviews_count' => function ($q) {
+                $q->where('approved', true);
+            }])
+            ->withAvg(['reviews as approved_reviews_avg' => function ($q) {
+                $q->where('approved', true);
+            }], 'rating')
             ->where('slug', $slug)
             ->firstOrFail();
+    }
 
-        // Build attribute map for variations
-        $attributeMap = [];
-        if ($product->type === 'variable') {
-            foreach ($product->variations as $v) {
-                if (!$v->active) {
-                    continue;
-                }
-                foreach (($v->attribute_data ?? []) as $attr => $val) {
-                    $attributeMap[$attr] = $attributeMap[$attr] ?? [];
-                    if (!in_array($val, $attributeMap[$attr])) {
-                        $attributeMap[$attr][] = $val;
-                    }
-                }
-            }
-        }
+    /**
+     * Get related products
+     */
+    protected function getRelatedProducts($product)
+    {
+        return Cache::remember('product_related_' . $product->id, 300, function () use ($product) {
+            return Product::active()
+                ->where('product_category_id', $product->product_category_id)
+                ->where('id', '!=', $product->id)
+                ->with('variations')
+                ->limit(6)
+                ->get();
+        });
+    }
 
-        // Related products
-        $related = Cache::remember(
-            'product_related_' . $product->id,
-            300,
-            function () use ($product) {
-                return Product::active()
-                    ->where('product_category_id', $product->product_category_id)
-                    ->where('id', '!=', $product->id)
-                    ->with('variations')
-                    ->limit(6)
-                    ->get();
-            }
-        );
-
-        // Convert price
-        $this->convertPrices(collect([$product]));
-
-        $currentCurrency = session('currency_id')
-            ? \App\Models\Currency::find(session('currency_id'))
-            : \App\Models\Currency::getDefault();
-
-        // Reviews data
-        $reviewsCount = (int) ($product->approved_reviews_count ?? 0);
-        $rating = $reviewsCount ? (float) ($product->approved_reviews_avg ?? 0) : 0;
-
-        // Gallery images
+    /**
+     * Get product gallery
+     */
+    protected function getProductGallery($product)
+    {
         $images = collect();
+
         if (!empty($product->main_image)) {
             $images->push($product->main_image);
         }
+
         if (!empty($product->gallery) && is_array($product->gallery)) {
             foreach ($product->gallery as $img) {
-                if ($img) {
-                    $images->push($img);
-                }
+                if ($img) $images->push($img);
             }
         }
+
         if ($product->type === 'variable' && $product->variations->count()) {
             foreach ($product->variations->where('active', true) as $v) {
                 if (!empty($v->image) && !$images->contains($v->image)) {
@@ -344,14 +353,20 @@ class ProductCatalogController extends Controller
                 }
             }
         }
+
         if ($images->isEmpty()) {
             $images->push('front/images/default-product.png');
         }
 
         $gallery = $images->map(fn($p) => ['raw' => $p, 'url' => asset($p)]);
-        $mainImage = $gallery->first();
+        return ['gallery' => $gallery, 'mainImage' => $gallery->first()];
+    }
 
-        // Pricing
+    /**
+     * Get pricing data
+     */
+    protected function getPricingData($product)
+    {
         $onSale = $product->isOnSale();
         $basePrice = $product->display_price ?? $product->effectivePrice();
         $origPrice = $product->display_price ?? $product->price;
@@ -359,118 +374,47 @@ class ProductCatalogController extends Controller
             ? (int) round((($origPrice - $basePrice) / $origPrice) * 100)
             : null;
 
-        // Stock
+        return compact('onSale', 'basePrice', 'origPrice', 'discountPercent');
+    }
+
+    /**
+     * Get stock data
+     */
+    protected function getStockData($product)
+    {
         $available = $product->availableStock();
         $stockClass = 'high-stock';
+
         if ($available === 0) {
             $stockClass = 'out-stock';
         } elseif (!is_null($available)) {
-            if ($available <= 5) {
-                $stockClass = 'low-stock';
-            } elseif ($available <= 20) {
-                $stockClass = 'mid-stock';
-            }
+            if ($available <= 5) $stockClass = 'low-stock';
+            elseif ($available <= 20) $stockClass = 'mid-stock';
         }
 
-        $levelLabel = '';
-        if ($available === 0) {
-            $levelLabel = __('Out of stock');
-        } elseif (is_numeric($available)) {
-            if ($available <= 5) {
-                $levelLabel = __('In stock') . " ({$available}) • Low stock";
-            } elseif ($available <= 20) {
-                $levelLabel = __('In stock') . " ({$available}) • Mid stock";
-            } else {
-                $levelLabel = __('In stock') . " ({$available}) • High stock";
-            }
-        } else {
-            $levelLabel = __('In stock');
-        }
+        $levelLabel = $this->getStockLabel($available);
+        return compact('available', 'stockClass', 'levelLabel');
+    }
 
-        // Interest count
-        try {
-            $interestCount = \App\Models\ProductInterest::countForProduct($product->id);
-        } catch (\Throwable $e) {
-            $interestCount = 0;
-        }
+    /**
+     * Get stock label
+     */
+    protected function getStockLabel($available)
+    {
+        if ($available === 0) return __('Out of stock');
+        if (!is_numeric($available)) return __('In stock');
 
-        // Variation price range
-        $minP = $maxP = null;
-        $activeVars = collect();
-        if ($product->type === 'variable') {
-            $activeVars = $product->variations->where('active', true);
-            $prices = $activeVars->map(fn($v) => $v->effectivePrice())->filter();
-            if ($prices->count()) {
-                $minP = $prices->min();
-                $maxP = $prices->max();
-            }
-        }
+        $level = $available <= 5 ? 'Low' : ($available <= 20 ? 'Mid' : 'High');
+        return __('In stock') . " ({$available}) • {$level} stock";
+    }
 
-        // Variation attributes
-        $usedAttrs = is_array($product->used_attributes) ? $product->used_attributes : array_keys($attributeMap);
-        $variationAttributes = [];
-        foreach ($attributeMap as $attrName => $values) {
-            if (!in_array($attrName, $usedAttrs)) {
-                continue;
-            }
-
-            $lower = strtolower($attrName);
-            $icon = '⚙️';
-            if (in_array($lower, ['color', 'colour', 'color_name', 'colour_name'])) {
-                $icon = '🎨';
-            } elseif (in_array($lower, ['size', 'sizes'])) {
-                $icon = '📏';
-            } elseif (in_array($lower, ['material', 'fabric'])) {
-                $icon = '🧵';
-            }
-
-            $isColor = in_array($lower, ['color', 'colour', 'color_name', 'colour_name']);
-            $variationAttributes[] = [
-                'name' => $attrName,
-                'label' => str_replace('_', ' ', $attrName),
-                'icon' => $icon,
-                'is_color' => $isColor,
-                'values' => $values,
-            ];
-        }
-
-        // Tags
-        $tagsCount = $product->tags->count();
-        $tagsFirst = $product->tags->take(6);
-        $tagsMore = $tagsCount > 6 ? $product->tags->slice(6) : collect();
-
-        // Dimensions
-        $dims = array_filter([$product->length, $product->width, $product->height]);
-        $hasDims = count($dims) > 0;
-
-        // Spec count
-        $specCount = 0;
-        if ($product->sku) {
-            $specCount++;
-        }
-        if ($product->weight) {
-            $specCount++;
-        }
-        if ($product->length) {
-            $specCount++;
-        }
-        if ($product->width) {
-            $specCount++;
-        }
-        if ($product->height) {
-            $specCount++;
-        }
-        $specCount++;
-        if ($product->refund_days) {
-            $specCount++;
-        }
-
-        // Flags
-        $isOut = ($available === 0);
-        $hasDiscount = $onSale;
-        $brandName = $product->brand->name ?? null;
-
-        // Reviews
+    /**
+     * Get reviews data
+     */
+    protected function getReviewsData($product)
+    {
+        $reviewsCount = (int) ($product->approved_reviews_count ?? 0);
+        $rating = $reviewsCount ? (float) ($product->approved_reviews_avg ?? 0) : 0;
         $formattedReviewsCount = $reviewsCount >= 1000 ? round($reviewsCount / 1000, 1) . 'k' : $reviewsCount;
 
         try {
@@ -488,98 +432,85 @@ class ProductCatalogController extends Controller
             ];
         }
 
-        // Check if user purchased
-        $purchased = false;
-        if (auth()->check()) {
-            try {
-                $user = auth()->user();
-                if (method_exists($user, 'orders')) {
-                    $purchased = $user->orders()
-                        ->whereIn('status', ['completed', 'paid', 'delivered'])
-                        ->whereHas('items', function ($q) use ($product) {
-                            $q->where('product_id', $product->id);
-                        })
-                        ->exists();
-                }
-            } catch (\Throwable $e) {
-                $purchased = false;
-            }
-        }
-
-        // Stars
-        $fullRating = (int) floor($rating);
         $stars = [];
+        $fullRating = (int) floor($rating);
         for ($i = 1; $i <= 5; $i++) {
             $stars[] = ['index' => $i, 'filled' => $i <= $fullRating];
         }
 
-        // In cart
-        try {
-            $inCart = (bool) (session('cart') && isset(session('cart')[$product->id]));
-        } catch (\Throwable $e) {
-            $inCart = false;
-        }
-
-        return view('front.products.show', compact(
-            'product',
-            'attributeMap',
-            'related',
-            'currentCurrency',
-            'rating',
-            'reviewsCount',
-            'gallery',
-            'mainImage',
-            'onSale',
-            'basePrice',
-            'origPrice',
-            'discountPercent',
-            'available',
-            'stockClass',
-            'levelLabel',
-            'interestCount',
-            'minP',
-            'maxP',
-            'variationAttributes',
-            'usedAttrs',
-            'tagsCount',
-            'tagsFirst',
-            'tagsMore',
-            'hasDims',
-            'dims',
-            'specCount',
-            'isOut',
-            'hasDiscount',
-            'brandName',
-            'formattedReviewsCount',
-            'reviews',
-            'reviewStats',
-            'purchased',
-            'stars',
-            'inCart'
-        ));
+        return compact('reviewsCount', 'rating', 'formattedReviewsCount', 'reviews', 'reviewStats', 'stars');
     }
 
     /**
-     * Resolve current currency
+     * Get user data
      */
-    protected function resolveCurrentCurrency()
+    protected function getUserData($product)
     {
-        static $cached = null;
-        if ($cached !== null) {
-            return $cached;
-        }
+        $available = $product->availableStock();
+        $onSale = $product->isOnSale();
+
+        return [
+            'tagsCount' => $product->tags->count(),
+            'tagsFirst' => $product->tags->take(6),
+            'tagsMore' => $product->tags->slice(6),
+            'hasDims' => count(array_filter([$product->length, $product->width, $product->height])) > 0,
+            'dims' => array_filter([$product->length, $product->width, $product->height]),
+            'specCount' => $this->calculateSpecCount($product),
+            'isOut' => ($available === 0),
+            'hasDiscount' => $onSale,
+            'brandName' => $product->brand->name ?? null,
+            'purchased' => $this->checkUserPurchased($product),
+            'inCart' => $this->checkInCart($product),
+        ];
+    }
+
+    /**
+     * Calculate spec count
+     */
+    protected function calculateSpecCount($product)
+    {
+        $count = 0;
+        if ($product->sku) $count++;
+        if ($product->weight) $count++;
+        if ($product->length) $count++;
+        if ($product->width) $count++;
+        if ($product->height) $count++;
+        if ($product->refund_days) $count++;
+        return $count + 1; // +1 for base spec
+    }
+
+    /**
+     * Check if user purchased product
+     */
+    protected function checkUserPurchased($product)
+    {
+        if (!Auth::check()) return false;
 
         try {
-            $cid = session('currency_id');
-            if ($cid) {
-                $cached = \App\Models\Currency::find($cid) ?: \App\Models\Currency::getDefault();
-            } else {
-                $cached = \App\Models\Currency::getDefault();
+            $user = Auth::user();
+            if (method_exists($user, 'orders')) {
+                return $user->orders()
+                    ->whereIn('status', ['completed', 'paid', 'delivered'])
+                    ->whereHas('items', function ($q) use ($product) {
+                        $q->where('product_id', $product->id);
+                    })
+                    ->exists();
             }
+            return false;
         } catch (\Throwable $e) {
-            $cached = null;
+            return false;
         }
+    }
 
-        return $cached;
+    /**
+     * Check if product is in cart
+     */
+    protected function checkInCart($product)
+    {
+        try {
+            return (bool) (session('cart') && isset(session('cart')[$product->id]));
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 }
