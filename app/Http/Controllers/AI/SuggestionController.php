@@ -3,34 +3,27 @@
 namespace App\Http\Controllers\AI;
 
 use App\Http\Controllers\Controller;
-use App\Services\AI\BlogPostSuggestionService;
-use App\Services\AI\ProductSuggestionService;
-use App\Services\AI\CategorySuggestionService;
+use App\Services\AI\SimpleAIService;
 use Illuminate\Http\Request;
 
 class SuggestionController extends Controller
 {
-    public function blogPost(Request $request, BlogPostSuggestionService $service)
+    public function __construct(private SimpleAIService $ai)
     {
-        if (!$request->input('title')) {
-            return response()->json(['error' => 'Title required'], 422);
-        }
-        return $service->generateSuggestions($request->input('title'), $request->input('locale'));
     }
 
-    public function product(Request $request, ProductSuggestionService $service)
+    public function blogPost(Request $request)
     {
-        if (!$request->input('title')) {
-            return response()->json(['error' => 'Title required'], 422);
-        }
-        return $service->generateSuggestions($request->input('title'), $request->input('locale'));
+        return $this->ai->generate($request->input('title', ''), 'blog', $request->input('locale'));
     }
 
-    public function category(Request $request, CategorySuggestionService $service)
+    public function product(Request $request)
     {
-        if (!$request->input('title')) {
-            return response()->json(['error' => 'Title required'], 422);
-        }
-        return $service->generateSuggestions($request->input('title'), $request->input('locale'));
+        return $this->ai->generate($request->input('title', ''), 'product', $request->input('locale'));
+    }
+
+    public function category(Request $request)
+    {
+        return $this->ai->generate($request->input('title', ''), 'category', $request->input('locale'));
     }
 }
