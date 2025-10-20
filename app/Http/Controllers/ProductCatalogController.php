@@ -17,10 +17,10 @@ class ProductCatalogController extends Controller
      */
     public function index(Request $request)
     {
-        $query = $this->buildBaseQuery();
-        $query = $this->applyFilters($query, $request);
-        $products = $this->getProducts($query, $request);
-        $data = $this->getViewData($request);
+        $query = $this->getBaseQuery();
+        $this->applyFilters($query, $request);
+        $products = $this->getProducts($query);
+        $data = $this->getCommonData($request);
 
         return view('front.products.index', array_merge($data, compact('products')));
     }
@@ -31,11 +31,11 @@ class ProductCatalogController extends Controller
     public function category($slug, Request $request)
     {
         $category = ProductCategory::where('slug', $slug)->firstOrFail();
-        $query = $this->buildBaseQuery();
-        $query = $this->applyCategoryFilter($query, $category);
-        $query = $this->applyFilters($query, $request);
-        $products = $this->getProducts($query, $request);
-        $data = $this->getViewData($request);
+        $query = $this->getBaseQuery();
+        $this->applyCategoryFilter($query, $category);
+        $this->applyFilters($query, $request);
+        $products = $this->getProducts($query);
+        $data = $this->getCommonData($request);
 
         return view('front.products.category', array_merge($data, compact('category', 'products')));
     }
@@ -46,13 +46,11 @@ class ProductCatalogController extends Controller
     public function tag($slug, Request $request)
     {
         $tag = ProductTag::where('slug', $slug)->firstOrFail();
-        $query = $this->buildBaseQuery();
-        $query->whereHas('tags', function ($t) use ($tag) {
-            $t->where('product_tags.id', $tag->id);
-        });
-        $query = $this->applyFilters($query, $request);
-        $products = $this->getProducts($query, $request);
-        $data = $this->getViewData($request);
+        $query = $this->getBaseQuery();
+        $query->whereHas('tags', fn($t) => $t->where('product_tags.id', $tag->id));
+        $this->applyFilters($query, $request);
+        $products = $this->getProducts($query);
+        $data = $this->getCommonData($request);
 
         return view('front.products.tag', array_merge($data, compact('tag', 'products')));
     }
@@ -65,48 +63,33 @@ class ProductCatalogController extends Controller
         $product = $this->getProduct($slug);
         $this->convertPrices(collect([$product]));
 
-        $data = [
+        return view('front.products.show', [
             'product' => $product,
             'related' => $this->getRelatedProducts($product),
             'currentCurrency' => $this->getCurrentCurrency(),
-            'gallery' => $this->getProductGallery($product),
-            'pricing' => $this->getPricingData($product),
-            'stock' => $this->getStockData($product),
-            'reviews' => $this->getReviewsData($product),
-            'user' => $this->getUserData($product),
-        ];
-
-        return view('front.products.show', $data);
+            'gallery' => $this->getGallery($product),
+            'pricing' => $this->getPricing($product),
+            'stock' => $this->getStock($product),
+            'reviews' => $this->getReviews($product),
+            'user' => $this->getUserInfo($product),
+        ]);
     }
 
     /**
-     * Build base query for products
+     * Get base query
      */
-    protected function buildBaseQuery()
+    protected function getBaseQuery()
     {
         return Product::query()
-            ->select([
-                'id',
-                'name',
-                'slug',
-                'price',
-                'sale_price',
-                'product_category_id',
-                'manage_stock',
-                'stock_qty',
-                'reserved_qty',
-                'type',
-                'main_image',
-                'is_featured',
-                'active',
-                'vendor_id'
-            ])
+            ->select(['id', 'name', 'slug', 'price', 'sale_price', 'product_category_id', 
+                     'manage_stock', 'stock_qty', 'reserved_qty', 'type', 'main_image', 
+                     'is_featured', 'active', 'vendor_id'])
             ->with(['category', 'brand'])
             ->active();
     }
 
     /**
-     * Apply filters to query
+     * Apply filters
      */
     protected function applyFilters($query, Request $request)
     {
@@ -116,29 +99,17 @@ class ProductCatalogController extends Controller
         }
 
         // Filters
-        if ($request->boolean('featured')) {
-            $query->featured();
-        }
-        if ($request->boolean('best')) {
-            $query->bestSeller();
-        }
-        if ($request->boolean('sale')) {
-            $query->onSale();
-        }
-        if ($type = $request->get('type')) {
-            $query->where('type', $type);
-        }
+        if ($request->boolean('featured')) $query->featured();
+        if ($request->boolean('best')) $query->bestSeller();
+        if ($request->boolean('sale')) $query->onSale();
+        if ($type = $request->get('type')) $query->where('type', $type);
 
         // Price range
         if ($min = $request->get('min_price')) {
-            if (is_numeric($min)) {
-                $query->where('price', '>=', $min);
-            }
+            if (is_numeric($min)) $query->where('price', '>=', $min);
         }
         if ($max = $request->get('max_price')) {
-            if (is_numeric($max)) {
-                $query->where('price', '<=', $max);
-            }
+            if (is_numeric($max)) $query->where('price', '<=', $max);
         }
 
         // Brand filter
@@ -152,18 +123,11 @@ class ProductCatalogController extends Controller
         }
 
         // Sorting
-        switch ($request->get('sort')) {
-            case 'price_asc':
-                $query->orderBy('price');
-                break;
-            case 'price_desc':
-                $query->orderByDesc('price');
-                break;
-            default:
-                $query->latest();
-        }
-
-        return $query;
+        match ($request->get('sort')) {
+            'price_asc' => $query->orderBy('price'),
+            'price_desc' => $query->orderByDesc('price'),
+            default => $query->latest()
+        };
     }
 
     /**
@@ -171,20 +135,19 @@ class ProductCatalogController extends Controller
      */
     protected function applyCategoryFilter($query, $category)
     {
-        $childIds = Cache::remember('category_children_ids_' . $category->id, 600, function () use ($category) {
-            return $category->children()->pluck('id')->all();
-        });
+        $childIds = Cache::remember('category_children_ids_' . $category->id, 600, 
+            fn() => $category->children()->pluck('id')->all());
 
-        return $query->where(function ($qq) use ($category, $childIds) {
+        $query->where(function ($qq) use ($category, $childIds) {
             $qq->where('product_category_id', $category->id)
                 ->orWhereIn('product_category_id', $childIds);
         });
     }
 
     /**
-     * Get products with processing
+     * Get products
      */
-    protected function getProducts($query, Request $request)
+    protected function getProducts($query)
     {
         $products = $query->simplePaginate(24)->withQueryString();
         $this->processProducts($products);
@@ -192,20 +155,20 @@ class ProductCatalogController extends Controller
     }
 
     /**
-     * Process products for display
+     * Process products
      */
     protected function processProducts($products)
     {
         foreach ($products as $product) {
-            $product->list_available = $product->manage_stock
-                ? max(0, ($product->stock_qty ?? 0) - ($product->reserved_qty ?? 0))
+            $product->list_available = $product->manage_stock 
+                ? max(0, ($product->stock_qty ?? 0) - ($product->reserved_qty ?? 0)) 
                 : null;
         }
         $this->convertPrices($products);
     }
 
     /**
-     * Convert product prices
+     * Convert prices
      */
     protected function convertPrices($products)
     {
@@ -220,7 +183,7 @@ class ProductCatalogController extends Controller
 
             $target = \App\Models\Currency::find($sessionCurrencyId);
             $default = \App\Models\Currency::getDefault();
-
+            
             if (!$target || !$default || $target->id === $default->id) {
                 $this->setDefaultPrices($products);
                 return;
@@ -245,17 +208,15 @@ class ProductCatalogController extends Controller
     }
 
     /**
-     * Get view data
+     * Get common data
      */
-    protected function getViewData(Request $request)
+    protected function getCommonData(Request $request)
     {
         return [
-            'categories' => Cache::remember('product_category_tree', 600, function () {
-                return ProductCategory::with('children.children')->whereNull('parent_id')->get();
-            }),
-            'brandList' => Cache::remember('product_brands_list', 600, function () {
-                return Brand::active()->withCount('products')->orderByDesc('products_count')->take(30)->get();
-            }),
+            'categories' => Cache::remember('product_category_tree', 600, 
+                fn() => ProductCategory::with('children.children')->whereNull('parent_id')->get()),
+            'brandList' => Cache::remember('product_brands_list', 600, 
+                fn() => Brand::active()->withCount('products')->orderByDesc('products_count')->take(30)->get()),
             'wishlistIds' => $this->getWishlistIds($request),
             'compareIds' => session('compare', []),
             'currentCurrency' => $this->getCurrentCurrency(),
@@ -269,14 +230,9 @@ class ProductCatalogController extends Controller
     protected function getWishlistIds(Request $request)
     {
         if ($request->user()?->id) {
-            return (array) Cache::remember(
-                'wishlist_ids_' . $request->user()->id,
-                60,
-                function () use ($request) {
-                    return \App\Models\WishlistItem::where('user_id', $request->user()->id)
-                        ->pluck('product_id')->all();
-                }
-            );
+            return (array) Cache::remember('wishlist_ids_' . $request->user()->id, 60, 
+                fn() => \App\Models\WishlistItem::where('user_id', $request->user()->id)
+                    ->pluck('product_id')->all());
         }
         return session('wishlist', []);
     }
@@ -299,17 +255,13 @@ class ProductCatalogController extends Controller
     }
 
     /**
-     * Get product with details
+     * Get product
      */
     protected function getProduct($slug)
     {
         return Product::with(['category', 'tags', 'variations'])
-            ->withCount(['reviews as approved_reviews_count' => function ($q) {
-                $q->where('approved', true);
-            }])
-            ->withAvg(['reviews as approved_reviews_avg' => function ($q) {
-                $q->where('approved', true);
-            }], 'rating')
+            ->withCount(['reviews as approved_reviews_count' => fn($q) => $q->where('approved', true)])
+            ->withAvg(['reviews as approved_reviews_avg' => fn($q) => $q->where('approved', true)], 'rating')
             ->where('slug', $slug)
             ->firstOrFail();
     }
@@ -319,33 +271,30 @@ class ProductCatalogController extends Controller
      */
     protected function getRelatedProducts($product)
     {
-        return Cache::remember('product_related_' . $product->id, 300, function () use ($product) {
-            return Product::active()
+        return Cache::remember('product_related_' . $product->id, 300, 
+            fn() => Product::active()
                 ->where('product_category_id', $product->product_category_id)
                 ->where('id', '!=', $product->id)
                 ->with('variations')
                 ->limit(6)
-                ->get();
-        });
+                ->get());
     }
 
     /**
-     * Get product gallery
+     * Get gallery
      */
-    protected function getProductGallery($product)
+    protected function getGallery($product)
     {
         $images = collect();
-
-        if (!empty($product->main_image)) {
-            $images->push($product->main_image);
-        }
-
+        
+        if (!empty($product->main_image)) $images->push($product->main_image);
+        
         if (!empty($product->gallery) && is_array($product->gallery)) {
             foreach ($product->gallery as $img) {
                 if ($img) $images->push($img);
             }
         }
-
+        
         if ($product->type === 'variable' && $product->variations->count()) {
             foreach ($product->variations->where('active', true) as $v) {
                 if (!empty($v->image) && !$images->contains($v->image)) {
@@ -353,19 +302,17 @@ class ProductCatalogController extends Controller
                 }
             }
         }
-
-        if ($images->isEmpty()) {
-            $images->push('front/images/default-product.png');
-        }
+        
+        if ($images->isEmpty()) $images->push('front/images/default-product.png');
 
         $gallery = $images->map(fn($p) => ['raw' => $p, 'url' => asset($p)]);
         return ['gallery' => $gallery, 'mainImage' => $gallery->first()];
     }
 
     /**
-     * Get pricing data
+     * Get pricing
      */
-    protected function getPricingData($product)
+    protected function getPricing($product)
     {
         $onSale = $product->isOnSale();
         $basePrice = $product->display_price ?? $product->effectivePrice();
@@ -378,40 +325,33 @@ class ProductCatalogController extends Controller
     }
 
     /**
-     * Get stock data
+     * Get stock
      */
-    protected function getStockData($product)
+    protected function getStock($product)
     {
         $available = $product->availableStock();
-        $stockClass = 'high-stock';
+        $stockClass = match (true) {
+            $available === 0 => 'out-stock',
+            $available <= 5 => 'low-stock',
+            $available <= 20 => 'mid-stock',
+            default => 'high-stock'
+        };
 
-        if ($available === 0) {
-            $stockClass = 'out-stock';
-        } elseif (!is_null($available)) {
-            if ($available <= 5) $stockClass = 'low-stock';
-            elseif ($available <= 20) $stockClass = 'mid-stock';
-        }
+        $levelLabel = match (true) {
+            $available === 0 => __('Out of stock'),
+            !is_numeric($available) => __('In stock'),
+            $available <= 5 => __('In stock') . " ({$available}) • Low stock",
+            $available <= 20 => __('In stock') . " ({$available}) • Mid stock",
+            default => __('In stock') . " ({$available}) • High stock"
+        };
 
-        $levelLabel = $this->getStockLabel($available);
         return compact('available', 'stockClass', 'levelLabel');
     }
 
     /**
-     * Get stock label
+     * Get reviews
      */
-    protected function getStockLabel($available)
-    {
-        if ($available === 0) return __('Out of stock');
-        if (!is_numeric($available)) return __('In stock');
-
-        $level = $available <= 5 ? 'Low' : ($available <= 20 ? 'Mid' : 'High');
-        return __('In stock') . " ({$available}) • {$level} stock";
-    }
-
-    /**
-     * Get reviews data
-     */
-    protected function getReviewsData($product)
+    protected function getReviews($product)
     {
         $reviewsCount = (int) ($product->approved_reviews_count ?? 0);
         $rating = $reviewsCount ? (float) ($product->approved_reviews_avg ?? 0) : 0;
@@ -424,8 +364,7 @@ class ProductCatalogController extends Controller
         } catch (\Throwable $e) {
             $reviews = collect();
             $reviewStats = [
-                'total' => 0,
-                'average' => 0,
+                'total' => 0, 'average' => 0,
                 'distribution' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0],
                 'distribution_percent' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0],
                 'helpful_total' => 0
@@ -442,32 +381,32 @@ class ProductCatalogController extends Controller
     }
 
     /**
-     * Get user data
+     * Get user info
      */
-    protected function getUserData($product)
+    protected function getUserInfo($product)
     {
         $available = $product->availableStock();
         $onSale = $product->isOnSale();
-
+        
         return [
             'tagsCount' => $product->tags->count(),
             'tagsFirst' => $product->tags->take(6),
             'tagsMore' => $product->tags->slice(6),
             'hasDims' => count(array_filter([$product->length, $product->width, $product->height])) > 0,
             'dims' => array_filter([$product->length, $product->width, $product->height]),
-            'specCount' => $this->calculateSpecCount($product),
+            'specCount' => $this->getSpecCount($product),
             'isOut' => ($available === 0),
             'hasDiscount' => $onSale,
             'brandName' => $product->brand->name ?? null,
-            'purchased' => $this->checkUserPurchased($product),
+            'purchased' => $this->checkPurchased($product),
             'inCart' => $this->checkInCart($product),
         ];
     }
 
     /**
-     * Calculate spec count
+     * Get spec count
      */
-    protected function calculateSpecCount($product)
+    protected function getSpecCount($product)
     {
         $count = 0;
         if ($product->sku) $count++;
@@ -476,24 +415,22 @@ class ProductCatalogController extends Controller
         if ($product->width) $count++;
         if ($product->height) $count++;
         if ($product->refund_days) $count++;
-        return $count + 1; // +1 for base spec
+        return $count + 1;
     }
 
     /**
-     * Check if user purchased product
+     * Check if purchased
      */
-    protected function checkUserPurchased($product)
+    protected function checkPurchased($product)
     {
         if (!Auth::check()) return false;
-
+        
         try {
             $user = Auth::user();
             if (method_exists($user, 'orders')) {
                 return $user->orders()
                     ->whereIn('status', ['completed', 'paid', 'delivered'])
-                    ->whereHas('items', function ($q) use ($product) {
-                        $q->where('product_id', $product->id);
-                    })
+                    ->whereHas('items', fn($q) => $q->where('product_id', $product->id))
                     ->exists();
             }
             return false;
@@ -503,7 +440,7 @@ class ProductCatalogController extends Controller
     }
 
     /**
-     * Check if product is in cart
+     * Check if in cart
      */
     protected function checkInCart($product)
     {
