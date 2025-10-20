@@ -402,6 +402,10 @@ class ProductCatalogController extends Controller
                 $minP = $prices->min();
                 $maxP = $prices->max();
             }
+            $activeVars = $activeVars->map(function ($v) {
+                $v->effective_price = $v->effectivePrice();
+                return $v;
+            });
         }
 
         // Variation attributes
@@ -553,7 +557,8 @@ class ProductCatalogController extends Controller
             'reviewStats',
             'purchased',
             'stars',
-            'inCart'
+            'inCart',
+            'activeVars'
         ));
     }
 

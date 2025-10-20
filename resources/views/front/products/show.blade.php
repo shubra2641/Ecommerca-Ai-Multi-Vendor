@@ -128,7 +128,7 @@
             <div class="divider-line"></div>
 
             @if($product->type === 'variable' && count($variationAttributes ?? []))
-            <div class="variation-grid-card mt-4" id="variationGridCard" data-used='{{ e(json_encode($usedAttrs, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'>
+            <div class="variation-grid-card mt-4" id="variationGridCard" data-used='{{ json_encode($usedAttrs, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) }}' data-variations='{{ json_encode($activeVars, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) }}' data-currency='{{ $currentCurrency ? $currentCurrency->symbol : '$' }}'>
                 <h3 class="variation-card-title">{{ __('Choose Options') }}</h3>
                 <div class="variation-grid">
                     @foreach($variationAttributes as $attr)
@@ -138,12 +138,12 @@
                             @foreach($attr['values'] as $index => $v)
                             @if($attr['is_color'])
                             <div class="color-swatch-wrapper">
-                                <input type="radio" name="attr_{{ $attr['name'] }}" value="{{ $v }}" id="attr_{{ $attr['name'] }}_{{ $index }}" class="attr-radio" {{ $index === 0 ? 'checked' : '' }}>
+                                <input type="radio" name="attr_{{ $attr['name'] }}" value="{{ $v }}" id="attr_{{ $attr['name'] }}_{{ $index }}" class="attr-radio">
                                 <label for="attr_{{ $attr['name'] }}_{{ $index }}" class="option-btn color attr-option-btn" aria-label="{{ $v }}" title="{{ $v }}" data-attr-value="{{ $v }}" data-swatch="{{ $v }}"></label>
                                 <span class="swatch-label">{{ $v }}</span>
                             </div>
                             @else
-                            <input type="radio" name="attr_{{ $attr['name'] }}" value="{{ $v }}" id="attr_{{ $attr['name'] }}_{{ $index }}" class="attr-radio" {{ $index === 0 ? 'checked' : '' }}>
+                            <input type="radio" name="attr_{{ $attr['name'] }}" value="{{ $v }}" id="attr_{{ $attr['name'] }}_{{ $index }}" class="attr-radio">
                             <label for="attr_{{ $attr['name'] }}_{{ $index }}" class="option-btn attr-option-btn" data-attr-value="{{ $v }}">{{ $v }}</label>
                             @endif
                             @endforeach
@@ -258,7 +258,7 @@
                 <input type="hidden" name="price" id="selectedPrice" value="{{ $product->effectivePrice() }}">
                 <input type="hidden" name="buy_now" id="buyNowFlag" value="">
                 <div class="quantity-selector">
-                    <input id="qtyInputSide" type="number" name="qty" class="quantity-field" value="1" min="1" max="{{ $product->stock_quantity ?: 999 }}" style="display: none;">
+                    <input id="qtyInputSide" type="number" name="qty" class="quantity-field" value="1" min="1" max="{{ $product->stock_quantity ?: 999 }}">
                     <div class="qty-pill" role="group" aria-label="Quantity selector">
                         <button type="button" class="qty-action qty-trash" aria-label="Remove item"><span class="icon-trash">🗑</span></button>
                         <div class="qty-display" id="qtyDisplay">1</div>

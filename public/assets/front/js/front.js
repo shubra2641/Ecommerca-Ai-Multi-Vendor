@@ -264,6 +264,104 @@
         });
     }
 
+    function initProductVariations() {
+        const variationCard = doc.getElementById('variationGridCard');
+        if (!variationCard) {
+            return;
+        }
+
+        const variationsData = variationCard.dataset.variations;
+        const currencySymbol = variationCard.dataset.currency;
+
+        if (!variationsData || !currencySymbol) {
+            return;
+        }
+
+        const variations = JSON.parse(variationsData);
+
+        function updatePrice(selectedAttrs) {
+            const priceElement = doc.getElementById('productPrice');
+            const priceMaxElement = doc.getElementById('productPriceMax');
+            const priceRangeSep = doc.querySelector('.price-range-sep');
+
+            if (!selectedAttrs || Object.keys(selectedAttrs).length === 0) {
+                // Show range for variable products
+                if (priceMaxElement && priceRangeSep) {
+                    priceElement.style.display = 'inline';
+                    priceRangeSep.style.display = 'inline';
+                    priceMaxElement.style.display = 'inline';
+                }
+                return;
+            }
+
+            // Find matching variation
+            const matchingVariation = variations.find(v => {
+                const attrData = v.attribute_data || {};
+                return Object.keys(selectedAttrs).every(attr => attrData[attr] === selectedAttrs[attr]);
+            });
+
+            if (matchingVariation) {
+                const displayPrice = matchingVariation.effective_price;
+
+                // Update price display to single price
+                if (priceElement) {
+                    priceElement.textContent = currencySymbol + ' ' + displayPrice.toFixed(2);
+                }
+                if (priceMaxElement) {
+                    priceMaxElement.style.display = 'none';
+                }
+                if (priceRangeSep) {
+                    priceRangeSep.style.display = 'none';
+                }
+
+                // Update hidden price input
+                const priceInput = doc.getElementById('selectedPrice');
+                if (priceInput) {
+                    priceInput.value = displayPrice;
+                }
+
+                // Update variation ID
+                const variationInput = doc.getElementById('selectedVariationId');
+                if (variationInput) {
+                    variationInput.value = matchingVariation.id;
+                }
+
+                // Update sale badge if applicable
+                const saleBadge = doc.getElementById('globalSaleBadge');
+                if (saleBadge) {
+                    if (matchingVariation.sale_price && matchingVariation.sale_price < matchingVariation.price) {
+                        const discountPercent = Math.round(((matchingVariation.price - matchingVariation.sale_price) / matchingVariation.price) * 100);
+                        saleBadge.textContent = discountPercent + '% Off';
+                        saleBadge.style.display = 'inline-block';
+                    } else {
+                        saleBadge.style.display = 'none';
+                    }
+                }
+            } else {
+                // No matching variation, show range
+                if (priceMaxElement && priceRangeSep) {
+                    priceElement.style.display = 'inline';
+                    priceRangeSep.style.display = 'inline';
+                    priceMaxElement.style.display = 'inline';
+                }
+            }
+        }
+
+        // Listen for attribute changes
+        doc.querySelectorAll('.attr-radio').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const selectedAttrs = {};
+                doc.querySelectorAll('.attr-radio:checked').forEach(checked => {
+                    const attrName = checked.name.replace('attr_', '');
+                    selectedAttrs[attrName] = checked.value;
+                });
+                updatePrice(selectedAttrs);
+            });
+        });
+
+        // No initial update, start with range displayed
+    }
+
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
@@ -273,6 +371,7 @@
             initLoader();
             initHeroSlider();
             initQuantitySelector();
+            initProductVariations();
         });
     } else {
         initDropdowns();
@@ -281,6 +380,7 @@
         initLoader();
         initHeroSlider();
         initQuantitySelector();
+        initProductVariations();
     }
 }());
 
