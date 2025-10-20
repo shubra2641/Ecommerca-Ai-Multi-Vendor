@@ -18,36 +18,36 @@
     <link href="{{ asset('assets/admin/css/admin.css') }}" rel="stylesheet">
     @yield('styles')
 </head>
+
 <body class="body" data-font-active="{{ $selectedFont }}" data-admin-base="{{ url('') }}" @if(session()->pull('refresh_admin_notifications')) data-refresh-admin-notifications="1" @endif>
     @include('components.noscript-warning')
     <!-- Sidebar -->
     @include('layouts.navigation')
     <!-- Main Content -->
 
-        <main class="main-content">
-                @include('admin.top-header')
-                <div class="page-content">
-                @include('front.partials.flash')
-                    @yield('content')
-                </div>
+    <main class="main-content">
+        @include('admin.top-header')
+        <div class="page-content">
+            @include('front.partials.flash')
+            @yield('content')
         </div>
-    <!-- Overlay for mobile -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        </div>
+        <!-- Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- Scripts -->
-    <!-- Essential Dependencies -->
-    <script src="{{ asset('vendor/jquery/jquery-3.7.1.min.js') }}"></script>
-    <script src="{{ asset('vendor/chart.js/chart.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/countup.js') }}" defer></script>
-    @yield('scripts')
-    <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
+        <!-- Scripts -->
+        <!-- Essential Dependencies -->
+        <script src="{{ asset('vendor/jquery/jquery-3.7.1.min.js') }}"></script>
+        <script src="{{ asset('vendor/chart.js/chart.min.js') }}"></script>
+        <script src="{{ asset('assets/admin/js/countup.js') }}" defer></script>
+        @yield('scripts')
+        <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
 
-    <!-- Unified Admin JS - All functionality consolidated -->
-    <link rel="preload" href="{{ asset('assets/admin/js/admin.js') }}" as="script">
-    <script src="{{ asset('assets/admin/js/admin.js') }}"></script>
-    <script src="{{ asset('assets/front/js/flash.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/admin-charts.js') }}" defer></script>
-    
+        <!-- Unified Admin JS - All functionality consolidated -->
+        <link rel="preload" href="{{ asset('assets/admin/js/admin.js') }}" as="script">
+        <script src="{{ asset('assets/front/js/flash.js') }}"></script>
+        <script src="{{ asset('assets/admin/js/admin-charts.js') }}" defer></script>
+
 </body>
 
 </html>
