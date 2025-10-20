@@ -154,7 +154,7 @@
 
             <div class="stock-status">
                 @php
-                    $available = $product->availableStock();
+                $available = $product->availableStock();
                 @endphp
                 @if($available === 0)
                 {{ __('Out of stock') }}
@@ -179,6 +179,11 @@
                 <div class="meta-item tags-item">
                     <span class="meta-label">{{ __('Tags') }} :</span>
                     <div class="tags-list" id="tagsListInline">
+                        @php
+                        $allTags = $product->tags;
+                        $tagsFirst = $allTags->take(3);
+                        $tagsMore = $allTags->skip(3);
+                        @endphp
                         @foreach($tagsFirst as $tag)
                         <a href="{{ route('products.tag', $tag->slug) }}" class="tag-chip" title="{{ $tag->name }}">{{ $tag->name }}</a>
                         @endforeach
@@ -199,7 +204,7 @@
                     <span class="meta-value">{{ $product->weight }} {{ __('kg') }}</span>
                 </div>
                 @endif
-                @if($hasDims)
+                @if($product->length || $product->width || $product->height)
                 <div class="meta-item dimensions-item" title="{{ __('Dimensions') }}">
                     <span class="meta-label">{{ __('Dimensions') }}:</span>
                     <span class="meta-value">{{ $product->length ?? '-' }} × {{ $product->width ?? '-' }} × {{ $product->height ?? '-' }} {{ __('cm') }}</span>
@@ -219,7 +224,7 @@
                 <div class="avatar"></div>
                 <div>
                     <div class="seller-name">{{ __('Sold by') }} {{ $product->seller ? $product->seller->name : 'Store' }}</div>
-                    <div class="seller-score">{{ number_format($product->reviews_avg_rating ?? 0,1) }} • <small>{{ $formattedReviewsCount }} {{ __('ratings') }}</small></div>
+                    <div class="seller-score">{{ number_format($product->reviews_avg_rating ?? 0,1) }} • <small>{{ $product->reviews_count ?? 0 }} {{ __('ratings') }}</small></div>
                 </div>
             </div>
             @if($onSale)
@@ -306,7 +311,7 @@
                                         class="spec-icon">⚖️</span>{{ __('Weight') }}</span><span
                                     class="spec-value">{{ $product->weight }} {{ __('kg') }}</span></div>
                             @endif
-                            @if($hasDims)
+                            @if($product->length || $product->width || $product->height)
                             <div class="spec-item"><span class="spec-label"><span
                                         class="spec-icon">📦</span>{{ __('Dimensions') }}</span><span
                                     class="spec-value">{{ $product->length ?? '-' }} × {{ $product->width ?? '-' }} ×
