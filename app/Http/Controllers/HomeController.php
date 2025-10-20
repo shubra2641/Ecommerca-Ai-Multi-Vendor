@@ -24,6 +24,8 @@ class HomeController extends Controller
         $data = [
             'setting' => $setting,
             'categories' => $this->getCategories($sections),
+            'brands' => $this->getBrands($sections),
+            'parentCategories' => $this->getParentCategories(),
             'latestProducts' => $this->getLatestProducts($sections),
             'flashSaleProducts' => $this->getFlashSaleProducts($sections),
             'latestPosts' => $this->getLatestPosts($sections),
@@ -56,6 +58,27 @@ class HomeController extends Controller
             1800,
             fn() =>
             ProductCategory::whereNull('parent_id')->where('active', true)->orderBy('id')->take($limit)->get()
+        );
+    }
+
+    private function getBrands($sections)
+    {
+        $limit = $sections->where('key', 'brands')->first()->item_limit ?? 8;
+        return Cache::remember(
+            'home_brands',
+            1800,
+            fn() =>
+            Brand::where('active', true)->orderBy('id')->take($limit)->get()
+        );
+    }
+
+    private function getParentCategories()
+    {
+        return Cache::remember(
+            'parent_categories',
+            1800,
+            fn() =>
+            ProductCategory::whereNull('parent_id')->where('active', true)->orderBy('id')->get()
         );
     }
 
