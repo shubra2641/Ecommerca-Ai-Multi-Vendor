@@ -10,21 +10,15 @@ use App\Models\ProductTag;
 use App\Models\ProductAttribute;
 use App\Models\ProductVariation;
 use App\Models\ProductSerial;
-use App\Models\Setting;
 use App\Models\User;
 use App\Services\HtmlSanitizer;
 use App\Services\AI\SimpleAIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    /**
-     * Display products list
-     */
     public function index(Request $request)
     {
         $request->validate([
@@ -36,165 +30,95 @@ class ProductController extends Controller
         ]);
 
         $query = Product::with(['category', 'variations']);
-
-        // Search
-        if ($search = $request->input('q')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('sku', 'like', "%{$search}%");
-            });
-        }
-
-        // Category filter
-        if ($request->filled('category')) {
-            $query->where('product_category_id', $request->input('category'));
-        }
-
-        // Type filter
-        if ($type = $request->input('type')) {
-            $query->where('type', $type);
-        }
-
-        // Flag filter
-        if ($flag = $request->input('flag')) {
-            switch ($flag) {
-                case 'featured':
-                    $query->where('is_featured', 1);
-                    break;
-                case 'best':
-                    $query->where('is_best_seller', 1);
-                    break;
-                case 'inactive':
-                    $query->where('active', 0);
-                    break;
-            }
-        }
-
-        // Stock filter
-        if ($stock = $request->input('stock')) {
-            $this->applyStockFilter($query, $stock);
-        }
-
+        $this->applyFilters($query, $request);
         $products = $query->latest()->paginate(40)->withQueryString();
 
         return view('admin.products.products.index', compact('products'));
     }
 
-    /**
-     * Show product details
-     */
     public function show(Product $product)
     {
         $product->load(['tags', 'variations', 'category']);
         return view('admin.products.products.show', compact('product'));
     }
 
-    /**
-     * Show create form
-     */
     public function create()
     {
-        $data = $this->getFormData();
-        return view('admin.products.products.create', $data);
+        return view('admin.products.products.create', $this->getFormData());
     }
 
-    /**
-     * Store new product
-     */
     public function store(ProductRequest $request, HtmlSanitizer $sanitizer)
     {
-        $data = $this->prepareProductData($request, $sanitizer);
-        $data['slug'] = $this->generateUniqueSlug($data['name']);
-
+        $data = $this->prepareProductData($request->validated(), $sanitizer);
         $product = Product::create($data);
-
-        // Sync relationships
+        
         $this->syncProductRelations($product, $request);
+        $this->handleNotifications($product);
 
-        // Handle variations
-        if ($product->type === 'variable') {
-            $this->syncVariations($product, $request);
-        }
-
-        return redirect()->route('admin.products.edit', $product)
-            ->with('success', 'Product created successfully');
+        return redirect()->route('admin.products.index')->with('success', __('Product created successfully.'));
     }
 
-    /**
-     * Show edit form
-     */
     public function edit(Product $product)
     {
-        $product->load(['tags', 'variations']);
-        $data = $this->getFormData();
-        $data['product'] = $product;
-
+        $product->load(['tags', 'variations', 'serials']);
+        $data = array_merge($this->getFormData(), compact('product'));
         return view('admin.products.products.edit', $data);
     }
 
-    /**
-     * Update product
-     */
     public function update(ProductRequest $request, Product $product, HtmlSanitizer $sanitizer)
     {
-        $data = $this->prepareProductData($request, $sanitizer, $product);
-        $data['slug'] = $this->generateUniqueSlug($data['name'], $product->id);
-
         $oldActive = $product->active;
+        $data = $this->prepareProductData($request->validated(), $sanitizer);
         $product->update($data);
-
-        // Sync relationships
+        
         $this->syncProductRelations($product, $request);
+        $this->handleNotifications($product, $oldActive);
 
-        // Handle variations
-        if ($product->type === 'variable') {
-            $this->syncVariations($product, $request);
-        }
-
-        // Handle notifications
-        $this->handleProductNotifications($product, $oldActive);
-
-        return back()->with('success', 'Product updated successfully');
+        return redirect()->route('admin.products.index')->with('success', __('Product updated successfully.'));
     }
 
-    /**
-     * Delete product
-     */
     public function destroy(Product $product)
     {
         $product->delete();
-        return back()->with('success', 'Product deleted successfully');
+        return redirect()->route('admin.products.index')->with('success', __('Product deleted successfully.'));
     }
 
-    /**
-     * Export products to CSV
-     */
+    public function toggleStatus(Product $product)
+    {
+        $product->update(['active' => !$product->active]);
+        $status = $product->active ? 'activated' : 'deactivated';
+        return redirect()->back()->with('success', __("Product {$status} successfully."));
+    }
+
+    public function toggleFeatured(Product $product)
+    {
+        $product->update(['is_featured' => !$product->is_featured]);
+        $status = $product->is_featured ? 'featured' : 'unfeatured';
+        return redirect()->back()->with('success', __("Product {$status} successfully."));
+    }
+
     public function export(Request $request)
     {
-        $fileName = 'products_export_' . date('Ymd_His') . '.csv';
-
+        $fileName = 'products_' . date('Ymd_His') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename={$fileName}",
         ];
 
-        $columns = ['id', 'name', 'sku', 'type', 'price', 'sale_price', 'active', 'created_at'];
-
-        $callback = function () use ($columns) {
+        $callback = function () {
             $out = fopen('php://output', 'w');
-            fputcsv($out, $columns);
+            fputcsv($out, ['ID', 'Name', 'SKU', 'Price', 'Stock', 'Category', 'Status']);
 
-            Product::with('tags')->chunk(200, function ($items) use ($out) {
-                foreach ($items as $product) {
+            Product::with('category')->chunk(200, function ($products) use ($out) {
+                foreach ($products as $product) {
                     fputcsv($out, [
                         $product->id,
                         $product->name,
                         $product->sku,
-                        $product->type,
                         $product->price,
-                        $product->sale_price,
-                        $product->active ? 1 : 0,
-                        $product->created_at,
+                        $product->stock_qty ?? 0,
+                        $product->category?->name,
+                        $product->active ? 'Active' : 'Inactive',
                     ]);
                 }
             });
@@ -204,45 +128,27 @@ class ProductController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    /**
-     * Export variations to CSV
-     */
     public function variationsExport(Request $request)
     {
-        $fileName = 'variations_inventory_' . date('Ymd_His') . '.csv';
-
+        $fileName = 'variations_' . date('Ymd_His') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename={$fileName}",
         ];
 
-        $columns = [
-            'product_id',
-            'product_name',
-            'variation_id',
-            'sku',
-            'manage_stock',
-            'stock_qty',
-            'reserved_qty',
-            'available_stock'
-        ];
-
-        $callback = function () use ($columns) {
+        $callback = function () {
             $out = fopen('php://output', 'w');
-            fputcsv($out, $columns);
+            fputcsv($out, ['Product ID', 'Product Name', 'Variation ID', 'SKU', 'Price', 'Stock']);
 
-            ProductVariation::with('product')->chunk(200, function ($items) use ($out) {
-                foreach ($items as $variation) {
-                    $available = ($variation->stock_qty ?? 0) - ($variation->reserved_qty ?? 0);
+            ProductVariation::with('product')->chunk(200, function ($variations) use ($out) {
+                foreach ($variations as $variation) {
                     fputcsv($out, [
                         $variation->product_id,
                         $variation->product?->name,
                         $variation->id,
                         $variation->sku,
-                        $variation->manage_stock ? 1 : 0,
+                        $variation->price,
                         $variation->stock_qty ?? 0,
-                        $variation->reserved_qty ?? 0,
-                        $available,
                     ]);
                 }
             });
@@ -262,157 +168,118 @@ class ProductController extends Controller
         }
 
         $merge = [];
-        if (!empty($result['description'])) {
-            $merge['description'] = $result['description'];
-        }
-        if (!empty($result['short_description'])) {
-            $merge['short_description'] = $result['short_description'];
-        }
-        if (!empty($result['seo_description'])) {
-            $merge['seo_description'] = $result['seo_description'];
-        }
-        if (!empty($result['seo_tags'])) {
-            $merge['seo_keywords'] = $result['seo_tags'];
-        }
+        if (!empty($result['description'])) $merge['description'] = $result['description'];
+        if (!empty($result['short_description'])) $merge['short_description'] = $result['short_description'];
+        if (!empty($result['seo_description'])) $merge['seo_description'] = $result['seo_description'];
+        if (!empty($result['seo_tags'])) $merge['seo_keywords'] = $result['seo_tags'];
 
         return back()->with('success', 'AI generated successfully')->withInput($merge);
     }
 
-    /**
-     * Get form data (categories, tags, attributes)
-     */
-    private function getFormData()
+    protected function applyFilters($query, Request $request)
+    {
+        if ($search = $request->input('q')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")->orWhere('sku', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('product_category_id', $request->input('category'));
+        }
+
+        if ($type = $request->input('type')) {
+            $query->where('type', $type);
+        }
+
+        if ($flag = $request->input('flag')) {
+            match ($flag) {
+                'featured' => $query->where('is_featured', 1),
+                'best' => $query->where('is_best_seller', 1),
+                'inactive' => $query->where('active', 0),
+            };
+        }
+
+        if ($stock = $request->input('stock')) {
+            $this->applyStockFilter($query, $stock);
+        }
+    }
+
+    protected function getFormData()
     {
         return [
-            'categories' => Cache::remember('product_categories_ordered', 3600, function () {
-                return ProductCategory::orderBy('name')->get();
-            }),
-            'tags' => Cache::remember('product_tags_ordered', 3600, function () {
-                return ProductTag::orderBy('name')->get();
-            }),
-            'attributes' => Cache::remember('product_attributes_with_values', 3600, function () {
-                return ProductAttribute::with('values')->orderBy('name')->get();
-            }),
+            'categories' => Cache::remember('product_categories_ordered', 3600, 
+                fn() => ProductCategory::orderBy('name')->get()),
+            'tags' => Cache::remember('product_tags_ordered', 3600, 
+                fn() => ProductTag::orderBy('name')->get()),
+            'attributes' => Cache::remember('product_attributes_with_values', 3600, 
+                fn() => ProductAttribute::with('values')->orderBy('name')->get()),
         ];
     }
 
-    /**
-     * Prepare product data for storage
-     */
-    private function prepareProductData(ProductRequest $request, HtmlSanitizer $sanitizer, ?Product $product = null)
+    protected function prepareProductData(array $validated, HtmlSanitizer $sanitizer)
     {
-        $data = $request->validated();
+        $this->sanitizeData($validated, $sanitizer);
 
-        // Handle translations
-        $this->handleTranslations($request, $data);
-
-        // Sanitize HTML fields
-        $this->sanitizeHtmlFields($data, $sanitizer);
-
-        // Clean gallery data
-        if (isset($data['gallery'])) {
-            $data['gallery'] = $this->cleanGallery($data['gallery']);
-        }
-
-        // Handle serials
-        if ($request->filled('__serials_to_sync')) {
-            $this->syncSerials($product, $request->input('__serials_to_sync'));
-        }
-
-        return $data;
-    }
-
-    /**
-     * Handle product translations
-     */
-    private function handleTranslations(ProductRequest $request, array &$data)
-    {
-        $translationFields = [
-            'name',
-            'short_description',
-            'description',
-            'seo_title',
-            'seo_description',
-            'seo_keywords'
+        return [
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']),
+            'sku' => $validated['sku'] ?? null,
+            'description' => $validated['description'] ?? null,
+            'short_description' => $validated['short_description'] ?? null,
+            'price' => $validated['price'],
+            'sale_price' => $validated['sale_price'] ?? null,
+            'sale_start' => $validated['sale_start'] ?? null,
+            'sale_end' => $validated['sale_end'] ?? null,
+            'manage_stock' => !empty($validated['manage_stock']),
+            'stock_qty' => $validated['stock_qty'] ?? 0,
+            'reserved_qty' => $validated['reserved_qty'] ?? 0,
+            'backorder' => !empty($validated['backorder']),
+            'weight' => $validated['weight'] ?? null,
+            'length' => $validated['length'] ?? null,
+            'width' => $validated['width'] ?? null,
+            'height' => $validated['height'] ?? null,
+            'type' => $validated['type'],
+            'product_category_id' => $validated['product_category_id'],
+            'vendor_id' => $validated['vendor_id'] ?? null,
+            'main_image' => $validated['main_image'] ?? null,
+            'gallery' => $this->cleanGallery($validated['gallery'] ?? []),
+            'is_featured' => !empty($validated['is_featured']),
+            'is_best_seller' => !empty($validated['is_best_seller']),
+            'active' => !empty($validated['active']),
+            'seo_title' => $validated['seo_title'] ?? null,
+            'seo_description' => $validated['seo_description'] ?? null,
+            'seo_keywords' => $validated['seo_keywords'] ?? null,
+            'refund_days' => $validated['refund_days'] ?? null,
         ];
-
-        foreach ($translationFields as $field) {
-            if ($request->has($field) && is_array($request->input($field))) {
-                $translations = $request->input($field);
-                $data[$field] = $this->getDefaultTranslation($translations);
-                $data[$field . '_translations'] = $translations;
-            }
-        }
     }
 
-    /**
-     * Get default translation value
-     */
-    private function getDefaultTranslation(array $translations)
+    protected function syncProductRelations(Product $product, ProductRequest $request)
     {
-        $defaultLocale = config('app.fallback_locale');
-        return $translations[$defaultLocale] ?? collect($translations)->first(fn($v) => !empty($v));
+        $this->syncTags($product, $request->input('tags', []));
+        $this->syncVariations($product, $request);
+        $this->syncSerials($product, $request->input('serials', []));
     }
 
-    /**
-     * Sanitize HTML fields
-     */
-    private function sanitizeHtmlFields(array &$data, HtmlSanitizer $sanitizer)
+    protected function syncTags(Product $product, array $tags)
     {
-        $htmlFields = ['short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords'];
-
-        foreach ($htmlFields as $field) {
-            if (isset($data[$field . '_translations'])) {
-                foreach ($data[$field . '_translations'] as $locale => $value) {
-                    $data[$field . '_translations'][$locale] = $sanitizer->clean($value);
-                }
-            }
-        }
+        $tagIds = ProductTag::whereIn('name', $tags)->pluck('id');
+        $product->tags()->sync($tagIds);
     }
 
-    /**
-     * Generate unique slug
-     */
-    private function generateUniqueSlug(string $name, ?int $excludeId = null)
-    {
-        $slug = Str::slug($name);
-        $baseSlug = $slug;
-        $counter = 1;
-
-        while (Product::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
-            $slug = $baseSlug . '-' . $counter++;
-        }
-
-        return $slug;
-    }
-
-    /**
-     * Sync product relationships
-     */
-    private function syncProductRelations(Product $product, ProductRequest $request)
-    {
-        $product->tags()->sync($request->input('tag_ids', []));
-    }
-
-    /**
-     * Sync product variations
-     */
-    private function syncVariations(Product $product, ProductRequest $request)
+    protected function syncVariations(Product $product, ProductRequest $request)
     {
         $variations = $request->input('variations', []);
         $variationIds = [];
 
         foreach ($variations as $variationData) {
-            if (empty($variationData['price'])) {
-                continue;
-            }
+            if (empty($variationData['price'])) continue;
 
             $data = $this->prepareVariationData($variationData);
 
             if (isset($variationData['id'])) {
                 $variation = ProductVariation::where('product_id', $product->id)
-                    ->where('id', $variationData['id'])
-                    ->first();
+                    ->where('id', $variationData['id'])->first();
                 if ($variation) {
                     $variation->update($data);
                     $variationIds[] = $variation->id;
@@ -423,14 +290,10 @@ class ProductController extends Controller
             }
         }
 
-        // Delete unused variations
         $product->variations()->whereNotIn('id', $variationIds)->delete();
     }
 
-    /**
-     * Prepare variation data
-     */
-    private function prepareVariationData(array $data)
+    protected function prepareVariationData(array $data)
     {
         return [
             'name' => $data['name'] ?? null,
@@ -449,20 +312,11 @@ class ProductController extends Controller
         ];
     }
 
-    /**
-     * Sync product serials
-     */
-    private function syncSerials(?Product $product, array $serials)
+    protected function syncSerials(Product $product, array $serials)
     {
-        if (!$product) {
-            return;
-        }
-
         foreach ($serials as $serial) {
             $serial = trim($serial);
-            if (empty($serial)) {
-                continue;
-            }
+            if (empty($serial)) continue;
 
             ProductSerial::firstOrCreate([
                 'product_id' => $product->id,
@@ -471,53 +325,43 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Clean gallery data
-     */
-    private function cleanGallery($gallery)
+    protected function cleanGallery($gallery)
     {
         if (is_string($gallery)) {
             $gallery = json_decode($gallery, true) ?: [];
         }
-
         return array_values(array_filter(array_map('trim', $gallery), fn($v) => !empty($v)));
     }
 
-    /**
-     * Apply stock filter
-     */
-    private function applyStockFilter($query, string $stock)
+    protected function applyStockFilter($query, string $stock)
     {
         $low = config('catalog.stock_low_threshold', 5);
         $soon = config('catalog.stock_soon_threshold', 10);
 
-        switch ($stock) {
-            case 'na':
-                $query->where(function ($q) {
-                    $q->where('manage_stock', 0)
-                        ->orWhereNull('manage_stock');
-                });
-                break;
-            case 'low':
-                $query->where('manage_stock', 1)
-                    ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low]);
-                break;
-            case 'soon':
-                $query->where('manage_stock', 1)
-                    ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ? AND ' .
-                        '(stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low, $soon]);
-                break;
-            case 'in':
-                $query->where('manage_stock', 1)
-                    ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ?', [$soon]);
-                break;
+        match ($stock) {
+            'na' => $query->where(function ($q) {
+                $q->where('manage_stock', 0)->orWhereNull('manage_stock');
+            }),
+            'low' => $query->where('manage_stock', 1)
+                ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low]),
+            'soon' => $query->where('manage_stock', 1)
+                ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ? AND (stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low, $soon]),
+            'in' => $query->where('manage_stock', 1)
+                ->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ?', [$soon]),
+        };
+    }
+
+    protected function sanitizeData(array &$data, HtmlSanitizer $sanitizer)
+    {
+        $fields = ['name', 'description', 'short_description', 'seo_title', 'seo_description'];
+        foreach ($fields as $field) {
+            if (isset($data[$field]) && is_string($data[$field])) {
+                $data[$field] = $sanitizer->clean($data[$field]);
+            }
         }
     }
 
-    /**
-     * Handle product notifications
-     */
-    private function handleProductNotifications(Product $product, bool $oldActive)
+    protected function handleNotifications(Product $product, ?bool $oldActive = null)
     {
         // Stock low notification
         if ($product->manage_stock) {
@@ -534,12 +378,13 @@ class ProductController extends Controller
                         );
                     }
                 } catch (\Throwable $e) {
+                    // Silent fail
                 }
             }
         }
 
         // Product status change notification
-        if ($oldActive !== $product->active && $product->vendor) {
+        if ($oldActive !== null && $oldActive !== $product->active && $product->vendor) {
             try {
                 if ($product->active) {
                     \Illuminate\Support\Facades\Mail::to($product->vendor->email)
@@ -549,6 +394,7 @@ class ProductController extends Controller
                         ->queue(new \App\Mail\ProductRejected($product, null));
                 }
             } catch (\Throwable $e) {
+                // Silent fail
             }
         }
     }
