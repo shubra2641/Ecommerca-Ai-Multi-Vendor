@@ -38,23 +38,13 @@ class PayeerGateway
                 ],
             ];
 
-            Log::info('payeer.init.request', ['payment_id' => $payment->id, 'payload' => $chargePayload]);
             try {
                 $client = Http::acceptJson();
                 if (! empty($secret)) {
                     $client = $client->withToken($secret);
                 }
                 $resp = $client->post($apiBase . '/charges', $chargePayload);
-                Log::info('payeer.init.response', [
-                    'payment_id' => $payment->id,
-                    'status' => $resp->status(),
-                    'body_snippet' => substr($resp->body(), 0, 500)
-                ]);
                 try {
-                    Log::info('payeer.init.response_headers', [
-                        'payment_id' => $payment->id,
-                        'headers' => method_exists($resp, 'headers') ? $resp->headers() : null
-                    ]);
                 } catch (\Throwable $_) {
                 }
                 if (! $resp->ok()) {

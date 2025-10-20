@@ -60,10 +60,6 @@ class DashboardController extends Controller
         // To avoid side-effects on read, do NOT persist the computed balance here.
         // Instead log the stored vs computed balance for diagnosis.
         if ($vendor && abs($vendor->balance - $actualBalance) > 0.01) {
-            Log::info("DashboardController: computed actualBalance for vendor {$vendorId}", [
-                'stored_balance' => $vendor->balance,
-                'computed_balance' => $actualBalance,
-            ]);
             // If you want to re-enable persistence after fixing root cause, restore the update call:
             // $vendor->update(['balance' => $actualBalance]);
         }

@@ -42,7 +42,6 @@ class BlogPostSuggestionService
             cache()->put($cacheKey, $result, 600);
             return response()->json($result);
         } catch (\Throwable $e) {
-            Log::warning('AI service error: ' . $e->getMessage());
             return response()->json(['error' => 'service_error', 'message' => $e->getMessage()], 502);
         }
     }

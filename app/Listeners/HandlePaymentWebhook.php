@@ -39,7 +39,6 @@ class HandlePaymentWebhook implements ShouldQueue
                 FILE_APPEND
             );
             if (empty($webhookData['transaction_id']) || empty($status) || $status === 'unknown') {
-                Log::warning('Invalid webhook data received', $webhookData);
                 @file_put_contents(
                     storage_path('logs/listener_debug.log'),
                     "INVALID_WEBHOOK:\n" . var_export($webhookData, true) . "\n",
@@ -63,11 +62,6 @@ class HandlePaymentWebhook implements ShouldQueue
                 return;
             }
 
-            Log::info('Processing payment webhook', [
-                'payment_id' => $payment->payment_id,
-                'status' => $status,
-                'gateway' => $gateway,
-            ]);
 
             // Update payment status and set timestamps where appropriate
             $payment->status = $status;
@@ -93,10 +87,6 @@ class HandlePaymentWebhook implements ShouldQueue
             // Handle specific status actions
             $this->handleStatusSpecificActions($payment, $status, $webhookData);
 
-            Log::info('Payment status updated successfully', [
-                'payment_id' => $payment->payment_id,
-                'status' => $status,
-            ]);
             @file_put_contents(storage_path('logs/listener_debug.log'), "FINISHED\n", FILE_APPEND);
         } catch (\Exception $e) {
             if (! app()->environment('testing')) {
@@ -127,10 +117,6 @@ class HandlePaymentWebhook implements ShouldQueue
 
         if (! $order) {
             if (! app()->environment('testing')) {
-                Log::warning('Order not found for payment', [
-                    'payment_id' => $payment->payment_id,
-                    'order_id' => $payment->order_id,
-                ]);
             }
 
             return;
@@ -145,10 +131,6 @@ class HandlePaymentWebhook implements ShouldQueue
                     $order->save();
 
                     if (! app()->environment('testing')) {
-                        Log::info('Order marked as paid', [
-                            'order_id' => $order->id,
-                            'payment_id' => $payment->payment_id,
-                        ]);
                     }
                 }
                 break;
@@ -185,9 +167,6 @@ class HandlePaymentWebhook implements ShouldQueue
             $order = $payment->order;
             $user = $payment->user ?? $order->user ?? null;
             if (! $user) {
-                Log::warning('User not found for payment notification', [
-                    'payment_id' => $payment->payment_id,
-                ]);
 
                 return;
             }
@@ -351,7 +330,6 @@ class HandlePaymentWebhook implements ShouldQueue
     {
         // Implementation depends on your inventory system
         if (! app()->environment('testing')) {
-            Log::info('Inventory released for order', ['order_id' => $order->id]);
         }
     }
 
@@ -362,7 +340,6 @@ class HandlePaymentWebhook implements ShouldQueue
     {
         // Implementation depends on your inventory system
         if (! app()->environment('testing')) {
-            Log::info('Inventory restored for order', ['order_id' => $order->id]);
         }
     }
 
@@ -373,7 +350,6 @@ class HandlePaymentWebhook implements ShouldQueue
     {
         // Implementation depends on your invoice system
         if (! app()->environment('testing')) {
-            Log::info('Invoice generated for order', ['order_id' => $order->id]);
         }
     }
 
@@ -384,7 +360,6 @@ class HandlePaymentWebhook implements ShouldQueue
     {
         // Implementation depends on your notification system
         if (! app()->environment('testing')) {
-            Log::info('Order confirmation sent', ['order_id' => $order->id]);
         }
     }
 
@@ -402,9 +377,6 @@ class HandlePaymentWebhook implements ShouldQueue
             $order->save();
 
             if (! app()->environment('testing')) {
-                Log::info('Order cancelled due to no successful payments', [
-                    'order_id' => $order->id,
-                ]);
             }
         }
     }

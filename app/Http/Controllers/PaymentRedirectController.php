@@ -17,10 +17,6 @@ class PaymentRedirectController extends Controller
     {
         $payment = Payment::find($paymentId);
         if (! $payment) {
-            Log::notice('payment.redirect.skip', [
-                'reason' => 'payment_not_found',
-                'payment_id' => $paymentId,
-            ]);
             abort(404);
         }
 
@@ -46,11 +42,6 @@ class PaymentRedirectController extends Controller
             }
 
             if (! $hasCreds) {
-                Log::info('payment.redirect.abort', [
-                    'payment_id' => $payment->id,
-                    'gateway_slug' => $payment->payload['gateway_slug'] ?? null,
-                    'reason' => 'invalid_credentials',
-                ]);
                 abort(404);
             }
 
@@ -82,46 +73,20 @@ class PaymentRedirectController extends Controller
                             }
 
                             if ($redirectUrl !== $currentUrl && ! $isInternalRedirect) {
-                                Log::info('payment.redirect.success', [
-                                    'payment_id' => $payment->id,
-                                    'gateway_slug' => $gateway->slug,
-                                    'redirect_url' => $redirectUrl,
-                                ]);
 
                                 return redirect()->away($redirectUrl);
                             }
 
                             // Loop or self redirect detected
-                            Log::warning('payment.redirect.loop_detected', [
-                                'payment_id' => $payment->id,
-                                'gateway_slug' => $gateway->slug,
-                                'redirect_url' => $redirectUrl,
-                                'reason' => $isInternalRedirect ? 'chained_internal_redirect' : 'self_redirect',
-                            ]);
                         }
 
                         if (! empty($result['html'])) {
                             session()->flash('driver_html', $result['html']);
-                            Log::info('payment.redirect.render_html', [
-                                'payment_id' => $payment->id,
-                                'gateway_slug' => $gateway->slug,
-                                'reason' => 'html_payload',
-                            ]);
 
                             return view('payments.redirect', ['payment' => $payment]);
                         }
 
-                        Log::notice('payment.redirect.fallback', [
-                            'payment_id' => $payment->id,
-                            'gateway_slug' => $gateway->slug,
-                            'reason' => 'no_redirect_or_html',
-                        ]);
                     } else {
-                        Log::notice('payment.redirect.fallback', [
-                            'payment_id' => $payment->id,
-                            'gateway_slug' => $gateway->slug,
-                            'reason' => 'order_missing',
-                        ]);
                     }
                 } catch (\Exception $e) {
                     Log::error('payment.redirect.exception', [
@@ -133,11 +98,6 @@ class PaymentRedirectController extends Controller
                 }
             }
         } else {
-            Log::info('payment.redirect.skip', [
-                'payment_id' => $payment->id,
-                'gateway_slug' => $payment->payload['gateway_slug'] ?? null,
-                'reason' => $gateway ? 'gateway_disabled' : 'gateway_missing',
-            ]);
         }
 
         return view('payments.redirect', ['payment' => $payment]);
@@ -226,7 +186,6 @@ class PaymentRedirectController extends Controller
                 $order->save();
             }
         } catch (\Throwable $e) {
-            Log::warning('Failed marking failed payment/order: ' . $e->getMessage());
         }
 
         $errorMessage = $payment->failure_reason ?? __('Payment failed or cancelled');

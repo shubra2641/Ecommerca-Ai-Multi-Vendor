@@ -39,10 +39,6 @@ trait HandlesErrors
         try {
             return $cb();
         } catch (\Throwable $e) {
-            Log::warning('Guarded controller error: ' . $e->getMessage(), [
-                'trace_hash' => substr(hash('sha256', $e->getFile() . $e->getLine()), 0, 12),
-            ]);
-
             return $this->errorResponse(__($fallbackMessage), $status);
         }
     }

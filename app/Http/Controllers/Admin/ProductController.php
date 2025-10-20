@@ -562,7 +562,6 @@ class ProductController extends Controller
                         );
                     }
                 } catch (\Throwable $e) {
-                    Log::warning('Failed sending stock low notification: ' . $e->getMessage());
                 }
             }
         }
@@ -578,8 +577,6 @@ class ProductController extends Controller
                         ->queue(new \App\Mail\ProductRejected($product, null));
                 }
             } catch (\Throwable $e) {
-                Log::warning('Failed sending product status mail: ' .
-                    $e->getMessage());
             }
         }
     }
@@ -626,7 +623,6 @@ class ProductController extends Controller
 
             return $this->parseAIResponse($content);
         } catch (\Throwable $e) {
-            Log::warning('AI HTTP exception: ' . $e->getMessage());
             return [
                 'error' => 'connection_failed',
                 'message' => $e->getMessage(),

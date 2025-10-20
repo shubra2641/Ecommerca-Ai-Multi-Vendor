@@ -63,20 +63,12 @@ class PaytabsGateway
                     // Some older installs store a server key under this name
                     $chargePayload['server_key'] = $cfg['paytabs_server_key'];
                 }
-                Log::info('paytabs.init.request', [
-                    'payment_id' => $payment->id,
-                    'payload' => $chargePayload
-                ]);
 
                 // choose auth style: default Bearer token, or header X-API-KEY if configured
                 try {
                     $client = Http::acceptJson();
                     // Log which config key is used (do not log the secret value)
                     try {
-                        Log::info('paytabs.init.key_used', [
-                            'payment_id' => $payment->id,
-                            'used_key' => $usedSecretKey ? $usedSecretKey : null
-                        ]);
                     } catch (\Throwable $_) {
                     }
                     if (! empty($secret)) {
@@ -94,16 +86,7 @@ class PaytabsGateway
                         $apiBase . '/charges',
                         $chargePayload
                     );
-                    Log::info('paytabs.init.response', [
-                        'payment_id' => $payment->id,
-                        'status' => $resp->status(),
-                        'body_snippet' => substr($resp->body(), 0, 500)
-                    ]);
                     try {
-                        Log::info('paytabs.init.response_headers', [
-                            'payment_id' => $payment->id,
-                            'headers' => method_exists($resp, 'headers') ? $resp->headers() : null
-                        ]);
                     } catch (\Throwable $_) {
                     }
                     if (! $resp->ok()) {

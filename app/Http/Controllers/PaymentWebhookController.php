@@ -35,7 +35,6 @@ class PaymentWebhookController extends Controller
         if ($secret && $signature) {
             $expected = hash_hmac('sha256', $payload, $secret);
             if (! hash_equals($expected, $signature)) {
-                Log::warning('Webhook signature mismatch for driver ' . $driver);
 
                 return response('invalid signature', 400);
             }
@@ -51,7 +50,6 @@ class PaymentWebhookController extends Controller
             $data['order_reference'] ??
             null;
         if (! $tx) {
-            Log::warning('Webhook missing transaction identifier for driver ' . $driver);
 
             return response('missing id', 400);
         }
@@ -72,7 +70,6 @@ class PaymentWebhookController extends Controller
         }
 
         if (! $payment) {
-            Log::warning('Webhook could not map to an existing payment for driver ' . $driver . ' tx=' . $tx);
 
             return response('not found', 404);
         }

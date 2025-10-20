@@ -68,14 +68,7 @@ class PaymentGatewayService
             $resp = Http::withToken($secret)->acceptJson()->get($apiBase . '/charges/' . $chargeId);
 
             if (!$resp->ok()) {
-                Log::warning(
-                    $gateway->slug . '.verify.error',
-                    [
-                        'payment_id' => $gateway->id,
-                        'status' => $resp->status(),
-                    ]
-                );
-                return ['payment' => $payment, 'status' => 'pending', 'charge' => null];
+                return ['payment' => $gateway, 'status' => 'pending', 'charge' => null];
             }
 
             $json = $resp->json();
@@ -115,13 +108,6 @@ class PaymentGatewayService
 
             return ['payment' => $payment, 'status' => $payment->status, 'charge' => $json];
         } catch (\Throwable $e) {
-            Log::warning(
-                $gateway->slug . '.verify.exception',
-                [
-                    'payment_id' => $gateway->id,
-                    'error' => $e->getMessage(),
-                ]
-            );
             return ['success' => false, 'status' => 'pending', 'data' => null];
         }
     }

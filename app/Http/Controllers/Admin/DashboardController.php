@@ -116,11 +116,6 @@ class DashboardController extends Controller
         }
 
         // Debug: Log chart data to ensure it's being generated
-        \Log::info('Dashboard Chart Data:', [
-            'chartData' => $chartData,
-            'salesChartData' => $salesChartData,
-            'orderStatusChartData' => $orderStatusChartData
-        ]);
 
         // Get top statistics for quick overview
         $topStats = $this->getTopStatistics();

@@ -63,11 +63,6 @@ class PaypalController extends Controller
                     ->post($captureUrl, (object) []);
                 $statusCode = $captureResp->status();
                 $body = $captureResp->json();
-                Log::info('paypal.capture.raw', [
-                    'code' => $statusCode,
-                    'id' => $orderId,
-                    'body_status' => $body['status'] ?? null
-                ]);
             } catch (\Illuminate\Http\Client\RequestException $reqEx) {
                 $resp = $reqEx->response;
                 $respBody = null;
@@ -110,7 +105,6 @@ class PaypalController extends Controller
                     ->acceptJson()
                     ->get($base . '/v2/checkout/orders/' . $orderId);
                 $body = $details->json();
-                Log::warning('paypal.capture.duplicate', ['order_id' => $orderId]);
             }
             if ($statusCode >= 200 && $statusCode < 300) {
                 // Determine final state

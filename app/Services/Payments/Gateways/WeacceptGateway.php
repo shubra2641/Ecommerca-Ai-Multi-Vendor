@@ -120,7 +120,6 @@ class WeacceptGateway
                 'mock' => $mock,
             ];
 
-            Log::info('weaccept.init.request', $initLog);
             try {
                 // If mock mode is enabled, skip external requests and return a local redirect to the return route
                 if ($mock) {
@@ -148,7 +147,6 @@ class WeacceptGateway
                     'api_prefix' => $apiPrefix,
                     'api_key_tail' => substr((string) $apiKey, -4),
                 ];
-                Log::info('weaccept.init.details', $details);
                 // Sanitize API key (strip whitespace/newlines) and try several candidate keys
                 // if auth fails
                 $candidates = [];
@@ -180,7 +178,6 @@ class WeacceptGateway
                             'auth_url' => $authUrl,
                             'api_key_tail' => substr($try, -8),
                         ];
-                        Log::info('weaccept.auth.attempt', $attemptInfo);
 
                         $http = Http::acceptJson()
                             ->timeout($timeoutSec)
@@ -204,7 +201,6 @@ class WeacceptGateway
                             'status' => $authResp->status(),
                             'body' => $bodyPreview,
                         ];
-                        Log::info('weaccept.auth.response', $authRespLog);
                         if ($authResp->successful()) {
                             $authJson = $authResp->json();
                             break;
@@ -214,10 +210,6 @@ class WeacceptGateway
                             break;
                         }
                     } catch (\Throwable $inner) {
-                        Log::warning('weaccept.auth.attempt_error', [
-                            'payment_id' => $payment->id,
-                            'error' => $inner->getMessage()
-                        ]);
                         // Optional insecure retry for local environments only
                         if ($allowInsecure) {
                             try {
@@ -233,16 +225,11 @@ class WeacceptGateway
                                 $authResp = $http->post($authUrl, ['api_key' => $try]);
                                 $lastBody = $authResp->body();
                                 $insecureInfo = ['payment_id' => $payment->id, 'status' => $authResp->status()];
-                                Log::info('weaccept.auth.response.insecure', $insecureInfo);
                                 if ($authResp->successful()) {
                                     $authJson = $authResp->json();
                                     break;
                                 }
                             } catch (\Throwable $inner2) {
-                                Log::warning('weaccept.auth.insecure_attempt_error', [
-                                    'payment_id' => $payment->id,
-                                    'error' => $inner2->getMessage()
-                                ]);
                             }
                         }
                     }
@@ -323,7 +310,6 @@ class WeacceptGateway
                     'status' => $orderResp->status(),
                     'body' => $orderBodyPreview
                 ];
-                Log::info('weaccept.order.response', $orderRespLog);
                 if (! $orderResp->successful()) {
                     throw new \Exception('Order creation error: ' . $orderResp->status());
                 }
@@ -369,7 +355,6 @@ class WeacceptGateway
                 // Include amount_cents inside order per PayMob validation rules
                 $returnUrl = route('weaccept.return', ['payment' => $payment->id]);
                 $billingLog = ['payment_id' => $payment->id, 'billing_data' => $billingData];
-                Log::info('weaccept.payment_key.billing_data', $billingLog);
                 $paymentKeyPayload = [
                     'amount_cents' => $amountCents,
                     'currency' => $currency,
@@ -381,14 +366,12 @@ class WeacceptGateway
                     'redirection_url' => $returnUrl,
                 ];
                 $pkFullLog = ['payment_id' => $payment->id, 'payload' => $paymentKeyPayload];
-                Log::info('weaccept.payment_key.full_payload', $pkFullLog);
                 $pkPayloadLog = [
                     'payment_id' => $payment->id,
                     'integration_id' => (int) $integrationId,
                     'iframe_id' => $iframeId,
                     'redirection_url' => $returnUrl,
                 ];
-                Log::info('weaccept.payment_key.payload', $pkPayloadLog);
 
                 try {
                     $pkResp = $client->post($apiPrefix . '/acceptance/payment_keys', $paymentKeyPayload);
@@ -401,11 +384,6 @@ class WeacceptGateway
                     }
                 }
                 $pkBodyPreview = substr($pkResp->body(), 0, 500);
-                Log::info('weaccept.payment_key.response', [
-                    'payment_id' => $payment->id,
-                    'status' => $pkResp->status(),
-                    'body' => $pkBodyPreview
-                ]);
                 if (! $pkResp->successful()) {
                     throw new \Exception('Payment key error: ' . $pkResp->status());
                 }

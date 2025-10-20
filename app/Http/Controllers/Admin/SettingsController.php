@@ -168,7 +168,6 @@ class SettingsController extends Controller
                     $setting->ai_openai_api_key = encrypt($rawKey);
                 } catch (\Throwable $e) {
                     // Fallback to plain if encryption fails (log for later)
-                    \Log::warning('AI key encryption failed: ' . $e->getMessage());
                     $setting->ai_openai_api_key = $rawKey;
                 }
             }

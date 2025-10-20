@@ -17,7 +17,6 @@ class DistributeOrderProceedsListener
 
         // idempotency: skip if already processed
         if ($order->vendor_distribution_processed) {
-            Log::info('DistributeOrderProceedsListener skipped: already processed for order ' . $order->id);
 
             return;
         }
@@ -45,11 +44,6 @@ class DistributeOrderProceedsListener
 
                 // Shipping and taxes are considered platform/admin revenue by default
 
-                Log::info(
-                    'DistributeOrderProceedsListener processing order ' . $order->id .
-                        ' computed vendorAmounts: ' . json_encode($vendorAmounts)
-                );
-
                 // Credit each vendor or hold if within return window
                 foreach ($vendorAmounts as $vendorId => $amount) {
                     if ($amount <= 0) {
@@ -57,11 +51,6 @@ class DistributeOrderProceedsListener
                     }
                     $vendor = \App\Models\User::find($vendorId);
                     if (! $vendor) {
-                        Log::warning(
-                            'DistributeOrderProceedsListener: vendor not found id=' . $vendorId .
-                                ' for order ' . $order->id
-                        );
-
                         continue;
                     }
 
@@ -89,10 +78,6 @@ class DistributeOrderProceedsListener
                             null,
                             $order
                         );
-                        Log::info(
-                            'DistributeOrderProceedsListener held vendor ' . $vendorId .
-                                ' amount ' . $amount . ' for order ' . $order->id
-                        );
                     } else {
                         $previous = (float) $vendor->balance;
                         $vendor->increment('balance', $amount);
@@ -109,10 +94,6 @@ class DistributeOrderProceedsListener
                             $order
                         );
 
-                        Log::info(
-                            'DistributeOrderProceedsListener credited vendor ' . $vendorId .
-                                ' amount ' . $amount . ' for order ' . $order->id
-                        );
                     }
                 }
 
@@ -129,10 +110,7 @@ class DistributeOrderProceedsListener
                             $break = CommissionService::breakdown($it->product, (int) $it->qty, (float) $it->price);
                             $commission = (float) ($break['commission'] ?? 0.0);
                         } catch (\Throwable $e) {
-                            Log::warning(
-                                'DistributeOrderProceedsListener: failed computing commission fallback for order ' .
-                                    $order->id . ' item ' . $it->id . ': ' . $e->getMessage()
-                            );
+                            // Fallback to zero commission
                         }
                     }
                     $platformShare += $commission;
@@ -155,16 +133,7 @@ class DistributeOrderProceedsListener
                             null,
                             $order
                         );
-
-                        Log::info(
-                            'DistributeOrderProceedsListener credited admin id ' . $admin->id .
-                                ' amount ' . $platformShare . ' for order ' . $order->id
-                        );
                     } else {
-                        Log::warning(
-                            'DistributeOrderProceedsListener: no admin user found to credit platform share for order ' .
-                                $order->id
-                        );
                     }
                 }
 

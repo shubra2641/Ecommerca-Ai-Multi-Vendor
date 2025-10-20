@@ -47,15 +47,9 @@ class TapGateway
                 'source' => ['id' => 'src_all'],
             ];
 
-            Log::info('tap.init.request', ['payment_id' => $payment->id, 'payload' => $chargePayload]);
             $resp = Http::withToken($secret)
                 ->acceptJson()
                 ->post('https://api.tap.company/v2/charges', $chargePayload);
-            Log::info('tap.init.response', [
-                'payment_id' => $payment->id,
-                'status' => $resp->status(),
-                'body_snippet' => substr($resp->body(), 0, 500)
-            ]);
             if (! $resp->ok()) {
                 throw new \Exception('Charge error: ' . $resp->status() . ' ' . substr($resp->body(), 0, 200));
             }
@@ -89,7 +83,6 @@ class TapGateway
         }
         $resp = Http::withToken($secret)->acceptJson()->get('https://api.tap.company/v2/charges/' . $chargeId);
         if (! $resp->ok()) {
-            Log::warning('tap.charge.verify.error', ['payment_id' => $payment->id, 'status' => $resp->status()]);
 
             return ['payment' => $payment, 'status' => 'pending', 'charge' => null];
         }

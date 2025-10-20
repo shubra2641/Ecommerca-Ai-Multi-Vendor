@@ -233,7 +233,6 @@ class ProductCategoryController extends Controller
                 ->timeout(25)
                 ->post('https://api.openai.com/v1/chat/completions', $payload);
         } catch (\Throwable $e) {
-            \Log::warning('AI category HTTP exception: ' . $e->getMessage());
 
             return response()->json(
                 ['error' => 'connection_failed', 'message' => $e->getMessage()],
