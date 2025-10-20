@@ -5,9 +5,9 @@
 @section('content')
 <div class="container-fluid">
     @include('admin.partials.page-header', [
-        'title' => __('System Settings'),
-        'subtitle' => __('Manage system configuration and preferences'),
-        'actions' => '<a href="'.route('admin.settings.index', ['refresh' => '1']).'" class="btn btn-outline-primary"><i class="fas fa-sync-alt me-1"></i> '.e(__('Refresh Info')).'</a>'
+    'title' => __('System Settings'),
+    'subtitle' => __('Manage system configuration and preferences'),
+    'actions' => '<a href="'.route('admin.settings.index', ['refresh' => '1']).'" class="btn btn-outline-primary"><i class="fas fa-sync-alt me-1"></i> '.e(__('Refresh Info')).'</a>'
     ])
 
     <div class="row">
@@ -39,15 +39,10 @@
                                     <label for="logo" class="form-label">{{ __('Logo') }}</label>
                                     <input type="file" id="logo" name="logo" class="form-control">
                                     @if(!empty($setting->logo))
-                                    <div class="mt-2 d-flex align-items-center gap-3">
+                                    <div class="mt-2">
                                         <img src="{{ asset('storage/'.$setting->logo) }}" alt="Logo"
                                             class="img-thumbnail" style="max-height: 60px;">
-                                        <form action="{{ route('admin.settings.logo.delete') }}" method="POST" class="js-confirm" data-confirm="{{ __('Delete logo?') }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-outline-danger" type="submit"><i
-                                                    class="fas fa-trash me-1"></i> {{ __('Delete Logo') }}</button>
-                                        </form>
+                                        <small class="text-muted d-block mt-1">{{ __('Current logo will be replaced when you upload a new one.') }}</small>
                                     </div>
                                     @endif
                                     @error('logo') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -126,38 +121,38 @@
                                     <label for="app_timezone" class="form-label">{{ __('Timezone') }}</label>
                                     <select id="app_timezone" name="app_timezone"
                                         class="form-control @error('app_timezone') is-invalid @enderror" required>
-                                    <option value="UTC" {{ config('app.timezone') === 'UTC' ? 'selected' : '' }}>UTC
-                                    </option>
-                                    <option value="America/New_York"
-                                        {{ config('app.timezone') === 'America/New_York' ? 'selected' : '' }}>Eastern
-                                        Time (UTC-5)</option>
-                                    <option value="America/Chicago"
-                                        {{ config('app.timezone') === 'America/Chicago' ? 'selected' : '' }}>Central
-                                        Time (UTC-6)</option>
-                                    <option value="America/Los_Angeles"
-                                        {{ config('app.timezone') === 'America/Los_Angeles' ? 'selected' : '' }}>Pacific
-                                        Time (UTC-8)</option>
-                                    <option value="Europe/London"
-                                        {{ config('app.timezone') === 'Europe/London' ? 'selected' : '' }}>London
-                                        (UTC+0)</option>
-                                    <option value="Europe/Paris"
-                                        {{ config('app.timezone') === 'Europe/Paris' ? 'selected' : '' }}>Paris (UTC+1)
-                                    </option>
-                                    <option value="Asia/Dubai"
-                                        {{ config('app.timezone') === 'Asia/Dubai' ? 'selected' : '' }}>Dubai (UTC+4)
-                                    </option>
-                                    <option value="Asia/Riyadh"
-                                        {{ config('app.timezone') === 'Asia/Riyadh' ? 'selected' : '' }}>Riyadh (UTC+3)
-                                    </option>
-                                    <option value="Asia/Cairo"
-                                        {{ config('app.timezone') === 'Asia/Cairo' ? 'selected' : '' }}>Cairo (UTC+2)
-                                    </option>
-                                </select>
-                                @error('app_timezone')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                        <option value="UTC" {{ config('app.timezone') === 'UTC' ? 'selected' : '' }}>UTC
+                                        </option>
+                                        <option value="America/New_York"
+                                            {{ config('app.timezone') === 'America/New_York' ? 'selected' : '' }}>Eastern
+                                            Time (UTC-5)</option>
+                                        <option value="America/Chicago"
+                                            {{ config('app.timezone') === 'America/Chicago' ? 'selected' : '' }}>Central
+                                            Time (UTC-6)</option>
+                                        <option value="America/Los_Angeles"
+                                            {{ config('app.timezone') === 'America/Los_Angeles' ? 'selected' : '' }}>Pacific
+                                            Time (UTC-8)</option>
+                                        <option value="Europe/London"
+                                            {{ config('app.timezone') === 'Europe/London' ? 'selected' : '' }}>London
+                                            (UTC+0)</option>
+                                        <option value="Europe/Paris"
+                                            {{ config('app.timezone') === 'Europe/Paris' ? 'selected' : '' }}>Paris (UTC+1)
+                                        </option>
+                                        <option value="Asia/Dubai"
+                                            {{ config('app.timezone') === 'Asia/Dubai' ? 'selected' : '' }}>Dubai (UTC+4)
+                                        </option>
+                                        <option value="Asia/Riyadh"
+                                            {{ config('app.timezone') === 'Asia/Riyadh' ? 'selected' : '' }}>Riyadh (UTC+3)
+                                        </option>
+                                        <option value="Asia/Cairo"
+                                            {{ config('app.timezone') === 'Asia/Cairo' ? 'selected' : '' }}>Cairo (UTC+2)
+                                        </option>
+                                    </select>
+                                    @error('app_timezone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
-                        </div>
 
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -184,7 +179,7 @@
                                     <label for="font_family" class="form-label">{{ __('Font Family') }}</label>
                                     <select id="font_family" name="font_family" class="form-control js-preview-font @error('font_family') is-invalid @enderror">
                                         @foreach(($profileAvailableFonts ?? []) as $font)
-                                            <option value="{{ $font }}" {{ old('font_family', $setting->font_family ?? 'Inter') === $font ? 'selected' : '' }}>{{ $font }}@if($font==='Inter') ({{ __('Default') }})@endif</option>
+                                        <option value="{{ $font }}" {{ old('font_family', $setting->font_family ?? 'Inter') === $font ? 'selected' : '' }}>{{ $font }}@if($font==='Inter') ({{ __('Default') }})@endif</option>
                                         @endforeach
                                     </select>
                                     <small class="form-text text-muted">{{ __('Only locally bundled fonts are listed to ensure CSP & SRI compliance.') }}</small>
@@ -198,164 +193,165 @@
                         </div>
 
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="font-preview-container envato-hidden">
-                                <label class="form-label">{{ __('Font Preview') }}</label>
-                                <div class="font-preview-text" id="fontPreview">
-                                    <p data-sample="label" class="mb-2 fs-16 fw-600">
-                                        {{ $setting->font_family ?? 'Inter' }} - {{ __('Font Preview') }}</p>
-                                    <p data-sample="latin" class="mb-1 fs-14">The quick brown fox
-                                        jumps over the lazy dog 1234567890 !?&amp;*</p>
-                                    <p data-sample="arabic" class="mb-0 fs-14">نص عربي للتجربة يظهر
-                                        تنسيق الخط واختبار الحروف الموسعة</p>
-                                </div>
-                                <small
-                                    class="text-muted d-block mt-2">{{ __('Preview only. Click Save Settings to apply site-wide.') }}</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr />
-                    <h4 class="mt-4">{{ __('AI Assistant') }}</h4>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group form-check mt-2">
-                                <input type="hidden" name="ai_enabled" value="0">
-                                <input type="checkbox" id="ai_enabled" name="ai_enabled" value="1" class="form-check-input" {{ old('ai_enabled', $setting->ai_enabled ?? false) ? 'checked' : '' }}>
-                                <label for="ai_enabled" class="form-check-label">{{ __('Enable AI') }}</label>
-                                <div class="form-text small">{{ __('Toggle product description & SEO generation.') }}</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="ai_provider" class="form-label">{{ __('Provider') }}</label>
-                                <select id="ai_provider" name="ai_provider" class="form-select">
-                                    <option value="" @selected(old('ai_provider',$setting->ai_provider ?? '')==='')>{{ __('Select') }}</option>
-                                    <option value="openai" @selected(old('ai_provider',$setting->ai_provider ?? '')==='openai')>OpenAI</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="ai_openai_api_key" class="form-label">{{ __('OpenAI API Key') }}</label>
-                                <input type="text" id="ai_openai_api_key" name="ai_openai_api_key" class="form-control" value="{{ old('ai_openai_api_key', $setting->ai_openai_api_key ? '••••••••' : '') }}" placeholder="sk-...">
-                                <div class="form-text small">{{ __('Stored encrypted. Never expose to vendors.') }}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <hr />
-                    <h4 class="mt-3">{{ __('Withdrawal Settings') }}</h4>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="min_withdrawal_amount" class="form-label">{{ __('Minimum Withdrawal Amount') }}</label>
-                                <input type="number" step="0.01" id="min_withdrawal_amount" name="min_withdrawal_amount" class="form-control" value="{{ old('min_withdrawal_amount', $setting->min_withdrawal_amount ?? 10) }}">
-                                <small class="form-text text-muted">{{ __('Minimum amount vendors can request for withdrawal.') }}</small>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="withdrawal_gateways" class="form-label">{{ __('Withdrawal Gateways (one per line)') }}</label>
-
-                                <textarea id="withdrawal_gateways" name="withdrawal_gateways" rows="3" class="form-control">{{ implode("\n", $setting->withdrawal_gateways ?? []) }} </textarea>
-                                <div class="form-text">{{ __('Enter each method name on a separate line (e.g. Bank Transfer, PayPal, Wise). It will be saved automatically.') }}</div>
-                                <small class="form-text text-muted">{{ __('List simple gateway titles vendors can choose from.') }}</small>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <input type="hidden" name="withdrawal_commission_enabled" value="0">
-                                <div class="form-check">
-                                    <input type="checkbox" id="withdrawal_commission_enabled" name="withdrawal_commission_enabled" value="1" class="form-check-input" {{ old('withdrawal_commission_enabled', $setting->withdrawal_commission_enabled ?? false) ? 'checked' : '' }}>
-                                    <label for="withdrawal_commission_enabled" class="form-check-label">{{ __('Enable Withdrawal Commission') }}</label>
-                                </div>
-                                <div class="mt-2">
-                                    <label for="withdrawal_commission_rate" class="form-label">{{ __('Commission Rate (%)') }}</label>
-                                    <input type="number" step="0.01" id="withdrawal_commission_rate" name="withdrawal_commission_rate" class="form-control" value="{{ old('withdrawal_commission_rate', $setting->withdrawal_commission_rate ?? 0) }}">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="font-preview-container envato-hidden">
+                                    <label class="form-label">{{ __('Font Preview') }}</label>
+                                    <div class="font-preview-text" id="fontPreview">
+                                        <p data-sample="label" class="mb-2 fs-16 fw-600">
+                                            {{ $setting->font_family ?? 'Inter' }} - {{ __('Font Preview') }}
+                                        </p>
+                                        <p data-sample="latin" class="mb-1 fs-14">The quick brown fox
+                                            jumps over the lazy dog 1234567890 !?&amp;*</p>
+                                        <p data-sample="arabic" class="mb-0 fs-14">نص عربي للتجربة يظهر
+                                            تنسيق الخط واختبار الحروف الموسعة</p>
+                                    </div>
+                                    <small
+                                        class="text-muted d-block mt-2">{{ __('Preview only. Click Save Settings to apply site-wide.') }}</small>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <hr />
-                    <h4 class="mt-4">{{ __('Sales Commission') }}</h4>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="commission_mode" class="form-label">{{ __('Commission Mode') }}</label>
-                                <select id="commission_mode" name="commission_mode" class="form-select">
-                                    <option value="flat" {{ old('commission_mode', $setting->commission_mode ?? 'flat')==='flat' ? 'selected' : '' }}>{{ __('Flat (Global Rate)') }}</option>
-                                    <option value="category" {{ old('commission_mode', $setting->commission_mode ?? 'flat')==='category' ? 'selected' : '' }}>{{ __('Per Category') }}</option>
-                                </select>
-                                <div class="form-text small">{{ __('Choose how vendor commission is determined.') }}</div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="commission_flat_rate" class="form-label">{{ __('Global Commission Rate (%)') }}</label>
-                                <input type="number" step="0.01" id="commission_flat_rate" name="commission_flat_rate" class="form-control" value="{{ old('commission_flat_rate', $setting->commission_flat_rate ?? '') }}">
-                                <div class="form-text small">{{ __('Used when mode is Flat or when category has no override.') }}</div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 d-flex align-items-end">
-                            <div class="alert alert-info py-2 px-3 w-100 mb-0 small">
-                                <strong>{{ __('Tip:') }}</strong> {{ __('Set per-category rate in category form when mode = Per Category.') }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <div class="form-group form-check">
-                                <input type="hidden" name="auto_publish_reviews" value="0">
-                                <input type="checkbox" id="auto_publish_reviews" name="auto_publish_reviews" value="1"
-                                    class="form-check-input"
-                                    {{ old('auto_publish_reviews', $setting->auto_publish_reviews ?? 0) ? 'checked' : '' }}>
-                                <label for="auto_publish_reviews"
-                                    class="form-check-label">{{ __('Auto-publish product reviews') }}</label>
-                                <small
-                                    class="form-text text-muted">{{ __('If enabled, reviews submitted by authenticated users will be published immediately. Otherwise admin approval is required.') }}</small>
-                            </div>
-                        </div>
-                    </div>
 
-                    <hr />
-                    <h4 class="mt-4">{{ __('External Payment Settings') }}</h4>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group form-check">
-                                <input type="hidden" name="enable_external_payment_redirect" value="0">
-                                <input type="checkbox" id="enable_external_payment_redirect" name="enable_external_payment_redirect" value="1"
-                                    class="form-check-input"
-                                    {{ old('enable_external_payment_redirect', $setting->enable_external_payment_redirect ?? false) ? 'checked' : '' }}>
-                                <label for="enable_external_payment_redirect"
-                                    class="form-check-label">{{ __('Enable External Payment Redirect') }}</label>
-                                <small
-                                    class="form-text text-muted">{{ __('When enabled, customers will be redirected directly to external payment gateways instead of using the internal payment handler.') }}</small>
+                        <hr />
+                        <h4 class="mt-4">{{ __('AI Assistant') }}</h4>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group form-check mt-2">
+                                    <input type="hidden" name="ai_enabled" value="0">
+                                    <input type="checkbox" id="ai_enabled" name="ai_enabled" value="1" class="form-check-input" {{ old('ai_enabled', $setting->ai_enabled ?? false) ? 'checked' : '' }}>
+                                    <label for="ai_enabled" class="form-check-label">{{ __('Enable AI') }}</label>
+                                    <div class="form-text small">{{ __('Toggle product description & SEO generation.') }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="ai_provider" class="form-label">{{ __('Provider') }}</label>
+                                    <select id="ai_provider" name="ai_provider" class="form-select">
+                                        <option value="" @selected(old('ai_provider',$setting->ai_provider ?? '')==='')>{{ __('Select') }}</option>
+                                        <option value="openai" @selected(old('ai_provider',$setting->ai_provider ?? '')==='openai')>OpenAI</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="ai_openai_api_key" class="form-label">{{ __('OpenAI API Key') }}</label>
+                                    <input type="text" id="ai_openai_api_key" name="ai_openai_api_key" class="form-control" value="{{ old('ai_openai_api_key', $setting->ai_openai_api_key ? '••••••••' : '') }}" placeholder="sk-...">
+                                    <div class="form-text small">{{ __('Stored encrypted. Never expose to vendors.') }}</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="alert alert-info py-2 px-3 w-100 mb-0 small">
-                                <strong>{{ __('Note:') }}</strong> {{ __('This setting affects how payment gateways handle customer redirections. Enable for direct gateway integration.') }}
+                        <hr />
+                        <h4 class="mt-3">{{ __('Withdrawal Settings') }}</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="min_withdrawal_amount" class="form-label">{{ __('Minimum Withdrawal Amount') }}</label>
+                                    <input type="number" step="0.01" id="min_withdrawal_amount" name="min_withdrawal_amount" class="form-control" value="{{ old('min_withdrawal_amount', $setting->min_withdrawal_amount ?? 10) }}">
+                                    <small class="form-text text-muted">{{ __('Minimum amount vendors can request for withdrawal.') }}</small>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="withdrawal_gateways" class="form-label">{{ __('Withdrawal Gateways (one per line)') }}</label>
 
-                    <div class="card-footer bg-transparent">
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-1"></i>
-                                {{ __('Save Settings') }}
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary js-reset-form" data-action="reset-settings-form">
-                                <i class="fas fa-undo me-1"></i>
-                                {{ __('Reset') }}
-                            </button>
+                                    <textarea id="withdrawal_gateways" name="withdrawal_gateways" rows="3" class="form-control">{{ implode("\n", $setting->withdrawal_gateways ?? []) }} </textarea>
+                                    <div class="form-text">{{ __('Enter each method name on a separate line (e.g. Bank Transfer, PayPal, Wise). It will be saved automatically.') }}</div>
+                                    <small class="form-text text-muted">{{ __('List simple gateway titles vendors can choose from.') }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input type="hidden" name="withdrawal_commission_enabled" value="0">
+                                    <div class="form-check">
+                                        <input type="checkbox" id="withdrawal_commission_enabled" name="withdrawal_commission_enabled" value="1" class="form-check-input" {{ old('withdrawal_commission_enabled', $setting->withdrawal_commission_enabled ?? false) ? 'checked' : '' }}>
+                                        <label for="withdrawal_commission_enabled" class="form-check-label">{{ __('Enable Withdrawal Commission') }}</label>
+                                    </div>
+                                    <div class="mt-2">
+                                        <label for="withdrawal_commission_rate" class="form-label">{{ __('Commission Rate (%)') }}</label>
+                                        <input type="number" step="0.01" id="withdrawal_commission_rate" name="withdrawal_commission_rate" class="form-control" value="{{ old('withdrawal_commission_rate', $setting->withdrawal_commission_rate ?? 0) }}">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </form>
+                        <hr />
+                        <h4 class="mt-4">{{ __('Sales Commission') }}</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="commission_mode" class="form-label">{{ __('Commission Mode') }}</label>
+                                    <select id="commission_mode" name="commission_mode" class="form-select">
+                                        <option value="flat" {{ old('commission_mode', $setting->commission_mode ?? 'flat')==='flat' ? 'selected' : '' }}>{{ __('Flat (Global Rate)') }}</option>
+                                        <option value="category" {{ old('commission_mode', $setting->commission_mode ?? 'flat')==='category' ? 'selected' : '' }}>{{ __('Per Category') }}</option>
+                                    </select>
+                                    <div class="form-text small">{{ __('Choose how vendor commission is determined.') }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="commission_flat_rate" class="form-label">{{ __('Global Commission Rate (%)') }}</label>
+                                    <input type="number" step="0.01" id="commission_flat_rate" name="commission_flat_rate" class="form-control" value="{{ old('commission_flat_rate', $setting->commission_flat_rate ?? '') }}">
+                                    <div class="form-text small">{{ __('Used when mode is Flat or when category has no override.') }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="alert alert-info py-2 px-3 w-100 mb-0 small">
+                                    <strong>{{ __('Tip:') }}</strong> {{ __('Set per-category rate in category form when mode = Per Category.') }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group form-check">
+                                    <input type="hidden" name="auto_publish_reviews" value="0">
+                                    <input type="checkbox" id="auto_publish_reviews" name="auto_publish_reviews" value="1"
+                                        class="form-check-input"
+                                        {{ old('auto_publish_reviews', $setting->auto_publish_reviews ?? 0) ? 'checked' : '' }}>
+                                    <label for="auto_publish_reviews"
+                                        class="form-check-label">{{ __('Auto-publish product reviews') }}</label>
+                                    <small
+                                        class="form-text text-muted">{{ __('If enabled, reviews submitted by authenticated users will be published immediately. Otherwise admin approval is required.') }}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr />
+                        <h4 class="mt-4">{{ __('External Payment Settings') }}</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group form-check">
+                                    <input type="hidden" name="enable_external_payment_redirect" value="0">
+                                    <input type="checkbox" id="enable_external_payment_redirect" name="enable_external_payment_redirect" value="1"
+                                        class="form-check-input"
+                                        {{ old('enable_external_payment_redirect', $setting->enable_external_payment_redirect ?? false) ? 'checked' : '' }}>
+                                    <label for="enable_external_payment_redirect"
+                                        class="form-check-label">{{ __('Enable External Payment Redirect') }}</label>
+                                    <small
+                                        class="form-text text-muted">{{ __('When enabled, customers will be redirected directly to external payment gateways instead of using the internal payment handler.') }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-info py-2 px-3 w-100 mb-0 small">
+                                    <strong>{{ __('Note:') }}</strong> {{ __('This setting affects how payment gateways handle customer redirections. Enable for direct gateway integration.') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>
+                                    {{ __('Save Settings') }}
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary js-reset-form" data-action="reset-settings-form">
+                                    <i class="fas fa-undo me-1"></i>
+                                    {{ __('Reset') }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
         <!-- System Information -->
         <div class="col-lg-4">
@@ -444,6 +440,6 @@
                     </div>
                 </div>
             </div>
+        </div>
     </div>
-</div>
-@endsection
+    @endsection

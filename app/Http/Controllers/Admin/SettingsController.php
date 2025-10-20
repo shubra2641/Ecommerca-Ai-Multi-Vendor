@@ -355,28 +355,4 @@ class SettingsController extends Controller
     {
         return str_starts_with($v, '[') && str_ends_with($v, ']');
     }
-
-    /**
-     * Delete logo
-     */
-    public function deleteLogo(): RedirectResponse
-    {
-        \Log::info('Delete logo method called');
-        
-        $setting = Setting::first();
-        
-        if ($setting && $setting->logo) {
-            // Delete old logo file
-            Storage::disk('public')->delete($setting->logo);
-            
-            // Update setting
-            $setting->update(['logo' => null]);
-            
-            \Log::info('Logo deleted successfully');
-            return redirect()->back()->with('success', __('Logo deleted successfully.'));
-        }
-        
-        \Log::info('No logo found to delete');
-        return redirect()->back()->with('error', __('No logo found to delete.'));
-    }
 }
