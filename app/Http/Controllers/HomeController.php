@@ -36,6 +36,13 @@ class HomeController extends Controller
             'flashSaleEndsAt' => $this->getFlashSaleEndTime(),
             'wishlistIds' => $this->getWishlistIds(),
             'compareIds' => $this->getCompareIds(),
+            // Showcase sections
+            'showcase_brands' => $this->getShowcaseBrands($sections),
+            'showcase_most_rated' => $this->getShowcaseMostRated($sections),
+            'showcase_discount' => $this->getShowcaseDiscount($sections),
+            'showcase_best_selling' => $this->getShowcaseBestSelling($sections),
+            'showcase_latest' => $this->getShowcaseLatest($sections),
+            'blog_posts' => $this->getBlogPosts($sections),
         ];
 
         return view('front.landing', $data);
@@ -152,5 +159,72 @@ class HomeController extends Controller
     private function getCompareIds()
     {
         return session('compare', []);
+    }
+
+    // Showcase sections
+    private function getShowcaseBrands($sections)
+    {
+        $limit = $sections->where('key', 'showcase_brands')->first()->item_limit ?? 8;
+        return Cache::remember(
+            'showcase_brands',
+            1800,
+            fn() =>
+            Brand::where('active', true)->orderBy('id')->take($limit)->get()
+        );
+    }
+
+    private function getShowcaseMostRated($sections)
+    {
+        $limit = $sections->where('key', 'showcase_most_rated')->first()->item_limit ?? 6;
+        return Cache::remember(
+            'showcase_most_rated',
+            900,
+            fn() =>
+            Product::active()->with(['category'])->withCount('reviews')->withAvg('reviews', 'rating')->orderBy('reviews_avg_rating', 'desc')->take($limit)->get()
+        );
+    }
+
+    private function getShowcaseDiscount($sections)
+    {
+        $limit = $sections->where('key', 'showcase_discount')->first()->item_limit ?? 6;
+        return Cache::remember(
+            'showcase_discount',
+            300,
+            fn() =>
+            Product::active()->whereNotNull('sale_price')->where('sale_price', '>', 0)->with(['category'])->orderBy('sale_price', 'asc')->take($limit)->get()
+        );
+    }
+
+    private function getShowcaseBestSelling($sections)
+    {
+        $limit = $sections->where('key', 'showcase_best_selling')->first()->item_limit ?? 6;
+        return Cache::remember(
+            'showcase_best_selling',
+            900,
+            fn() =>
+            Product::active()->with(['category'])->withCount('orderItems')->orderBy('order_items_count', 'desc')->take($limit)->get()
+        );
+    }
+
+    private function getShowcaseLatest($sections)
+    {
+        $limit = $sections->where('key', 'showcase_latest')->first()->item_limit ?? 6;
+        return Cache::remember(
+            'showcase_latest',
+            900,
+            fn() =>
+            Product::active()->with(['category'])->latest('id')->take($limit)->get()
+        );
+    }
+
+    private function getBlogPosts($sections)
+    {
+        $limit = $sections->where('key', 'blog_posts')->first()->item_limit ?? 3;
+        return Cache::remember(
+            'blog_posts',
+            1800,
+            fn() =>
+            Post::published()->with(['category'])->latest('published_at')->take($limit)->get()
+        );
     }
 }

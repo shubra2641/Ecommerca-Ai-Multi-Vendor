@@ -122,7 +122,7 @@ class ProductCatalogController extends Controller
         return [
             'categories' => Cache::remember('categories', 3600, fn() => ProductCategory::orderBy('name')->get()),
             'brands' => Cache::remember('brands', 3600, fn() => Brand::orderBy('name')->get()),
-            'wishlistIds' => Auth::check() ? Auth::user()->wishlist()->pluck('product_id')->toArray() : [],
+            'wishlistIds' => Auth::check() ? Auth::user()->wishlistItems()->pluck('product_id')->toArray() : [],
             'currentCurrency' => $this->getCurrentCurrency(),
         ];
     }
