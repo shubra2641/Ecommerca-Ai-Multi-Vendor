@@ -181,8 +181,20 @@ class ProductCatalogController extends Controller
         }
 
         $user = Auth::user();
+        $cart = session('cart', []);
+        $inCart = false;
+        
+        // Check if product is in cart (session-based)
+        foreach ($cart as $key => $item) {
+            $productId = explode(':', $key)[0];
+            if ($productId == $product->id) {
+                $inCart = true;
+                break;
+            }
+        }
+        
         return [
-            'in_cart' => $user->cart()->where('product_id', $product->id)->exists(),
+            'in_cart' => $inCart,
             'purchased' => $user->orders()->whereHas('items', fn($q) => $q->where('product_id', $product->id))->exists(),
         ];
     }

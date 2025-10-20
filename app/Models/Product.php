@@ -56,7 +56,8 @@ class Product extends Model
         'backorder',
         'is_featured',
         'is_best_seller',
-        'approved_reviews_count', 'approved_reviews_avg',
+        'approved_reviews_count',
+        'approved_reviews_avg',
         'seo_title',
         'seo_description',
         'seo_keywords',
@@ -187,7 +188,7 @@ class Product extends Model
     public function effectivePrice(): float
     {
         if ($this->type === 'variable') {
-            $min = $this->variations->filter(fn ($v) => $v->active)->map(fn ($v) => $v->effectivePrice())->min();
+            $min = $this->variations->filter(fn($v) => $v->active)->map(fn($v) => $v->effectivePrice())->min();
 
             return $min ?? (float) $this->price;
         }
