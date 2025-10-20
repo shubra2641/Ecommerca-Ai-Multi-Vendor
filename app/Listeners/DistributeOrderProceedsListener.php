@@ -93,7 +93,6 @@ class DistributeOrderProceedsListener
                             null,
                             $order
                         );
-
                     }
                 }
 

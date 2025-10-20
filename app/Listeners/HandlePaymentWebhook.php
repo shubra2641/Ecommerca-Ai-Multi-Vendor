@@ -25,25 +25,9 @@ class HandlePaymentWebhook implements ShouldQueue
             $gateway = $event->gateway;
             $webhookData = $event->webhookData ?? [];
 
-            // DEBUG
-            @file_put_contents(
-                storage_path('logs/listener_debug.log'),
-                'START: payment=' . ($payment->id ?? 'null') . " status={$status}\n",
-                FILE_APPEND
-            );
 
             // Validate webhook data
-            @file_put_contents(
-                storage_path('logs/listener_debug.log'),
-                'WEBHOOK_DATA:' . var_export($webhookData, true) . "\n",
-                FILE_APPEND
-            );
             if (empty($webhookData['transaction_id']) || empty($status) || $status === 'unknown') {
-                @file_put_contents(
-                    storage_path('logs/listener_debug.log'),
-                    "INVALID_WEBHOOK:\n" . var_export($webhookData, true) . "\n",
-                    FILE_APPEND
-                );
 
                 return;
             }
@@ -57,7 +41,6 @@ class HandlePaymentWebhook implements ShouldQueue
                     'payment_id' => $payment->payment_id,
                     'reason' => 'Payment already completed',
                 ]);
-                @file_put_contents(storage_path('logs/listener_debug.log'), "ALREADY_COMPLETED_RETURN\n", FILE_APPEND);
 
                 return;
             }
@@ -72,11 +55,6 @@ class HandlePaymentWebhook implements ShouldQueue
                 $payment->failed_at = $payment->failed_at ?? now();
             }
             $payment->save();
-            @file_put_contents(
-                storage_path('logs/listener_debug.log'),
-                'SAVED status=' . $payment->status . "\n",
-                FILE_APPEND
-            );
 
             // Update order status based on payment status
             $this->updateOrderStatus($payment, $status);
@@ -87,7 +65,6 @@ class HandlePaymentWebhook implements ShouldQueue
             // Handle specific status actions
             $this->handleStatusSpecificActions($payment, $status, $webhookData);
 
-            @file_put_contents(storage_path('logs/listener_debug.log'), "FINISHED\n", FILE_APPEND);
         } catch (\Exception $e) {
             if (! app()->environment('testing')) {
                 Log::error('Failed to process payment webhook', [
@@ -100,11 +77,6 @@ class HandlePaymentWebhook implements ShouldQueue
                 throw $e;
             }
             // In testing, swallow exception to avoid failing tests due to side-effects
-            @file_put_contents(
-                storage_path('logs/listener_debug.log'),
-                'EXCEPTION:' . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n",
-                FILE_APPEND
-            );
         }
     }
 

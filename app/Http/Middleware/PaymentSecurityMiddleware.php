@@ -40,7 +40,7 @@ class PaymentSecurityMiddleware
     private function isWebhookRequest(Request $request): bool
     {
         return str_contains($request->path(), 'webhook') ||
-               str_contains($request->path(), 'callback');
+            str_contains($request->path(), 'callback');
     }
 
     /**
