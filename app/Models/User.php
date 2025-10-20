@@ -93,6 +93,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(\App\Models\Product::class, 'vendor_id');
     }
 
+    public function wishlistItems()
+    {
+        return $this->hasMany(WishlistItem::class);
+    }
+
     // Scopes
     public function scopeByRole($query, string $role)
     {

@@ -52,7 +52,7 @@ class WithdrawalController extends Controller
     {
         $user = Auth::user();
         $setting = Setting::first();
-        
+
         $amount = (float) $request->input('amount');
         $commissionRate = $setting->withdrawal_commission_rate ?? 0;
         $commissionAmount = $amount * ($commissionRate / 100);

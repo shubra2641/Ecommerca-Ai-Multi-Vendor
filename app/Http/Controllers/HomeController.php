@@ -31,9 +31,11 @@ class HomeController extends Controller
             'banners' => $this->getBanners(),
             'enabledSections' => $enabledSections,
             'flashSaleEndsAt' => $this->getFlashSaleEndTime(),
+            'wishlistIds' => $this->getWishlistIds(),
+            'compareIds' => $this->getCompareIds(),
         ];
 
-        return view('front.home', $data);
+        return view('front.landing', $data);
     }
 
     private function getSetting()
@@ -43,21 +45,27 @@ class HomeController extends Controller
 
     private function getSections()
     {
-        return Cache::remember('homepage_sections', 3600, fn() => HomepageSection::orderBy('position')->get());
+        return Cache::remember('homepage_sections', 3600, fn() => HomepageSection::orderBy('id')->get());
     }
 
     private function getCategories($sections)
     {
         $limit = $sections->where('key', 'categories')->first()->item_limit ?? 6;
-        return Cache::remember('home_categories', 1800, fn() => 
-            ProductCategory::whereNull('parent_id')->where('active', true)->orderBy('position')->take($limit)->get()
+        return Cache::remember(
+            'home_categories',
+            1800,
+            fn() =>
+            ProductCategory::whereNull('parent_id')->where('active', true)->orderBy('id')->take($limit)->get()
         );
     }
 
     private function getLatestProducts($sections)
     {
         $limit = $sections->where('key', 'latest_products')->first()->item_limit ?? 8;
-        return Cache::remember('landing_latest_products', 900, fn() => 
+        return Cache::remember(
+            'landing_latest_products',
+            900,
+            fn() =>
             Product::active()->with(['category'])->withCount('reviews')->withAvg('reviews', 'rating')->latest('id')->take($limit)->get()
         );
     }
@@ -65,7 +73,10 @@ class HomeController extends Controller
     private function getFlashSaleProducts($sections)
     {
         $limit = $sections->where('key', 'flash_sale')->first()->item_limit ?? 8;
-        return Cache::remember('landing_flash_sale_products', 300, fn() => 
+        return Cache::remember(
+            'landing_flash_sale_products',
+            300,
+            fn() =>
             Product::active()->whereNotNull('sale_price')->where('sale_price', '>', 0)->with(['category'])->withCount('reviews')->withAvg('reviews', 'rating')->latest('id')->take($limit)->get()
         );
     }
@@ -73,27 +84,49 @@ class HomeController extends Controller
     private function getLatestPosts($sections)
     {
         $limit = $sections->where('key', 'latest_posts')->first()->item_limit ?? 3;
-        return Cache::remember('landing_latest_posts', 1800, fn() => 
+        return Cache::remember(
+            'landing_latest_posts',
+            1800,
+            fn() =>
             Post::published()->with(['category'])->latest('published_at')->take($limit)->get()
         );
     }
 
     private function getSlides()
     {
-        return Cache::remember('homepage_slides', 1800, fn() => 
-            HomepageSlide::where('active', true)->orderBy('position')->get()
+        return Cache::remember(
+            'homepage_slides',
+            1800,
+            fn() =>
+            HomepageSlide::orderBy('id')->get()
         );
     }
 
     private function getBanners()
     {
-        return Cache::remember('homepage_banners', 1800, fn() => 
-            HomepageBanner::where('active', true)->orderBy('position')->get()
+        return Cache::remember(
+            'homepage_banners',
+            1800,
+            fn() =>
+            HomepageBanner::orderBy('id')->get()
         );
     }
 
     private function getFlashSaleEndTime()
     {
         return now()->addHours(24); // Default 24 hours
+    }
+
+    private function getWishlistIds()
+    {
+        if (auth()->check()) {
+            return auth()->user()->wishlistItems()->pluck('product_id')->toArray();
+        }
+        return session('wishlist', []);
+    }
+
+    private function getCompareIds()
+    {
+        return session('compare', []);
     }
 }
