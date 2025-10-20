@@ -13,6 +13,7 @@ use App\Models\ProductSerial;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\HtmlSanitizer;
+use App\Services\AI\ProductSuggestionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -254,56 +255,16 @@ class ProductController extends Controller
     /**
      * AI suggestion for product content
      */
-    public function aiSuggest(Request $request)
+    public function aiSuggest(Request $request, ProductSuggestionService $service)
     {
         $this->authorize('access-admin');
 
         $request->validate([
-            'name' => 'required|string|min:3',
+            'title' => 'required|string|min:3',
             'locale' => 'nullable|string|max:10',
         ]);
 
-        $setting = Setting::first();
-        if (!$setting?->ai_enabled || $setting?->ai_provider !== 'openai') {
-            return response()->json(['error' => 'AI disabled'], 422);
-        }
-
-        if (!$setting->ai_openai_api_key) {
-            return response()->json(['error' => 'Missing API key'], 422);
-        }
-
-        $locale = $request->locale ?: app()->getLocale();
-        $cacheKey = 'ai_suggest_cache:' . md5($request->name . '|' . $locale);
-
-        if ($cached = Cache::get($cacheKey)) {
-            return response()->json($cached + ['cached' => true]);
-        }
-
-        // Rate limiting
-        $userId = auth()->id() ?: 0;
-        $rateKey = 'ai_suggest_rate:' . $userId . ':' . now()->format('YmdHi');
-        $count = Cache::increment($rateKey);
-
-        if ($count === 1) {
-            Cache::put($rateKey, 1, 65);
-        }
-
-        $perMinuteLimit = (int) env('AI_SUGGEST_RATE_PER_MIN', 10);
-        if ($count > $perMinuteLimit) {
-            return response()->json([
-                'error' => 'rate_limited',
-                'message' => 'Too many AI requests. Please wait a minute and try again.',
-            ], 429);
-        }
-
-        $result = $this->callOpenAI($request->name, $locale, $setting->ai_openai_api_key);
-
-        if (isset($result['error'])) {
-            return response()->json($result, 422);
-        }
-
-        Cache::put($cacheKey, $result, 600);
-        return response()->json($result);
+        return $service->generateSuggestions($request->title, $request->locale);
     }
 
     /**
@@ -581,106 +542,4 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Call OpenAI API
-     */
-    private function callOpenAI(string $name, string $locale, string $apiKey)
-    {
-        $prompt = "Generate JSON with keys short_description (<=200 chars), " .
-            "seo_description (<=160 chars), seo_keywords (<=12 comma keywords), " .
-            "description (2 paragraphs) based on product name: \"{$name}\" " .
-            "Language: {$locale}. Return ONLY JSON.";
-
-        $payload = [
-            'model' => config('services.openai.model', 'gpt-4o-mini'),
-            'messages' => [
-                ['role' => 'system', 'content' => 'You are a product copy assistant. Output concise valid JSON only.'],
-                ['role' => 'user', 'content' => $prompt],
-            ],
-            'temperature' => 0.6,
-        ];
-
-        try {
-            $response = Http::withToken($apiKey)
-                ->acceptJson()
-                ->timeout(25)
-                ->post('https://api.openai.com/v1/chat/completions', $payload);
-
-            if (!$response->ok()) {
-                return [
-                    'error' => 'provider_error',
-                    'message' => 'AI service unavailable',
-                ];
-            }
-
-            $content = $response->json('choices.0.message.content');
-            if (!$content) {
-                return [
-                    'error' => 'empty_output',
-                    'message' => 'No content generated',
-                ];
-            }
-
-            return $this->parseAIResponse($content);
-        } catch (\Throwable $e) {
-            return [
-                'error' => 'connection_failed',
-                'message' => $e->getMessage(),
-            ];
-        }
-    }
-
-    /**
-     * Parse AI response
-     */
-    private function parseAIResponse(string $content)
-    {
-        // Try to extract JSON
-        if (preg_match('/\{.*\}/s', $content, $matches)) {
-            try {
-                $parsed = json_decode($matches[0], true, 512, JSON_THROW_ON_ERROR);
-                return [
-                    'short_description' => mb_substr($parsed['short_description'] ?? '', 0, 200),
-                    'seo_description' => mb_substr($parsed['seo_description'] ?? '', 0, 160),
-                    'seo_keywords' => $parsed['seo_keywords'] ?? '',
-                    'description' => trim($parsed['description'] ?? ''),
-                ];
-            } catch (\Throwable $e) {
-                // Fall through to heuristic parsing
-            }
-        }
-
-        // Heuristic parsing fallback
-        $lines = preg_split('/\n+/', trim($content));
-        $result = [
-            'short_description' => '',
-            'seo_description' => '',
-            'seo_keywords' => '',
-            'description' => '',
-        ];
-
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if (empty($line)) {
-                continue;
-            }
-
-            if (empty($result['short_description']) && mb_strlen($line) <= 200) {
-                $result['short_description'] = $line;
-            } elseif (empty($result['seo_description']) && mb_strlen($line) <= 160) {
-                $result['seo_description'] = $line;
-            } elseif (empty($result['seo_keywords']) && str_contains($line, ',')) {
-                $result['seo_keywords'] = $line;
-            } else {
-                $result['description'] .= $line . "\n\n";
-            }
-        }
-
-        return [
-            'short_description' => mb_substr($result['short_description'], 0, 200),
-            'seo_description' => mb_substr($result['seo_description'], 0, 160),
-            'seo_keywords' => $result['seo_keywords'],
-            'description' => trim($result['description']),
-        ];
-    }
 }

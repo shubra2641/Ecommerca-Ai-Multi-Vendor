@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductCategory;
+use App\Services\AI\CategorySuggestionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -171,144 +172,13 @@ class ProductCategoryController extends Controller
     }
 
     // AI suggestion for category description & SEO
-    public function aiSuggest(Request $request)
+    public function aiSuggest(Request $request, CategorySuggestionService $service)
     {
         $request->validate([
-            'name' => 'required|string|min:3',
+            'title' => 'required|string|min:3',
             'locale' => 'nullable|string|max:10',
         ]);
-        $setting = \App\Models\Setting::first();
-        if (! ($setting?->ai_enabled) || ($setting?->ai_provider !== 'openai')) {
-            return response()->json(['error' => 'AI disabled'], 422);
-        }
-        if (! $setting->ai_openai_api_key) {
-            return response()->json(['error' => 'Missing API key'], 422);
-        }
-        $apiKey = $setting->ai_openai_api_key; // decrypted accessor
-        $locale = $request->locale ?: app()->getLocale();
-        $cacheKey = 'ai_cat_suggest_v1:' . md5($request->name . '|' . $locale);
-        if ($cached = cache()->get($cacheKey)) {
-            return response()->json($cached + ['cached' => true, 'source' => 'cache']);
-        }
-        $perMinuteLimit = (int) env('AI_CATEGORY_RATE_PER_MIN', 8);
-        $userId = auth()->id() ?: 0;
-        $rateKey = 'ai_cat_rate:' . $userId . ':' . now()->format('YmdHi');
-        $count = cache()->increment($rateKey);
-        if ($count === 1) {
-            cache()->put($rateKey, 1, 65);
-        }
-        if ($count > $perMinuteLimit) {
-            return response()->json([
-                'error' => 'rate_limited_local',
-                'source' => 'local',
-                'message' => 'Too many AI requests. Please wait a minute and try again.',
-                'retry_after' => 60,
-                'limit' => $perMinuteLimit,
-            ], 429);
-        }
-        $promptParts = [
-            'Generate JSON with keys seo_description (<=160 chars), seo_keywords (<=12 comma keywords),',
-            ' description (1-2 paragraphs informative) for a product category named "',
-            $request->name,
-            '". Language: ',
-            $locale,
-            '. Return ONLY JSON.',
-        ];
-        $prompt = implode('', $promptParts);
-        $model = config('services.openai.model', 'gpt-4o-mini');
-        $payload = [
-            'model' => $model,
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => 'You are a helpful e-commerce taxonomy assistant. Output concise valid JSON only.',
-                ],
-                ['role' => 'user', 'content' => $prompt],
-            ],
-            'temperature' => 0.6,
-        ];
-        try {
-            $resp = \Http::withToken($apiKey)
-                ->acceptJson()
-                ->timeout(25)
-                ->post('https://api.openai.com/v1/chat/completions', $payload);
-        } catch (\Throwable $e) {
-            return response()->json(
-                ['error' => 'connection_failed', 'message' => $e->getMessage()],
-                502
-            );
-        }
-        $providerStatus = $resp->status();
-        $providerBody = $resp->json();
-        $retryAfter = $resp->header('Retry-After') ? (int) $resp->header('Retry-After') : null;
-        if (! $resp->ok()) {
-            return response()->json([
-                'error' => $providerStatus == 429
-                    ? 'rate_limited_provider'
-                    : 'provider_error',
-                'source' => 'provider',
-                'provider_status' => $providerStatus,
-                'provider_body' => $providerBody,
-                'provider_message' => data_get($providerBody, 'error.message'),
-                'retry_after' => $retryAfter,
-            ], $providerStatus);
-        }
-        $rawText = data_get($providerBody, 'choices.0.message.content');
-        if (! $rawText) {
-            return response()->json([
-                'error' => 'empty_output',
-                'provider_status' => $providerStatus,
-                'provider_body' => $providerBody
-            ], 502);
-        }
-        $seoDescription = '';
-        $seoKeywords = '';
-        $description = '';
-        $parsed = null;
-        if (preg_match('/\{.*\}/s', $rawText, $m)) {
-            try {
-                $parsed = json_decode($m[0], true, 512, JSON_THROW_ON_ERROR);
-            } catch (\Throwable $e) {
-                $parsed = null;
-            }
-        }
-        if (is_array($parsed)) {
-            $seoDescription = (string) ($parsed['seo_description'] ?? '');
-            $seoKeywords = (string) ($parsed['seo_keywords'] ?? '');
-            $description = (string) ($parsed['description'] ?? '');
-        } else {
-            $lines = preg_split('/\n+/', trim($rawText));
-            foreach ($lines as $l) {
-                $ll = trim($l);
-                if ($seoDescription === '' && mb_strlen($ll) <= 200) {
-                    $seoDescription = $ll;
 
-                    continue;
-                }
-                if ($seoKeywords === '' && str_contains($ll, ',')) {
-                    $seoKeywords = $ll;
-
-                    continue;
-                }
-                $description .= $ll . "\n\n";
-            }
-        }
-        if ($seoDescription === '' && $description !== '') {
-            $seoDescription = mb_substr(
-                preg_replace('/\s+/', ' ', trim($description)),
-                0,
-                160
-            );
-        }
-        $result = [
-            'seo_description' => mb_substr($seoDescription, 0, 160),
-            'seo_keywords' => $seoKeywords,
-            'description' => trim($description),
-            'provider_status' => $providerStatus,
-            'source' => 'live',
-        ];
-        cache()->put($cacheKey, $result, 600);
-
-        return response()->json($result);
+        return $service->generateSuggestions($request->title, $request->locale);
     }
 }
