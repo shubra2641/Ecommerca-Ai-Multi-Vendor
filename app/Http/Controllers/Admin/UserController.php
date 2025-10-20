@@ -25,69 +25,20 @@ class UserController extends BaseAdminController
 
     public function index(Request $request)
     {
-        $query = User::query();
-
-        // Search functionality
-        if ($request->has('search') && $request->search) {
-            $searchTerm = $request->search;
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', "%{$searchTerm}%")
-                    ->orWhere('email', 'like', "%{$searchTerm}%")
-                    ->orWhere('phone', 'like', "%{$searchTerm}%");
-            });
-        }
-
-        // Role filter
-        if ($request->has('role') && $request->role) {
-            $query->where('role', $request->role);
-        }
-
-        // Status filter
-        if ($request->has('status') && $request->status) {
-            if ($request->status === 'approved') {
-                $query->whereNotNull('approved_at');
-            } elseif ($request->status === 'pending') {
-                $query->whereNull('approved_at');
-            }
-        }
-
-        $users = $query->latest()->paginate(15)->appends($request->all());
-
-        // Cache user statistics for dashboard
-        $userStats = Cache::remember('user_stats', 600, function () {
-            return [
-                'total_users' => User::count(),
-                'total_vendors' => User::where('role', 'vendor')->count(),
-                'total_customers' => User::where('role', 'user')->count(),
-                'pending_approvals' => User::whereNull('approved_at')->count(),
-            ];
-        });
-
+        $users = $this->getUsers($request);
+        $userStats = $this->getUserStats();
         return view('admin.users.index', compact('users', 'userStats'));
     }
 
     public function create()
     {
-        $user = new User();
-        return view('admin.users.form', compact('user'));
+        return view('admin.users.form', ['user' => new User()]);
     }
 
     public function store(\App\Http\Requests\Admin\StoreUserRequest $request, HtmlSanitizer $sanitizer)
     {
-        $validated = $request->validated();
-        $this->sanitizeUserData($validated, $sanitizer);
-
-        User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'] ?? null,
-            'whatsapp_number' => $validated['whatsapp_number'] ?? null,
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
-            'balance' => $validated['balance'] ?? 0,
-            'approved_at' => isset($validated['approved']) ? now() : null,
-        ]);
-
+        $data = $this->prepareUserData($request->validated(), $sanitizer);
+        User::create($data);
         return redirect()->route('admin.users.index')->with('success', __('User created successfully.'));
     }
 
@@ -103,37 +54,17 @@ class UserController extends BaseAdminController
 
     public function update(\App\Http\Requests\Admin\UpdateUserRequest $request, User $user, HtmlSanitizer $sanitizer)
     {
-        $validated = $request->validated();
-        $this->sanitizeUserData($validated, $sanitizer);
-
-        $data = [
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'] ?? null,
-            'whatsapp_number' => $validated['whatsapp_number'] ?? null,
-            'role' => $validated['role'],
-            'balance' => $validated['balance'] ?? 0,
-            'approved_at' => isset($validated['approved']) ? now() : null,
-        ];
-
-        if (!empty($validated['password'])) {
-            $data['password'] = Hash::make($validated['password']);
-        }
-
+        $data = $this->prepareUserData($request->validated(), $sanitizer, $user);
         $user->update($data);
-
         return redirect()->route('admin.users.index')->with('success', __('User updated successfully.'));
     }
 
     public function destroy(User $user)
     {
-        // Prevent deletion of current admin user
         if ($user->id === Auth::id()) {
             return redirect()->route('admin.users.index')->with('error', __('You cannot delete your own account.'));
         }
-
         $user->delete();
-
         return redirect()->route('admin.users.index')->with('success', __('User deleted successfully.'));
     }
 
@@ -151,21 +82,8 @@ class UserController extends BaseAdminController
 
     public function status($status, $role = null)
     {
-        $query = User::query();
-
-        if ($status === 'approved') {
-            $query->whereNotNull('approved_at');
-        } elseif ($status === 'pending') {
-            $query->whereNull('approved_at');
-        }
-
-        if ($role) {
-            $query->where('role', $role);
-        }
-
-        $users = $query->paginate(15);
+        $users = $this->getUsersByStatus($status, $role);
         $title = ucfirst($status) . ($role ? ' ' . ucfirst($role) . 's' : ' Users');
-
         return view('admin.users.index', compact('users', 'title'));
     }
 
@@ -177,8 +95,8 @@ class UserController extends BaseAdminController
 
     public function export(Request $request)
     {
-        $format = $request->query('format', 'xlsx');
         $users = User::select('name', 'email', 'role', 'balance')->get();
+        $format = $request->query('format', 'xlsx');
 
         if ($format === 'pdf') {
             $pdf = Pdf::loadView('exports.balances', compact('users'));
@@ -190,52 +108,50 @@ class UserController extends BaseAdminController
 
     public function bulkApprove(Request $request)
     {
-        $ids = $request->input('ids', []);
-        User::whereIn('id', $ids)->whereNull('approved_at')->update([
-            'approved_at' => now(),
-        ]);
-
+        User::whereIn('id', $request->input('ids', []))
+            ->whereNull('approved_at')
+            ->update(['approved_at' => now()]);
         return redirect()->back()->with('success', __('Users approved successfully'));
     }
 
     public function bulkDelete(Request $request)
     {
-        $ids = $request->input('ids', []);
-        User::whereIn('id', $ids)->delete();
-
+        User::whereIn('id', $request->input('ids', []))->delete();
         return redirect()->back()->with('success', __('Users deleted successfully'));
     }
 
     public function balance(User $user)
     {
-        $defaultCurrency = \App\Models\Currency::getDefault();
-        return view('admin.users.balance', compact('user', 'defaultCurrency'));
+        return view('admin.users.balance', [
+            'user' => $user,
+            'defaultCurrency' => \App\Models\Currency::getDefault()
+        ]);
     }
 
     public function addBalance(AdjustBalanceRequest $request, User $user)
     {
-        $validated = $request->validated();
-        $amount = (float) $validated['amount'];
-        $note = $validated['note'] ?? null;
-
-        $result = $this->balanceService->addBalance($user, $amount, $note, Auth::id());
+        $result = $this->balanceService->addBalance(
+            $user,
+            (float) $request->validated()['amount'],
+            $request->validated()['note'] ?? null,
+            Auth::id()
+        );
 
         return $this->successResponse(__('Balance added successfully'), [
             'new_balance' => $result['new_balance'],
             'formatted_balance' => $result['formatted_balance'],
-            'transaction' => array_merge($result['transaction'], [
-                'admin' => Auth::user()->name,
-            ]),
+            'transaction' => array_merge($result['transaction'], ['admin' => Auth::user()->name]),
         ]);
     }
 
     public function deductBalance(AdjustBalanceRequest $request, User $user)
     {
-        $validated = $request->validated();
-        $amount = (float) $validated['amount'];
-        $note = $validated['note'] ?? null;
-
-        $result = $this->balanceService->deductBalance($user, $amount, $note, Auth::id());
+        $result = $this->balanceService->deductBalance(
+            $user,
+            (float) $request->validated()['amount'],
+            $request->validated()['note'] ?? null,
+            Auth::id()
+        );
 
         if (!$result['success']) {
             return $this->errorResponse($result['message'], null, 422);
@@ -244,23 +160,17 @@ class UserController extends BaseAdminController
         return $this->successResponse(__('Balance deducted successfully'), [
             'new_balance' => $result['new_balance'],
             'formatted_balance' => $result['formatted_balance'],
-            'transaction' => array_merge($result['transaction'], [
-                'admin' => Auth::user()->name,
-            ]),
+            'transaction' => array_merge($result['transaction'], ['admin' => Auth::user()->name]),
         ]);
     }
 
     public function refreshBalance(User $user)
     {
         $user->refresh();
-
         return response()->json([
             'success' => true,
             'message' => __('Balance refreshed successfully'),
-            'balance' => [
-                'current' => $user->balance,
-                'formatted' => number_format($user->balance, 2),
-            ],
+            'balance' => ['current' => $user->balance, 'formatted' => number_format($user->balance, 2)],
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
@@ -272,8 +182,7 @@ class UserController extends BaseAdminController
 
     public function getBalanceStats(User $user)
     {
-        $stats = $this->balanceService->getStats($user);
-        return $this->successResponse(__('Balance statistics retrieved'), $stats);
+        return $this->successResponse(__('Balance statistics retrieved'), $this->balanceService->getStats($user));
     }
 
     public function getBalanceHistory(User $user, Request $request)
@@ -293,10 +202,7 @@ class UserController extends BaseAdminController
             ]);
         }
 
-        return view('admin.users.balance-history', [
-            'user' => $user,
-            'balanceHistories' => $balanceHistories
-        ]);
+        return view('admin.users.balance-history', compact('user', 'balanceHistories'));
     }
 
     public function bulkBalanceOperation(Request $request)
@@ -325,9 +231,84 @@ class UserController extends BaseAdminController
         );
     }
 
-    /**
-     * Sanitize user data
-     */
+    protected function getUsers(Request $request)
+    {
+        $query = User::query();
+
+        if ($request->has('search') && $request->search) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhere('email', 'like', "%{$searchTerm}%")
+                    ->orWhere('phone', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        if ($request->has('role') && $request->role) {
+            $query->where('role', $request->role);
+        }
+
+        if ($request->has('status') && $request->status) {
+            if ($request->status === 'approved') {
+                $query->whereNotNull('approved_at');
+            } elseif ($request->status === 'pending') {
+                $query->whereNull('approved_at');
+            }
+        }
+
+        return $query->latest()->paginate(15)->appends($request->all());
+    }
+
+    protected function getUserStats()
+    {
+        return Cache::remember('user_stats', 600, function () {
+            return [
+                'total_users' => User::count(),
+                'total_vendors' => User::where('role', 'vendor')->count(),
+                'total_customers' => User::where('role', 'user')->count(),
+                'pending_approvals' => User::whereNull('approved_at')->count(),
+            ];
+        });
+    }
+
+    protected function getUsersByStatus($status, $role = null)
+    {
+        $query = User::query();
+
+        if ($status === 'approved') {
+            $query->whereNotNull('approved_at');
+        } elseif ($status === 'pending') {
+            $query->whereNull('approved_at');
+        }
+
+        if ($role) {
+            $query->where('role', $role);
+        }
+
+        return $query->paginate(15);
+    }
+
+    protected function prepareUserData(array $validated, HtmlSanitizer $sanitizer, ?User $user = null)
+    {
+        $this->sanitizeUserData($validated, $sanitizer);
+
+        $data = [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'] ?? null,
+            'whatsapp_number' => $validated['whatsapp_number'] ?? null,
+            'role' => $validated['role'],
+            'balance' => $validated['balance'] ?? 0,
+            'approved_at' => isset($validated['approved']) ? now() : null,
+        ];
+
+        if (!empty($validated['password'])) {
+            $data['password'] = Hash::make($validated['password']);
+        }
+
+        return $data;
+    }
+
     protected function sanitizeUserData(array &$data, HtmlSanitizer $sanitizer)
     {
         if (isset($data['name']) && is_string($data['name'])) {
