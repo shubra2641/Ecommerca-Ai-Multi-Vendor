@@ -1,5 +1,5 @@
 // Extracted countdown script (progressive, minimal)
-(function() {
+(function () {
     const el = document.getElementById('countdown');
     if (!el) {
         return;
@@ -15,7 +15,7 @@
             return;
         }
 
-        const MS_PER_DAY = 86400000;
+        const MS_PER_DAY = 24 * 60 * 60 * 1000;
         const MS_PER_HOUR = 3600000;
         const MS_PER_MINUTE = 60000;
         const MS_PER_SECOND = 1000;

@@ -140,7 +140,8 @@ class TapGateway
             }
             try {
                 session()->forget('cart');
-            } catch (\Throwable $_) {
+            } catch (\Throwable $e) {
+                logger()->warning('Failed to clear session after payment: ' . $e->getMessage());
             }
         }
 

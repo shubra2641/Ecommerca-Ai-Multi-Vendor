@@ -19,7 +19,7 @@
         const canvas = document.getElementById(canvasId);
         if (!canvas) return;
 
-        new Chart(canvas, {
+        new window.Chart(canvas, {
             type: 'line',
             data: {
                 labels: labels,
@@ -45,7 +45,7 @@
         const canvas = document.getElementById(canvasId);
         if (!canvas) return;
 
-        new Chart(canvas, {
+        new window.Chart(canvas, {
             type: 'doughnut',
             data: {
                 labels: labels,
@@ -93,7 +93,7 @@
             if (dashboard.charts.sales) {
                 const salesCanvas = document.getElementById('salesChart');
                 if (salesCanvas) {
-                    new Chart(salesCanvas, {
+                    new window.Chart(salesCanvas, {
                         type: 'line',
                         data: {
                             labels: dashboard.charts.sales.labels || [],

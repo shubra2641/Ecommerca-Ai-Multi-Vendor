@@ -101,7 +101,6 @@ export default [
             'no-obj-calls': 'error',
             'no-regex-spaces': 'error',
             'no-self-assign': 'error',
-            'no-sparse-arrays': 'error',
             'no-unexpected-multiline': 'error',
             'no-unreachable': 'error',
             'no-unsafe-finally': 'error',

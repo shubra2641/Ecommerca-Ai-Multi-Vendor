@@ -2,9 +2,9 @@
  * Simple PWA Registration Script
  * Handles service worker registration and PWA features
  */
-/* global Notification */
+/* global Notification, window, navigator, document, location */
 
-(function() {
+(function () {
     'use strict';
 
     const PWA_CONFIG = {
@@ -77,12 +77,12 @@
         const { type } = event.data || {};
 
         switch (type) {
-        case 'CACHE_UPDATED':
-            // Handle cache update if needed
-            break;
-        case 'OFFLINE_ACTION_QUEUED':
-            break;
-        default:
+            case 'CACHE_UPDATED':
+                // Handle cache update if needed
+                break;
+            case 'OFFLINE_ACTION_QUEUED':
+                break;
+            default:
         }
     }
 
@@ -163,7 +163,7 @@
 
         installButton.style.display = 'block';
 
-        installButton.addEventListener('click', async() => {
+        installButton.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 await deferredPrompt.userChoice;

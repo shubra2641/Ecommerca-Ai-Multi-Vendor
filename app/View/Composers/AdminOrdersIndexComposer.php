@@ -21,7 +21,7 @@ class AdminOrdersIndexComposer
                     $variantLabel = $first->meta['variant_name'];
                 } elseif (! empty($first->meta['attribute_data']) && is_array($first->meta['attribute_data'])) {
                     $variantLabel = collect($first->meta['attribute_data'])
-                        ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                        ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                         ->join(', ');
                 }
             }
@@ -43,6 +43,7 @@ class AdminOrdersIndexComposer
                         $ship['city'] = $ci->name;
                     }
                 } catch (\Throwable $e) {
+                    logger()->warning('Failed to resolve address components: ' . $e->getMessage());
                 }
                 $shipParts = [];
                 foreach (['name', 'line1', 'city', 'governorate', 'country', 'phone'] as $k) {

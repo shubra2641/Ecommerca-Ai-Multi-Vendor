@@ -32,6 +32,7 @@ class MaintenanceSettingsController extends Controller
                     return $rows;
                 }
             } catch (\Throwable $e) {
+                logger()->warning('Failed to fetch active languages: ' . $e->getMessage());
             }
             $configured = config('app.locales') ??
                 [config('app.locale', 'en')];

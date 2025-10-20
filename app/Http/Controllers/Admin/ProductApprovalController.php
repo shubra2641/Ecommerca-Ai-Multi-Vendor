@@ -62,6 +62,7 @@ class ProductApprovalController extends Controller
         try {
             Mail::to($product->vendor->email)->queue(new \App\Mail\ProductApproved($product));
         } catch (\Throwable $e) {
+            logger()->warning('Failed to send product approval email: ' . $e->getMessage());
         }
         // Notify vendor via in-app notification
         try {
@@ -108,6 +109,7 @@ class ProductApprovalController extends Controller
                     $vendor->notify($notification);
                 }
             } catch (\Throwable $e) {
+                logger()->warning('Failed to send vendor deletion notification: ' . $e->getMessage());
             }
 
             return back()->with('success', 'Product deleted');
@@ -115,6 +117,7 @@ class ProductApprovalController extends Controller
         try {
             Mail::to($product->vendor->email)->queue(new ProductRejected($product, $reason));
         } catch (\Throwable $e) {
+            logger()->warning('Failed to send product rejection email: ' . $e->getMessage());
         }
         // Notify vendor via in-app notification
         try {

@@ -62,7 +62,6 @@ class PaymentEncryptionService
                 try {
                     $decryptedData[$field] = Crypt::decryptString($data[$field]);
                 } catch (\Exception $e) {
-
                     // Keep encrypted data if decryption fails
                     $decryptedData[$field] = '[ENCRYPTED]';
                 }

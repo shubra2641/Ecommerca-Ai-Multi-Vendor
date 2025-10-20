@@ -2,7 +2,7 @@
  * Simple and reliable Service Worker
  * For PWA - E-commerce Store
  */
-/* global caches, URL, Response */
+/* global caches, URL, Response, self, fetch */
 
 const CACHE_NAME = 'ecommerce-store-v1';
 const OFFLINE_URL = '/offline.html';

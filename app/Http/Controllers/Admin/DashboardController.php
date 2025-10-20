@@ -584,7 +584,7 @@ class DashboardController extends Controller
                     'stats' => $stats,
                     'charts' => $chartData,
                     'salesChart' => $salesChartData,
-                    'activities' => $activities,
+                    'activities' => [],
                 ],
             ]);
         } catch (\Exception $e) {

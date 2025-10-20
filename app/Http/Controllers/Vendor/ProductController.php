@@ -87,9 +87,11 @@ class ProductController extends Controller
                 try {
                     $admin->notify(new \App\Notifications\AdminProductPendingReviewNotification($product));
                 } catch (\Throwable $e) {
+                    logger()->warning('Failed to send product notification: ' . $e->getMessage());
                 }
             }
         } catch (\Exception $e) {
+            logger()->warning('Failed to send product review emails: ' . $e->getMessage());
         }
 
 
@@ -152,6 +154,7 @@ class ProductController extends Controller
                 Mail::to($admin->email)->queue(new ProductPendingForReview($product));
             }
         } catch (\Exception $e) {
+            logger()->warning('Failed to send product update emails: ' . $e->getMessage());
         }
 
 
@@ -217,7 +220,7 @@ class ProductController extends Controller
                 $data['slug_translations'] = $slugTranslations;
             }
         } catch (\Throwable $e) {
-            // silent fail to avoid blocking vendor
+            logger()->warning('Failed to merge vendor translations: ' . $e->getMessage());
         }
     }
 
@@ -321,6 +324,7 @@ class ProductController extends Controller
                         $data['name'] = $defaultVal;
                     }
                 } catch (\Throwable $e) {
+                    logger()->warning('Failed to process variation translations: ' . $e->getMessage());
                 }
             }
             if ($id) {

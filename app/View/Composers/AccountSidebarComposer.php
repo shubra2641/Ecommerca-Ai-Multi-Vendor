@@ -18,6 +18,7 @@ class AccountSidebarComposer
             $compare = session('compare');
             $compareCount = is_array($compare) ? count($compare) : 0;
         } catch (\Throwable $e) {
+            logger()->warning('Failed to get compare count: ' . $e->getMessage());
         }
         try {
             if (auth()->check() && Schema::hasTable('wishlist_items')) {
@@ -27,6 +28,7 @@ class AccountSidebarComposer
                 $wishlistCount = is_array($wishlist) ? count($wishlist) : 0;
             }
         } catch (\Throwable $e) {
+            logger()->warning('Failed to get wishlist count from database: ' . $e->getMessage());
             $wishlist = session('wishlist');
             $wishlistCount = is_array($wishlist) ? count($wishlist) : 0;
         }

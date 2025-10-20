@@ -277,6 +277,7 @@ class HomeController extends Controller
                             $extra .= '<span class="mini-old">' .
                                 e(currency_format($p->price)) . '</span>';
                         } catch (\Throwable $e) {
+                            logger()->warning('Failed to format price: ' . $e->getMessage());
                         }
                     }
                     if ($sk === 'showcase_most_rated' && $p->approved_reviews_avg) {

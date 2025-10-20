@@ -17,13 +17,15 @@ class LayoutComposer
             $selectedFont = 'Inter';
             try {
                 if (Schema::hasTable('settings')) {
-                    $setting = Cache::remember('site_settings', 3600, fn () => \App\Models\Setting::first());
+                    $setting = Cache::remember('site_settings', 3600, fn() => \App\Models\Setting::first());
                 }
             } catch (\Throwable $e) {
+                logger()->warning('Failed to get site settings: ' . $e->getMessage());
             }
             try {
                 $selectedFont = cache()->get('settings.font_family', $setting->font_family ?? 'Inter');
             } catch (\Throwable $e) {
+                logger()->warning('Failed to get font family: ' . $e->getMessage());
             }
             $data = compact('setting', 'selectedFont');
         }

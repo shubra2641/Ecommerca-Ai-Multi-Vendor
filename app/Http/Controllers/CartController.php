@@ -16,7 +16,8 @@ class CartController extends Controller
     public function __construct(
         private CartService $cartService,
         private CouponService $couponService
-    ) {}
+    ) {
+    }
 
     public function index()
     {

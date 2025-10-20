@@ -39,7 +39,7 @@ class SimpleAIService
 
     private function getPrompt(string $title, string $type, string $locale): string
     {
-        return match($type) {
+        return match ($type) {
             'product' => "JSON for product '{$title}': description (max 500), short_description (max 200), seo_description (max 160), seo_tags (max 12 keywords). Language: {$locale}",
             'category' => "JSON for category '{$title}': description (max 300), seo_description (max 160), seo_tags (max 12 keywords). Language: {$locale}",
             'blog' => "JSON for blog '{$title}': title, content (max 1000), seo_description (max 160), seo_tags (max 12 keywords). Language: {$locale}",
@@ -49,7 +49,7 @@ class SimpleAIService
 
     private function fallback(string $title, string $type): array
     {
-        return match($type) {
+        return match ($type) {
             'product' => [
                 'description' => "High-quality {$title} with excellent features.",
                 'short_description' => "Premium {$title}",

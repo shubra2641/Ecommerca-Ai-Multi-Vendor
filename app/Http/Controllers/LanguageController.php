@@ -48,20 +48,23 @@ class LanguageController extends Controller
 
     public function store(Request $request)
     {
+        $language = new Language();
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|size:2|unique:languages,code,' . $language->id,
+            'code' => 'required|string|size:2|unique:languages,code',
             'flag' => 'nullable|string|max:10',
             'is_default' => 'boolean',
             'is_active' => 'boolean',
         ]);
 
         // If setting as default, remove default from others
-        if ($request->is_default && ! $language->is_default) {
+        if ($request->is_default) {
             Language::where('is_default', true)->update(['is_default' => false]);
         }
 
-        $language->update($request->all());
+        $language->fill($request->all());
+        $language->save();
 
         return redirect()->route('admin.languages.index')
             ->with('success', __('Language updated successfully'));
