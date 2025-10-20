@@ -12,27 +12,31 @@ class OrderViewBuilder
     {
         $addrSource = $order->shipping_address ?? $order->billing_address ?? $order->address;
         if (is_array($addrSource)) {
-            try {
-                $countryId = $addrSource['country_id'] ?? $addrSource['country'] ?? null;
-                $govId = $addrSource['governorate_id'] ?? $addrSource['governorate'] ?? null;
-                $cityId = $addrSource['city_id'] ?? $addrSource['city'] ?? null;
-                if ($countryId && is_numeric($countryId) && ($c = Country::find($countryId))) {
-                    $addrSource['country'] = $c->name;
-                    $addrSource['country_id'] = $countryId;
-                }
-                if ($govId && is_numeric($govId) && ($g = Governorate::find($govId))) {
-                    $addrSource['governorate'] = $g->name;
-                    $addrSource['governorate_id'] = $govId;
-                }
-                if ($cityId && is_numeric($cityId) && ($ci = City::find($cityId))) {
-                    $addrSource['city'] = $ci->name;
-                    $addrSource['city_id'] = $cityId;
-                }
-            } catch (\Throwable $e) {
+            $countryId = $addrSource['country_id'] ?? $addrSource['country'] ?? null;
+            $govId = $addrSource['governorate_id'] ?? $addrSource['governorate'] ?? null;
+            $cityId = $addrSource['city_id'] ?? $addrSource['city'] ?? null;
+            if ($countryId && is_numeric($countryId) && ($c = Country::find($countryId))) {
+                $addrSource['country'] = $c->name;
+                $addrSource['country_id'] = $countryId;
+            }
+            if ($govId && is_numeric($govId) && ($g = Governorate::find($govId))) {
+                $addrSource['governorate'] = $g->name;
+                $addrSource['governorate_id'] = $govId;
+            }
+            if ($cityId && is_numeric($cityId) && ($ci = City::find($cityId))) {
+                $addrSource['city'] = $ci->name;
+                $addrSource['city_id'] = $cityId;
             }
             $orderedKeys = [
-                'name', 'title', 'line1', 'line2', 'city',
-                'governorate', 'postal_code', 'country', 'phone'
+                'name',
+                'title',
+                'line1',
+                'line2',
+                'city',
+                'governorate',
+                'postal_code',
+                'country',
+                'phone'
             ];
             $parts = [];
             foreach ($orderedKeys as $k) {
@@ -84,7 +88,7 @@ class OrderViewBuilder
                 $variantLabel = $it->meta['variant_name'];
             } elseif (! empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data'])) {
                 $variantLabel = collect($it->meta['attribute_data'])
-                    ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                    ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                     ->values()
                     ->join(', ');
             }
