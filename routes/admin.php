@@ -271,10 +271,9 @@ Route::middleware([
 
     // Settings routes
     Route::prefix('settings')->name('admin.settings.')->group(function () {
+        Route::delete('/logo', [SettingsController::class, 'deleteLogo'])->name('logo.delete');
         Route::get('/', [SettingsController::class, 'index'])->name('index');
         Route::put('/', [SettingsController::class, 'update'])->name('update');
-        Route::delete('/logo', [SettingsController::class, 'deleteLogo'])
-            ->name('logo.delete');
     });
 
     // Footer settings routes

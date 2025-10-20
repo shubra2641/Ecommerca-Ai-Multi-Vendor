@@ -361,6 +361,8 @@ class SettingsController extends Controller
      */
     public function deleteLogo(): RedirectResponse
     {
+        \Log::info('Delete logo method called');
+        
         $setting = Setting::first();
         
         if ($setting && $setting->logo) {
@@ -370,9 +372,11 @@ class SettingsController extends Controller
             // Update setting
             $setting->update(['logo' => null]);
             
+            \Log::info('Logo deleted successfully');
             return redirect()->back()->with('success', __('Logo deleted successfully.'));
         }
         
+        \Log::info('No logo found to delete');
         return redirect()->back()->with('error', __('No logo found to delete.'));
     }
 }
