@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductCategory;
-use App\Services\AI\AIFormHelper;
+use App\Services\AI\SimpleAIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -171,9 +171,26 @@ class ProductCategoryController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    // AI suggestion for category description & SEO
-    public function aiSuggest(Request $request, AIFormHelper $aiHelper)
+    public function aiSuggest(Request $request, SimpleAIService $ai)
     {
-        return $aiHelper->handleFormGeneration($request, 'category');
+        $title = $request->input('name') ?: $request->input('title');
+        $result = $ai->generate($title, 'category');
+
+        if (isset($result['error'])) {
+            return back()->with('error', $result['error'])->withInput();
+        }
+
+        $merge = [];
+        if (!empty($result['description'])) {
+            $merge['description'] = $result['description'];
+        }
+        if (!empty($result['seo_description'])) {
+            $merge['seo_description'] = $result['seo_description'];
+        }
+        if (!empty($result['seo_tags'])) {
+            $merge['seo_keywords'] = $result['seo_tags'];
+        }
+
+        return back()->with('success', 'AI generated successfully')->withInput($merge);
     }
 }

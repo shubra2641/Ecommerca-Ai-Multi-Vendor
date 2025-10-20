@@ -13,7 +13,7 @@ use App\Models\ProductSerial;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\HtmlSanitizer;
-use App\Services\AI\AIFormHelper;
+use App\Services\AI\SimpleAIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -252,13 +252,30 @@ class ProductController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    /**
-     * AI suggestion for product content
-     */
-    public function aiSuggest(Request $request, AIFormHelper $aiHelper)
+    public function aiSuggest(Request $request, SimpleAIService $ai)
     {
-        $this->authorize('access-admin');
-        return $aiHelper->handleFormGeneration($request, 'product');
+        $title = $request->input('name') ?: $request->input('title');
+        $result = $ai->generate($title, 'product');
+
+        if (isset($result['error'])) {
+            return back()->with('error', $result['error'])->withInput();
+        }
+
+        $merge = [];
+        if (!empty($result['description'])) {
+            $merge['description'] = $result['description'];
+        }
+        if (!empty($result['short_description'])) {
+            $merge['short_description'] = $result['short_description'];
+        }
+        if (!empty($result['seo_description'])) {
+            $merge['seo_description'] = $result['seo_description'];
+        }
+        if (!empty($result['seo_tags'])) {
+            $merge['seo_keywords'] = $result['seo_tags'];
+        }
+
+        return back()->with('success', 'AI generated successfully')->withInput($merge);
     }
 
     /**
