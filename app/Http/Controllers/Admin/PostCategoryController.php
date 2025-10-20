@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PostCategory;
+use App\Services\AI\CategorySuggestionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -147,134 +148,13 @@ class PostCategoryController extends Controller
     }
 
     // AI suggestion for blog category description & SEO
-    public function aiSuggest(Request $request)
+    public function aiSuggest(Request $request, CategorySuggestionService $service)
     {
         $request->validate([
-            'name' => 'required|string|min:3',
+            'title' => 'required|string|min:3',
             'locale' => 'nullable|string|max:10',
         ]);
-        $setting = \App\Models\Setting::first();
-        if (! ($setting?->ai_enabled) || ($setting?->ai_provider !== 'openai')) {
-            return response()->json(['error' => 'AI disabled'], 422);
-        }
-        if (! $setting->ai_openai_api_key) {
-            return response()->json(['error' => 'Missing API key'], 422);
-        }
-        $apiKey = $setting->ai_openai_api_key;
-        $locale = $request->locale ?: app()->getLocale();
-        $cacheKey = 'ai_blog_cat_v1:' . md5($request->name . '|' . $locale);
-        if ($cached = cache()->get($cacheKey)) {
-            return response()->json($cached + ['cached' => true, 'source' => 'cache']);
-        }
-        $perMinuteLimit = (int) env('AI_BLOG_CATEGORY_RATE_PER_MIN', 6);
-        $userId = auth()->id() ?: 0;
-        $rateKey = 'ai_blog_cat_rate:' . $userId . ':' . now()->format('YmdHi');
-        $count = cache()->increment($rateKey);
-        if ($count === 1) {
-            cache()->put($rateKey, 1, 65);
-        }
-        if ($count > $perMinuteLimit) {
-            return response()->json([
-                'error' => 'rate_limited_local',
-                'source' => 'local',
-                'message' => 'Too many AI requests. Please wait a minute and try again.',
-                'retry_after' => 60,
-                'limit' => $perMinuteLimit,
-            ], 429);
-        }
-        $prompt = sprintf(
-            "Generate JSON with keys seo_description (<=160 chars), " .
-                "seo_tags (<=12 comma keywords), description (1-2 paragraphs) " .
-                "for a blog category named '%s'. Language: %s. Return ONLY JSON.",
-            $request->name,
-            $locale
-        );
-        $model = config('services.openai.model', 'gpt-4o-mini');
-        $payload = [
-            'model' => $model,
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => 'You are a helpful blogging taxonomy assistant. ' .
-                        'Output concise valid JSON only.'
-                ],
-                ['role' => 'user', 'content' => $prompt],
-            ],
-            'temperature' => 0.6,
-        ];
-        try {
-            $resp = \Http::withToken($apiKey)
-                ->acceptJson()
-                ->timeout(25)
-                ->post('https://api.openai.com/v1/chat/completions', $payload);
-        } catch (\Throwable $e) {
-            return response()->json(['error' => 'connection_failed', 'message' => $e->getMessage()], 502);
-        }
-        $providerStatus = $resp->status();
-        $providerBody = $resp->json();
-        if (! $resp->ok()) {
-            return response()->json([
-                'error' => $providerStatus == 429 ? 'rate_limited_provider' : 'provider_error',
-                'source' => 'provider',
-                'provider_status' => $providerStatus,
-                'provider_body' => $providerBody,
-                'provider_message' => data_get($providerBody, 'error.message'),
-                'retry_after' => $resp->header('Retry-After') ?
-                    (int) $resp->header('Retry-After') : null,
-            ], $providerStatus);
-        }
-        $rawText = data_get($providerBody, 'choices.0.message.content');
-        if (! $rawText) {
-            return response()->json([
-                'error' => 'empty_output',
-                'provider_status' => $providerStatus,
-                'provider_body' => $providerBody
-            ], 502);
-        }
-        $seoDescription = '';
-        $seoTags = '';
-        $description = '';
-        $parsed = null;
-        if (preg_match('/\{.*\}/s', $rawText, $m)) {
-            try {
-                $parsed = json_decode($m[0], true, 512, JSON_THROW_ON_ERROR);
-            } catch (\Throwable $e) {
-                $parsed = null;
-            }
-        }
-        if (is_array($parsed)) {
-            $seoDescription = (string) ($parsed['seo_description'] ?? '');
-            $seoTags = (string) ($parsed['seo_tags'] ?? '');
-            $description = (string) ($parsed['description'] ?? '');
-        } else {
-            $lines = preg_split('/\n+/', trim($rawText));
-            foreach ($lines as $l) {
-                $ll = trim($l);
-                if ($seoDescription === '' && mb_strlen($ll) <= 200) {
-                    $seoDescription = $ll;
 
-                    continue;
-                }
-                if ($seoTags === '' && str_contains($ll, ',')) {
-                    $seoTags = $ll;
-
-                    continue;
-                }
-                $description .= $ll . "\n\n";
-            }
-        }
-        if ($seoDescription === '' && $description !== '') {
-            $seoDescription = mb_substr(preg_replace('/\s+/', ' ', trim($description)), 0, 160);
-        }
-        $result = [
-            'seo_description' => mb_substr($seoDescription, 0, 160),
-            'seo_tags' => $seoTags,
-            'description' => trim($description),
-            'provider_status' => $providerStatus,
-            'source' => 'live',
-        ];
-        cache()->put($cacheKey, $result, 600);
-
-        return response()->json($result);
+        return $service->generateSuggestions($request->title, $request->locale);
     }
 }
