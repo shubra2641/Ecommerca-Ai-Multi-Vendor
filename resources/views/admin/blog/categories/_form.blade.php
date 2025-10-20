@@ -12,67 +12,69 @@
     <div class="lang-tabs-wrapper border-bottom">
       <ul class="nav nav-tabs small flex-nowrap overflow-auto gap-2 lang-tabs px-3" role="tablist">
         @foreach($langs as $i=>$lang)
-          <li class="nav-item" role="presentation">
-            <button class="nav-link py-1 px-3 @if($i===0) active @endif" data-bs-toggle="tab" data-bs-target="#blog-cat-lang-{{ $lang->code }}" type="button" role="tab">
-              {{ strtoupper($lang->code) }} @if($lang->is_default)<span class="badge bg-primary ms-1">{{ __('Default') }}</span>@endif
-            </button>
-          </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link py-1 px-3 @if($i===0) active @endif" data-bs-toggle="tab" data-bs-target="#blog-cat-lang-{{ $lang->code }}" type="button" role="tab">
+            {{ strtoupper($lang->code) }} @if($lang->is_default)<span class="badge bg-primary ms-1">{{ __('Default') }}</span>@endif
+          </button>
+        </li>
         @endforeach
       </ul>
     </div>
     <div class="tab-content p-3 border-top">
       @foreach($langs as $i=>$lang)
-        @php($code = $lang->code)
-        @php($nameTranslations = isset($category) ? ($category->name_translations ?? []) : [])
-        @php($slugTranslations = isset($category) ? ($category->slug_translations ?? []) : [])
-        @php($descTranslations = isset($category) ? ($category->description_translations ?? []) : [])
-        @php($seoTitleTranslations = isset($category) ? ($category->seo_title_translations ?? []) : [])
-        @php($seoDescTranslations = isset($category) ? ($category->seo_description_translations ?? []) : [])
-        @php($seoTagsTranslations = isset($category) ? ($category->seo_tags_translations ?? []) : [])
-        <div class="tab-pane fade @if($i===0) show active @endif" id="blog-cat-lang-{{ $code }}" role="tabpanel">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold">{{ __('Name') }}</label>
-              <input name="name[{{ $code }}]" value="{{ old('name.'.$code, $nameTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('name') : '')) }}" class="form-control form-control-sm" @if($lang->is_default) required @endif placeholder="{{ __('Category name') }}">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold">{{ __('Slug') }}</label>
-              <input name="slug[{{ $code }}]" value="{{ old('slug.'.$code, $slugTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('slug') : '')) }}" class="form-control form-control-sm" placeholder="auto" readonly>
-              @if($lang->is_default)
-              <div class="form-text small">{{ __('Auto-generated from name') }}</div>
-              @endif
-            </div>
-            <div class="col-12">
-              <label class="form-label small fw-semibold d-flex justify-content-between align-items-center">
-                <span>{{ __('Description') }}</span>
-                <button type="button" class="btn btn-xs btn-outline-primary js-ai-generate-blog-category" data-lang="{{ $code }}" data-target="description" data-loading="0"><i class="fas fa-magic"></i> AI</button>
-              </label>
-              <textarea name="description[{{ $code }}]" rows="3" class="form-control form-control-sm js-blog-cat-description" placeholder="{{ __('Short descriptive text about this category') }}">{{ old('description.'.$code, $descTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('description') : '')) }}</textarea>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold">{{ __('SEO Title') }}</label>
-              <input name="seo_title[{{ $code }}]" value="{{ old('seo_title.'.$code, $seoTitleTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('seo_title') : '')) }}" class="form-control form-control-sm" placeholder="{{ __('Optional SEO title') }}">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold d-flex justify-content-between align-items-center">
-                <span>{{ __('SEO Description') }}</span>
-                <button type="button" class="btn btn-xs btn-outline-primary js-ai-generate-blog-category" data-lang="{{ $code }}" data-target="seo" data-loading="0"><i class="fas fa-magic"></i> AI</button>
-              </label>
-              <input name="seo_description[{{ $code }}]" value="{{ old('seo_description.'.$code, $seoDescTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('seo_description') : '')) }}" class="form-control form-control-sm js-blog-cat-seo-description" placeholder="{{ __('Meta description (<=160 chars)') }}">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold">{{ __('SEO Tags') }}</label>
-              <input name="seo_tags[{{ $code }}]" value="{{ old('seo_tags.'.$code, $seoTagsTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('seo_tags') : '')) }}" class="form-control form-control-sm" placeholder="tag1,tag2">
-              <div class="form-text small">{{ __('Comma separated keywords') }}</div>
-            </div>
+      @php($code = $lang->code)
+      @php($nameTranslations = isset($category) ? ($category->name_translations ?? []) : [])
+      @php($slugTranslations = isset($category) ? ($category->slug_translations ?? []) : [])
+      @php($descTranslations = isset($category) ? ($category->description_translations ?? []) : [])
+      @php($seoTitleTranslations = isset($category) ? ($category->seo_title_translations ?? []) : [])
+      @php($seoDescTranslations = isset($category) ? ($category->seo_description_translations ?? []) : [])
+      @php($seoTagsTranslations = isset($category) ? ($category->seo_tags_translations ?? []) : [])
+      <div class="tab-pane fade @if($i===0) show active @endif" id="blog-cat-lang-{{ $code }}" role="tabpanel">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">{{ __('Name') }}</label>
+            <input name="name[{{ $code }}]" value="{{ old('name.'.$code, $nameTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('name') : '')) }}" class="form-control form-control-sm" @if($lang->is_default) required @endif placeholder="{{ __('Category name') }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">{{ __('Slug') }}</label>
+            <input name="slug[{{ $code }}]" value="{{ old('slug.'.$code, $slugTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('slug') : '')) }}" class="form-control form-control-sm" placeholder="auto" readonly>
+            @if($lang->is_default)
+            <div class="form-text small">{{ __('Auto-generated from name') }}</div>
+            @endif
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-semibold d-flex justify-content-between align-items-center">
+              <span>{{ __('Description') }}</span>
+              <button type="submit" form="category-form-enhanced" formaction="{{ route('admin.blog.categories.ai.suggest') }}?target=description&locale={{ $code }}" formmethod="get" class="btn btn-xs btn-outline-primary"><i class="fas fa-magic"></i> AI</button>
+            </label>
+            <textarea name="description[{{ $code }}]" rows="3" class="form-control form-control-sm js-blog-cat-description" placeholder="{{ __('Short descriptive text about this category') }}">{{ old('description.'.$code, $descTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('description') : '')) }}</textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">{{ __('SEO Title') }}</label>
+            <input name="seo_title[{{ $code }}]" value="{{ old('seo_title.'.$code, $seoTitleTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('seo_title') : '')) }}" class="form-control form-control-sm" placeholder="{{ __('Optional SEO title') }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold d-flex justify-content-between align-items-center">
+              <span>{{ __('SEO Description') }}</span>
+              <button type="submit" form="category-form-enhanced" formaction="{{ route('admin.blog.categories.ai.suggest') }}?target=seo&locale={{ $code }}" formmethod="get" class="btn btn-xs btn-outline-primary"><i class="fas fa-magic"></i> AI</button>
+            </label>
+            <input name="seo_description[{{ $code }}]" value="{{ old('seo_description.'.$code, $seoDescTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('seo_description') : '')) }}" class="form-control form-control-sm js-blog-cat-seo-description" placeholder="{{ __('Meta description (<=160 chars)') }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">{{ __('SEO Tags') }}</label>
+            <input name="seo_tags[{{ $code }}]" value="{{ old('seo_tags.'.$code, $seoTagsTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('seo_tags') : '')) }}" class="form-control form-control-sm" placeholder="tag1,tag2">
+            <div class="form-text small">{{ __('Comma separated keywords') }}</div>
           </div>
         </div>
+      </div>
       @endforeach
     </div>
   </div>
 </div>
 <div class="card mb-4">
-  <div class="card-header"><h5 class="mb-0"><i class="fas fa-sitemap me-2 text-primary"></i>{{ __('Hierarchy & Settings') }}</h5></div>
+  <div class="card-header">
+    <h5 class="mb-0"><i class="fas fa-sitemap me-2 text-primary"></i>{{ __('Hierarchy & Settings') }}</h5>
+  </div>
   <div class="card-body">
     <div class="row g-3 align-items-end">
       <div class="col-md-4">
@@ -80,7 +82,7 @@
         <select name="parent_id" class="form-select form-select-sm">
           <option value="">-- {{ __('None') }} --</option>
           @foreach($parents as $p)
-            <option value="{{ $p->id }}" @if(old('parent_id', isset($category)?$category->parent_id:null)==$p->id) selected @endif>{{ $p->name }}</option>
+          <option value="{{ $p->id }}" @if(old('parent_id', isset($category)?$category->parent_id:null)==$p->id) selected @endif>{{ $p->name }}</option>
           @endforeach
         </select>
       </div>

@@ -415,7 +415,7 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
     ->group(function () {
         Route::resource('product-categories', ProductCategoryController::class);
         // AI assist endpoint for product categories (generate description + SEO)
-        Route::post('product-categories/ai/suggest', [ProductCategoryController::class, 'aiSuggest'])
+        Route::match(['get','post','put'],'product-categories/ai/suggest', [ProductCategoryController::class, 'aiSuggest'])
             ->name('product-categories.ai.suggest');
         Route::get('product-categories/export', [ProductCategoryController::class, 'export'])
             ->name('product-categories.export');

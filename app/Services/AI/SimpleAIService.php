@@ -23,13 +23,30 @@ class SimpleAIService
 
         try {
             $prompt = $this->getPrompt($title, $type, $locale ?: app()->getLocale());
+            $system = $this->getSystemInstruction($type);
             $response = Http::withToken($setting->ai_openai_api_key)
+                ->asJson()
                 ->post('https://api.openai.com/v1/chat/completions', [
                     'model' => 'gpt-4o-mini',
-                    'messages' => [['role' => 'user', 'content' => $prompt]]
+                    'temperature' => 0.3,
+                    'response_format' => ['type' => 'json_object'],
+                    'messages' => [
+                        ['role' => 'system', 'content' => $system],
+                        ['role' => 'user', 'content' => $prompt],
+                    ],
                 ]);
 
-            $result = json_decode($response->json()['choices'][0]['message']['content'] ?? '{}', true) ?: $this->fallback($title, $type);
+            if ($response->failed()) {
+                $msg = $response->json('error.message') ?: 'AI request failed';
+                return response()->json(['error' => $msg], 502);
+            }
+
+            $content = $response->json('choices.0.message.content');
+            $parsed = is_array($content) ? $content : json_decode((string)$content, true);
+            $result = is_array($parsed) && ! empty($parsed)
+                ? $parsed
+                : $this->fallback($title, $type);
+
             Cache::put($cacheKey, $result, 600);
             return response()->json($result);
         } catch (\Exception $e) {
@@ -40,10 +57,21 @@ class SimpleAIService
     private function getPrompt(string $title, string $type, string $locale): string
     {
         return match ($type) {
-            'product' => "JSON for product '{$title}': description (max 500), short_description (max 200), seo_description (max 160), seo_tags (max 12 keywords). Language: {$locale}",
-            'category' => "JSON for category '{$title}': description (max 300), seo_description (max 160), seo_tags (max 12 keywords). Language: {$locale}",
-            'blog' => "JSON for blog '{$title}': title, content (max 1000), seo_description (max 160), seo_tags (max 12 keywords). Language: {$locale}",
-            default => "JSON for '{$title}': description, seo_description, seo_tags. Language: {$locale}"
+            'product' => "Generate content for product '{$title}' in {$locale}.",
+            'category' => "Generate content for product category '{$title}' in {$locale}.",
+            'blog' => "Generate content for blog '{$title}' in {$locale}.",
+            default => "Generate content for '{$title}' in {$locale}."
+        };
+    }
+
+    private function getSystemInstruction(string $type): string
+    {
+        // Force strict JSON schema without Markdown
+        return match ($type) {
+            'product' => 'Return ONLY a JSON object with keys: description (<=500 chars), short_description (<=200 chars), seo_description (<=160 chars), seo_tags (array of up to 12 keywords). No markdown, no extra text.',
+            'category' => 'Return ONLY a JSON object with keys: description (<=300 chars), seo_description (<=160 chars), seo_tags (array of up to 12 keywords). No markdown, no extra text.',
+            'blog' => 'Return ONLY a JSON object with keys: title, content (<=1000 chars), seo_description (<=160 chars), seo_tags (array of up to 12 keywords). No markdown, no extra text.',
+            default => 'Return ONLY a JSON object with keys: description, seo_description, seo_tags. No markdown, no extra text.',
         };
     }
 

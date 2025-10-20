@@ -28,26 +28,26 @@
                             </ul>
                         </div>
                         <div class="tab-content border rounded-bottom p-3">
-                @foreach($languages as $i => $lang)
+                            @foreach($languages as $i => $lang)
                             <div class="tab-pane fade @if($lang->code===$activeLocale) show active @endif" id="prod-panel-{{ $lang->code }}"
                                 role="tabpanel">
-                <div class="mb-2">
+                                <div class="mb-2">
                                     <label class="form-label">{{ __('Name') }}</label>
-                    <input name="name[{{ $lang->code }}]" value="{{ $pfLangMeta[$lang->code]['name_val'] }}" class="form-control" @if($lang->code===$defaultLocale) required @endif placeholder="{{ $pfLangMeta[$lang->code]['ph_name'] }}">
+                                    <input name="name[{{ $lang->code }}]" value="{{ $pfLangMeta[$lang->code]['name_val'] }}" class="form-control" @if($lang->code===$defaultLocale) required @endif placeholder="{{ $pfLangMeta[$lang->code]['ph_name'] }}">
                                 </div>
                                 <div class="mb-2">
                                     <label class="form-label">{{ __('Short Description') }}</label>
-                                        <textarea name="short_description[{{ $lang->code }}]" class="form-control" rows="3" placeholder="{{ $pfLangMeta[$lang->code]['ph_short'] }}">{{ $pfLangMeta[$lang->code]['short_val'] }}</textarea>
+                                    <textarea name="short_description[{{ $lang->code }}]" class="form-control" rows="3" placeholder="{{ $pfLangMeta[$lang->code]['ph_short'] }}">{{ $pfLangMeta[$lang->code]['short_val'] }}</textarea>
                                 </div>
-                                    <div class="mb-2">
-                                        <label class="form-label d-flex justify-content-between align-items-center">
-                                            <span>{{ __('Description') }}</span>
-                                            <button type="button" class="btn btn-sm btn-outline-primary js-ai-generate" data-lang="{{ $lang->code }}" data-loading="0">
-                                                <i class="fas fa-magic me-1"></i>{{ __('AI Generate') }}
-                                            </button>
-                                        </label>
-                                        <textarea name="description[{{ $lang->code }}]" class="form-control js-ai-description" rows="6" placeholder="{{ $pfLangMeta[$lang->code]['ph_desc'] }}">{{ $pfLangMeta[$lang->code]['desc_val'] }}</textarea>
-                                    </div>
+                                <div class="mb-2">
+                                    <label class="form-label d-flex justify-content-between align-items-center">
+                                        <span>{{ __('Description') }}</span>
+                                        <button type="submit" form="product-form" formaction="{{ route('admin.products.ai.suggest') }}?target=description&locale={{ $lang->code }}" formmethod="get" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-magic me-1"></i>{{ __('AI Generate') }}
+                                        </button>
+                                    </label>
+                                    <textarea name="description[{{ $lang->code }}]" class="form-control js-ai-description" rows="6" placeholder="{{ $pfLangMeta[$lang->code]['ph_desc'] }}">{{ $pfLangMeta[$lang->code]['desc_val'] }}</textarea>
+                                </div>
                             </div>
                             @endforeach
                         </div>
@@ -221,7 +221,7 @@
                             <div class="col-12">
                                 <label class="form-label d-flex justify-content-between align-items-center">
                                     <span>{{ __('SEO Description') }}</span>
-                                    <button type="button" class="btn btn-sm btn-outline-primary js-ai-generate" data-lang="{{ $lang->code }}" data-loading="0">
+                                    <button type="submit" form="product-form" formaction="{{ route('admin.products.ai.suggest') }}?target=seo&locale={{ $lang->code }}" formmethod="get" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('AI Generate') }}
                                     </button>
                                 </label>
@@ -288,7 +288,8 @@
                             </button>
                         </div>
                         <div class="form-text">
-                            {{ __('If you upload a file ensure it is ZIP or PDF. Provide a storage path.') }}</div>
+                            {{ __('If you upload a file ensure it is ZIP or PDF. Provide a storage path.') }}
+                        </div>
                     </div>
                     <div class="mb-2">
                         <label class="form-label small">{{ __('Download URL') }}</label>
@@ -349,7 +350,7 @@
                     <label class="form-check-label">{{ __('Active') }}</label>
                 </div>
                 @else
-                    <input type="hidden" name="active" value="0">
+                <input type="hidden" name="active" value="0">
                 @endif
             </div>
         </div>
@@ -388,7 +389,8 @@
                         <input type="number" min="0" name="refund_days"
                             value="{{ old('refund_days',$m?->refund_days ?? 0) }}" class="form-control">
                         <div class="form-text small">
-                            {{ __('Number of days customers can request a refund; 0 = no refunds') }}</div>
+                            {{ __('Number of days customers can request a refund; 0 = no refunds') }}
+                        </div>
                     </div>
                     <div class="col-6">
                         <label class="form-label small">{{ __('Weight') }}</label>
@@ -423,7 +425,7 @@
         </div>
 
         <!-- Variation Attributes Reference -->
-    <div class="card modern-card">
+        <div class="card modern-card">
             <div class="card-header">
                 <h6 class="card-title mb-0">
                     <i class="fas fa-info-circle me-2"></i>

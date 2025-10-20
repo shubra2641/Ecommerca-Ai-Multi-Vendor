@@ -13,7 +13,7 @@ use App\Models\ProductSerial;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\HtmlSanitizer;
-use App\Services\AI\SimpleAIService;
+use App\Services\AI\AIFormHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -255,16 +255,10 @@ class ProductController extends Controller
     /**
      * AI suggestion for product content
      */
-    public function aiSuggest(Request $request, SimpleAIService $service)
+    public function aiSuggest(Request $request, AIFormHelper $aiHelper)
     {
         $this->authorize('access-admin');
-
-        $request->validate([
-            'title' => 'required|string|min:3',
-            'locale' => 'nullable|string|max:10',
-        ]);
-
-        return $service->generate($request->title, 'product', $request->locale);
+        return $aiHelper->handleFormGeneration($request, 'product');
     }
 
     /**

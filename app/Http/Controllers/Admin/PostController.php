@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Tag;
 use App\Services\HtmlSanitizer;
+use App\Services\AI\AIFormHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -98,15 +99,9 @@ class PostController extends Controller
         return back()->with('success', __('Status updated'));
     }
 
-    public function aiSuggest(Request $request)
+    public function aiSuggest(Request $request, AIFormHelper $aiHelper)
     {
-        $request->validate([
-            'title' => 'required|string|min:3',
-            'locale' => 'nullable|string|max:10',
-        ]);
-
-        $aiService = app(\App\Services\AI\SimpleAIService::class);
-        return $aiService->generate($request->title, 'blog', $request->locale);
+        return $aiHelper->handleFormGeneration($request, 'blog');
     }
 
     private function validatePostData(Request $request): array

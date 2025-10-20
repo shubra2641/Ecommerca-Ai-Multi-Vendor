@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductCategory;
-use App\Services\AI\SimpleAIService;
+use App\Services\AI\AIFormHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -172,13 +172,8 @@ class ProductCategoryController extends Controller
     }
 
     // AI suggestion for category description & SEO
-    public function aiSuggest(Request $request, SimpleAIService $service)
+    public function aiSuggest(Request $request, AIFormHelper $aiHelper)
     {
-        $request->validate([
-            'title' => 'required|string|min:3',
-            'locale' => 'nullable|string|max:10',
-        ]);
-
-        return $service->generate($request->title, 'category', $request->locale);
+        return $aiHelper->handleFormGeneration($request, 'category');
     }
 }
