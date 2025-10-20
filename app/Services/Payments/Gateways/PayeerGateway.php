@@ -63,7 +63,6 @@ class PayeerGateway
 
                 return ['payment' => $payment, 'redirect_url' => $redirectUrl, 'raw' => $json];
             } catch (\Throwable $e) {
-                Log::error('payeer.init.exception', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
                 throw $e;
             }
         });

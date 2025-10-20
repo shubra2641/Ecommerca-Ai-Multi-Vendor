@@ -87,24 +87,12 @@ class WeacceptGateway
             // Validate minimal config (unless mock mode)
             if (! $mock) {
                 if (empty($apiKey)) {
-                    Log::error('weaccept.init.exception', [
-                        'payment_id' => $payment->id,
-                        'error' => 'Missing PAYMOB_API_KEY in gateway config'
-                    ]);
                     throw new \Exception('Missing PAYMOB_API_KEY in gateway config');
                 }
                 if (empty($integrationId)) {
-                    Log::error('weaccept.init.exception', [
-                        'payment_id' => $payment->id,
-                        'error' => 'Missing integration_id in gateway config'
-                    ]);
                     throw new \Exception('Missing integration_id in gateway config');
                 }
                 if (empty($iframeId)) {
-                    Log::error('weaccept.init.exception', [
-                        'payment_id' => $payment->id,
-                        'error' => 'Missing iframe_id in gateway config'
-                    ]);
                     throw new \Exception('Missing iframe_id in gateway config');
                 }
             }
@@ -237,11 +225,6 @@ class WeacceptGateway
                 if (! $authResp || ! $authResp->successful()) {
                     $status = $authResp ? $authResp->status() : 'no_response';
                     $bodyPreview = $lastBody ? substr($lastBody, 0, 1000) : null;
-                    Log::error('weaccept.auth.failed_all', [
-                        'payment_id' => $payment->id,
-                        'status' => $status,
-                        'body' => $bodyPreview,
-                    ]);
                     throw new \Exception('Auth token error: ' . $status);
                 }
                 $authJson = $authResp->json();
@@ -429,7 +412,6 @@ class WeacceptGateway
 
                 return $result;
             } catch (\Throwable $e) {
-                Log::error('weaccept.init.exception', ['payment_id' => $payment->id, 'error' => $e->getMessage()]);
                 throw $e;
             }
         });

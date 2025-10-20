@@ -37,11 +37,6 @@ class HandlePaymentWebhook implements ShouldQueue
                 in_array($payment->status, ['completed', 'paid']) &&
                 in_array($status, ['completed', 'paid', 'success'])
             ) {
-                Log::error('Error processing payment webhook', [
-                    'payment_id' => $payment->payment_id,
-                    'reason' => 'Payment already completed',
-                ]);
-
                 return;
             }
 
@@ -64,14 +59,8 @@ class HandlePaymentWebhook implements ShouldQueue
 
             // Handle specific status actions
             $this->handleStatusSpecificActions($payment, $status, $webhookData);
-
         } catch (\Exception $e) {
             if (! app()->environment('testing')) {
-                Log::error('Failed to process payment webhook', [
-                    'payment_id' => $event->payment->payment_id ?? 'unknown',
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                ]);
 
                 // Only re-throw in non-testing environments to trigger retry mechanism
                 throw $e;
@@ -153,10 +142,6 @@ class HandlePaymentWebhook implements ShouldQueue
             }
         } catch (\Exception $e) {
             if (! app()->environment('testing')) {
-                Log::error('Failed to send payment notifications', [
-                    'payment_id' => $payment->payment_id,
-                    'error' => $e->getMessage(),
-                ]);
             }
         }
     }
@@ -217,10 +202,6 @@ class HandlePaymentWebhook implements ShouldQueue
             }
         } catch (\Exception $e) {
             if (! app()->environment('testing')) {
-                Log::error('Failed to handle successful payment', [
-                    'payment_id' => $payment->payment_id,
-                    'error' => $e->getMessage(),
-                ]);
             }
         }
     }
@@ -254,10 +235,6 @@ class HandlePaymentWebhook implements ShouldQueue
             }
         } catch (\Exception $e) {
             if (! app()->environment('testing')) {
-                Log::error('Failed to handle failed payment', [
-                    'payment_id' => $payment->payment_id,
-                    'error' => $e->getMessage(),
-                ]);
             }
         }
     }
@@ -287,10 +264,6 @@ class HandlePaymentWebhook implements ShouldQueue
             }
         } catch (\Exception $e) {
             if (! app()->environment('testing')) {
-                Log::error('Failed to handle refunded payment', [
-                    'payment_id' => $payment->payment_id,
-                    'error' => $e->getMessage(),
-                ]);
             }
         }
     }

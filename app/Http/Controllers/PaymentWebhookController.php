@@ -92,7 +92,6 @@ class PaymentWebhookController extends Controller
                 try {
                     event(new \App\Events\OrderPaid($order));
                 } catch (\Throwable $e) {
-                    Log::error('OrderPaid event error: ' . $e->getMessage());
                 }
             }
 

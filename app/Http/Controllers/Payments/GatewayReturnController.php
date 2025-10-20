@@ -83,10 +83,6 @@ class GatewayReturnController extends Controller
 
             return $this->processStandardReturn($payment, $gateway, $gatewaySlug);
         } catch (\Throwable $e) {
-            Log::error("{$gatewaySlug}.return.error", [
-                'payment_id' => $payment->id,
-                'msg' => $e->getMessage()
-            ]);
 
             return $this->handleReturnError($payment, $gatewaySlug, $e->getMessage());
         }
@@ -267,9 +263,9 @@ class GatewayReturnController extends Controller
     private function getStatusMessage(string $status): string
     {
         return match ($status) {
-                'paid' => 'Payment successful',
-                'failed' => 'Payment failed',
-                default => 'Payment pending confirmation'
+            'paid' => 'Payment successful',
+            'failed' => 'Payment failed',
+            default => 'Payment pending confirmation'
         };
     }
 
@@ -305,10 +301,6 @@ class GatewayReturnController extends Controller
                 return $order;
             });
         } catch (\Throwable $e) {
-            Log::error('order.creation.error', [
-                'payment_id' => $payment->id,
-                'error' => $e->getMessage()
-            ]);
             return null;
         }
     }
@@ -321,10 +313,10 @@ class GatewayReturnController extends Controller
             return;
         }
 
-                $cart = [];
+        $cart = [];
         foreach ($snapshot['items'] as $item) {
             if (empty($item['product_id'])) {
-                        continue;
+                continue;
             }
             $cart[$item['product_id']] = [
                 'qty' => $item['qty'] ?? 1,

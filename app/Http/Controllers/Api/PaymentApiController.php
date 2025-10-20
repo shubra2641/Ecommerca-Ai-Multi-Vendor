@@ -25,7 +25,7 @@ class PaymentApiController extends Controller
                 ->select(['id', 'name', 'slug', 'logo', 'description'])
                 ->orderBy('name')
                 ->get()
-                ->map(fn ($g) => [
+                ->map(fn($g) => [
                     'id' => $g->id,
                     'name' => $g->name,
                     'slug' => $g->slug,
@@ -40,7 +40,6 @@ class PaymentApiController extends Controller
                 'message' => 'Payment gateways retrieved',
             ]);
         } catch (Exception $e) {
-            Log::error('getGateways error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -115,7 +114,6 @@ class PaymentApiController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('initializePayment error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,

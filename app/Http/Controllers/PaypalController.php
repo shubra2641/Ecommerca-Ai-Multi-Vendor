@@ -75,11 +75,6 @@ class PaypalController extends Controller
                     }
                     $respStatus = $resp->status();
                 }
-                Log::error('paypal.capture.request_exception', [
-                    'order_id' => $orderId,
-                    'status' => $respStatus,
-                    'response' => $respBody
-                ]);
                 // Mark payment failed and return
                 $payment->status = 'failed';
                 $payment->failure_reason = 'capture_request_exception';
@@ -163,7 +158,6 @@ class PaypalController extends Controller
                                 });
                                 $payment->order_id = $order->id;
                             } catch (\Throwable $e) {
-                                Log::error('paypal.order.create_from_snapshot_failed', ['error' => $e->getMessage()]);
                             }
                         }
                     }
@@ -199,15 +193,7 @@ class PaypalController extends Controller
                     ->with('error_message', $msg);
             }
             if ($statusCode === 400) {
-                Log::error('paypal.capture_failed_invalid_request', [
-                    'order_id' => $orderId,
-                    'response_json' => $body,
-                ]);
             } else {
-                Log::error('paypal.capture_failed', [
-                    'status' => $statusCode,
-                    'body' => $captureResp->body()
-                ]);
             }
             $payment->status = 'failed';
             $payment->failure_reason = 'capture_failed_http_' . $statusCode;
@@ -224,7 +210,6 @@ class PaypalController extends Controller
                 ->with('payment', $payment)
                 ->with('error_message', $errorMessage);
         } catch (\Throwable $e) {
-            Log::error('paypal.return.exception', ['error' => $e->getMessage()]);
             if ($payment->order_id) {
                 return redirect()->route('orders.show', $payment->order_id)
                     ->with('error', __('Payment processing error'));

@@ -88,12 +88,6 @@ class PaymentRedirectController extends Controller
                     } else {
                     }
                 } catch (\Exception $e) {
-                    Log::error('payment.redirect.exception', [
-                        'payment_id' => $payment->id,
-                        'gateway' => $gateway->driver ?? 'unknown',
-                        'reason' => 'driver_exception',
-                        'error' => $e->getMessage(),
-                    ]);
                 }
             }
         } else {

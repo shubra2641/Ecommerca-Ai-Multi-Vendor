@@ -30,9 +30,6 @@ class PaymentEncryptionService
                 try {
                     $encryptedData[$field] = Crypt::encryptString($data[$field]);
                 } catch (\Exception $e) {
-                    Log::error('Failed to encrypt payment data field: ' . $field, [
-                        'error' => $e->getMessage(),
-                    ]);
 
                     // Remove sensitive data if encryption fails
                     unset($encryptedData[$field]);
@@ -66,9 +63,6 @@ class PaymentEncryptionService
                 try {
                     $decryptedData[$field] = Crypt::decryptString($data[$field]);
                 } catch (\Exception $e) {
-                    Log::error('Failed to decrypt payment data field: ' . $field, [
-                        'error' => $e->getMessage(),
-                    ]);
 
                     // Keep encrypted data if decryption fails
                     $decryptedData[$field] = '[ENCRYPTED]';

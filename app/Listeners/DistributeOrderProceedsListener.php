@@ -141,10 +141,6 @@ class DistributeOrderProceedsListener
                 $order->save();
             });
         } catch (\Throwable $e) {
-            Log::error(
-                'DistributeOrderProceedsListener failed for order ' . ($order->id ?? 'n/a') .
-                    ': ' . $e->getMessage()
-            );
             throw $e;
         }
     }

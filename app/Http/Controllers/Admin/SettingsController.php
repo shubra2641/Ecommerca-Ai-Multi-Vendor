@@ -293,7 +293,6 @@ class SettingsController extends Controller
             return $path;
         } catch (\Exception $e) {
             // Log error and return null
-            \Log::error('Logo upload failed: ' . $e->getMessage());
 
             return null;
         }

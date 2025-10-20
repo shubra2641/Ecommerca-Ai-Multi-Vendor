@@ -90,7 +90,6 @@ class ProductController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            \Log::error('Product pending email failed: ' . $e->getMessage());
         }
 
 
@@ -153,7 +152,6 @@ class ProductController extends Controller
                 Mail::to($admin->email)->queue(new ProductPendingForReview($product));
             }
         } catch (\Exception $e) {
-            \Log::error('Product pending email failed: ' . $e->getMessage());
         }
 
 

@@ -132,7 +132,6 @@ class TapGateway
                         $payment->order_id = $order->id;
                         $payment->save();
                     } catch (\Throwable $e) {
-                        Log::error('tap.order.create_from_snapshot_failed', ['error' => $e->getMessage()]);
                     }
                 }
             }

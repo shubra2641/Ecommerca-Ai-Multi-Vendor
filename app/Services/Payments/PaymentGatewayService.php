@@ -363,7 +363,6 @@ class PaymentGatewayService
                 return $order;
             });
         } catch (\Throwable $e) {
-            Log::error('order.create_from_snapshot_failed', ['error' => $e->getMessage()]);
             return null;
         }
     }

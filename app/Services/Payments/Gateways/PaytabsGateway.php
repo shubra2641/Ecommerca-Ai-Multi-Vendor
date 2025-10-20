@@ -109,10 +109,6 @@ class PaytabsGateway
 
                     return ['payment' => $payment, 'redirect_url' => $redirectUrl, 'raw' => $json];
                 } catch (\Throwable $e) {
-                    Log::error('paytabs.init.exception', [
-                        'payment_id' => $payment->id,
-                        'error' => $e->getMessage()
-                    ]);
                     throw $e;
                 }
             }
