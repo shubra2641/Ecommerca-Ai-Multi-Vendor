@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PostCategory;
-use App\Services\AI\CategorySuggestionService;
+use App\Services\AI\SimpleAIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -148,13 +148,13 @@ class PostCategoryController extends Controller
     }
 
     // AI suggestion for blog category description & SEO
-    public function aiSuggest(Request $request, CategorySuggestionService $service)
+    public function aiSuggest(Request $request, SimpleAIService $service)
     {
         $request->validate([
             'title' => 'required|string|min:3',
             'locale' => 'nullable|string|max:10',
         ]);
 
-        return $service->generateSuggestions($request->title, $request->locale);
+        return $service->generate($request->title, 'category', $request->locale);
     }
 }

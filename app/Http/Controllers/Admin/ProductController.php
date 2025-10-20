@@ -13,7 +13,7 @@ use App\Models\ProductSerial;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\HtmlSanitizer;
-use App\Services\AI\ProductSuggestionService;
+use App\Services\AI\SimpleAIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -255,7 +255,7 @@ class ProductController extends Controller
     /**
      * AI suggestion for product content
      */
-    public function aiSuggest(Request $request, ProductSuggestionService $service)
+    public function aiSuggest(Request $request, SimpleAIService $service)
     {
         $this->authorize('access-admin');
 
@@ -264,7 +264,7 @@ class ProductController extends Controller
             'locale' => 'nullable|string|max:10',
         ]);
 
-        return $service->generateSuggestions($request->title, $request->locale);
+        return $service->generate($request->title, 'product', $request->locale);
     }
 
     /**

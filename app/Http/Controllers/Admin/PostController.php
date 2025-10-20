@@ -105,8 +105,8 @@ class PostController extends Controller
             'locale' => 'nullable|string|max:10',
         ]);
 
-        $aiService = app(\App\Services\AI\BlogPostSuggestionService::class);
-        return $aiService->generateSuggestions($request->title, $request->locale);
+        $aiService = app(\App\Services\AI\SimpleAIService::class);
+        return $aiService->generate($request->title, 'blog', $request->locale);
     }
 
     private function validatePostData(Request $request): array
