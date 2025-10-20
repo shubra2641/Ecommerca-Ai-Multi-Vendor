@@ -21,6 +21,7 @@ class CartService
         return view('front.cart.index', [
             'items' => $items,
             'total' => $total,
+            'currency_symbol' => '$',
         ]);
     }
 
@@ -28,7 +29,7 @@ class CartService
     {
         $data = $request->validated();
         $product = Product::findOrFail($data['product_id']);
-        
+
         if (!$this->hasStock($product, $data['qty'] ?? 1, $data['variation_id'] ?? null)) {
             return $this->errorResponse($request, __('Out of stock'));
         }
@@ -41,11 +42,11 @@ class CartService
     {
         $data = $request->validated();
         $cart = $this->getCart();
-        
+
         foreach ($data['lines'] as $line) {
             $cart[$line['cart_key']]['qty'] = $line['qty'];
         }
-        
+
         $this->putCart($cart);
         return redirect()->route('cart.index')->with('success', __('Cart updated'));
     }
@@ -54,11 +55,11 @@ class CartService
     {
         $data = $request->validated();
         $cart = $this->getCart();
-        
+
         if (!empty($data['cart_key'])) {
             unset($cart[$data['cart_key']]);
         }
-        
+
         $this->putCart($cart);
         return redirect()->route('cart.index')->with('success', __('Item removed'));
     }
@@ -90,13 +91,32 @@ class CartService
                     'product' => $product,
                     'qty' => $row['qty'],
                     'price' => $row['price'],
+                    'display_price' => $row['price'],
                     'line_total' => $row['price'] * $row['qty'],
                     'cart_key' => $key,
+                    'available' => $this->getAvailableStock($product, $key),
                 ];
             }
         }
         
         return $items;
+    }
+
+    private function getAvailableStock(Product $product, string $key): ?int
+    {
+        if (!$product->manage_stock) {
+            return null;
+        }
+
+        $parts = explode(':', $key);
+        if (isset($parts[1])) {
+            $variation = ProductVariation::find($parts[1]);
+            if ($variation && $variation->manage_stock) {
+                return max(0, (int) $variation->stock_qty - (int) $variation->reserved_qty);
+            }
+        }
+
+        return max(0, (int) ($product->stock_qty ?? 0) - (int) ($product->reserved_qty ?? 0));
     }
 
     private function calculateTotal(array $items): float
@@ -110,7 +130,7 @@ class CartService
             $variation = ProductVariation::find($variationId);
             return $variation && $variation->product_id === $product->id;
         }
-        
+
         return true;
     }
 
@@ -118,7 +138,7 @@ class CartService
     {
         $cart = $this->getCart();
         $key = $variationId ? "{$product->id}:{$variationId}" : (string) $product->id;
-        
+
         if (isset($cart[$key])) {
             $cart[$key]['qty'] += $qty;
         } else {
@@ -127,7 +147,7 @@ class CartService
                 'price' => $product->effectivePrice(),
             ];
         }
-        
+
         $this->putCart($cart);
     }
 
