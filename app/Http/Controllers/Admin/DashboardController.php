@@ -16,129 +16,87 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        // Get period from request, default to 6m
         $period = $request->get('period', '6m');
-        // Check if refresh was requested
-        $refresh = $request->get('refresh', false);
-
-        // If refresh is requested, clear cache
-        if ($refresh) {
+        
+        // Clear cache if refresh requested
+        if ($request->get('refresh', false)) {
             Cache::forget('dashboard_stats');
         }
 
-        $stats = Cache::remember('dashboard_stats', 60, function () {
-            $dbInfo = [
-                'tables_count' => 0,
-                'size_mb' => 0,
-                'connection' => 'unknown',
-            ];
-
-            try {
-                $tables = DB::select('SHOW TABLES');
-                $dbSizeRow = DB::select(
-                    'SELECT SUM(data_length + index_length) / 1024 / 1024 AS db_size_mb ' .
-                        'FROM information_schema.tables WHERE table_schema = DATABASE()'
-                );
-                $dbSize = isset($dbSizeRow[0]->db_size_mb) ? (float) $dbSizeRow[0]->db_size_mb : 0.0;
-
-                $dbInfo = [
-                    'tables_count' => is_array($tables) ? count($tables) : 0,
-                    'size_mb' => $dbSize,
-                    'connection' => 'active',
-                ];
-            } catch (\Exception $e) {
-                logger()->error('Failed retrieving database info for admin dashboard: ' . $e->getMessage());
-                $dbInfo = [
-                    'tables_count' => 0,
-                    'size_mb' => 0,
-                    'connection' => 'error',
-                ];
-            }
-
-            $base = [
-                'totalUsers' => User::count(),
-                'totalVendors' => User::where('role', 'vendor')->count(),
-                'pendingUsers' => User::whereNull('approved_at')->count(),
-                'totalBalance' => User::sum('balance'),
-                'activeUsers' => User::whereNotNull('approved_at')->count(),
-                'newUsersToday' => User::whereDate('created_at', today())->count(),
-                'newUsersThisWeek' => User::whereBetween('created_at', [
-                    now()->startOfWeek(),
-                    now()->endOfWeek()
-                ])->count(),
-                'newUsersThisMonth' => User::whereMonth('created_at', now()->month)->count(),
-                'totalAdmins' => User::where('role', 'admin')->count(),
-                'totalCustomers' => User::where('role', 'user')->count(),
-                'approvedUsers' => User::whereNotNull('approved_at')->count(),
-                'systemHealth' => $this->getSystemHealth(),
-            ];
-
-            // Orders & sales stats (not heavy aggregation, cached together)
-            $ordersAgg = $this->getOrderAggregates();
-
-            return array_merge($dbInfo, $base, $ordersAgg);
-        });
-
-
-        // Get chart data for user registrations based on period
+        // Get cached stats
+        $stats = Cache::remember('dashboard_stats', 60, fn() => $this->getDashboardStats());
+        
+        // Get chart data
         $chartData = $this->getRegistrationChartDataByPeriod($period);
-
-        // Get sales chart data (orders + revenue last 30 days)
         $salesChartData = $this->getSalesChartData();
-
-        // Get order status distribution data
         $orderStatusChartData = $this->getOrderStatusChartData();
 
-        // Ensure all chart data has default values if empty
-        if (empty($chartData['labels']) || empty($chartData['data'])) {
-            $chartData = [
-                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                'data' => [10, 15, 8, 20, 12, 18],
-                'vendorData' => [5, 8, 4, 12, 6, 10],
-                'adminData' => [2, 3, 1, 4, 2, 3]
-            ];
-        }
-
-        if (empty($salesChartData['labels']) || empty($salesChartData['orders'])) {
-            $salesChartData = [
-                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                'orders' => [25, 30, 20, 35, 28, 32],
-                'revenue' => [2500, 3000, 2000, 3500, 2800, 3200]
-            ];
-        }
-
-        if (empty($orderStatusChartData['labels']) || empty($orderStatusChartData['data'])) {
-            $orderStatusChartData = [
-                'labels' => ['Pending', 'Processing', 'Shipped', 'Delivered'],
-                'data' => [5, 3, 2, 8],
-                'colors' => ['#ffc107', '#17a2b8', '#28a745', '#6f42c1']
-            ];
-        }
-
-        // Debug: Log chart data to ensure it's being generated
-
-        // Get top statistics for quick overview
+        // Get additional data
         $topStats = $this->getTopStatistics();
-
-        // Get top active users
         $topUsers = $this->getTopActiveUsers();
-
-        // Get system health data
         $systemHealth = $this->getSystemHealth();
 
         return view('admin.dashboard', compact(
-            'stats',
-            'chartData',
-            'salesChartData',
-            'orderStatusChartData',
-            'topStats',
-            'topUsers',
-            'systemHealth',
-            'period'
+            'stats', 'chartData', 'salesChartData', 'orderStatusChartData',
+            'topStats', 'topUsers', 'systemHealth', 'period'
         ));
     }
 
+    /**
+     * Get dashboard statistics
+     */
+    private function getDashboardStats()
+    {
+        $dbInfo = $this->getDatabaseInfo();
+        $userStats = $this->getUserStats();
+        $orderStats = $this->getOrderAggregates();
+        
+        return array_merge($dbInfo, $userStats, $orderStats);
+    }
 
+    /**
+     * Get database information
+     */
+    private function getDatabaseInfo()
+    {
+        try {
+            $tables = DB::select('SHOW TABLES');
+            $dbSizeRow = DB::select(
+                'SELECT SUM(data_length + index_length) / 1024 / 1024 AS db_size_mb ' .
+                'FROM information_schema.tables WHERE table_schema = DATABASE()'
+            );
+            
+            return [
+                'tables_count' => count($tables),
+                'size_mb' => (float) ($dbSizeRow[0]->db_size_mb ?? 0),
+                'connection' => 'active',
+            ];
+        } catch (\Exception $e) {
+            logger()->error('Failed retrieving database info: ' . $e->getMessage());
+            return ['tables_count' => 0, 'size_mb' => 0, 'connection' => 'error'];
+        }
+    }
+
+    /**
+     * Get user statistics
+     */
+    private function getUserStats()
+    {
+        return [
+            'totalUsers' => User::count(),
+            'totalVendors' => User::where('role', 'vendor')->count(),
+            'pendingUsers' => User::whereNull('approved_at')->count(),
+            'totalBalance' => User::sum('balance'),
+            'activeUsers' => User::whereNotNull('approved_at')->count(),
+            'newUsersToday' => User::whereDate('created_at', today())->count(),
+            'newUsersThisWeek' => User::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+            'newUsersThisMonth' => User::whereMonth('created_at', now()->month)->count(),
+            'totalAdmins' => User::where('role', 'admin')->count(),
+            'totalCustomers' => User::where('role', 'user')->count(),
+            'approvedUsers' => User::whereNotNull('approved_at')->count(),
+            'systemHealth' => $this->getSystemHealth(),
+        ];
+    }
 
     /**
      * Get registration chart data based on period
@@ -179,82 +137,79 @@ class DashboardController extends Controller
     }
 
     /**
-     * Aggregate orders / sales metrics
+     * Get order aggregates
      */
     private function getOrderAggregates(): array
     {
         try {
-            $orders = Order::query();
-            $paid = $orders->clone()->where('payment_status', 'paid');
-
-            $todayRange = [now()->startOfDay(), now()->endOfDay()];
-            $weekRange = [now()->startOfWeek(), now()->endOfWeek()];
-            $monthRangeStart = now()->startOfMonth();
-
-            $byStatus = Order::selectRaw('status, COUNT(*) as aggregate')
-                ->groupBy('status')
-                ->pluck('aggregate', 'status')
-                ->toArray();
-
-            $totalOrders = Order::count();
-            $ordersToday = Order::whereBetween('created_at', $todayRange)
-                ->count();
-            $ordersThisWeek = Order::whereBetween('created_at', $weekRange)
-                ->count();
-            $ordersThisMonth = Order::where('created_at', '>=', $monthRangeStart)->count();
-
-            $revenueTotal = $paid->clone()->sum('total');
-            $revenueToday = Order::where('payment_status', 'paid')
-                ->whereBetween('created_at', $todayRange)->sum('total');
-            $revenueWeek = Order::where('payment_status', 'paid')
-                ->whereBetween('created_at', $weekRange)->sum('total');
-            $revenueMonth = Order::where('payment_status', 'paid')
-                ->where('created_at', '>=', $monthRangeStart)->sum('total');
-
-            $avgOrder = $paid->clone()->avg('total');
-
-            // Products / inventory
-            $productQ = Product::query();
-            $totalProducts = $productQ->count();
-            $lowStock = $productQ->where('manage_stock', 1)->get()
-                ->filter(fn($p) => ($p->availableStock() ?? 0) > 0 &&
-                    ($p->availableStock() ?? 0) <= 5)->count();
-            $outOfStock = $productQ->where('manage_stock', 1)->get()
-                ->filter(fn($p) => ($p->availableStock() ?? 0) <= 0)->count();
-            $onSale = Product::whereNotNull('sale_price')->whereColumn('sale_price', '<', 'price')->count();
-
-            // Payment metrics
-            $paymentQ = Payment::query();
-            $paymentsTotal = $paymentQ->count();
-            $paymentsSuccess = $paymentQ->where('status', 'completed')->count();
-            $paymentsFailed = $paymentQ->whereIn('status', ['failed', 'rejected', 'cancelled'])->count();
-
-            return [
-                'totalOrders' => $totalOrders,
-                'ordersToday' => $ordersToday,
-                'ordersThisWeek' => $ordersThisWeek,
-                'ordersThisMonth' => $ordersThisMonth,
-                'revenueTotal' => (float) $revenueTotal,
-                'revenueToday' => (float) $revenueToday,
-                'revenueThisWeek' => (float) $revenueWeek,
-                'revenueThisMonth' => (float) $revenueMonth,
-                'averageOrderValue' => (float) $avgOrder,
-                'ordersStatusCounts' => $byStatus,
-                'totalProductsAll' => $totalProducts,
-                'lowStockProducts' => $lowStock,
-                'outOfStockProducts' => $outOfStock,
-                'onSaleProducts' => $onSale,
-                'paymentsTotal' => $paymentsTotal,
-                'paymentsSuccess' => $paymentsSuccess,
-                'paymentsFailed' => $paymentsFailed,
-            ];
+            $orderStats = $this->getOrderStats();
+            $productStats = $this->getProductStats();
+            $paymentStats = $this->getPaymentStats();
+            
+            return array_merge($orderStats, $productStats, $paymentStats);
         } catch (\Throwable $e) {
             return [];
         }
     }
 
     /**
-     * Sales chart data (orders + revenue last 30 days)
+     * Get order statistics
+     */
+    private function getOrderStats()
+    {
+        $todayRange = [now()->startOfDay(), now()->endOfDay()];
+        $weekRange = [now()->startOfWeek(), now()->endOfWeek()];
+        $monthStart = now()->startOfMonth();
+        
+        $paidOrders = Order::where('payment_status', 'paid');
+        
+        return [
+            'totalOrders' => Order::count(),
+            'ordersToday' => Order::whereBetween('created_at', $todayRange)->count(),
+            'ordersThisWeek' => Order::whereBetween('created_at', $weekRange)->count(),
+            'ordersThisMonth' => Order::where('created_at', '>=', $monthStart)->count(),
+            'revenueTotal' => (float) $paidOrders->sum('total'),
+            'revenueToday' => (float) $paidOrders->whereBetween('created_at', $todayRange)->sum('total'),
+            'revenueThisWeek' => (float) $paidOrders->whereBetween('created_at', $weekRange)->sum('total'),
+            'revenueThisMonth' => (float) $paidOrders->where('created_at', '>=', $monthStart)->sum('total'),
+            'averageOrderValue' => (float) $paidOrders->avg('total'),
+            'ordersStatusCounts' => Order::selectRaw('status, COUNT(*) as aggregate')
+                ->groupBy('status')->pluck('aggregate', 'status')->toArray(),
+        ];
+    }
+
+    /**
+     * Get product statistics
+     */
+    private function getProductStats()
+    {
+        $products = Product::query();
+        $stockProducts = $products->where('manage_stock', 1)->get();
+        
+        return [
+            'totalProductsAll' => $products->count(),
+            'lowStockProducts' => $stockProducts->filter(fn($p) => ($p->availableStock() ?? 0) > 0 && ($p->availableStock() ?? 0) <= 5)->count(),
+            'outOfStockProducts' => $stockProducts->filter(fn($p) => ($p->availableStock() ?? 0) <= 0)->count(),
+            'onSaleProducts' => Product::whereNotNull('sale_price')->whereColumn('sale_price', '<', 'price')->count(),
+        ];
+    }
+
+    /**
+     * Get payment statistics
+     */
+    private function getPaymentStats()
+    {
+        $payments = Payment::query();
+        
+        return [
+            'paymentsTotal' => $payments->count(),
+            'paymentsSuccess' => $payments->where('status', 'completed')->count(),
+            'paymentsFailed' => $payments->whereIn('status', ['failed', 'rejected', 'cancelled'])->count(),
+        ];
+    }
+
+    /**
+     * Get sales chart data
      */
     private function getSalesChartData(): array
     {
@@ -262,7 +217,7 @@ class DashboardController extends Controller
             $from = now()->subDays(29)->startOfDay();
             $raw = Order::selectRaw(
                 'DATE(created_at) as day, COUNT(*) as orders, ' .
-                    'SUM(CASE WHEN payment_status = "paid" THEN total ELSE 0 END) as revenue'
+                'SUM(CASE WHEN payment_status = "paid" THEN total ELSE 0 END) as revenue'
             )
                 ->where('created_at', '>=', $from)
                 ->groupBy('day')
@@ -270,41 +225,53 @@ class DashboardController extends Controller
                 ->get()
                 ->keyBy('day');
 
-            $labels = [];
-            $ordersData = [];
-            $revenueData = [];
-            for ($i = 29; $i >= 0; $i--) {
-                $d = now()->subDays($i)->format('Y-m-d');
-                $labels[] = now()->subDays($i)->format('d M');
-                $ordersData[] = (int) ($raw[$d]->orders ?? 0);
-                $revenueData[] = (float) ($raw[$d]->revenue ?? 0);
-            }
-
-            return [
-                'labels' => $labels,
-                'orders' => $ordersData,
-                'revenue' => $revenueData,
-            ];
+            return $this->buildChartData($raw);
         } catch (\Exception $e) {
-            // Return default data if there's an error
-            $labels = [];
-            $ordersData = [];
-            $revenueData = [];
-            for ($i = 29; $i >= 0; $i--) {
-                $labels[] = now()->subDays($i)->format('d M');
-                $ordersData[] = rand(1, 10); // Random data for demo
-                $revenueData[] = rand(100, 1000); // Random revenue for demo
-            }
-            return [
-                'labels' => $labels,
-                'orders' => $ordersData,
-                'revenue' => $revenueData,
-            ];
+            return $this->getDefaultChartData();
         }
     }
 
     /**
-     * Get order status distribution data for pie chart
+     * Build chart data from raw results
+     */
+    private function buildChartData($raw)
+    {
+        $labels = [];
+        $ordersData = [];
+        $revenueData = [];
+        
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $dayKey = $date->format('Y-m-d');
+            
+            $labels[] = $date->format('d M');
+            $ordersData[] = (int) ($raw[$dayKey]->orders ?? 0);
+            $revenueData[] = (float) ($raw[$dayKey]->revenue ?? 0);
+        }
+
+        return ['labels' => $labels, 'orders' => $ordersData, 'revenue' => $revenueData];
+    }
+
+    /**
+     * Get default chart data
+     */
+    private function getDefaultChartData()
+    {
+        $labels = [];
+        $ordersData = [];
+        $revenueData = [];
+        
+        for ($i = 29; $i >= 0; $i--) {
+            $labels[] = now()->subDays($i)->format('d M');
+            $ordersData[] = rand(1, 10);
+            $revenueData[] = rand(100, 1000);
+        }
+        
+        return ['labels' => $labels, 'orders' => $ordersData, 'revenue' => $revenueData];
+    }
+
+    /**
+     * Get order status chart data
      */
     private function getOrderStatusChartData(): array
     {
@@ -314,43 +281,49 @@ class DashboardController extends Controller
                 ->pluck('count', 'status')
                 ->toArray();
 
-            $labels = [];
-            $data = [];
-            $colors = [
-                'pending' => '#ffc107',
-                'processing' => '#17a2b8',
-                'shipped' => '#28a745',
-                'delivered' => '#6f42c1',
-                'cancelled' => '#dc3545',
-                'refunded' => '#fd7e14'
-            ];
-
-            // If no orders exist, provide default data
-            if (empty($orderStatuses)) {
-                return [
-                    'labels' => ['Pending', 'Processing', 'Shipped', 'Delivered'],
-                    'data' => [5, 3, 2, 8],
-                    'colors' => ['#ffc107', '#17a2b8', '#28a745', '#6f42c1']
-                ];
-            }
-
-            foreach ($orderStatuses as $status => $count) {
-                $labels[] = ucfirst($status);
-                $data[] = $count;
-            }
-
-            return [
-                'labels' => $labels,
-                'data' => $data,
-                'colors' => array_values($colors)
-            ];
+            return empty($orderStatuses) 
+                ? $this->getDefaultOrderStatusData()
+                : $this->buildOrderStatusData($orderStatuses);
         } catch (\Exception $e) {
-            return [
-                'labels' => ['Pending', 'Processing', 'Shipped', 'Delivered'],
-                'data' => [5, 3, 2, 8],
-                'colors' => ['#ffc107', '#17a2b8', '#28a745', '#6f42c1']
-            ];
+            return $this->getDefaultOrderStatusData();
         }
+    }
+
+    /**
+     * Build order status data
+     */
+    private function buildOrderStatusData($orderStatuses)
+    {
+        $colors = [
+            'pending' => '#ffc107', 'processing' => '#17a2b8', 'shipped' => '#28a745',
+            'delivered' => '#6f42c1', 'cancelled' => '#dc3545', 'refunded' => '#fd7e14'
+        ];
+
+        $labels = [];
+        $data = [];
+        
+        foreach ($orderStatuses as $status => $count) {
+            $labels[] = ucfirst($status);
+            $data[] = $count;
+        }
+
+        return [
+            'labels' => $labels,
+            'data' => $data,
+            'colors' => array_values($colors)
+        ];
+    }
+
+    /**
+     * Get default order status data
+     */
+    private function getDefaultOrderStatusData()
+    {
+        return [
+            'labels' => ['Pending', 'Processing', 'Shipped', 'Delivered'],
+            'data' => [5, 3, 2, 8],
+            'colors' => ['#ffc107', '#17a2b8', '#28a745', '#6f42c1']
+        ];
     }
 
     /**
