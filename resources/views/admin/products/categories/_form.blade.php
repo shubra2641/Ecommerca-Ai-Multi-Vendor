@@ -71,6 +71,91 @@
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+(function(){
+    'use strict';
+    function getCsrfToken(){
+        var m = document.querySelector('meta[name="csrf-token"]');
+        if (m && m.content) return m.content;
+        var i = document.querySelector('input[name="_token"]');
+        return i ? i.value : '';
+    }
+    function showFlash(type, message){
+        var alert = document.createElement('div');
+        alert.className = 'alert alert-' + (type === 'success' ? 'success' : 'danger') + ' alert-dismissible fade show';
+        alert.role = 'alert';
+        alert.innerText = message;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn-close';
+        btn.setAttribute('data-bs-dismiss', 'alert');
+        btn.setAttribute('aria-label', 'Close');
+        alert.appendChild(btn);
+        var container = document.querySelector('.container, .page-container') || document.body;
+        container.insertBefore(alert, container.firstChild);
+        setTimeout(function(){
+            if (alert && alert.parentNode) alert.parentNode.removeChild(alert);
+        }, 6000);
+    }
+    function bindCategoryAiButtons(){
+        document.querySelectorAll('.js-ai-generate-category, .js-ai-generate-category-i18n').forEach(function(btn){
+            if (btn.dataset.bound === '1') return; btn.dataset.bound = '1';
+            btn.addEventListener('click', function(ev){
+                ev.preventDefault();
+                if (btn.getAttribute('data-loading') === '1') return;
+                var locale = btn.classList.contains('js-ai-generate-category-i18n') ? (btn.getAttribute('data-lang') || '') : (document.documentElement.lang || '');
+                var prefix = btn.getAttribute('data-target-prefix') || 'base';
+                var nameInput = prefix === 'base' ? document.querySelector('input[name="name"]') : document.querySelector('input[name="name_i18n[' + locale + ']"]');
+                var title = nameInput ? nameInput.value.trim() : '';
+                var descSelector = prefix === 'seo' ? 'textarea.js-cat-description-seo' : (prefix === 'base' ? 'textarea.js-cat-description-base' : 'textarea[name="description_i18n[' + locale + ']"], textarea.js-cat-description-i18n');
+                var descArea = document.querySelector(descSelector);
+                if (!title){
+                    showFlash('error', '{{ __('Please enter the name first to generate description') }}');
+                    return;
+                }
+                btn.setAttribute('data-loading', '1');
+                btn.disabled = true; btn.classList.add('disabled');
+                fetch("{{ route('admin.product-categories.ai.suggest') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': getCsrfToken()
+                    },
+                    body: JSON.stringify({ title: title, locale: locale })
+                })
+                .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, status: r.status, body: j }; }); })
+                .then(function(res){
+                    if (res.ok){
+                        try {
+                            var description = (res.body && res.body.description) ? res.body.description : '';
+                            if (descArea && description){ descArea.value = description; }
+                        } catch(e){}
+                        showFlash('success', '{{ __('AI description generated successfully') }}');
+                    } else {
+                        var msg = (res.body && (res.body.error || res.body.message)) || 'AI request failed (' + res.status + ')';
+                        showFlash('error', msg);
+                    }
+                })
+                .catch(function(err){
+                    showFlash('error', err && err.message ? err.message : 'Network error');
+                })
+                .finally(function(){
+                    btn.setAttribute('data-loading', '0');
+                    btn.disabled = false; btn.classList.remove('disabled');
+                });
+            });
+        });
+    }
+    if (document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', bindCategoryAiButtons);
+    } else {
+        bindCategoryAiButtons();
+    }
+})();
+</script>
+@endpush
 
 @php($langs = $activeLanguages ?? (\App\Models\Language::where('is_active',1)->orderByDesc('is_default')->get()))
 <div class="inner-section mt-4" data-section>
