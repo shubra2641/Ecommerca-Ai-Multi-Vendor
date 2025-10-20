@@ -61,7 +61,7 @@ class PaymentService
     public function getGatewayConfig(PaymentGateway $gateway, ?string $key = null)
     {
         $credentials = $this->getCredentials($gateway);
-        
+
         if (empty($credentials)) {
             return $key ? null : [];
         }
@@ -167,9 +167,11 @@ class PaymentService
             if (empty($value)) {
                 continue;
             }
-            
-            if (strtolower($key) === strtolower($field) || 
-                strpos(strtolower($key), strtolower($field)) !== false) {
+
+            if (
+                strtolower($key) === strtolower($field) ||
+                strpos(strtolower($key), strtolower($field)) !== false
+            ) {
                 return true;
             }
         }

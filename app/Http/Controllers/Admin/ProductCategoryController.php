@@ -233,7 +233,6 @@ class ProductCategoryController extends Controller
                 ->timeout(25)
                 ->post('https://api.openai.com/v1/chat/completions', $payload);
         } catch (\Throwable $e) {
-
             return response()->json(
                 ['error' => 'connection_failed', 'message' => $e->getMessage()],
                 502

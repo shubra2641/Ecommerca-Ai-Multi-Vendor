@@ -28,7 +28,6 @@ class HandlePaymentWebhook implements ShouldQueue
 
             // Validate webhook data
             if (empty($webhookData['transaction_id']) || empty($status) || $status === 'unknown') {
-
                 return;
             }
 
@@ -61,7 +60,6 @@ class HandlePaymentWebhook implements ShouldQueue
             $this->handleStatusSpecificActions($payment, $status, $webhookData);
         } catch (\Exception $e) {
             if (! app()->environment('testing')) {
-
                 // Only re-throw in non-testing environments to trigger retry mechanism
                 throw $e;
             }
@@ -79,7 +77,6 @@ class HandlePaymentWebhook implements ShouldQueue
         if (! $order) {
             if (! app()->environment('testing')) {
             }
-
             return;
         }
 
@@ -128,7 +125,6 @@ class HandlePaymentWebhook implements ShouldQueue
             $order = $payment->order;
             $user = $payment->user ?? $order->user ?? null;
             if (! $user) {
-
                 return;
             }
 

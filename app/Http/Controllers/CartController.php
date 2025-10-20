@@ -57,7 +57,7 @@ class CartController extends Controller
     {
         $data = $request->validated();
         $productId = $data['product_id'];
-        
+
         // Remove from cart
         $cart = session()->get('cart', []);
         if (isset($cart[$productId])) {

@@ -30,7 +30,6 @@ class PaymentEncryptionService
                 try {
                     $encryptedData[$field] = Crypt::encryptString($data[$field]);
                 } catch (\Exception $e) {
-
                     // Remove sensitive data if encryption fails
                     unset($encryptedData[$field]);
                 }

@@ -1,14 +1,19 @@
 /**
  * Admin Charts - Simplified Version
  * Clean, simple, and maintainable chart system
+ * Integrates with AdminPanel namespace
  */
-(function() {
+(function () {
     'use strict';
+
+    // Charts namespace within AdminPanel
+    window.AdminPanel = window.AdminPanel || {};
+    window.AdminPanel.Charts = window.AdminPanel.Charts || {};
 
     // Simple configuration
     const COLORS = {
         primary: '#007bff',
-        success: '#28a745', 
+        success: '#28a745',
         warning: '#ffc107',
         danger: '#dc3545',
         info: '#17a2b8'
@@ -18,7 +23,7 @@
     function getData(selector) {
         const element = document.querySelector(selector);
         if (!element) return null;
-        
+
         try {
             const content = element.textContent || element.innerText || '';
             return JSON.parse(content);
@@ -36,7 +41,7 @@
             callback();
             return;
         }
-        
+
         let attempts = 0;
         const check = () => {
             if (window.Chart) {
@@ -125,7 +130,7 @@
     function initRefreshButton() {
         const btn = document.getElementById('refreshReportsBtn');
         if (!btn) return;
-        
+
         btn.addEventListener('click', () => {
             const icon = btn.querySelector('i');
             if (icon) icon.classList.add('fa-spin');
@@ -186,7 +191,7 @@
                     tension: chartData.tension,
                     fill: chartData.fill
                 });
-            } catch {}
+            } catch { }
         }
 
         // User Distribution Chart
@@ -198,7 +203,7 @@
                     values: [stats.activeUsers || 0, stats.pendingUsers || 0, stats.inactiveUsers || 0],
                     colors: [COLORS.primary, COLORS.warning, COLORS.danger]
                 });
-            } catch {}
+            } catch { }
         }
 
         initRefreshButton();
@@ -224,7 +229,7 @@
                     values: charts.balanceDistribution.values || [],
                     colors: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
                 });
-            } catch {}
+            } catch { }
         }
 
         // Monthly Trends Chart
@@ -239,7 +244,7 @@
                     backgroundColor: 'rgba(78,115,223,0.1)',
                     fill: true
                 });
-            } catch {}
+            } catch { }
         }
 
         initRefreshButton();
@@ -269,7 +274,7 @@
                     tension: 0.4,
                     fill: true
                 });
-            } catch {}
+            } catch { }
         }
 
         // Sales Chart
@@ -299,7 +304,7 @@
                         }
                     ]
                 });
-            } catch {}
+            } catch { }
         }
 
         // Order Status Chart
@@ -311,7 +316,7 @@
                     values: charts.ordersStatus.data || [],
                     colors: [COLORS.primary, COLORS.success, COLORS.warning, COLORS.danger, COLORS.info]
                 });
-            } catch {}
+            } catch { }
         }
 
         initRefreshButton();
@@ -319,8 +324,8 @@
         hideLoaders();
     }
 
-    // Initialize
-    function init() {
+    // Initialize charts
+    AdminPanel.Charts.init = function () {
         waitForChart(() => {
             try {
                 if (document.getElementById('reports-data')) {
@@ -336,12 +341,42 @@
                 hideLoaders();
             }
         });
+    };
+
+    // Auto-initialize if AdminPanel is not available
+    function autoInit() {
+        if (window.AdminPanel && window.AdminPanel.Charts) {
+            AdminPanel.Charts.init();
+        } else {
+            // Fallback initialization
+            waitForChart(() => {
+                try {
+                    if (document.getElementById('reports-data')) {
+                        handleReports();
+                    } else if (document.getElementById('report-financial-data')) {
+                        handleFinancial();
+                    } else if (document.getElementById('dashboard-data')) {
+                        handleDashboard();
+                    } else {
+                        hideLoaders();
+                    }
+                } catch {
+                    hideLoaders();
+                }
+            });
+        }
     }
 
-    // Start
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(init, 0);
+    // Start - integrate with AdminPanel if available
+    if (window.AdminPanel) {
+        // If AdminPanel is already loaded, add charts to it
+        AdminPanel.Charts.init();
     } else {
-        document.addEventListener('DOMContentLoaded', init);
+        // Fallback for standalone usage
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(autoInit, 0);
+        } else {
+            document.addEventListener('DOMContentLoaded', autoInit);
+        }
     }
 })();

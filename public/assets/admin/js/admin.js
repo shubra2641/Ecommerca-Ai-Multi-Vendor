@@ -17,6 +17,15 @@
         this.initModals();
         this.initConfirmations();
         this.initNotifications();
+        this.initEventDelegation();
+        this.initCharts();
+    };
+
+    // Initialize charts if available
+    AdminPanel.initCharts = function () {
+        if (this.Charts && typeof this.Charts.init === 'function') {
+            this.Charts.init();
+        }
     };
 
     // Sidebar functionality
@@ -58,16 +67,45 @@
             });
         }
 
-        // Close sidebar when clicking a nav item on small screens
+    };
+
+    // Centralized event delegation system
+    AdminPanel.initEventDelegation = function () {
+        // Single event listener for all click events
         document.addEventListener('click', (e) => {
-            if (!sidebar) { return; }
+            // Handle sidebar navigation
             const navItem = e.target.closest('.sidebar-nav a, .nav-item');
-            if (!navItem) { return; }
-            // only auto-close for narrower viewports where sidebar overlays content
-            const MOBILE_BREAKPOINT = 992;
-            if (window.innerWidth <= MOBILE_BREAKPOINT && sidebar.classList.contains('active')) {
-                sidebar.classList.remove('active');
-                if (overlay) { overlay.classList.remove('active'); }
+            if (navItem) {
+                const sidebar = document.querySelector('.admin-sidebar, .modern-sidebar, .vendor-sidebar, #sidebar');
+                if (sidebar) {
+                    const MOBILE_BREAKPOINT = 992;
+                    if (window.innerWidth <= MOBILE_BREAKPOINT && sidebar.classList.contains('active')) {
+                        sidebar.classList.remove('active');
+                        const overlay = document.querySelector('.sidebar-overlay');
+                        if (overlay) overlay.classList.remove('active');
+                    }
+                }
+                return;
+            }
+
+            // Handle modal close
+            if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
+                AdminPanel.closeModal();
+                return;
+            }
+
+            // Handle notification close
+            if (e.target.classList.contains('notification-close')) {
+                const notification = e.target.closest('.notification');
+                AdminPanel.hideNotification(notification);
+                return;
+            }
+        });
+
+        // Single event listener for keyboard events
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                AdminPanel.closeModal();
             }
         });
     };
@@ -181,20 +219,6 @@
                 AdminPanel.openModal(modalId);
             });
         });
-
-        // Close modal functionality
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
-                AdminPanel.closeModal();
-            }
-        });
-
-        // Escape key to close modal
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                AdminPanel.closeModal();
-            }
-        });
     };
 
     // Open modal
@@ -224,14 +248,6 @@
                 setTimeout(() => {
                     AdminPanel.hideNotification(notification);
                 }, 5000); // eslint-disable-line no-magic-numbers
-            }
-        });
-
-        // Close notification buttons
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('notification-close')) {
-                const notification = e.target.closest('.notification');
-                AdminPanel.hideNotification(notification);
             }
         });
     };

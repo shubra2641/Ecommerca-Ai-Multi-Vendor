@@ -17,7 +17,6 @@ class DistributeOrderProceedsListener
 
         // idempotency: skip if already processed
         if ($order->vendor_distribution_processed) {
-
             return;
         }
 

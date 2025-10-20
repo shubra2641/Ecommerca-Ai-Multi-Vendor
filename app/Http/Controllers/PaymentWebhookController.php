@@ -35,7 +35,6 @@ class PaymentWebhookController extends Controller
         if ($secret && $signature) {
             $expected = hash_hmac('sha256', $payload, $secret);
             if (! hash_equals($expected, $signature)) {
-
                 return response('invalid signature', 400);
             }
         }
@@ -50,7 +49,6 @@ class PaymentWebhookController extends Controller
             $data['order_reference'] ??
             null;
         if (! $tx) {
-
             return response('missing id', 400);
         }
 
@@ -70,7 +68,6 @@ class PaymentWebhookController extends Controller
         }
 
         if (! $payment) {
-
             return response('not found', 404);
         }
 

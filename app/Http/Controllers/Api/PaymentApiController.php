@@ -40,7 +40,6 @@ class PaymentApiController extends Controller
                 'message' => 'Payment gateways retrieved',
             ]);
         } catch (Exception $e) {
-
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve gateways',

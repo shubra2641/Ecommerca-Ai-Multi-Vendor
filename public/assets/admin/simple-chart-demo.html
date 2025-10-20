@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Charts Demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f8f9fa;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Simple Charts Demo</h1>
+
+    <!-- Line Chart -->
+    <div class="chart-container">
+        <div class="chart-title">مبيعات الشهر</div>
+        <div class="chart-wrapper">
+            <canvas id="lineChart"></canvas>
+        </div>
+        <!-- Data for line chart -->
+        <script type="application/json" id="line-chart-data">
+        {
+            "labels": ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو"],
+            "values": [120, 190, 300, 500, 200, 300],
+            "title": "المبيعات",
+            "color": "#007bff"
+        }
+        </script>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="chart-container">
+        <div class="chart-title">توزيع المستخدمين</div>
+        <div class="chart-wrapper">
+            <canvas id="pieChart"></canvas>
+        </div>
+        <!-- Data for pie chart -->
+        <script type="application/json" id="pie-chart-data">
+        {
+            "labels": ["نشط", "معلق", "معطل"],
+            "values": [65, 25, 10],
+            "colors": ["#28a745", "#ffc107", "#dc3545"]
+        }
+        </script>
+    </div>
+
+    <!-- Dashboard Charts -->
+    <div class="chart-container">
+        <div class="chart-title">لوحة التحكم</div>
+        <div style="display: flex; gap: 20px;">
+            <div style="flex: 1;">
+                <h4>المبيعات</h4>
+                <div class="chart-wrapper" style="height: 200px;">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+            <div style="flex: 1;">
+                <h4>المستخدمين</h4>
+                <div class="chart-wrapper" style="height: 200px;">
+                    <canvas id="usersChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Data for dashboard -->
+        <script type="application/json" id="dashboard-chart-data">
+        {
+            "sales": {
+                "labels": ["الأسبوع 1", "الأسبوع 2", "الأسبوع 3", "الأسبوع 4"],
+                "values": [100, 150, 200, 180],
+                "title": "مبيعات أسبوعية",
+                "color": "#28a745"
+            },
+            "users": {
+                "labels": ["جديد", "عائد", "نشط"],
+                "values": [40, 30, 30],
+                "colors": ["#007bff", "#28a745", "#ffc107"]
+            }
+        }
+        </script>
+    </div>
+
+    <!-- Load the simple charts script -->
+    <script src="js/simple-charts.js"></script>
+</body>
+
+</html>

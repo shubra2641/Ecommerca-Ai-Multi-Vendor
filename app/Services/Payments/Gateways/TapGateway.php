@@ -83,7 +83,6 @@ class TapGateway
         }
         $resp = Http::withToken($secret)->acceptJson()->get('https://api.tap.company/v2/charges/' . $chargeId);
         if (! $resp->ok()) {
-
             return ['payment' => $payment, 'status' => 'pending', 'charge' => null];
         }
         $json = $resp->json();

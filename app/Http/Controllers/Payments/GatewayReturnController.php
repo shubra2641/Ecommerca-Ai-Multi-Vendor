@@ -83,7 +83,6 @@ class GatewayReturnController extends Controller
 
             return $this->processStandardReturn($payment, $gateway, $gatewaySlug);
         } catch (\Throwable $e) {
-
             return $this->handleReturnError($payment, $gatewaySlug, $e->getMessage());
         }
     }

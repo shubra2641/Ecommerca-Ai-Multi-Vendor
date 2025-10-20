@@ -73,7 +73,6 @@ class PaymentRedirectController extends Controller
                             }
 
                             if ($redirectUrl !== $currentUrl && ! $isInternalRedirect) {
-
                                 return redirect()->away($redirectUrl);
                             }
 
