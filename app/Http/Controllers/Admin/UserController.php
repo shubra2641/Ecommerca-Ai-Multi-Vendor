@@ -23,9 +23,6 @@ class UserController extends BaseAdminController
         $this->balanceService = $balanceService;
     }
 
-    /**
-     * Display users list with filters and statistics
-     */
     public function index(Request $request)
     {
         return view('admin.users.index', [
@@ -34,51 +31,33 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    /**
-     * Show form to create new user
-     */
     public function create()
     {
         return view('admin.users.form', ['user' => new User()]);
     }
 
-    /**
-     * Store new user with sanitized data
-     */
     public function store(\App\Http\Requests\Admin\StoreUserRequest $request, HtmlSanitizer $sanitizer)
     {
         User::create($this->prepareUserData($request->validated(), $sanitizer));
         return redirect()->route('admin.users.index')->with('success', __('User created successfully.'));
     }
 
-    /**
-     * Display specific user details
-     */
     public function show(User $user)
     {
         return view('admin.users.show', compact('user'));
     }
 
-    /**
-     * Show form to edit existing user
-     */
     public function edit(User $user)
     {
         return view('admin.users.form', compact('user'));
     }
 
-    /**
-     * Update user with sanitized data
-     */
     public function update(\App\Http\Requests\Admin\UpdateUserRequest $request, User $user, HtmlSanitizer $sanitizer)
     {
         $user->update($this->prepareUserData($request->validated(), $sanitizer, $user));
         return redirect()->route('admin.users.index')->with('success', __('User updated successfully.'));
     }
 
-    /**
-     * Delete user (prevent self-deletion)
-     */
     public function destroy(User $user)
     {
         if ($user->id === Auth::id()) {
@@ -88,18 +67,12 @@ class UserController extends BaseAdminController
         return redirect()->route('admin.users.index')->with('success', __('User deleted successfully.'));
     }
 
-    /**
-     * Approve pending user
-     */
     public function approve(User $user)
     {
         $user->update(['approved_at' => now()]);
         return redirect()->back()->with('success', __('User approved successfully.'));
     }
 
-    /**
-     * Show pending users list
-     */
     public function pending()
     {
         return view('admin.users.pending', [
@@ -107,9 +80,6 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    /**
-     * Filter users by status and role
-     */
     public function status($status, $role = null)
     {
         return view('admin.users.index', [
@@ -118,9 +88,6 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    /**
-     * Show users balance management page
-     */
     public function balances()
     {
         return view('admin.balances.index', [
@@ -128,9 +95,6 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    /**
-     * Export users data in Excel or PDF format
-     */
     public function export(Request $request)
     {
         $users = User::select('name', 'email', 'role', 'balance')->get();
@@ -143,9 +107,6 @@ class UserController extends BaseAdminController
         return Excel::download(new UsersBalanceExport($users), 'user_balances.xlsx');
     }
 
-    /**
-     * Approve multiple users at once
-     */
     public function bulkApprove(Request $request)
     {
         User::whereIn('id', $request->input('ids', []))
@@ -154,18 +115,12 @@ class UserController extends BaseAdminController
         return redirect()->back()->with('success', __('Users approved successfully'));
     }
 
-    /**
-     * Delete multiple users at once
-     */
     public function bulkDelete(Request $request)
     {
         User::whereIn('id', $request->input('ids', []))->delete();
         return redirect()->back()->with('success', __('Users deleted successfully'));
     }
 
-    /**
-     * Show user balance management interface
-     */
     public function balance(User $user)
     {
         return view('admin.users.balance', [
@@ -174,9 +129,6 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    /**
-     * Add balance to user account
-     */
     public function addBalance(AdjustBalanceRequest $request, User $user)
     {
         $result = $this->balanceService->addBalance(
@@ -193,9 +145,6 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    /**
-     * Deduct balance from user account
-     */
     public function deductBalance(AdjustBalanceRequest $request, User $user)
     {
         $result = $this->balanceService->deductBalance(
@@ -216,9 +165,6 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    /**
-     * Refresh user balance data via AJAX
-     */
     public function refreshBalance(User $user)
     {
         $user->refresh();
@@ -235,17 +181,11 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    /**
-     * Get user balance statistics
-     */
     public function getBalanceStats(User $user)
     {
         return $this->successResponse(__('Balance statistics retrieved'), $this->balanceService->getStats($user));
     }
 
-    /**
-     * Get user balance history with pagination
-     */
     public function getBalanceHistory(User $user, Request $request)
     {
         $params = $this->getPaginationParams($request);
@@ -266,9 +206,6 @@ class UserController extends BaseAdminController
         return view('admin.users.balance-history', compact('user', 'balanceHistories'));
     }
 
-    /**
-     * Perform bulk balance operations on multiple users
-     */
     public function bulkBalanceOperation(Request $request)
     {
         $request->validate([
@@ -295,9 +232,6 @@ class UserController extends BaseAdminController
         );
     }
 
-    /**
-     * Get filtered users based on search, role, and status
-     */
     protected function getUsers(Request $request)
     {
         $query = User::query();
@@ -326,9 +260,6 @@ class UserController extends BaseAdminController
         return $query->latest()->paginate(15)->appends($request->all());
     }
 
-    /**
-     * Get cached user statistics for dashboard
-     */
     protected function getUserStats()
     {
         return Cache::remember('user_stats', 600, function () {
@@ -341,9 +272,6 @@ class UserController extends BaseAdminController
         });
     }
 
-    /**
-     * Get users filtered by status and optional role
-     */
     protected function getUsersByStatus($status, $role = null)
     {
         $query = User::query();
@@ -361,9 +289,6 @@ class UserController extends BaseAdminController
         return $query->paginate(15);
     }
 
-    /**
-     * Prepare user data with sanitization and password hashing
-     */
     protected function prepareUserData(array $validated, HtmlSanitizer $sanitizer, ?User $user = null)
     {
         $this->sanitizeUserData($validated, $sanitizer);
@@ -385,9 +310,6 @@ class UserController extends BaseAdminController
         return $data;
     }
 
-    /**
-     * Sanitize user input data using HTML sanitizer
-     */
     protected function sanitizeUserData(array &$data, HtmlSanitizer $sanitizer)
     {
         if (isset($data['name']) && is_string($data['name'])) {
