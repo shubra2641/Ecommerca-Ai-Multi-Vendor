@@ -276,7 +276,23 @@
         const notificationType = type || 'info';
         const notification = document.createElement('div');
         notification.className = 'notification notification-' + notificationType;
-        notification.innerHTML = '<div class="notification-content"><div class="notification-message">' + message + '</div><button class="notification-close" type="button" aria-label="Close notification">&times;</button></div>';
+        // Create notification content safely to prevent XSS
+        const content = document.createElement('div');
+        content.className = 'notification-content';
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'notification-message';
+        messageDiv.textContent = message; // Use textContent instead of innerHTML
+
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'notification-close';
+        closeBtn.type = 'button';
+        closeBtn.setAttribute('aria-label', 'Close notification');
+        closeBtn.textContent = '×';
+
+        content.appendChild(messageDiv);
+        content.appendChild(closeBtn);
+        notification.appendChild(content);
 
         // Ensure a dedicated container exists
         let container = document.querySelector('.notification-container');

@@ -237,12 +237,22 @@
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
                     const format = btn.dataset.export || btn.dataset.exportType || 'file';
-                    const originalHtml = btn.innerHTML;
+                    const originalText = btn.textContent;
+                    const originalClasses = btn.className;
 
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التصدير...';
+                    // Create loading state safely
+                    btn.innerHTML = '';
+                    btn.className = originalClasses + ' loading';
+                    const spinner = document.createElement('i');
+                    spinner.className = 'fas fa-spinner fa-spin';
+                    const text = document.createTextNode(' جاري التصدير...');
+                    btn.appendChild(spinner);
+                    btn.appendChild(text);
 
                     setTimeout(() => {
-                        btn.innerHTML = originalHtml;
+                        btn.innerHTML = '';
+                        btn.textContent = originalText;
+                        btn.className = originalClasses;
                         // eslint-disable-next-line no-alert
                         alert(`تم التصدير بنجاح: ${format.toUpperCase()}`);
                     }, 1200); // eslint-disable-line no-magic-numbers
