@@ -85,7 +85,7 @@
         </script>
 
         <!-- Statistics Cards -->
-        <div class="admin-stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="admin-stats-grid">
             <!-- Total Users -->
             <div class="admin-stat-card admin-stat-primary">
                 <div class="admin-stat-header">
@@ -242,7 +242,7 @@
         </div>
 
         <!-- Second Statistics Row -->
-        <div class="admin-stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="admin-stats-grid">
             <!-- Total Balance -->
             <div class="admin-stat-card admin-stat-success">
                 <div class="admin-stat-header">
@@ -399,7 +399,7 @@
         </div>
 
         <!-- Third Statistics Row -->
-        <div class="admin-stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="admin-stats-grid">
             <!-- New Users This Week -->
             <div class="admin-stat-card admin-stat-danger">
                 <div class="admin-stat-header">
@@ -520,7 +520,7 @@
         </div>
 
         <!-- Fourth Statistics Row -->
-        <div class="admin-stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="admin-stats-grid">
             <!-- Total Orders -->
             <div class="admin-stat-card admin-stat-primary">
                 <div class="admin-stat-header">

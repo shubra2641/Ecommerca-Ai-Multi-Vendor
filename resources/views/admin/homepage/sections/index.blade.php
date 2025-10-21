@@ -74,16 +74,16 @@
                   </div>
                 </td>
                 <td>
-                  <input type="number" class="admin-form-input" name="sections[{{ $loop->index }}][sort_order]" value="{{ $section->sort_order }}" style="width: 80px;">
+                  <input type="number" class="admin-form-input" name="sections[{{ $loop->index }}][sort_order]" value="{{ $section->sort_order }}">
                 </td>
                 <td>
-                  <input type="number" class="admin-form-input" name="sections[{{ $loop->index }}][item_limit]" value="{{ $section->item_limit }}" min="1" max="100" style="width: 80px;">
+                  <input type="number" class="admin-form-input" name="sections[{{ $loop->index }}][item_limit]" value="{{ $section->item_limit }}" min="1" max="100">
                 </td>
                 <td>
                   @foreach($activeLanguages as $lang)
                   <div class="admin-mb-half d-flex align-items-center gap-1">
                     <span class="admin-badge admin-badge-secondary">{{ strtoupper($lang->code) }}</span>
-                    <input type="text" class="admin-form-input" name="sections[{{ $loop->parent->index }}][title][{{ $lang->code }}]" value="{{ $section->title_i18n[$lang->code] ?? '' }}" placeholder="{{ $lang->code }}" style="font-size: 0.75rem;">
+                    <input type="text" class="admin-form-input" name="sections[{{ $loop->parent->index }}][title][{{ $lang->code }}]" value="{{ $section->title_i18n[$lang->code] ?? '' }}" placeholder="{{ $lang->code }}">
                   </div>
                   @endforeach
                 </td>
@@ -91,7 +91,7 @@
                   @foreach($activeLanguages as $lang)
                   <div class="admin-mb-half d-flex align-items-center gap-1">
                     <span class="admin-badge admin-badge-secondary">{{ strtoupper($lang->code) }}</span>
-                    <input type="text" class="admin-form-input" name="sections[{{ $loop->parent->index }}][subtitle][{{ $lang->code }}]" value="{{ $section->subtitle_i18n[$lang->code] ?? '' }}" placeholder="{{ $lang->code }}" style="font-size: 0.75rem;">
+                    <input type="text" class="admin-form-input" name="sections[{{ $loop->parent->index }}][subtitle][{{ $lang->code }}]" value="{{ $section->subtitle_i18n[$lang->code] ?? '' }}" placeholder="{{ $lang->code }}">
                   </div>
                   @endforeach
                 </td>
@@ -99,7 +99,7 @@
                   @foreach($activeLanguages as $lang)
                   <div class="admin-mb-half d-flex align-items-center gap-1">
                     <span class="admin-badge admin-badge-info">{{ strtoupper($lang->code) }}</span>
-                    <input type="text" class="admin-form-input" name="sections[{{ $loop->parent->index }}][cta_label][{{ $lang->code }}]" value="{{ $section->cta_label_i18n[$lang->code] ?? '' }}" placeholder="{{ __('CTA') }} {{ $lang->code }}" style="font-size: 0.75rem;">
+                    <input type="text" class="admin-form-input" name="sections[{{ $loop->parent->index }}][cta_label][{{ $lang->code }}]" value="{{ $section->cta_label_i18n[$lang->code] ?? '' }}" placeholder="{{ __('CTA') }} {{ $lang->code }}">
                   </div>
                   @endforeach
                 </td>
@@ -114,7 +114,7 @@
                       {{ __('Enabled') }}
                     </label>
                   </div>
-                  <input type="text" class="admin-form-input" name="sections[{{ $loop->index }}][cta_url]" value="{{ $section->cta_url }}" placeholder="/products" style="font-size: 0.75rem;">
+                  <input type="text" class="admin-form-input" name="sections[{{ $loop->index }}][cta_url]" value="{{ $section->cta_url }}" placeholder="/products">
                 </td>
               </tr>
               @endforeach

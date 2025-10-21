@@ -183,12 +183,13 @@ Route::middleware('auth')->prefix('account')->name('user.')->group(function () {
     Route::get('/returns', [ReturnsController::class, 'index'])->name('returns.index');
     Route::post('/returns/{item}/request', [ReturnsController::class, 'request'])->name('returns.request');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/invoices', [InvoicesController::class, 'index'])->name('invoices');
     Route::get('/addresses', [AddressesController::class, 'index'])->name('addresses');
     Route::post('/addresses', [AddressesController::class, 'store'])->name('addresses.store');
     Route::put('/addresses/{address}', [AddressesController::class, 'update'])->name('addresses.update');
     Route::delete('/addresses/{address}', [AddressesController::class, 'destroy'])->name('addresses.destroy');
+    Route::get('/addresses/{address}/edit', [AddressesController::class, 'edit'])->name('addresses.edit');
     Route::get('/orders/{order}/invoice.pdf', InvoicePdfController::class)->name('orders.invoice.pdf');
 });
 

@@ -11,11 +11,13 @@
     <meta name="selected-font" content="{{ $selectedFont }}">
     <!-- Bootstrap -->
     <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Local Fonts -->
+    <link rel="stylesheet" href="{{ asset('css/local-fonts.css') }}">
     <link href="{{ asset('assets/front/css/front.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/admin/css/admin.css') }}" rel="stylesheet">
 </head>
 
-<body class="guest-layout">
+<body class="guest-layout" data-font-active="{{ $selectedFont }}">
     <div class="auth-form-panel">
         @hasSection('content')
         @yield('content')

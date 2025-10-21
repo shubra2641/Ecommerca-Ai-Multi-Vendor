@@ -84,7 +84,7 @@
                                         <div class="user-info">
                                             <div class="user-avatar">
                                                 @if($link->icon)
-                                                <i class="{{ $link->icon }}" style="font-size: 18px;"></i>
+                                                <i class="{{ $link->icon }}"></i>
                                                 @else
                                                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2M9 12l2 2 4-4" />

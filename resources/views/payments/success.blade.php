@@ -8,7 +8,7 @@
             <div class="card">
                 <div class="card-body text-center">
                     <div class="mb-4">
-                        <i class="fas fa-check-circle text-success" style="font-size: 64px;"></i>
+                        <i class="fas fa-check-circle text-success"></i>
                     </div>
 
                     <h1 class="h3 text-success mb-3">{{ __('Payment Successful!') }}</h1>

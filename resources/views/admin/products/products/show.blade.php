@@ -155,7 +155,7 @@
                 @if(!empty($psGallery))
                 <div class="d-flex gap-2 flex-wrap">
                     @foreach($psGallery as $img)
-                    <div class="admin-item-placeholder" style="width: 120px; height: 120px;">
+                    <div class="admin-item-placeholder">
                         <img src="{{ $img }}" class="obj-cover w-100 h-100 rounded" alt="Product Image">
                     </div>
                     @endforeach

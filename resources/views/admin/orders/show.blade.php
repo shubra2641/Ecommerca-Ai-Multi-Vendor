@@ -285,7 +285,7 @@
                                 @foreach($payment->attachments as $att)
                                 <div class="admin-attachment-item">
                                     @if(str_starts_with($att->mime, 'image/'))
-                                    <img src="{{ asset('storage/'.$att->path) }}" alt="Payment proof" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; margin: 5px;">
+                                    <img src="{{ asset('storage/'.$att->path) }}" alt="Payment proof">
                                     @else
                                     <a href="{{ asset('storage/'.$att->path) }}" target="_blank" class="admin-attachment-link">
                                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

@@ -226,7 +226,7 @@
                                             @php
                                             $percentage = isset($usersData['total_users']) && $usersData['total_users'] > 0 ? round(($count / $usersData['total_users']) * 100, 1) : 0;
                                             @endphp
-                                            <div class="admin-progress-fill" style="width: {{ $percentage }}%"></div>
+                                            <div class="admin-progress-fill"></div>
                                         </div>
                                     </div>
                                 </div>

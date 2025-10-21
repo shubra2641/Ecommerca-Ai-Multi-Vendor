@@ -73,7 +73,7 @@
                                     @if($r->images && count($r->images)>0)
                                     <div class="d-flex gap-1">
                                         @foreach($r->images as $img)
-                                        <img src="{{ asset($img) }}" class="rounded obj-cover" style="width: 48px; height: 48px;" />
+                                        <img src="{{ asset($img) }}" class="rounded obj-cover" />
                                         @endforeach
                                     </div>
                                     @else

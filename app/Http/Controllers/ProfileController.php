@@ -22,6 +22,7 @@ class ProfileController extends Controller
     public function edit(Request $request): View
     {
         $user = $request->user();
+        $user->load('addresses'); // for profile completion
         $role = $this->getUserRole($user);
 
         return $this->getProfileView($role, $user);
@@ -108,7 +109,7 @@ class ProfileController extends Controller
         return match ($role) {
             'admin' => view('admin.profile.edit', compact('user')),
             'vendor' => view('vendor.profile.edit', compact('user')),
-            default => view('profile.edit', ['user' => $user]),
+            default => view('front.account.profile', compact('user')),
         };
     }
 

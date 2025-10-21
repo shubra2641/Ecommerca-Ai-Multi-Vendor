@@ -106,8 +106,8 @@
                       <form method="POST" action="{{ route('admin.blog.tags.update', $tag) }}" class="d-flex align-items-center gap-2">
                         @csrf
                         @method('PUT')
-                        <input name="name" value="{{ $tag->name }}" class="form-control form-control-sm" style="width: 120px;">
-                        <input name="slug" value="{{ $tag->slug }}" class="form-control form-control-sm" style="width: 120px;" readonly>
+                        <input name="name" value="{{ $tag->name }}" class="form-control form-control-sm">
+                        <input name="slug" value="{{ $tag->slug }}" class="form-control form-control-sm" readonly>
                         <button type="submit" class="btn btn-sm btn-outline-primary" title="{{ __('Save') }}">
                           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M5 13l4 4L19 7" />

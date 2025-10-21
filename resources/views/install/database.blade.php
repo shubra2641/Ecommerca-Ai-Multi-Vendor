@@ -58,7 +58,7 @@
 
                     <hr />
 
-                    <div id="adminFormWrapper" style="display:none;">
+                    <div id="adminFormWrapper" class="d-none">
                         <h5>Create Admin Account</h5>
                         <form method="POST" action="{{ route('install.createAdmin') }}">
                             @csrf

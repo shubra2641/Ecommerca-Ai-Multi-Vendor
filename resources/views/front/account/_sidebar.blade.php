@@ -18,7 +18,7 @@
             <a href="{{ route('user.orders') }}"
                 class="nav-link {{ request()->routeIs('user.orders*')? 'active':'' }}">{{ __('Orders') }}</a>
             <a href="{{ route('user.returns.index') }}"
-                class="nav-link {{ request()->routeIs('user.returns*')? 'active':'' }}">{{ __('returns.title') }}</a>
+                class="nav-link {{ request()->routeIs('user.returns*')? 'active':'' }}">{{ __('Returns') }}</a>
             <a href="{{ route('wishlist.page') }}" class="nav-link nav-link-badge"> <span>{{ __('Wishlist') }}</span>
                 <span class="badge yellow">{{ $wishlistCount }}</span></a>
             <a href="{{ route('compare.page') }}" class="nav-link nav-link-badge"> <span>{{ __('Compare') }}</span>

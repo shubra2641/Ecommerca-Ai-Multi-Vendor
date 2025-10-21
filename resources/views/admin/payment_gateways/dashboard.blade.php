@@ -290,7 +290,7 @@
                                 step="0.01" />
                         </div>
                     </form>
-                    <div id="testResults" style="display:none;"></div>
+                    <div id="testResults" class="d-none"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>

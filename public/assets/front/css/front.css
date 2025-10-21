@@ -2855,7 +2855,7 @@ button[type="submit"] {
 
 /* Title Card */
 .order-title-card {
-    background: linear-gradient(135deg, #2757ff 0%, #1e47dd 100%);
+    background: linear-gradient(135deg, #fadd00 0%, #f8d900 100%);
     border-radius: 16px;
     padding: 32px;
     margin-bottom: 24px;
@@ -2874,11 +2874,11 @@ button[type="submit"] {
     font-size: 32px;
     font-weight: 800;
     margin: 0 0 12px 0;
-    color: #fff;
+    color: #000000;
 }
 
 .order-number {
-    color: rgba(255,255,255,0.9);
+    color: rgb(39 87 255);
     font-weight: 800;
 }
 
@@ -2887,7 +2887,7 @@ button[type="submit"] {
     align-items: center;
     gap: 8px;
     font-size: 15px;
-    color: rgba(255,255,255,0.85);
+    color: rgba(0, 0, 0, 0.85);
     margin: 0;
 }
 
@@ -3442,17 +3442,6 @@ button[type="submit"] {
         margin: 0 auto;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
 /* Tabs refinement */
 .product-tabs-section {
     background: #fff;
@@ -5295,6 +5284,45 @@ select.form-control {
     pointer-events: none;
     opacity       : 0.7;
 }
+
+/* Address Card Footer layout */
+.address-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    margin-top: 8px;
+    border-top: 1px solid var(--border-primary);
+}
+.address-card-footer .footer-left,
+.address-card-footer .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.address-card-footer .btn-action-modern {
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: 8px;
+}
+@media (max-width: 576px) {
+    .address-card-footer { flex-direction: column; gap: .5rem; }
+    .address-card-footer .footer-left,
+    .address-card-footer .footer-right { width: 100%; justify-content: space-between; }
+}
+
+/* RTL fixes: Order timeline connector direction */
+html[dir="rtl"] .timeline-item::after,
+body[dir="rtl"] .timeline-item::after,
+[dir="rtl"] .timeline-item::after { left: -50%; right: 50%; }
+
+html[dir="rtl"] .timeline-item:first-child::after,
+body[dir="rtl"] .timeline-item:first-child::after,
+[dir="rtl"] .timeline-item:first-child::after { display: none; }
+
+html[dir="rtl"] .timeline-item:last-child::after,
+body[dir="rtl"] .timeline-item:last-child::after,
+[dir="rtl"] .timeline-item:last-child::after { display: none; }
 
 .btn-buy.loading::after {
     content      : '';
@@ -9540,3 +9568,13 @@ th{background:#f5f5f5}
     color: #10b981;
     flex-shrink: 0;
 }
+
+/* Gradient Classes for Dashboard */
+.gradient-blue {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-green {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+

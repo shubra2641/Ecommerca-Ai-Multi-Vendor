@@ -1,5 +1,5 @@
 @extends('front.layout')
-@section('title', __('Addresses').' - '.config('app.name'))
+@section('title', __('Edit Address').' - '.config('app.name'))
 @section('content')
 
 <section class="account-section">
@@ -14,48 +14,45 @@
                         <div class="title-content">
                             <h1 class="modern-order-title">
                                 <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="title-icon">
-                                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
-                                {{ __('Addresses') }}
+                                {{ __('Edit Address') }}
                             </h1>
                             <p class="order-date-modern">
                                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                {{ __('Manage your addresses') }}
+                                {{ __('Update your address information') }}
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Add/Edit Address Form -->
+                <!-- Edit Address Form -->
                 <div class="modern-card">
                     <div class="card-header-modern">
                         <h3 class="card-title-modern">
                             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
-                            {{ $editingAddress ? __('Edit Address') : __('Add New Address') }}
+                            {{ __('Address Information') }}
                         </h3>
                     </div>
                     <div class="card-body-padding">
-                        <form method="POST" action="{{ $editingAddress ? route('user.addresses.update', $editingAddress) : route('user.addresses.store') }}">
+                        <form method="POST" action="{{ route('user.addresses.update', $address) }}">
                             @csrf
-                            @if($editingAddress)
                             @method('PUT')
-                            @endif
 
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="field-label">{{ __('Title') }}</label>
-                                    <input type="text" name="title" value="{{ old('title', $editingAddress->title ?? '') }}"
+                                    <input type="text" name="title" value="{{ old('title', $address->title) }}"
                                         class="form-input @error('title') is-invalid @enderror">
                                     @error('title')<div class="field-error">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="form-group">
                                     <label class="field-label">{{ __('Name') }}</label>
-                                    <input type="text" name="name" value="{{ old('name', $editingAddress->name ?? '') }}"
+                                    <input type="text" name="name" value="{{ old('name', $address->name) }}"
                                         class="form-input @error('name') is-invalid @enderror">
                                     @error('name')<div class="field-error">{{ $message }}</div>@enderror
                                 </div>
@@ -64,21 +61,20 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="field-label">{{ __('Phone') }}</label>
-                                    <input type="text" name="phone" value="{{ old('phone', $editingAddress->phone ?? '') }}"
+                                    <input type="text" name="phone" value="{{ old('phone', $address->phone) }}"
                                         class="form-input @error('phone') is-invalid @enderror">
                                     @error('phone')<div class="field-error">{{ $message }}</div>@enderror
                                 </div>
                             </div>
-
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="field-label">{{ __('Country') }}</label>
-                                    <select name="country_id" id="new_country"
+                                    <select name="country_id" id="edit_country"
                                         class="form-input @error('country_id') is-invalid @enderror"
                                         data-loading-text="{{ __('Loading...') }}">
                                         <option value="">{{ __('Select country') }}</option>
                                         @foreach($countries as $c)
-                                        <option value="{{ $c->id }}" {{ old('country_id', $editingAddress->country_id ?? '') == $c->id ? 'selected':'' }}>
+                                        <option value="{{ $c->id }}" {{ old('country_id', $address->country_id) == $c->id ? 'selected':'' }}>
                                             {{ $c->name }}
                                         </option>
                                         @endforeach
@@ -87,12 +83,14 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="field-label">{{ __('Governorate') }}</label>
-                                    <select name="governorate_id" id="new_governorate"
-                                        class="form-input @error('governorate_id') is-invalid @enderror" disabled>
+                                    <select name="governorate_id" id="edit_governorate"
+                                        class="form-input @error('governorate_id') is-invalid @enderror">
                                         <option value="">{{ __('Select governorate') }}</option>
-                                        @if($editingAddress && $editingAddress->governorate)
-                                        <option value="{{ $editingAddress->governorate->id }}" selected>{{ $editingAddress->governorate->name }}</option>
-                                        @endif
+                                        @foreach($governorates as $g)
+                                        <option value="{{ $g->id }}" {{ old('governorate_id', $address->governorate_id) == $g->id ? 'selected':'' }}>
+                                            {{ $g->name }}
+                                        </option>
+                                        @endforeach
                                     </select>
                                     @error('governorate_id')<div class="field-error">{{ $message }}</div>@enderror
                                 </div>
@@ -101,33 +99,34 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="field-label">{{ __('City') }}</label>
-                                    <select name="city_id" id="new_city"
-                                        class="form-input @error('city_id') is-invalid @enderror" disabled>
+                                    <select name="city_id" id="edit_city"
+                                        class="form-input @error('city_id') is-invalid @enderror">
                                         <option value="">{{ __('Select city') }}</option>
-                                        @if($editingAddress && $editingAddress->city)
-                                        <option value="{{ $editingAddress->city->id }}" selected>{{ $editingAddress->city->name }}</option>
-                                        @endif
+                                        @foreach($cities as $c)
+                                        <option value="{{ $c->id }}" {{ old('city_id', $address->city_id) == $c->id ? 'selected':'' }}>
+                                            {{ $c->name }}
+                                        </option>
+                                        @endforeach
                                     </select>
                                     @error('city_id')<div class="field-error">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="form-group">
                                     <label class="field-label">{{ __('Postal Code') }}</label>
-                                    <input type="text" name="postal_code" value="{{ old('postal_code', $editingAddress->postal_code ?? '') }}"
+                                    <input type="text" name="postal_code" value="{{ old('postal_code', $address->postal_code) }}"
                                         class="form-input @error('postal_code') is-invalid @enderror">
                                     @error('postal_code')<div class="field-error">{{ $message }}</div>@enderror
                                 </div>
                             </div>
-
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="field-label">{{ __('Address Line 1') }}</label>
-                                    <input type="text" name="line1" value="{{ old('line1', $editingAddress->line1 ?? '') }}"
+                                    <input type="text" name="line1" value="{{ old('line1', $address->line1) }}"
                                         class="form-input @error('line1') is-invalid @enderror">
                                     @error('line1')<div class="field-error">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="form-group">
                                     <label class="field-label">{{ __('Address Line 2') }}</label>
-                                    <input type="text" name="line2" value="{{ old('line2', $editingAddress->line2 ?? '') }}"
+                                    <input type="text" name="line2" value="{{ old('line2', $address->line2) }}"
                                         class="form-input @error('line2') is-invalid @enderror">
                                     @error('line2')<div class="field-error">{{ $message }}</div>@enderror
                                 </div>
@@ -136,76 +135,27 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="checkbox-label">
-                                        <input type="checkbox" name="is_default" value="1" {{ old('is_default', $editingAddress->is_default ?? false) ? 'checked':'' }}>
+                                        <input type="checkbox" name="is_default" value="1" {{ old('is_default', $address->is_default) ? 'checked':'' }}>
                                         {{ __('Set as default') }}
                                     </label>
                                 </div>
                             </div>
 
                             <div class="form-row">
-                                <button class="btn-action-modern btn-primary btn-full" type="submit">
+                                <button class="btn-action-modern btn-primary" type="submit">
                                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    {{ $editingAddress ? __('Update address') : __('Save address') }}
+                                    {{ __('Save address') }}
                                 </button>
-                                @if($editingAddress)
-                                <a href="{{ route('user.addresses') }}" class="btn-action-modern btn-secondary btn-full">
+                                <a href="{{ route('user.addresses') }}" class="btn-action-modern btn-secondary">
                                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                     {{ __('Cancel') }}
                                 </a>
-                                @endif
                             </div>
                         </form>
-                    </div>
-                </div>
-
-                <!-- Address Groups -->
-                <div class="address-groups-modern">
-                    @if($addrDefault)
-                    <div class="modern-card">
-                        <div class="card-header-modern">
-                            <h3 class="card-title-modern">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                {{ __('Default address') }}
-                            </h3>
-                        </div>
-                        <div class="card-body-padding">
-                            @include('front.account.partials.address_card',['ad'=>$addrDefault])
-                        </div>
-                    </div>
-                    @endif
-
-                    <div class="modern-card">
-                        <div class="card-header-modern">
-                            <h3 class="card-title-modern">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                </svg>
-                                {{ __('Other addresses') }}
-                            </h3>
-                        </div>
-                        <div class="card-body-padding">
-                            @if($addrOthers && $addrOthers->count() > 0)
-                            <div class="address-cards-grid">
-                                @foreach($addrOthers as $ad)
-                                @include('front.account.partials.address_card',['ad'=>$ad])
-                                @endforeach
-                            </div>
-                            @else
-                            <div class="empty-state empty-state-small">
-                                <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24" class="empty-icon">
-                                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                <p class="empty-text">{{ __('No other addresses.') }}</p>
-                            </div>
-                            @endif
-                        </div>
                     </div>
                 </div>
             </div>

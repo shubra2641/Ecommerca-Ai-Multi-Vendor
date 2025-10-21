@@ -112,7 +112,7 @@
                 <div class="admin-card-body">
                     <div class="d-flex gap-2 flex-wrap">
                         @foreach($review->images as $img)
-                        <img src="{{ asset($img) }}" class="rounded obj-cover" style="width: 120px; height: 120px;" />
+                        <img src="{{ asset($img) }}" class="rounded obj-cover" />
                         @endforeach
                     </div>
                 </div>

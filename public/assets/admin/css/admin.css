@@ -1223,6 +1223,26 @@ body.dark-mode {
     margin-left: var(--sidebar-collapsed-width);
 }
 
+/* RTL: collapsed content margin shifts to the right */
+[dir="rtl"] .modern-sidebar.collapsed ~ .main-content,
+[dir="rtl"] .admin-sidebar.collapsed ~ .main-content {
+    margin-left: 0;
+    margin-right: var(--sidebar-collapsed-width);
+}
+
+/* RTL: place sidebar on the right on desktop */
+[dir="rtl"] .modern-sidebar,
+[dir="rtl"] .admin-sidebar {
+    left: auto;
+    right: 0;
+}
+
+/* RTL: content margin compensates sidebar on the right */
+[dir="rtl"] .main-content {
+    margin-left: 0;
+    margin-right: var(--sidebar-width);
+}
+
 .main-content {
     margin-left: var(--sidebar-width);
     min-height: 100vh;
@@ -2173,10 +2193,24 @@ body.dark-mode {
     transition: var(--admin-transition);
 }
 
+    /* RTL: slide from right on mobile */
+    [dir="rtl"] .admin-sidebar,
+    [dir="rtl"] .modern-sidebar {
+        transform: translateX(100%);
+        right: 0;
+        left: auto;
+    }
+
     .admin-sidebar.active,
     .modern-sidebar.active {
     transform: translateX(0);
 }
+
+    /* RTL: active state also resets transform */
+    [dir="rtl"] .admin-sidebar.active,
+    [dir="rtl"] .modern-sidebar.active {
+        transform: translateX(0);
+    }
 
     /* make main content full width when sidebar is hidden */
     .main-content {

@@ -77,7 +77,6 @@ class AppServiceProvider extends ServiceProvider
         // Header specific heavy data
         View::composer('front.partials.header', HeaderComposer::class);
         View::composer('front.account._sidebar', \App\View\Composers\AccountSidebarComposer::class);
-        View::composer('front.layout', \App\View\Composers\LayoutComposer::class);
         // Product card composer (removes inline @php logic from partial)
         View::composer('front.products.partials.product-card', \App\View\Composers\ProductCardComposer::class);
         View::composer('front.products.partials.sidebar', \App\View\Composers\CatalogSidebarComposer::class);
@@ -179,6 +178,28 @@ class AppServiceProvider extends ServiceProvider
             }
             $view->with('setting', $cached['setting']);
             $view->with('selectedFont', $cached['selectedFont']);
+        });
+
+        // Provide selected font for guest layout
+        View::composer(['layouts.guest'], function ($view) {
+            static $cached = null;
+            if ($cached === null) {
+                try {
+                    $setting = \Illuminate\Support\Facades\Cache::remember(
+                        'site_settings',
+                        3600,
+                        fn() => \App\Models\Setting::first()
+                    );
+                    $font = cache()->get(
+                        'settings.font_family',
+                        $setting->font_family ?? 'Inter'
+                    );
+                } catch (\Throwable $e) {
+                    $font = 'Inter';
+                }
+                $cached = $font;
+            }
+            $view->with('selectedFont', $cached);
         });
 
         // Share default/current currency lightweight for all views.

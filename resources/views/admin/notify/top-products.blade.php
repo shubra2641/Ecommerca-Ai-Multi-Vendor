@@ -71,7 +71,7 @@
                     @endphp
                     <div class="admin-item-card">
                         <div class="admin-item-main">
-                            <div class="admin-item-placeholder admin-placeholder-dynamic admin-relative" style="background: linear-gradient(135deg, {{ $color }} 0%, {{ $color }}dd 100%);">
+                            <div class="admin-item-placeholder admin-placeholder-dynamic admin-relative">
                                 <div class="admin-rank-badge">
                                     {{ $i + 1 }}
                                 </div>
@@ -111,7 +111,7 @@
                             </div>
                         </div>
                         <div class="admin-item-meta">
-                            <div class="payment-amount-display admin-rank-display" style="color: {{ $color }};">
+                            <div class="payment-amount-display admin-rank-display">
                                 #{{ $i + 1 }}
                             </div>
                             @if($product)

@@ -6,119 +6,113 @@
     <div class="container account-grid">
         @include('front.account._sidebar')
         <main class="account-main">
-            <div class="profile-panels">
-                <x-breadcrumb :items="[
-            ['title' => __('Home'), 'url' => route('home'), 'icon' => 'fas fa-home'],
-            ['title' =>  __('Profile') . ' - ' . config('app.name')],
-        ]" />
-                <h1 class="page-title">{{ __('Profile') }}</h1>
-                <p class="page-sub">{{ __('View & Update Your Personal and Contact Information') }}</p>
-                <div class="profile-layout">
-                    <div class="profile-main">
-                        <form method="post" action="{{ route('user.profile.update') }}" class="profile-form">
-                            @csrf
-                            @method('PUT')
-                            <div class="panel-row">
-                                <div class="panel-block">
-                                    <h4>{{ __('Contact Information') }}</h4>
-                                    <div class="two-cols">
-                                        <div class="field">
-                                            <label>{{ __('Email') }}</label>
-                                            <input type="email" name="email"
-                                                value="{{ old('email', auth()->user()->email) }}">
-                                            @error('email')<div class="err">{{ $message }}</div>@enderror
-                                        </div>
-                                        <div class="field">
-                                            <label>{{ __('Phone number') }}</label>
-                                            <input type="text" name="phone_number"
-                                                value="{{ old('phone_number', auth()->user()->phone_number) }}">
-                                            @error('phone_number')<div class="err">{{ $message }}</div>@enderror
-                                        </div>
-                                    </div>
-                                    <div class="two-cols mt-1">
-                                        <div class="field">
-                                            <label>{{ __('Balance') }}</label>
-                                            <input type="text" value="{{ auth()->user()->formatted_balance }}" readonly>
-                                        </div>
-                                    </div>
-                                    <div class="two-cols mt-1">
-                                        <div class="field">
-                                            <label>{{ __('WhatsApp number') }}</label>
-                                            <input type="text" name="whatsapp_number"
-                                                value="{{ old('whatsapp_number', auth()->user()->whatsapp_number) }}">
-                                            @error('whatsapp_number')<div class="err">{{ $message }}</div>@enderror
-                                        </div>
+            <div class="dashboard-page">
 
+                <!-- Header -->
+                <div class="order-title-card">
+                    <div class="title-row">
+                        <div class="title-content">
+                            <h1 class="modern-order-title">
+                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="title-icon">
+                                    <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                {{ __('Profile') }}
+                            </h1>
+                            <p class="order-date-modern">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ __('View & Update Your Personal and Contact Information') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-page">
+                    <!-- Main Profile Form -->
+                    <div class="order-main-col">
+                        <div class="modern-card">
+                            <div class="card-header-modern">
+                                <h3 class="card-title-modern">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    {{ __('Contact Information') }}
+                                </h3>
+                            </div>
+                            <div class="card-body-padding">
+                                <form method="post" action="{{ route('user.profile.update') }}" class="profile-form">
+                                    @csrf
+                                    @method('PUT')
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="field-label">{{ __('Email') }}</label>
+                                            <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" class="form-input">
+                                            @error('email')<div class="field-error">{{ $message }}</div>@enderror
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="panel-block">
-                                    <h4>{{ __('Personal Information') }}</h4>
-                                    <div class="two-cols">
-                                        <div class="field">
-                                            <label>{{ __('Name') }}</label>
-                                            <input type="text" name="name"
-                                                value="{{ old('name', auth()->user()->name) }}">
-                                            @error('name')<div class="err">{{ $message }}</div>@enderror
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="field-label">{{ __('Phone number') }}</label>
+                                            <input type="text" name="phone_number" value="{{ old('phone_number', auth()->user()->phone_number) }}" class="form-input">
+                                            @error('phone_number')<div class="field-error">{{ $message }}</div>@enderror
                                         </div>
-                                        <div class="field">
-                                            <label>{{ __('Password') }}</label>
-                                            <input type="password" name="password" autocomplete="new-password">
-                                            @error('password')<div class="err">{{ $message }}</div>@enderror
+                                        <div class="form-group">
+                                            <label class="field-label">{{ __('WhatsApp number') }}</label>
+                                            <input type="text" name="whatsapp_number" value="{{ old('whatsapp_number', auth()->user()->whatsapp_number) }}" class="form-input">
+                                            @error('whatsapp_number')<div class="field-error">{{ $message }}</div>@enderror
                                         </div>
                                     </div>
-                                    <div class="two-cols mt-1">
-                                        <div class="field">
-                                            <label>{{ __('Confirm Password') }}</label>
-                                            <input type="password" name="password_confirmation"
-                                                autocomplete="new-password">
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="field-label">{{ __('Name') }}</label>
+                                            <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}" class="form-input">
+                                            @error('name')<div class="field-error">{{ $message }}</div>@enderror
                                         </div>
-                                        <div class="field">
-                                            <label>&nbsp;</label>
-                                            <div class="muted small">
-                                                {{ __('Leave password fields empty to keep current password.') }}
+                                        <div class="form-group">
+                                            <label class="field-label">{{ __('Password') }}</label>
+                                            <input type="password" name="password" autocomplete="new-password" class="form-input">
+                                            @error('password')<div class="field-error">{{ $message }}</div>@enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="field-label">{{ __('Confirm Password') }}</label>
+                                            <input type="password" name="password_confirmation" autocomplete="new-password" class="form-input">
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="info-box info-box-primary">
+                                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="info-icon">
+                                                    <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <p class="info-text">{{ __('Leave password fields empty to keep current password.') }}</p>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+
+                                    <div class="form-row">
+                                        <button class="btn-action-modern btn-primary btn-full" type="submit">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            {{ __('Update Profile') }}
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
-                            <div class="actions">
-                                <button class="btn btn-primary btn-sm" type="submit">{{ __('Update Profile') }}</button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
-                    <aside class="profile-side">
-                        <div class="user-card">
-                            <div class="profile-header">
-                                <div class="avatar">
-                                    {{ strtoupper(substr(auth()->user()->name ?? auth()->user()->email,0,1)) }}
-                                </div>
-                                <div class="user-meta">
-                                    <div class="user-line">{{ auth()->user()->name ?? __('User') }}</div>
-                                    <div class="muted">{{ auth()->user()->email }}</div>
-                                </div>
-                            </div>
-                            <div class="quick-links">
-                                <a href="{{ route('user.addresses') }}" class="quick-link">{{ __('Manage addresses') }}
-                                    <span class="muted">›</span></a>
-                                <a href="{{ route('user.orders') }}" class="quick-link">{{ __('My orders') }} <span
-                                        class="muted">›</span></a>
-                                <a href="{{ route('user.invoices') }}" class="quick-link">{{ __('Invoices') }} <span
-                                        class="muted">›</span></a>
-                            </div>
-                        </div>
-                        <div class="panel-block">
-                            <h4>{{ __('Profile Completion') }}</h4>
-                            <div class="progress-bar progress-track">
-                                <span data-progress="{{ auth()->user()->profile_completion }}" class="progress-fill"></span>
-                            </div>
-                            <div class="progress-label">{{ __('Completion') }}
-                                <strong>{{ auth()->user()->profile_completion }}%</strong>
-                            </div>
-                        </div>
-                    </aside>
+
                 </div>
             </div>
-        </main>
+    </div>
+    </div>
+    </div>
+    </main>
     </div>
 </section>
 @endsection

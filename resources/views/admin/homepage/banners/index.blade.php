@@ -63,14 +63,13 @@
                                         </td>
                                         <td>
                                             @if($banner->image)
-                                            <div class="admin-item-placeholder" style="width: 70px; height: 50px;">
+                                            <div class="admin-item-placeholder">
                                                 <img src="{{ asset('storage/'.$banner->image) }}"
                                                     class="img-fluid rounded"
-                                                    alt="banner"
-                                                    style="width: 100%; height: 100%; object-fit: cover;">
+                                                    alt="banner">
                                             </div>
                                             @else
-                                            <div class="admin-item-placeholder admin-item-placeholder-gray" style="width: 70px; height: 50px;">
+                                            <div class="admin-item-placeholder admin-item-placeholder-gray">
                                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
                                                     <circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="2" />

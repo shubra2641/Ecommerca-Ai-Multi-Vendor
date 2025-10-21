@@ -141,35 +141,46 @@
             </div>
         </div>
         <!-- Products Table -->
-        <div class="admin-modern-card">
-            <div class="admin-card-header">
-                <h2 class="admin-card-title">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    {{ __('Products Inventory') }}
-                </h2>
-                <span class="admin-badge-count">{{ count($products ?? []) }}</span>
+        <div class="card modern-card">
+            <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                <h3 class="card-title mb-0">{{ __('Products Inventory') }}</h3>
+                <div class="card-actions">
+                    <div class="bulk-actions d-flex flex-column flex-sm-row gap-2" id="bulkActions">
+                        <span class="selected-count text-muted">0</span> <span class="text-muted d-none d-sm-inline">{{ __('selected') }}</span>
+                        <button type="button" class="btn btn-sm btn-success" data-action="bulk-export">
+                            <i class="fas fa-download"></i>
+                            <span class="d-none d-md-inline">{{ __('Export Selected') }}</span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-action="bulk-print">
+                            <i class="fas fa-print"></i>
+                            <span class="d-none d-md-inline">{{ __('Print Report') }}</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="admin-card-body">
+            <div class="card-body">
                 @if(count($products ?? []) > 0)
                 <div class="table-responsive">
-                    <table class="table table-striped admin-table">
+                    <table class="table table-striped">
                         <thead>
                             <tr>
+                                <th width="30"><input type="checkbox" id="select-all"></th>
                                 <th>{{ __('ID') }}</th>
                                 <th>{{ __('SKU') }}</th>
                                 <th>{{ __('Name') }}</th>
-                                <th>{{ __('Stock Management') }}</th>
-                                <th>{{ __('Available Stock') }}</th>
-                                <th>{{ __('Serials') }}</th>
-                                <th>{{ __('Unsold Serials') }}</th>
-                                <th>{{ __('Variations') }}</th>
+                                <th class="d-none d-md-table-cell">{{ __('Stock Management') }}</th>
+                                <th class="d-none d-lg-table-cell">{{ __('Available Stock') }}</th>
+                                <th class="d-none d-lg-table-cell">{{ __('Serials') }}</th>
+                                <th class="d-none d-xl-table-cell">{{ __('Unsold Serials') }}</th>
+                                <th class="d-none d-lg-table-cell">{{ __('Variations') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($products as $p)
                             <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input" id="select-{{ $p['id'] }}">
+                                </td>
                                 <td>
                                     <span class="admin-badge admin-badge-secondary">{{ $p['id'] }}</span>
                                 </td>

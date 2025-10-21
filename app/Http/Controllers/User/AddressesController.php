@@ -11,11 +11,15 @@ class AddressesController extends Controller
 {
     public function index()
     {
-        $addresses = Address::where('user_id', Auth::id())->orderByDesc('is_default')->orderBy('id')->get();
+        $addresses = Address::where('user_id', Auth::id())->with('country', 'governorate', 'city')->orderByDesc('is_default')->orderBy('id')->get();
         $countries = \App\Models\Country::where('active', 1)->orderBy('name')->get();
 
+        $addrDefault = $addresses->firstWhere('is_default', true);
+        $addrOthers = $addresses->where('is_default', false);
+        $editingAddress = null; // Default to null for add mode
+
         // load governorates & cities lazily via AJAX; include user's selected ones for edit convenience
-        return view('front.account.addresses', compact('addresses', 'countries'));
+        return view('front.account.addresses', compact('addrDefault', 'addrOthers', 'countries', 'editingAddress'));
     }
 
     public function store(Request $request)
@@ -80,11 +84,14 @@ class AddressesController extends Controller
         return back()->with('success', __('Address updated'));
     }
 
-    public function destroy(Address $address)
+    public function edit(Address $address)
     {
         abort_unless($address->user_id === Auth::id(), 403);
-        $address->delete();
+        $address->load('country.governorates', 'governorate.cities');
+        $countries = \App\Models\Country::where('active', 1)->orderBy('name')->get();
+        $governorates = $address->country ? $address->country->governorates : collect();
+        $cities = $address->governorate ? $address->governorate->cities : collect();
 
-        return back()->with('success', __('Address removed'));
+        return view('front.account.address_edit', compact('address', 'countries', 'governorates', 'cities'));
     }
 }

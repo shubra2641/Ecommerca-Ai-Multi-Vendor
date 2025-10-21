@@ -69,7 +69,7 @@
                             @foreach($order->items as $it)
                             <div class="item-card-modern">
                                 <div class="item-img-wrapper">
-                                    <div class="item-img-placeholder" style="background: linear-gradient(135deg, {{ ['#667eea','#764ba2','#f093fb','#f5576c','#4facfe','#00f2fe'][$loop->index % 6] }} 0%, {{ ['#764ba2','#667eea','#4facfe','#00f2fe','#667eea','#00f2fe'][($loop->index + 1) % 6] }} 100%);">
+                                    <div class="item-img-placeholder">
                                         {{ strtoupper(substr($it->name,0,2)) }}
                                     </div>
                                 </div>

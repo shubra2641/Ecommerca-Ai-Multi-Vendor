@@ -171,66 +171,82 @@
         </div>
 
         <!-- Vendors Table -->
-        <div class="admin-modern-card">
-            <div class="admin-card-header">
-                <div class="admin-card-title">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    {{ __('Vendors List') }}
+        <div class="card modern-card">
+            <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                <h3 class="card-title mb-0">{{ __('Vendors List') }}</h3>
+                <div class="card-actions">
+                    <div class="bulk-actions d-flex flex-column flex-sm-row gap-2" id="bulkActions">
+                        <span class="selected-count text-muted">0</span> <span class="text-muted d-none d-sm-inline">{{ __('selected') }}</span>
+                        <button type="button" class="btn btn-sm btn-success" data-action="bulk-approve">
+                            <i class="fas fa-check"></i>
+                            <span class="d-none d-md-inline">{{ __('Approve') }}</span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-action="bulk-export">
+                            <i class="fas fa-download"></i>
+                            <span class="d-none d-md-inline">{{ __('Export') }}</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="admin-badge-count">{{ $vendors->count() }} {{ __('vendors') }}</div>
             </div>
-            <div class="admin-card-body">
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table class="admin-table">
+                    <table class="table table-striped">
                         <thead>
                             <tr>
+                                <th width="30"><input type="checkbox" id="select-all"></th>
                                 <th>{{ __('ID') }}</th>
                                 <th>{{ __('Name') }}</th>
-                                <th>{{ __('Email') }}</th>
-                                <th>{{ __('Balance') }}</th>
-                                <th>{{ __('Status') }}</th>
-                                <th>{{ __('Joined Date') }}</th>
-                                <th>{{ __('Actions') }}</th>
+                                <th class="d-none d-md-table-cell">{{ __('Email') }}</th>
+                                <th class="d-none d-lg-table-cell">{{ __('Balance') }}</th>
+                                <th class="d-none d-lg-table-cell">{{ __('Status') }}</th>
+                                <th class="d-none d-xl-table-cell">{{ __('Joined Date') }}</th>
+                                <th width="150">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($vendors as $vendor)
                             <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input row-checkbox" value="{{ $vendor->id }}">
+                                </td>
                                 <td><span class="admin-badge">{{ $vendor->id }}</span></td>
                                 <td>
                                     <div class="admin-item-name">{{ $vendor->name }}</div>
+                                    <div class="d-md-none mt-1">
+                                        <div class="admin-text-muted">{{ $vendor->email }}</div>
+                                        @if($vendor->approved_at)
+                                        <span class="badge bg-success">{{ __('Active') }}</span>
+                                        @else
+                                        <span class="badge bg-warning">{{ __('Pending') }}</span>
+                                        @endif
+                                    </div>
                                 </td>
-                                <td>
+                                <td class="d-none d-md-table-cell">
                                     <div class="admin-text-muted">{{ $vendor->email }}</div>
                                 </td>
-                                <td>
+                                <td class="d-none d-lg-table-cell">
                                     <div class="admin-stock-value">${{ number_format($vendor->balance, 2) }}</div>
                                 </td>
-                                <td>
+                                <td class="d-none d-lg-table-cell">
                                     @if($vendor->approved_at)
                                     <span class="admin-status-badge admin-status-badge-completed">{{ __('Active') }}</span>
                                     @else
                                     <span class="admin-status-badge admin-status-badge-warning">{{ __('Pending') }}</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="d-none d-xl-table-cell">
                                     <div class="admin-text-muted">{{ $vendor->created_at->format('Y-m-d') }}</div>
                                 </td>
                                 <td>
-                                    <a href="{{ route('admin.users.show', $vendor->id) }}" class="admin-btn admin-btn-small admin-btn-primary">
-                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                            <circle cx="12" cy="12" r="3" />
-                                        </svg>
-                                        {{ __('View') }}
+                                    <a href="{{ route('admin.users.show', $vendor->id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                        <span class="d-none d-md-inline">{{ __('View') }}</span>
                                     </a>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7" class="text-center">
+                                <td colspan="8" class="text-center">
                                     <div class="admin-empty-state">
                                         <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24" class="admin-notification-icon">
                                             <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />

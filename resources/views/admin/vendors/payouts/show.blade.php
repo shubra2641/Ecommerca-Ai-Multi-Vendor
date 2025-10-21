@@ -103,7 +103,7 @@
             </div>
             <div class="admin-card-body">
                 <div class="text-center">
-                    <img src="{{ asset('storage/'.$payout->proof_path) }}" alt="proof" class="img-fluid" style="max-width: 600px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <img src="{{ asset('storage/'.$payout->proof_path) }}" alt="proof" class="img-fluid">
                 </div>
             </div>
         </div>

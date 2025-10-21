@@ -8,7 +8,7 @@
             <div class="card">
                 <div class="card-body text-center">
                     <div class="mb-4">
-                        <i class="fas fa-times-circle text-danger" style="font-size: 64px;"></i>
+                        <i class="fas fa-times-circle text-danger"></i>
                     </div>
 
                     <h1 class="h3 text-danger mb-3">{{ __('Payment Failed') }}</h1>

@@ -16,6 +16,8 @@
     <!-- Unified Admin CSS - All styles consolidated -->
     <link rel="preload" href="{{ asset('assets/admin/css/admin.css') }}" as="style">
     <link href="{{ asset('assets/admin/css/admin.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/local-fonts.css') }}">
+
     @yield('styles')
 </head>
 

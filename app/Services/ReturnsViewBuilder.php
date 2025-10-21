@@ -17,6 +17,7 @@ class ReturnsViewBuilder
             $items->push([
                 'id' => $item->id,
                 'name' => $item->name,
+                'order' => $item->order,
                 'order_id' => $item->order_id,
                 'qty' => $item->qty,
                 'price' => $item->price,
