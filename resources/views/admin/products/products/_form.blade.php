@@ -389,63 +389,65 @@
         </div>
 
         <!-- Inventory Management -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-boxes me-2"></i>
+        <div class="admin-modern-card mb-4">
+            <div class="admin-card-header">
+                <h3 class="admin-card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6H21M3 12H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                     {{ __('Inventory') }}
-                </h5>
+                </h3>
             </div>
-            <div class="card-body">
+            <div class="admin-card-body">
                 <div class="form-check mb-3">
                     <input class="form-check-input" type="checkbox" name="manage_stock" value="1"
                         @checked(old('manage_stock',$m?->manage_stock ?? false))>
                     <label class="form-check-label">{{ __('Manage Stock') }}</label>
                 </div>
 
-                <div class="row g-2 mb-3">
-                    <div class="col-6">
-                        <label class="form-label small">{{ __('Stock Qty') }}</label>
+                <div class="admin-form-grid">
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Stock Qty') }}</label>
                         <input type="number" name="stock_qty" value="{{ old('stock_qty',$m?->stock_qty ?? 0) }}"
-                            class="form-control">
+                            class="admin-form-input">
                     </div>
-                    <div class="col-6">
-                        <label class="form-label small">{{ __('Reserved') }}</label>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Reserved') }}</label>
                         <input type="number" name="reserved_qty"
-                            value="{{ old('reserved_qty',$m?->reserved_qty ?? 0) }}" class="form-control">
+                            value="{{ old('reserved_qty',$m?->reserved_qty ?? 0) }}" class="admin-form-input">
                     </div>
                 </div>
 
-                <div class="row g-2 mb-3">
-                    <div class="col-6">
-                        <label class="form-label small">{{ __('Refund Days') }}</label>
+                <div class="admin-form-grid">
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Refund Days') }}</label>
                         <input type="number" min="0" name="refund_days"
-                            value="{{ old('refund_days',$m?->refund_days ?? 0) }}" class="form-control">
-                        <div class="form-text small">
+                            value="{{ old('refund_days',$m?->refund_days ?? 0) }}" class="admin-form-input">
+                        <div class="admin-text-muted">
                             {{ __('Number of days customers can request a refund; 0 = no refunds') }}
                         </div>
                     </div>
-                    <div class="col-6">
-                        <label class="form-label small">{{ __('Weight') }}</label>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Weight') }}</label>
                         <input type="number" step="0.01" name="weight" value="{{ old('weight',$m?->weight) }}"
-                            class="form-control">
+                            class="admin-form-input">
                     </div>
                 </div>
-                <div class="row g-2 mb-3">
-                    <div class="col-4">
-                        <label class="form-label small">{{ __('Length') }}</label>
+                <div class="admin-form-grid">
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Length') }}</label>
                         <input type="number" step="0.01" name="length" value="{{ old('length',$m?->length) }}"
-                            class="form-control">
+                            class="admin-form-input">
                     </div>
-                    <div class="col-4">
-                        <label class="form-label small">{{ __('Width') }}</label>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Width') }}</label>
                         <input type="number" step="0.01" name="width" value="{{ old('width',$m?->width) }}"
-                            class="form-control">
+                            class="admin-form-input">
                     </div>
-                    <div class="col-4">
-                        <label class="form-label small">{{ __('Height') }}</label>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Height') }}</label>
                         <input type="number" step="0.01" name="height" value="{{ old('height',$m?->height) }}"
-                            class="form-control">
+                            class="admin-form-input">
                     </div>
                 </div>
 
@@ -458,15 +460,17 @@
         </div>
 
         <!-- Variation Attributes Reference -->
-        <div class="card modern-card">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="fas fa-info-circle me-2"></i>
+        <div class="admin-modern-card">
+            <div class="admin-card-header">
+                <h3 class="admin-card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                     {{ __('Variation Attributes') }}
-                </h6>
+                </h3>
             </div>
-            <div class="card-body">
-                <div class="small text-muted">
+            <div class="admin-card-body">
+                <div class="admin-text-muted">
                     {{ __('Use attribute dropdown inside each variation row for variable products.') }}
                 </div>
             </div>

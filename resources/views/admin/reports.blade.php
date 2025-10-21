@@ -106,7 +106,7 @@
                     <div class="admin-stat-description">{{ __('All registered users in the system') }}</div>
                 </div>
                 <div class="admin-stat-footer">
-                    <a href="{{ route('admin.reports.users') }}" class="admin-stat-link">
+                    <a href="{{ route('admin.reports.users') }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Report') }}
                         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M7 14l3-3 3 3 5-5" />
@@ -144,7 +144,7 @@
                     <div class="admin-stat-description">{{ __('Active vendors selling products') }}</div>
                 </div>
                 <div class="admin-stat-footer">
-                    <a href="{{ route('admin.reports.vendors') }}" class="admin-stat-link">
+                    <a href="{{ route('admin.reports.vendors') }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Report') }}
                         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M7 14l3-3 3 3 5-5" />
@@ -182,7 +182,7 @@
                     <div class="admin-stat-description">{{ __('Users waiting for approval') }}</div>
                 </div>
                 <div class="admin-stat-footer">
-                    <a href="{{ route('admin.users.pending') }}" class="admin-stat-link">
+                    <a href="{{ route('admin.users.pending') }}" class="admin-btn admin-btn-secondary">
                         {{ __('Review Pending') }}
                         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M7 14l3-3 3 3 5-5" />
@@ -219,7 +219,7 @@
                     <div class="admin-stat-description">{{ __('System-wide financial balance') }}</div>
                 </div>
                 <div class="admin-stat-footer">
-                    <a href="{{ route('admin.reports.financial') }}" class="admin-stat-link">
+                    <a href="{{ route('admin.reports.financial') }}" class="admin-btn admin-btn-secondary">
                         {{ __('Financial Report') }}
                         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M7 14l3-3 3 3 5-5" />
