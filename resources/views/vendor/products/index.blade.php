@@ -3,176 +3,357 @@
 @section('title', __('Products Management'))
 
 @section('content')
-@include('admin.partials.page-header', [
-    'title' => __('Products Management'),
-    'subtitle' => __('Manage your product catalog'),
-    'actions' => '<a href="'.route('vendor.products.create').'" class="btn btn-primary"><i class="fas fa-plus"></i> <span class="d-none d-sm-inline">'.e(__('Add Product')).'</span></a>'
-])
-
-<div class="vendor-stats-wrapper">
-    <div class="row mb-4 g-3 vendor-stats">
-    <div class="col-6 col-lg-3">
-        <div class="stats-card stats-card-danger h-100">
-            <div class="stats-card-body">
-                <div class="stats-card-content">
-                    <div class="stats-number">{{ $products->total() }}</div>
-                    <div class="stats-label">{{ __('Total Products') }}</div>
-                </div>
-                <div class="stats-icon"><i class="fas fa-box"></i></div>
-            </div>
-        </div>
-    </div>
-    <!-- ... other stat cards can remain or be removed as needed ... -->
-    </div>
-</div>
-
-<!-- Floating Add button for mobile -->
-<a href="{{ route('vendor.products.create') }}" class="floating-add-btn d-md-none" aria-label="Add Product">
-    <span class="fab-icon">+</span>
-    <span class="fab-text">{{ __('Add Product') }}</span>
-</a>
-
-<div class="card modern-card">
-    <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-        <div>
-            <h5 class="card-title mb-0">{{ __('Products List') }}</h5>
-            <small class="text-muted">{{ __('Browse and manage your product catalog') }}</small>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-            <select name="per_page" class="form-select form-select-sm js-per-page-select" data-url-prefix="{{ request()->url() }}?per_page=" data-url-suffix="&{{ http_build_query(request()->except('per_page')) }}">
-                <option value="10" @selected(request('per_page', 10)==10)>10 {{ __('per page') }}</option>
-                <option value="25" @selected(request('per_page', 10)==25)>25 {{ __('per page') }}</option>
-                <option value="50" @selected(request('per_page', 10)==50)>50 {{ __('per page') }}</option>
-                <option value="100" @selected(request('per_page', 10)==100)>100 {{ __('per page') }}</option>
-            </select>
-        </div>
-    </div>
-    <div class="card-body">
-        <form method="GET" class="row g-3 mb-4 small align-items-end" autocomplete="off">
-            <div class="col-12 col-md-3">
-                <label class="form-label mb-1">{{ __('Search') }}</label>
-                <input type="text" name="q" value="{{ request('q') }}" class="form-control form-control-sm" placeholder="{{ __('Name / SKU') }}">
-            </div>
-            <div class="col-6 col-md-2">
-                <label class="form-label mb-1">{{ __('Category') }}</label>
-                <select name="category" class="form-select form-select-sm">
-                    <option value="">-- {{ __('All') }} --</option>
-                    {{-- Categories provided by VendorProductsIndexComposer: $vendorProductCategories --}}
-                    @foreach($vendorProductCategories as $cat)
-                        <option value="{{ $cat->id }}" @selected(request('category')==$cat->id)>{{ $cat->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-12 d-flex flex-wrap gap-2 justify-content-end">
-                <button class="btn btn-sm btn-primary"><i class="fas fa-filter"></i> <span class="d-none d-sm-inline">{{ __('Filter') }}</span></button>
-                <a href="{{ route('vendor.products.index') }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Clear') }}">×</a>
-            </div>
-        </form>
-
-        {{-- Mobile card grid: visible on small screens, hidden on md+ --}}
-        <div class="d-md-none vendor-mobile-grid">
-            @foreach($products as $p)
-                <div class="card modern-card vendor-mobile-card">
-                    <div class="vendor-mobile-thumb">
-                        @if($p->main_image)
-                            <a href="{{ route('products.show',$p->slug) }}"><img src="{{ asset('storage/' . $p->main_image) }}" alt="{{ $p->name }}"></a>
-                        @else
-                            <a href="{{ route('products.show',$p->slug) }}"><div class="vendor-mobile-placeholder"></div></a>
-                        @endif
+<section class="admin-order-details-modern">
+    <div class="admin-order-wrapper">
+        <!-- Header -->
+        <div class="admin-order-header">
+            <div class="header-left">
+                <div class="admin-header-content">
+                    <div class="admin-header-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
+                            <path d="M9 9H15V15H9V9Z" stroke="currentColor" stroke-width="2" />
+                        </svg>
                     </div>
-                    <div class="vendor-mobile-body">
-                        <div class="vendor-mobile-title"><a href="{{ route('products.show',$p->slug) }}">{{ Str::limit($p->name, 60) }}</a></div>
-                        <div class="vendor-mobile-meta small text-muted">SKU: {{ $p->sku ?: '-' }} • {{ $p->category->name ?? '-' }}</div>
-                        <div class="vendor-mobile-price fw-semibold">{{ number_format($p->price,2) }}</div>
-                        <div class="vendor-mobile-actions">
-                            <a href="{{ route('vendor.products.edit',$p) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}"><i class="fas fa-edit"></i></a>
-                            <form method="POST" action="{{ route('vendor.products.destroy',$p) }}" class="d-inline delete-form">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}" data-confirm="{{ __('Delete this product?') }}"><i class="fas fa-trash"></i></button>
-                            </form>
-                        </div>
+                    <div class="admin-header-text">
+                        <h1 class="admin-order-title">{{ __('Products Management') }}</h1>
+                        <p class="admin-order-subtitle">{{ __('Manage your product catalog') }}</p>
                     </div>
                 </div>
-            @endforeach
+            </div>
+            <div class="header-actions">
+                <a href="{{ route('vendor.products.create') }}" class="admin-btn admin-btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    {{ __('Add Product') }}
+                </a>
+            </div>
         </div>
 
-        <div class="table-responsive d-none d-md-block">
-            <table class="table table-striped table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>{{ __('Product') }}</th>
-                        <th class="d-none d-md-table-cell">{{ __('Type') }}</th>
-                        <th class="d-none d-lg-table-cell">{{ __('Category') }}</th>
-                        <th>{{ __('Pricing') }}</th>
-                        <th class="d-none d-md-table-cell">{{ __('Flags') }}</th>
-                        <th class="d-none d-lg-table-cell">{{ __('Stock') }}</th>
-                        <th width="120">{{ __('Actions') }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($products as $p)
-                        <tr>
-                            <td>
-                                <div class="fw-semibold">{{ $p->name }}</div>
-                                <div class="text-muted small">SKU: {{ $p->sku ?: '-' }}</div>
-                            </td>
-                            <td class="d-none d-md-table-cell"><span class="badge bg-secondary text-capitalize">{{ $p->type }}</span></td>
-                            <td class="d-none d-lg-table-cell">{{ $p->category->name ?? '-' }}</td>
-                            <td>
-                                <div class="fw-semibold">{{ number_format($p->price,2) }}</div>
-                            </td>
-                            <td class="d-none d-md-table-cell">
-                                <div class="d-flex flex-wrap gap-1">
-                                    @if($p->is_featured)<span class="badge bg-warning text-dark">{{ __('Featured') }}</span>@endif
-                                    @if($p->is_best_seller)<span class="badge bg-primary">{{ __('Best') }}</span>@endif
-                                    @if(!$p->active)<span class="badge bg-danger">{{ __('Inactive') }}</span>@endif
-                                </div>
-                            </td>
-                            <td class="d-none d-lg-table-cell">
-                                @if($p->manage_stock)
-                                    @if(isset($vendorProductStocks[$p->id]))
-                                        <span class="fw-semibold">{{ $vendorProductStocks[$p->id]['available'] }}</span>
-                                        <span class="text-muted small">/{{ $vendorProductStocks[$p->id]['stock_qty'] }}</span>
-                                    @else
-                                        <span class="text-muted small">-</span>
+        <!-- Stats Cards -->
+        <div class="admin-stats-grid">
+            <div class="admin-stat-card">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
+                            <path d="M9 9H15V15H9V9Z" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" data-countup="{{ $products->total() }}">{{ $products->total() }}</div>
+                    <div class="admin-stat-label">{{ __('Total Products') }}</div>
+                    <div class="admin-stat-description">{{ __('Products in your catalog') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <div class="admin-stat-trend admin-stat-trend-up">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span>{{ __('Growing') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" data-countup="{{ $products->where('active', true)->count() }}">{{ $products->where('active', true)->count() }}</div>
+                    <div class="admin-stat-label">{{ __('Active Products') }}</div>
+                    <div class="admin-stat-description">{{ __('Currently available') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <div class="admin-stat-trend admin-stat-trend-up">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span>{{ __('Active') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" data-countup="{{ $products->where('is_featured', true)->count() }}">{{ $products->where('is_featured', true)->count() }}</div>
+                    <div class="admin-stat-label">{{ __('Featured Products') }}</div>
+                    <div class="admin-stat-description">{{ __('Highlighted products') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <div class="admin-stat-trend admin-stat-trend-up">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span>{{ __('Featured') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" data-countup="{{ $products->where('is_best_seller', true)->count() }}">{{ $products->where('is_best_seller', true)->count() }}</div>
+                    <div class="admin-stat-label">{{ __('Best Sellers') }}</div>
+                    <div class="admin-stat-description">{{ __('Top performing products') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <div class="admin-stat-trend admin-stat-trend-up">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span>{{ __('Top sellers') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="admin-modern-card">
+            <div class="admin-card-header">
+                <h3 class="admin-card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    {{ __('Filters') }}
+                </h3>
+            </div>
+            <form method="GET" class="admin-card-body" autocomplete="off">
+                <div class="admin-filter-grid">
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Search') }}</label>
+                        <input type="text" name="q" value="{{ request('q') }}" class="admin-form-input"
+                            placeholder="{{ __('Name / SKU') }}">
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Category') }}</label>
+                        <select name="category" class="admin-form-input">
+                            <option value="">-- {{ __('All') }} --</option>
+                            @foreach($vendorProductCategories as $cat)
+                            <option value="{{ $cat->id }}" @selected(request('category')==$cat->id)>{{ $cat->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Type') }}</label>
+                        <select name="type" class="admin-form-input">
+                            <option value="">-- {{ __('All') }} --</option>
+                            <option value="simple" @selected(request('type')==='simple' )>{{ __('Simple') }}</option>
+                            <option value="variable" @selected(request('type')==='variable' )>{{ __('Variable') }}</option>
+                        </select>
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Stock Status') }}</label>
+                        <select name="stock" class="admin-form-input">
+                            <option value="">-- {{ __('All') }} --</option>
+                            <option value="low" @selected(request('stock')==='low' )>{{ __('Low') }}</option>
+                            <option value="soon" @selected(request('stock')==='soon' )>{{ __('Soon') }}</option>
+                            <option value="in" @selected(request('stock')==='in' )>{{ __('In Stock') }}</option>
+                            <option value="na" @selected(request('stock')==='na' )>{{ __('N/A') }}</option>
+                        </select>
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Flags') }}</label>
+                        <select name="flag" class="admin-form-input">
+                            <option value="">-- {{ __('All') }} --</option>
+                            <option value="featured" @selected(request('flag')==='featured' )>{{ __('Featured') }}</option>
+                            <option value="best" @selected(request('flag')==='best' )>{{ __('Best Seller') }}</option>
+                            <option value="inactive" @selected(request('flag')==='inactive' )>{{ __('Inactive') }}</option>
+                        </select>
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label">{{ __('Per Page') }}</label>
+                        <select name="per_page" class="admin-form-input js-per-page-select" data-url-prefix="{{ request()->url() }}?per_page=" data-url-suffix="&{{ http_build_query(request()->except('per_page')) }}">
+                            <option value="10" @selected(request('per_page', 10)==10)>10 {{ __('per page') }}</option>
+                            <option value="25" @selected(request('per_page', 10)==25)>25 {{ __('per page') }}</option>
+                            <option value="50" @selected(request('per_page', 10)==50)>50 {{ __('per page') }}</option>
+                            <option value="100" @selected(request('per_page', 10)==100)>100 {{ __('per page') }}</option>
+                        </select>
+                    </div>
+                    <div class="admin-filter-actions">
+                        <button type="submit" class="admin-btn admin-btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
+                                <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            {{ __('Filter') }}
+                        </button>
+                        <a href="{{ route('vendor.products.index') }}" class="admin-btn admin-btn-secondary" title="{{ __('Clear') }}">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Products List -->
+        <div class="admin-modern-card">
+            <div class="admin-card-header">
+                <h3 class="admin-card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
+                        <path d="M9 9H15V15H9V9Z" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    {{ __('Products List') }}
+                </h3>
+                <div class="admin-badge-count">{{ $products->count() }} {{ __('products') }}</div>
+            </div>
+            <div class="admin-card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>{{ __('Product') }}</th>
+                                <th class="d-none d-md-table-cell">{{ __('Type') }}</th>
+                                <th class="d-none d-lg-table-cell">{{ __('Category') }}</th>
+                                <th>{{ __('Pricing') }}</th>
+                                <th class="d-none d-md-table-cell">{{ __('Flags') }}</th>
+                                <th class="d-none d-lg-table-cell">{{ __('Stock') }}</th>
+                                <th width="120">{{ __('Actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($products as $p)
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">{{ $p->name }}</div>
+                                    <div class="text-muted small">SKU: {{ $p->sku ?: '-' }}</div>
+                                    <div class="d-md-none mt-1">
+                                        <span class="badge bg-secondary text-capitalize me-1">{{ $p->type }}</span>
+                                        @if($p->category)<span
+                                            class="badge bg-light text-dark">{{ $p->category->name }}</span>@endif
+                                    </div>
+                                </td>
+                                <td class="d-none d-md-table-cell">
+                                    <span class="badge bg-secondary text-capitalize">{{ $p->type }}</span>
+                                </td>
+                                <td class="d-none d-lg-table-cell">{{ $p->category->name ?? '-' }}</td>
+                                <td>
+                                    <div class="fw-semibold">{{ number_format($p->price,2) }}</div>
+                                    @if($p->isOnSale())
+                                    <div class="small"><span class="badge bg-success">{{ __('Sale') }}</span>
+                                        {{ number_format($p->sale_price,2) }}
+                                    </div>
                                     @endif
-                                @else
+                                </td>
+                                <td class="d-none d-md-table-cell">
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @if($p->is_featured)<span
+                                            class="badge bg-warning text-dark">{{ __('Featured') }}</span>@endif
+                                        @if($p->is_best_seller)<span class="badge bg-primary">{{ __('Best') }}</span>@endif
+                                        @if(!$p->active)<span class="badge bg-danger">{{ __('Inactive') }}</span>@endif
+                                    </div>
+                                </td>
+                                <td class="d-none d-lg-table-cell">
+                                    @if($p->manage_stock)
+                                    @if(isset($vendorProductStocks[$p->id]))
+                                    <span class="fw-semibold">{{ $vendorProductStocks[$p->id]['available'] }}</span>
+                                    <span class="text-muted small">/{{ $vendorProductStocks[$p->id]['stock_qty'] }}</span>
+                                    @else
+                                    <span class="text-muted small">-</span>
+                                    @endif
+                                    @else
                                     <span class="text-muted small">{{ __('N/A') }}</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <a href="{{ route('vendor.products.edit',$p) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}"><i class="fas fa-edit"></i></a>
-                                    <form method="POST" action="{{ route('vendor.products.destroy',$p) }}" class="d-inline delete-form">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}" data-confirm="{{ __('Delete this product?') }}"><i class="fas fa-trash"></i></button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-5">
-                                <div class="text-muted">
-                                    <i class="fas fa-box-open fa-3x mb-3"></i>
-                                    <h5>{{ __('No products found.') }}</h5>
-                                    <p class="mb-3">{{ __('Start by adding your first product.') }}</p>
-                                    <a href="{{ route('vendor.products.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> {{ __('Add Product') }}</a>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        @if($products->hasPages())
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ route('vendor.products.edit',$p) }}" class="btn btn-sm btn-outline-primary"
+                                            title="{{ __('Edit') }}">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="POST" action="{{ route('vendor.products.destroy',$p) }}"
+                                            class="d-inline delete-form">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                title="{{ __('Delete') }}" data-confirm="{{ __('Delete this product?') }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="d-lg-none mt-2">
+                                        <div class="d-md-none mt-1">
+                                            @if($p->is_featured)<span
+                                                class="badge bg-warning text-dark me-1">{{ __('Featured') }}</span>@endif
+                                            @if($p->is_best_seller)<span
+                                                class="badge bg-primary me-1">{{ __('Best') }}</span>@endif
+                                            @if(!$p->active)<span class="badge bg-danger">{{ __('Inactive') }}</span>@endif
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="fas fa-box-open fa-3x mb-3"></i>
+                                        <h5>{{ __('No products found.') }}</h5>
+                                        <p class="mb-3">{{ __('Start by adding your first product.') }}</p>
+                                        <a href="{{ route('vendor.products.create') }}" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i> {{ __('Add Product') }}
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @if($products->hasPages())
             <div class="card-footer d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-                <div class="text-muted small">{{ __('Showing') }} {{ $products->firstItem() }} - {{ $products->lastItem() }} {{ __('of') }} {{ $products->total() }}</div>
+                <div class="text-muted small">{{ __('Showing') }} {{ $products->firstItem() }} - {{ $products->lastItem() }}
+                    {{ __('of') }} {{ $products->total() }}
+                </div>
                 <div class="pagination-links">{{ $products->links() }}</div>
             </div>
-        @endif
+            @endif
+        </div>
     </div>
-</div>
-
+</section>
 @endsection

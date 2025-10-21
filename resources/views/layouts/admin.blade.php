@@ -37,20 +37,16 @@
         <!-- Overlay for mobile -->
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <!-- Scripts -->
-        <!-- Essential Dependencies -->
-        <script src="{{ asset('vendor/jquery/jquery-3.7.1.min.js') }}"></script>
-        <script src="{{ asset('vendor/chart.js/chart.min.js') }}"></script>
-        <script src="{{ asset('assets/admin/js/countup.js') }}" defer></script>
-        @yield('scripts')
-        <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
-
-        <!-- Unified Admin JS - All functionality consolidated -->
-        <link rel="preload" href="{{ asset('assets/admin/js/admin.js') }}" as="script">
-        <script src="{{ asset('assets/front/js/flash.js') }}"></script>
-        <script src="{{ asset('assets/admin/js/admin.js') }}"></script>
-        <script src="{{ asset('assets/admin/js/super-simple-charts.js') }}"></script>
-
+    </main>
+    @yield('scripts')
+    <!-- Essential Dependencies -->
+    <script src="{{ asset('vendor/jquery/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('vendor/chart.js/chart.min.js') }}"></script>
+    <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
+    <script src="{{ asset('assets/front/js/flash.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/admin.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/super-simple-charts.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/countup.js') }}" defer></script>
 </body>
 
 </html>
