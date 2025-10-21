@@ -85,7 +85,7 @@
         </script>
 
         <!-- Statistics Cards -->
-        <div class="admin-stats-grid">
+        <div class="admin-stats-grid" style="grid-template-columns: repeat(4, 1fr);">
             <!-- Total Users -->
             <div class="admin-stat-card admin-stat-primary">
                 <div class="admin-stat-header">
@@ -241,8 +241,8 @@
             </div>
         </div>
 
-        <!-- Additional Statistics Row -->
-        <div class="admin-stats-grid">
+        <!-- Second Statistics Row -->
+        <div class="admin-stats-grid" style="grid-template-columns: repeat(4, 1fr);">
             <!-- Total Balance -->
             <div class="admin-stat-card admin-stat-success">
                 <div class="admin-stat-header">
@@ -282,272 +282,394 @@
             </div>
 
             <!-- New Users Today -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stats-card stats-card-danger" data-stat="newUsersToday">
-                    <div class="stats-card-body">
-                        <div class="stats-card-content">
-                            <div class="stats-number" id="new-users-today" data-bs-toggle="tooltip"
-                                title="{{ __('Users registered today') }}" data-countup
-                                data-target="{{ (int)($stats['newUsersToday'] ?? 0) }}">
-                                {{ isset($stats['newUsersToday']) ? number_format($stats['newUsersToday']) : '0' }}
-                            </div>
-                            <div class="stats-label">{{ __('New Users Today') }}</div>
-                            <div class="stats-trend">
-                                <i class="fas fa-user-plus text-primary"></i>
-                                <span class="text-primary">{{ __('Today') }}</span>
-                            </div>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-user-plus"></i>
-                        </div>
+            <div class="admin-stat-card admin-stat-danger">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M16 7A4 4 0 1 1 8 7A4 4 0 0 1 16 7Z" />
+                            <path d="M12 14A7 7 0 0 0 5 21H19A7 7 0 0 0 12 14Z" />
+                            <path d="M12 5V19M5 12H19" />
+                        </svg>
                     </div>
-                    <div class="stats-card-footer">
-                        <a href="{{ route('admin.users.index', ['filter' => 'today']) }}" class="stats-link">
-                            {{ __('View Details') }}
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" id="new-users-today" data-countup data-target="{{ (int)($stats['newUsersToday'] ?? 0) }}">
+                        {{ isset($stats['newUsersToday']) ? number_format($stats['newUsersToday']) : '0' }}
+                    </div>
+                    <div class="admin-stat-label">{{ __('New Users Today') }}</div>
+                    <div class="admin-stat-description">{{ __('Users registered today') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <a href="{{ route('admin.users.index', ['filter' => 'today']) }}" class="admin-btn admin-btn-secondary">
+                        {{ __('View Details') }}
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </a>
+                    <div class="admin-stat-trend admin-stat-trend-danger">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                        <span>{{ __('Today') }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Total Admins -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stats-card stats-card-danger" data-stat="totalAdmins">
-                    <div class="stats-card-body">
-                        <div class="stats-card-content">
-                            <div class="stats-number" id="total-admins" data-bs-toggle="tooltip"
-                                title="{{ __('Total administrators in the system') }}" data-countup
-                                data-target="{{ (int)($stats['totalAdmins'] ?? 0) }}">
-                                {{ isset($stats['totalAdmins']) ? number_format($stats['totalAdmins']) : '0' }}
-                            </div>
-                            <div class="stats-label">{{ __('Total Admins') }}</div>
-                            <div class="stats-trend">
-                                <i class="fas fa-user-shield text-danger"></i>
-                                <span class="text-danger">{{ __('Admins') }}</span>
-                            </div>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-user-shield"></i>
-                        </div>
+            <div class="admin-stat-card admin-stat-danger">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 22S8 18 8 12V5L12 3L16 5V12C16 18 12 22 12 22Z" />
+                            <path d="M9 12L11 14L15 10" />
+                        </svg>
                     </div>
-                    <div class="stats-card-footer">
-                        <a href="{{ route('admin.users.index', ['role' => 'admin']) }}" class="stats-link">
-                            {{ __('View Details') }}
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" id="total-admins" data-countup data-target="{{ (int)($stats['totalAdmins'] ?? 0) }}">
+                        {{ isset($stats['totalAdmins']) ? number_format($stats['totalAdmins']) : '0' }}
+                    </div>
+                    <div class="admin-stat-label">{{ __('Total Admins') }}</div>
+                    <div class="admin-stat-description">{{ __('Total administrators in the system') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <a href="{{ route('admin.users.index', ['role' => 'admin']) }}" class="admin-btn admin-btn-secondary">
+                        {{ __('View Details') }}
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </a>
+                    <div class="admin-stat-trend admin-stat-trend-danger">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                        <span>{{ __('Admins') }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Total Customers -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stats-card stats-card-info" data-stat="totalCustomers">
-                    <div class="stats-card-body">
-                        <div class="stats-card-content">
-                            <div class="stats-number" id="total-customers" data-bs-toggle="tooltip"
-                                title="{{ __('Total customers in the system') }}" data-countup
-                                data-target="{{ (int)($stats['totalCustomers'] ?? 0) }}">
-                                {{ isset($stats['totalCustomers']) ? number_format($stats['totalCustomers']) : '0' }}
-                            </div>
-                            <div class="stats-label">{{ __('Total Customers') }}</div>
-                            <div class="stats-trend">
-                                <i class="fas fa-users text-info"></i>
-                                <span class="text-info">{{ __('Customers') }}</span>
-                            </div>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
+            <div class="admin-stat-card admin-stat-info">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M16 7A4 4 0 1 1 8 7A4 4 0 0 1 16 7Z" />
+                            <path d="M12 14A7 7 0 0 0 5 21H19A7 7 0 0 0 12 14Z" />
+                        </svg>
                     </div>
-                    <div class="stats-card-footer">
-                        <a href="{{ route('admin.users.index', ['role' => 'customer']) }}" class="stats-link">
-                            {{ __('View Details') }}
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" id="total-customers" data-countup data-target="{{ (int)($stats['totalCustomers'] ?? 0) }}">
+                        {{ isset($stats['totalCustomers']) ? number_format($stats['totalCustomers']) : '0' }}
+                    </div>
+                    <div class="admin-stat-label">{{ __('Total Customers') }}</div>
+                    <div class="admin-stat-description">{{ __('Total customers in the system') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <a href="{{ route('admin.users.index', ['role' => 'customer']) }}" class="admin-btn admin-btn-secondary">
+                        {{ __('View Details') }}
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </a>
+                    <div class="admin-stat-trend admin-stat-trend-info">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                        <span>{{ __('Customers') }}</span>
                     </div>
                 </div>
             </div>
 
+        </div>
+
+        <!-- Third Statistics Row -->
+        <div class="admin-stats-grid" style="grid-template-columns: repeat(4, 1fr);">
             <!-- New Users This Week -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stats-card stats-card-danger" data-stat="newUsersThisWeek">
-                    <div class="stats-card-body">
-                        <div class="stats-card-content">
-                            <div class="stats-number" id="new-users-week" data-bs-toggle="tooltip"
-                                title="{{ __('Users registered this week') }}" data-countup
-                                data-target="{{ (int)($stats['newUsersThisWeek'] ?? 0) }}">
-                                {{ isset($stats['newUsersThisWeek']) ? number_format($stats['newUsersThisWeek']) : '0' }}
-                            </div>
-                            <div class="stats-label">{{ __('New Users This Week') }}</div>
-                            <div class="stats-trend">
-                                <i class="fas fa-calendar-week text-primary"></i>
-                                <span class="text-primary">{{ __('This Week') }}</span>
-                            </div>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-calendar-week"></i>
-                        </div>
+            <div class="admin-stat-card admin-stat-danger">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
                     </div>
-                    <div class="stats-card-footer">
-                        <a href="{{ route('admin.users.index', ['filter' => 'this_week']) }}" class="stats-link">
-                            {{ __('View Details') }}
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" id="new-users-week" data-countup data-target="{{ (int)($stats['newUsersThisWeek'] ?? 0) }}">
+                        {{ isset($stats['newUsersThisWeek']) ? number_format($stats['newUsersThisWeek']) : '0' }}
+                    </div>
+                    <div class="admin-stat-label">{{ __('New Users This Week') }}</div>
+                    <div class="admin-stat-description">{{ __('Users registered this week') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <a href="{{ route('admin.users.index', ['filter' => 'this_week']) }}" class="admin-btn admin-btn-secondary">
+                        {{ __('View Details') }}
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </a>
+                    <div class="admin-stat-trend admin-stat-trend-danger">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                        <span>{{ __('This Week') }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- New Users This Month -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stats-card stats-card-success" data-stat="newUsersThisMonth">
-                    <div class="stats-card-body">
-                        <div class="stats-card-content">
-                            <div class="stats-number" id="new-users-month" data-bs-toggle="tooltip"
-                                title="{{ __('Users registered this month') }}" data-countup
-                                data-target="{{ (int)($stats['newUsersThisMonth'] ?? 0) }}">
-                                {{ isset($stats['newUsersThisMonth']) ? number_format($stats['newUsersThisMonth']) : '0' }}
-                            </div>
-                            <div class="stats-label">{{ __('New Users This Month') }}</div>
-                            <div class="stats-trend">
-                                <i class="fas fa-calendar-alt text-success"></i>
-                                <span class="text-success">{{ __('This Month') }}</span>
-                            </div>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
+            <div class="admin-stat-card admin-stat-success">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
                     </div>
-                    <div class="stats-card-footer">
-                        <a href="{{ route('admin.users.index', ['filter' => 'this_month']) }}" class="stats-link">
-                            {{ __('View Details') }}
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" id="new-users-month" data-countup data-target="{{ (int)($stats['newUsersThisMonth'] ?? 0) }}">
+                        {{ isset($stats['newUsersThisMonth']) ? number_format($stats['newUsersThisMonth']) : '0' }}
+                    </div>
+                    <div class="admin-stat-label">{{ __('New Users This Month') }}</div>
+                    <div class="admin-stat-description">{{ __('Users registered this month') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <a href="{{ route('admin.users.index', ['filter' => 'this_month']) }}" class="admin-btn admin-btn-secondary">
+                        {{ __('View Details') }}
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </a>
+                    <div class="admin-stat-trend admin-stat-trend-success">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                        <span>{{ __('This Month') }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Approved Users -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stats-card stats-card-info" data-stat="approvedUsers">
-                    <div class="stats-card-body">
-                        <div class="stats-card-content">
-                            <div class="stats-number" id="approved-users" data-bs-toggle="tooltip"
-                                title="{{ __('Total approved users') }}" data-countup
-                                data-target="{{ (int)($stats['approvedUsers'] ?? 0) }}">
-                                {{ isset($stats['approvedUsers']) ? number_format($stats['approvedUsers']) : '0' }}
-                            </div>
-                            <div class="stats-label">{{ __('Approved Users') }}</div>
-                            <div class="stats-trend">
-                                <i class="fas fa-check-circle text-info"></i>
-                                <span
-                                    class="text-info">{{ isset($topStats['approval_rate']) ? $topStats['approval_rate'] . '%' : '0%' }}</span>
-                                <small>{{ __('approval rate') }}</small>
-                            </div>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
+            <div class="admin-stat-card admin-stat-info">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                     </div>
-                    <div class="stats-card-footer">
-                        <a href="{{ route('admin.users.index', ['status' => 'approved']) }}" class="stats-link">
-                            {{ __('View Details') }}
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" id="approved-users" data-countup data-target="{{ (int)($stats['approvedUsers'] ?? 0) }}">
+                        {{ isset($stats['approvedUsers']) ? number_format($stats['approvedUsers']) : '0' }}
+                    </div>
+                    <div class="admin-stat-label">{{ __('Approved Users') }}</div>
+                    <div class="admin-stat-description">{{ __('Total approved users') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <a href="{{ route('admin.users.index', ['status' => 'approved']) }}" class="admin-btn admin-btn-secondary">
+                        {{ __('View Details') }}
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </a>
+                    <div class="admin-stat-trend admin-stat-trend-info">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                        <span>{{ isset($topStats['approval_rate']) ? $topStats['approval_rate'] . '%' : '0%' }}</span>
+                        <small>{{ __('approval rate') }}</small>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Orders & Revenue Statistics Row -->
-        <div class="row mb-4">
+        <!-- Fourth Statistics Row -->
+        <div class="admin-stats-grid" style="grid-template-columns: repeat(4, 1fr);">
             <!-- Total Orders -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stats-card stats-card-danger" data-stat="totalOrders">
-                    <div class="stats-card-body">
-                        <div class="stats-card-content">
-                            <div class="stats-number" id="total-orders" data-bs-toggle="tooltip"
-                                title="{{ __('Total Orders') }}" data-countup
-                                data-target="{{ (int)($stats['totalOrders'] ?? 0) }}">
-                                {{ isset($stats['totalOrders']) ? number_format($stats['totalOrders']) : '0' }}
-                            </div>
-                            <div class="stats-label">{{ __('Total Orders') }}</div>
-                            <div class="stats-trend">
-                                <i class="fas fa-shopping-cart text-primary"></i>
-                                <small class="text-muted">{{ __('All time') }}</small>
-                            </div>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
+            <div class="admin-stat-card admin-stat-primary">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M16 11V7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7V11M5 9H19L18 21H6L5 9Z" />
+                            <path d="M12 15V15.01" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" id="total-orders" data-countup data-target="{{ (int)($stats['totalOrders'] ?? 0) }}">
+                        {{ isset($stats['totalOrders']) ? number_format($stats['totalOrders']) : '0' }}
+                    </div>
+                    <div class="admin-stat-label">{{ __('Total Orders') }}</div>
+                    <div class="admin-stat-description">{{ __('All time orders') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <a href="{{ route('admin.orders.index') }}" class="admin-btn admin-btn-secondary">
+                        {{ __('View Details') }}
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </a>
+                    <div class="admin-stat-trend admin-stat-trend-primary">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                        <span>{{ __('All time') }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Total Revenue -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stats-card stats-card-success" data-stat="revenueTotal">
-                    <div class="stats-card-body">
-                        <div class="stats-card-content">
-                            <div class="stats-number" id="total-revenue" data-bs-toggle="tooltip"
-                                title="{{ __('Total Revenue') }}" data-countup data-decimals="2"
-                                data-target="{{ number_format($stats['revenueTotal'] ?? 0, 2, '.', '') }}">
-                                {{ isset($stats['revenueTotal']) ? number_format($stats['revenueTotal'], 2) : '0.00' }}
-                            </div>
-                            <div class="stats-label">{{ __('Total Revenue') }}</div>
-                            <div class="stats-trend">
-                                <i class="fas fa-dollar-sign text-success"></i>
-                                <small class="text-success">{{ $defaultCurrency->code ?? '' }}</small>
-                            </div>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-coins"></i>
-                        </div>
+            <div class="admin-stat-card admin-stat-success">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2V22M17 5H9.5A3.5 3.5 0 0 0 9.5 12H14.5A3.5 3.5 0 0 1 14.5 19H6" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" id="total-revenue" data-countup data-decimals="2" data-target="{{ number_format($stats['revenueTotal'] ?? 0, 2, '.', '') }}">
+                        {{ isset($stats['revenueTotal']) ? number_format($stats['revenueTotal'], 2) : '0.00' }}
+                    </div>
+                    <div class="admin-stat-label">{{ __('Total Revenue') }}</div>
+                    <div class="admin-stat-description">{{ __('All time revenue') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <a href="{{ route('admin.orders.index') }}" class="admin-btn admin-btn-secondary">
+                        {{ __('View Details') }}
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </a>
+                    <div class="admin-stat-trend admin-stat-trend-success">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                        <span>{{ $defaultCurrency->code ?? '' }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Orders Today -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stats-card stats-card-primary" data-stat="ordersToday">
-                    <div class="stats-card-body">
-                        <div class="stats-card-content">
-                            <div class="stats-number" id="orders-today" data-bs-toggle="tooltip"
-                                title="{{ __('Orders Today') }}" data-countup
-                                data-target="{{ (int)($stats['ordersToday'] ?? 0) }}">
-                                {{ isset($stats['ordersToday']) ? number_format($stats['ordersToday']) : '0' }}
-                            </div>
-                            <div class="stats-label">{{ __('Orders Today') }}</div>
-                            <div class="stats-trend">
-                                <i class="fas fa-calendar-day text-warning"></i>
-                                <small class="text-muted">{{ __('Today') }}</small>
-                            </div>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-calendar-day"></i>
-                        </div>
+            <div class="admin-stat-card admin-stat-warning">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" id="orders-today" data-countup data-target="{{ (int)($stats['ordersToday'] ?? 0) }}">
+                        {{ isset($stats['ordersToday']) ? number_format($stats['ordersToday']) : '0' }}
+                    </div>
+                    <div class="admin-stat-label">{{ __('Orders Today') }}</div>
+                    <div class="admin-stat-description">{{ __('Orders placed today') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <a href="{{ route('admin.orders.index', ['filter' => 'today']) }}" class="admin-btn admin-btn-secondary">
+                        {{ __('View Details') }}
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </a>
+                    <div class="admin-stat-trend admin-stat-trend-warning">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                        <span>{{ __('Today') }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Revenue Today -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stats-card stats-card-info" data-stat="revenueToday">
-                    <div class="stats-card-body">
-                        <div class="stats-card-content">
-                            <div class="stats-number" id="revenue-today" data-bs-toggle="tooltip"
-                                title="{{ __('Revenue Today') }}" data-countup data-decimals="2"
-                                data-target="{{ number_format($stats['revenueToday'] ?? 0, 2, '.', '') }}">
-                                {{ isset($stats['revenueToday']) ? number_format($stats['revenueToday'], 2) : '0.00' }}
-                            </div>
-                            <div class="stats-label">{{ __('Revenue Today') }}</div>
-                            <div class="stats-trend">
-                                <i class="fas fa-chart-line text-info"></i>
-                                <small class="text-info">{{ $defaultCurrency->code ?? '' }}</small>
-                            </div>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-receipt"></i>
-                        </div>
+            <div class="admin-stat-card admin-stat-info">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M3 3V21H21" />
+                            <path d="M9 9L12 6L16 10L20 6" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" id="revenue-today" data-countup data-decimals="2" data-target="{{ number_format($stats['revenueToday'] ?? 0, 2, '.', '') }}">
+                        {{ isset($stats['revenueToday']) ? number_format($stats['revenueToday'], 2) : '0.00' }}
+                    </div>
+                    <div class="admin-stat-label">{{ __('Revenue Today') }}</div>
+                    <div class="admin-stat-description">{{ __('Revenue generated today') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <a href="{{ route('admin.orders.index', ['filter' => 'today']) }}" class="admin-btn admin-btn-secondary">
+                        {{ __('View Details') }}
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </a>
+                    <div class="admin-stat-trend admin-stat-trend-info">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                        <span>{{ $defaultCurrency->code ?? '' }}</span>
                     </div>
                 </div>
             </div>
@@ -557,13 +679,18 @@
         <div class="row">
             <!-- Chart Section -->
             <div class="col-lg-8 mb-4">
-                <div class="modern-card">
-                    <div class="card-header">
-                        <div
-                            class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                <div class="admin-modern-card">
+                    <div class="admin-card-header">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                             <div>
-                                <h5 class="card-title mb-0">{{ __('User Registration Trends') }}</h5>
-                                <small class="text-muted" id="chart-last-updated">
+                                <h3 class="admin-card-title">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M9 9L12 6L16 10L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    {{ __('User Registration Trends') }}
+                                </h3>
+                                <p class="admin-card-subtitle" id="chart-last-updated">
                                     @if($period === '6m')
                                     {{ __('Last 6 months overview') }}
                                     @elseif($period === '1y')
@@ -571,28 +698,28 @@
                                     @else
                                     {{ __('All time overview') }}
                                     @endif
-                                </small>
+                                </p>
                             </div>
-                            <div
-                                class="chart-controls-wrapper d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 @if(app()->getLocale()==='ar') ms-sm-auto flex-sm-row-reverse @else ms-sm-auto @endif">
-                                <a href="{{ route('admin.dashboard', ['refresh' => '1']) }}" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip"
+                            <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
+                                <a href="{{ route('admin.dashboard', ['refresh' => '1']) }}" class="admin-btn admin-btn-outline" data-bs-toggle="tooltip"
                                     title="{{ __('Refresh dashboard data') }}">
-                                    <i class="fas fa-sync-alt"></i>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M23 4v6h-6M1 20v-6h6m15-4a9 9 0 11-18 0 9 9 0 0118 0zM1 10a9 9 0 0118 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
                                     <span class="d-none d-md-inline ms-1">{{ __('Refresh') }}</span>
                                 </a>
-                                <div class="btn-group btn-group-sm chart-period-buttons @if(app()->getLocale()==='ar') order-sm-first @endif"
-                                    role="group">
+                                <div class="btn-group btn-group-sm" role="group">
                                     <a href="{{ route('admin.dashboard', ['period' => '6m']) }}"
-                                        class="btn btn-outline-secondary {{ $period === '6m' ? 'active' : '' }}">6M</a>
+                                        class="admin-btn admin-btn-outline {{ $period === '6m' ? 'active' : '' }}">6M</a>
                                     <a href="{{ route('admin.dashboard', ['period' => '1y']) }}"
-                                        class="btn btn-outline-secondary {{ $period === '1y' ? 'active' : '' }}">1Y</a>
+                                        class="admin-btn admin-btn-outline {{ $period === '1y' ? 'active' : '' }}">1Y</a>
                                     <a href="{{ route('admin.dashboard', ['period' => 'all']) }}"
-                                        class="btn btn-outline-secondary {{ $period === 'all' ? 'active' : '' }}">{{ __('All') }}</a>
+                                        class="admin-btn admin-btn-outline {{ $period === 'all' ? 'active' : '' }}">{{ __('All') }}</a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body position-relative">
+                    <div class="admin-card-body position-relative">
                         <!-- Chart Container -->
                         <div class="chart-container h-400 pos-relative">
                             <canvas id="userChart" aria-describedby="userChartFallback"></canvas>
@@ -613,20 +740,28 @@
 
             <!-- Top Active Users -->
             <div class="col-lg-4 mb-4">
-                <div class="card modern-card">
-                    <div class="card-header">
+                <div class="admin-modern-card">
+                    <div class="admin-card-header">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h5 class="card-title mb-0">{{ __('Top Active Users') }}</h5>
-                                <small class="text-muted">{{ __('Most active users this week') }}</small>
+                                <h3 class="admin-card-title">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 7A4 4 0 1 1 8 7A4 4 0 0 1 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M12 14A7 7 0 0 0 5 21H19A7 7 0 0 0 12 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    {{ __('Top Active Users') }}
+                                </h3>
+                                <p class="admin-card-subtitle">{{ __('Most active users this week') }}</p>
                             </div>
-                            <button class="btn btn-sm btn-outline-secondary d-lg-none" type="button" data-bs-toggle="collapse"
+                            <button class="admin-btn admin-btn-outline d-lg-none" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#topUsersCollapseNew" aria-expanded="true">
-                                <i class="fas fa-chevron-down"></i>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
                             </button>
                         </div>
                     </div>
-                    <div class="card-body">
+                    <div class="admin-card-body">
                         <div class="collapse show d-lg-block" id="topUsersCollapseNew">
                             @if(isset($topUsers) && count($topUsers) > 0)
                             <div class="user-list">
@@ -645,7 +780,7 @@
                                         </div>
                                     </div>
                                     <div class="user-badge">
-                                        <span class="badge badge-success">
+                                        <span class="admin-badge admin-badge-success">
                                             {{ __('Active') }}
                                         </span>
                                     </div>
@@ -653,9 +788,14 @@
                                 @endforeach
                             </div>
                             @else
-                            <div class="text-center py-3">
-                                <i class="fas fa-users text-muted"></i>
-                                <p class="text-muted mt-2">{{ __('No active users data available') }}</p>
+                            <div class="admin-empty-state">
+                                <div class="admin-notification-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 7A4 4 0 1 1 8 7A4 4 0 0 1 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M12 14A7 7 0 0 0 5 21H19A7 7 0 0 0 12 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                                <p class="admin-text-muted">{{ __('No active users data available') }}</p>
                             </div>
                             @endif
                         </div>
@@ -667,12 +807,22 @@
         <!-- Sales & Orders Charts -->
         <div class="row mb-4">
             <div class="col-lg-8 mb-4">
-                <div class="modern-card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0"><i class="fas fa-chart-area me-2"></i>{{ __('Sales & Revenue') }}</h5>
-                        <small class="text-muted">{{ __('Last 30 days') }}</small>
+                <div class="admin-modern-card">
+                    <div class="admin-card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="admin-card-title">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M9 9L12 6L16 10L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    {{ __('Sales & Revenue') }}
+                                </h3>
+                                <p class="admin-card-subtitle">{{ __('Last 30 days') }}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body h-380 pos-relative">
+                    <div class="admin-card-body h-380 pos-relative">
                         <canvas id="salesChart" aria-describedby="salesChartFallback"></canvas>
                         <noscript>
                             <ul id="salesChartFallback" class="chart-fallback list-unstyled small mt-2">
@@ -691,12 +841,21 @@
                 </div>
             </div>
             <div class="col-lg-4 mb-4">
-                <div class="modern-card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0"><i class="fas fa-chart-pie me-2"></i>{{ __('Order Status Distribution') }}
-                        </h5>
+                <div class="admin-modern-card">
+                    <div class="admin-card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="admin-card-title">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M22 12A10 10 0 0 0 12 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    {{ __('Order Status Distribution') }}
+                                </h3>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body h-380 pos-relative">
+                    <div class="admin-card-body h-380 pos-relative">
                         <canvas id="orderStatusChart"></canvas>
                     </div>
                 </div>

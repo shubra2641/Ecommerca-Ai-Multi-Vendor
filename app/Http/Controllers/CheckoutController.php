@@ -49,7 +49,9 @@ class CheckoutController extends Controller
         $subtotal = 0;
         foreach ($cart as $pid => $row) {
             $product = \App\Models\Product::find($pid);
-            if (!$product) continue;
+            if (!$product) {
+                continue;
+            }
             $subtotal += $row['price'] * $row['qty'];
         }
         $discount = 0;

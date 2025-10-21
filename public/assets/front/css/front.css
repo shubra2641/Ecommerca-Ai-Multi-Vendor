@@ -9296,3 +9296,247 @@ th{background:#f5f5f5}
         color: #60a5fa;
     }
 }
+
+/* Admin Login Page Styles */
+.admin-login-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.admin-login-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.admin-login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.admin-login-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.admin-login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 0.5rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-login-subtitle {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    font-weight: 400;
+}
+
+.admin-login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.admin-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.admin-form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.admin-form-label svg {
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.admin-form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.admin-form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.admin-form-input::placeholder {
+    color: #9ca3af;
+}
+
+.admin-form-error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.admin-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.admin-checkbox {
+    display: none;
+}
+
+.admin-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+.admin-checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.admin-checkbox:checked + .admin-checkbox-label .admin-checkbox-custom {
+    background: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.admin-checkbox:checked + .admin-checkbox-label .admin-checkbox-custom::after {
+    content: '';
+    width: 6px;
+    height: 10px;
+    border: 2px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+}
+
+.admin-checkbox-text {
+    font-weight: 500;
+}
+
+.admin-form-actions {
+    margin-top: 1rem;
+}
+
+.admin-btn-full {
+    width: 100%;
+    justify-content: center;
+}
+
+/* Responsive adjustments for admin login */
+@media (max-width: 768px) {
+    .admin-login-wrapper {
+        padding: 1rem;
+    }
+    
+    .admin-login-container {
+        max-width: 100%;
+    }
+    
+    .admin-login-title {
+        font-size: 1.75rem;
+    }
+    
+    .admin-login-icon {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* Additional styles for auth pages */
+.admin-login-link {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.admin-login-link:hover {
+    color: white;
+    text-decoration: none;
+}
+
+.admin-form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.admin-form-links {
+    display: flex;
+    align-items: center;
+}
+
+.admin-form-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.3s ease;
+}
+
+.admin-form-link:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.admin-form-inline {
+    display: inline-block;
+    width: 100%;
+}
+
+.admin-form-inline + .admin-form-inline {
+    margin-top: 0.75rem;
+}
+
+.admin-success-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #d1fae5;
+    border: 1px solid #a7f3d0;
+    border-radius: 8px;
+    color: #065f46;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.admin-success-message svg {
+    color: #10b981;
+    flex-shrink: 0;
+}

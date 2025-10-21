@@ -51,7 +51,7 @@
                                     data-country="{{ $addr->country_id }}"
                                     data-governorate="{{ $addr->governorate_id }}" data-city="{{ $addr->city_id }}"
                                     data-line1="{{ e($addr->line1) }}" data-line2="{{ e($addr->line2) }}"
-                                    data-phone="{{ e($addr->phone) }}">
+                                    data-phone="{{ e($addr->phone) }}" data-name="{{ e($addr->name ?? auth()->user()->name) }}">
                                     <input type="radio" name="selected_address" value="{{ $addr->id }}"
                                         {{ $addr->is_default ? 'checked' : '' }}>
                                     <div class="address-card-body">

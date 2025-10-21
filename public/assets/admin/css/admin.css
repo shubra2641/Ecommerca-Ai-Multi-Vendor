@@ -3528,3 +3528,150 @@ body.dark-mode .modern-card {
     color: #718096;
     margin: 0;
 }
+
+/* Admin Login Page Styles */
+.admin-login-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.admin-login-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.admin-login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.admin-login-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.admin-login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 0.5rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-login-subtitle {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.admin-login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.admin-form-actions {
+    margin-top: 1rem;
+}
+
+.admin-btn-full {
+    width: 100%;
+    justify-content: center;
+}
+
+.admin-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.admin-checkbox {
+    display: none;
+}
+
+.admin-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--admin-text-secondary);
+    transition: var(--admin-transition);
+}
+
+.admin-checkbox-label:hover {
+    color: var(--admin-text-primary);
+}
+
+.admin-checkbox-custom {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--admin-border);
+    border-radius: 4px;
+    background: white;
+    position: relative;
+    transition: var(--admin-transition);
+    flex-shrink: 0;
+}
+
+.admin-checkbox:checked + .admin-checkbox-label .admin-checkbox-custom {
+    background: var(--admin-primary);
+    border-color: var(--admin-primary);
+}
+
+.admin-checkbox:checked + .admin-checkbox-label .admin-checkbox-custom::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.admin-checkbox-text {
+    font-weight: 500;
+}
+
+.admin-form-error {
+    color: var(--admin-danger);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: block;
+}
+
+/* Responsive adjustments for login page */
+@media (max-width: 768px) {
+    .admin-login-wrapper {
+        padding: 1rem;
+    }
+    
+    .admin-login-container {
+        max-width: 100%;
+    }
+    
+    .admin-login-title {
+        font-size: 1.75rem;
+    }
+    
+    .admin-login-icon {
+        width: 64px;
+        height: 64px;
+    }
+}

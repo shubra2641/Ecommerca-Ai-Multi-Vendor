@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
     <!-- Unified Customer CSS - All styles consolidated -->
     <link href="{{ asset('assets/front/css/front.css') }}" rel="stylesheet">
+
     <!-- Critical CSS is now in external file -->
     @yield('styles')
 </head>
