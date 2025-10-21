@@ -2,7 +2,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <span>{{ __('Interest Breakdown') }}</span>
     </div>
-    <div class="card-body p-0">
+    <div class="admin-card-body">
         <table class="table table-sm mb-0">
             <thead>
                 <tr>

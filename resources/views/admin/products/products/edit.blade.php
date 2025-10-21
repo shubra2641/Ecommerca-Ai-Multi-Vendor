@@ -3,51 +3,78 @@
 @section('title', __('Edit Product'))
 
 @section('content')
-<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-    <div class="page-header-content">
-        <h1 class="page-title mb-1">{{ __('Edit Product') }}</h1>
-        <p class="page-description mb-0 text-muted">{{ __('Update product information') }}</p>
-    </div>
-    <div class="page-actions d-flex flex-wrap gap-2">
-        <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i>
-            <span class="d-none d-sm-inline">{{ __('Back to Products') }}</span>
-        </a>
-        <a href="{{ route('admin.products.show', $product) }}" class="btn btn-outline-secondary">
-            <i class="fas fa-eye"></i>
-            <span class="d-none d-sm-inline">{{ __('View Product') }}</span>
-        </a>
-        <button type="submit" form="product-form" class="btn btn-primary">
-            <i class="fas fa-save"></i>
-            <span class="d-none d-sm-inline">{{ __('Update') }}</span>
-            <span class="d-sm-none">{{ __('Save') }}</span>
-        </button>
-    </div>
-</div>
+<section class="admin-order-details-modern">
+    <div class="admin-order-wrapper">
+        <!-- Header -->
+        <div class="admin-order-header">
+            <div class="header-left">
+                <div class="admin-header-content">
+                    <div class="admin-header-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13M18.5 2.5C18.8978 2.10218 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10218 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="admin-header-text">
+                        <h1 class="admin-order-title">{{ __('Edit Product') }}</h1>
+                        <p class="admin-order-subtitle">{{ __('Update product information') }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{{ route('admin.products.index') }}" class="admin-btn admin-btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    {{ __('Back to Products') }}
+                </a>
+                <a href="{{ route('admin.products.show', $product) }}" class="admin-btn admin-btn-outline">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" />
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    {{ __('View Product') }}
+                </a>
+                <button type="submit" form="product-form" class="admin-btn admin-btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M17 21V13H7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M7 3V8H12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    {{ __('Update Product') }}
+                </button>
+            </div>
+        </div>
 
-<div class="card modern-card content-card">
-    <div class="content-card-header card-header">
-        <div>
-            <h3 class="content-title card-title mb-1">{{ __('Product Information') }}</h3>
-            <p class="content-description text-muted mb-0">{{ __('Update the product details below') }}</p>
+        <!-- Product Form -->
+        <div class="admin-modern-card">
+            <div class="admin-card-header">
+                <h3 class="admin-card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
+                        <path d="M9 9H15V15H9V9Z" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    {{ __('Product Information') }}
+                </h3>
+                <p class="admin-card-subtitle">{{ __('Update the product details below') }}</p>
+            </div>
+            <div class="admin-card-body">
+                @if($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0 small">
+                        @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+                <form id="product-form" method="POST" action="{{ route('admin.products.update', $product) }}"
+                    enctype="multipart/form-data" autocomplete="off">
+                    @csrf
+                    @method('PUT')
+                    @include('admin.products.products._form',['model'=>$product])
+                </form>
+            </div>
         </div>
     </div>
-    <div class="content-card-body card-body">
-        @if($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0 small">
-                @foreach($errors->all() as $err)
-                <li>{{ $err }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-        <form id="product-form" method="POST" action="{{ route('admin.products.update', $product) }}"
-            enctype="multipart/form-data" autocomplete="off">
-            @csrf
-            @method('PUT')
-            @include('admin.products.products._form',['model'=>$product])
-        </form>
-    </div>
-</div>
+</section>
 @endsection
