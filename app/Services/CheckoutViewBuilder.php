@@ -93,6 +93,7 @@ class CheckoutViewBuilder
                 $addresses = $user->addresses()->get();
                 $defaultAddress = $addresses->firstWhere('is_default', true);
             } catch (\Throwable $e) {
+                \Log::warning('Error fetching user addresses', ['error' => $e->getMessage()]);
             }
         }
 

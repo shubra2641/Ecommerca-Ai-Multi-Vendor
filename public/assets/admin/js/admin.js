@@ -13,6 +13,13 @@ const STORAGE_PREFIX = 'storage/';
     window.AdminPanel = {};
     AdminPanel.galleryManager = null;
 
+    // Simple HTML escape function to prevent XSS
+    AdminPanel.escapeHtml = function (text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    };
+
     // Initialize everything
     AdminPanel.init = function () {
         this.initSidebar();
@@ -224,10 +231,16 @@ const STORAGE_PREFIX = 'storage/';
                     selectedAttrs.forEach(attrSlug => {
                         const attr = attrData.find(a => a.slug === attrSlug);
                         if (attr) {
+                            const escapedSlug = AdminPanel.escapeHtml(attrSlug);
+                            const escapedName = AdminPanel.escapeHtml(attr.name);
+                            const optionsHtml = attr.values.map(val =>
+                                `<option value='${AdminPanel.escapeHtml(val.value)}'>${AdminPanel.escapeHtml(val.value)}</option>`
+                            ).join('');
+
                             attributesHtml += `
-                                <select name='variations[${rowCount}][attributes][${attrSlug}]' class='form-select form-select-sm mb-1 variation-attr-select' data-attr-name='${attr.name}'>
-                                    <option value=''>${attr.name}</option>
-                                    ${attr.values.map(val => `<option value='${val.value}'>${val.value}</option>`).join('')}
+                                <select name='variations[${rowCount}][attributes][${escapedSlug}]' class='form-select form-select-sm mb-1 variation-attr-select' data-attr-name='${escapedName}'>
+                                    <option value=''>${escapedName}</option>
+                                    ${optionsHtml}
                                 </select>
                             `;
                         }
