@@ -72,38 +72,12 @@ class PaymentGatewayService
             }
 
             $json = $resp->json();
-            $status = $json['status'] ?? $json['data']['status'] ?? null;
+            $status = $this->determineChargeStatus($json);
 
-            if (in_array(strtoupper($status), ['CAPTURED', 'AUTHORIZED', 'PAID', 'SUCCESS'], true)) {
-                $finalStatus = 'paid';
-            } elseif (in_array(strtoupper($status), ['FAILED', 'CANCELLED', 'DECLINED'], true)) {
-                $finalStatus = 'failed';
-            } else {
-                $finalStatus = 'processing';
-            }
-
-            $payment->status = $finalStatus;
-            $payment->payload = array_merge($payment->payload ?? [], [
-                $gateway->slug . '_charge_status' => $finalStatus
-            ]);
-            $payment->save();
+            $this->updatePaymentStatus($payment, $status, $gateway->slug);
 
             if ($payment->status === 'paid') {
-                $order = $payment->order;
-                if (!$order) {
-                    $order = $this->createOrderFromSnapshot($payment);
-                }
-
-                if ($order && $order->status !== 'paid') {
-                    $order->status = 'paid';
-                    $order->save();
-                }
-
-                try {
-                    session()->forget('cart');
-                } catch (\Throwable $_) {
-                    // Ignore cart clearing errors
-                }
+                $this->handleSuccessfulPayment($payment);
             }
 
             return ['payment' => $payment, 'status' => $payment->status, 'charge' => $json];
@@ -125,53 +99,14 @@ class PaymentGatewayService
             : 'https://api-m.sandbox.paypal.com';
 
         return DB::transaction(function () use ($order, $orderId, $snapshot, $cfg, $baseUrl) {
-            $payment = Payment::create([
-                'order_id' => $orderId,
-                'user_id' => $order?->user_id ?? $snapshot['user_id'] ?? null,
-                'method' => 'paypal',
-                'amount' => $order?->total ?? $snapshot['total'] ?? 0,
-                'currency' => $order?->currency ?? $snapshot['currency'] ?? 'USD',
-                'status' => 'pending',
-                'payload' => [
-                    'order_reference' => $orderId,
-                    'checkout_snapshot' => $snapshot,
-                ],
-            ]);
+            $payment = $this->createPaymentRecord($order, $orderId, $snapshot, 'paypal');
 
-            $response = Http::withBasicAuth($cfg['paypal_client_id'], $cfg['paypal_secret'])
-                ->asForm()
-                ->timeout(25)
-                ->retry(2, 400)
-                ->post($baseUrl . '/v1/oauth2/token', ['grant_type' => 'client_credentials']);
-
-            if (!$response->ok()) {
-                throw new \Exception('Token error: ' . $response->status());
-            }
-
-            $token = $response->json('access_token');
-            if (!$token) {
-                throw new \Exception('Token empty');
-            }
+            $token = $this->getPayPalAccessToken($cfg, $baseUrl);
 
             $currency = $order?->currency ?? $snapshot['currency'] ?? 'USD';
             $amount = $order?->total ?? $snapshot['total'] ?? 0;
 
-            $payload = [
-                'intent' => 'CAPTURE',
-                'purchase_units' => [[
-                    'amount' => [
-                        'currency_code' => strtoupper($currency),
-                        'value' => number_format($amount, 2, '.', ''),
-                    ],
-                ]],
-                'application_context' => [
-                    'return_url' =>
-                    route('paypal.return', ['payment' => $payment->id]),
-                    'cancel_url' =>
-                    route('paypal.cancel', ['payment' => $payment->id]),
-                    'shipping_preference' => 'NO_SHIPPING',
-                ],
-            ];
+            $payload = $this->buildPayPalOrderPayload($currency, $amount, $payment->id);
 
             $response = Http::withToken($token)
                 ->acceptJson()
@@ -184,17 +119,7 @@ class PaymentGatewayService
             }
 
             $data = $response->json();
-            $approvalUrl = '';
-            foreach (($data['links'] ?? []) as $link) {
-                if (($link['rel'] ?? '') === 'approve') {
-                    $approvalUrl = $link['href'] ?? '';
-                    break;
-                }
-            }
-
-            if (!$approvalUrl) {
-                throw new \Exception('Approval link missing');
-            }
+            $approvalUrl = $this->extractApprovalUrl($data);
 
             $payment->payload = array_merge($payment->payload ?? [], [
                 'paypal_order_id' => $data['id'] ?? null,
@@ -365,5 +290,110 @@ class PaymentGatewayService
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    private function determineChargeStatus(array $json): string
+    {
+        $status = $json['status'] ?? $json['data']['status'] ?? null;
+
+        if (in_array(strtoupper($status), ['CAPTURED', 'AUTHORIZED', 'PAID', 'SUCCESS'], true)) {
+            return 'paid';
+        } elseif (in_array(strtoupper($status), ['FAILED', 'CANCELLED', 'DECLINED'], true)) {
+            return 'failed';
+        } else {
+            return 'processing';
+        }
+    }
+
+    private function updatePaymentStatus(Payment $payment, string $status, string $slug): void
+    {
+        $payment->status = $status;
+        $payment->payload = array_merge($payment->payload ?? [], [
+            $slug . '_charge_status' => $status
+        ]);
+        $payment->save();
+    }
+
+    private function handleSuccessfulPayment(Payment $payment): void
+    {
+        $order = $payment->order;
+        if (!$order) {
+            $order = $this->createOrderFromSnapshot($payment);
+        }
+
+        if ($order && $order->status !== 'paid') {
+            $order->status = 'paid';
+            $order->save();
+        }
+
+        try {
+            session()->forget('cart');
+        } catch (\Throwable $_) {
+            // Ignore cart clearing errors
+        }
+    }
+
+    private function createPaymentRecord(?Order $order, ?int $orderId, ?array $snapshot, string $method): Payment
+    {
+        return Payment::create([
+            'order_id' => $orderId,
+            'user_id' => $order?->user_id ?? $snapshot['user_id'] ?? null,
+            'method' => $method,
+            'amount' => $order?->total ?? $snapshot['total'] ?? 0,
+            'currency' => $order?->currency ?? $snapshot['currency'] ?? 'USD',
+            'status' => 'pending',
+            'payload' => [
+                'order_reference' => $orderId,
+                'checkout_snapshot' => $snapshot,
+            ],
+        ]);
+    }
+
+    private function getPayPalAccessToken(array $cfg, string $baseUrl): string
+    {
+        $response = Http::withBasicAuth($cfg['paypal_client_id'], $cfg['paypal_secret'])
+            ->asForm()
+            ->timeout(25)
+            ->retry(2, 400)
+            ->post($baseUrl . '/v1/oauth2/token', ['grant_type' => 'client_credentials']);
+
+        if (!$response->ok()) {
+            throw new \Exception('Token error: ' . $response->status());
+        }
+
+        $token = $response->json('access_token');
+        if (!$token) {
+            throw new \Exception('Token empty');
+        }
+
+        return $token;
+    }
+
+    private function buildPayPalOrderPayload(string $currency, float $amount, int $paymentId): array
+    {
+        return [
+            'intent' => 'CAPTURE',
+            'purchase_units' => [[
+                'amount' => [
+                    'currency_code' => strtoupper($currency),
+                    'value' => number_format($amount, 2, '.', ''),
+                ],
+            ]],
+            'application_context' => [
+                'return_url' => route('paypal.return', ['payment' => $paymentId]),
+                'cancel_url' => route('paypal.cancel', ['payment' => $paymentId]),
+                'shipping_preference' => 'NO_SHIPPING',
+            ],
+        ];
+    }
+
+    private function extractApprovalUrl(array $data): string
+    {
+        foreach (($data['links'] ?? []) as $link) {
+            if (($link['rel'] ?? '') === 'approve') {
+                return $link['href'] ?? '';
+            }
+        }
+        throw new \Exception('Approval link missing');
     }
 }
