@@ -51,4 +51,3 @@ vendor/
 .github/
 
 # Complexity analysis files
-complexity_issues.txt
