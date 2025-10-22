@@ -1,428 +1,674 @@
 ﻿/**
- * Simplified Admin JavaScript
- * Minimal functionality with reduced complexity
+ * Ultra Simple Admin JavaScript
+ * Basic functionality only
  */
 (function () {
     'use strict';
 
-    window.AdminPanel = {
-        galleryManager: null,
+    // Simple Admin object
+    window.AdminPanel = {};
+    AdminPanel.galleryManager = null;
 
-        init() {
-            this.initSidebar();
-            this.initDropdowns();
-            this.initConfirmations();
-            this.initProductForm();
-            this.initMediaManager();
-        },
+    // Initialize everything
+    AdminPanel.init = function () {
+        this.initSidebar();
+        this.initDropdowns();
+        this.initConfirmations();
+        this.initProductForm();
+        this.initMediaManager();
+    };
 
-        initSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.getElementById('mobileMenuToggle');
-            const overlay = document.querySelector('.sidebar-overlay');
+    // Simple sidebar toggle
+    AdminPanel.initSidebar = function () {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('mobileMenuToggle');
+        const overlay = document.querySelector('.sidebar-overlay');
 
-            if (!sidebar || !toggle) return;
+        if (!sidebar || !toggle) return;
 
-            const toggleSidebar = () => {
-                sidebar.classList.toggle('active');
-                overlay?.classList.toggle('active');
-            };
+        // Toggle sidebar
+        toggle.addEventListener('click', function (e) {
+            e.preventDefault();
+            sidebar.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active');
+        });
 
-            toggle.addEventListener('click', e => {
-                e.preventDefault();
-                toggleSidebar();
+        // Close sidebar when clicking overlay
+        if (overlay) {
+            overlay.addEventListener('click', function () {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
             });
+        }
 
-            overlay?.addEventListener('click', toggleSidebar);
+        // Close sidebar on mobile when clicking nav items
+        document.addEventListener('click', function (e) {
+            const navItem = e.target.closest('.nav-item');
+            if (navItem && window.innerWidth <= 992) {
+                sidebar.classList.remove('active');
+                if (overlay) overlay.classList.remove('active');
+            }
+        });
 
-            document.addEventListener('click', e => {
-                if (e.target.closest('.nav-item') && window.innerWidth <= 992) {
-                    toggleSidebar();
+        // Handle window resize
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 992) {
+                sidebar.classList.remove('active');
+                if (overlay) overlay.classList.remove('active');
+            }
+        });
+    };
+
+    // Simple dropdowns
+    AdminPanel.initDropdowns = function () {
+        // Handle dropdown clicks
+        document.addEventListener('click', function (e) {
+            const toggle = e.target.closest('.dropdown-toggle');
+            if (!toggle) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const dropdown = toggle.closest('.dropdown');
+            if (!dropdown) return;
+
+            const isOpen = dropdown.classList.contains('show');
+
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown.show').forEach(function (openDropdown) {
+                if (openDropdown !== dropdown) {
+                    openDropdown.classList.remove('show');
+                    const openToggle = openDropdown.querySelector('.dropdown-toggle');
+                    if (openToggle) openToggle.setAttribute('aria-expanded', 'false');
                 }
             });
 
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 992) {
-                    sidebar.classList.remove('active');
-                    overlay?.classList.remove('active');
-                }
-            });
-        },
+            // Toggle current dropdown
+            if (isOpen) {
+                dropdown.classList.remove('show');
+                toggle.setAttribute('aria-expanded', 'false');
+            } else {
+                dropdown.classList.add('show');
+                toggle.setAttribute('aria-expanded', 'true');
+            }
+        });
 
-        initDropdowns() {
-            document.addEventListener('click', e => {
-                const toggle = e.target.closest('.dropdown-toggle');
-                if (!toggle) return;
-
-                e.preventDefault();
-                e.stopPropagation();
-
-                const dropdown = toggle.closest('.dropdown');
-                if (!dropdown) return;
-
-                // Close other dropdowns
-                document.querySelectorAll('.dropdown.show').forEach(d => {
-                    if (d !== dropdown) {
-                        d.classList.remove('show');
-                        d.querySelector('.dropdown-toggle')?.setAttribute('aria-expanded', 'false');
-                    }
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown.show').forEach(function (dropdown) {
+                    dropdown.classList.remove('show');
+                    const toggle = dropdown.querySelector('.dropdown-toggle');
+                    if (toggle) toggle.setAttribute('aria-expanded', 'false');
                 });
+            }
+        });
+    };
 
-                // Toggle current
-                const isOpen = dropdown.classList.contains('show');
-                dropdown.classList.toggle('show');
-                toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
-            });
-
-            // Close on outside click
-            document.addEventListener('click', e => {
-                if (!e.target.closest('.dropdown')) {
-                    document.querySelectorAll('.dropdown.show').forEach(d => {
-                        d.classList.remove('show');
-                        d.querySelector('.dropdown-toggle')?.setAttribute('aria-expanded', 'false');
-                    });
+    // Simple confirmations
+    AdminPanel.initConfirmations = function () {
+        // Form confirmations
+        document.querySelectorAll('form.js-confirm, form.js-confirm-delete').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                const msg = form.dataset.confirm || 'Are you sure?';
+                if (!confirm(msg)) {
+                    e.preventDefault();
                 }
             });
-        },
+        });
 
-        initConfirmations() {
-            const confirmAction = e => {
-                const msg = e.target.dataset.confirm || e.target.closest('[data-confirm]')?.dataset.confirm || 'Are you sure?';
-                if (!confirm(msg)) e.preventDefault();
-            };
+        // Link/button confirmations
+        document.querySelectorAll('[data-confirm]').forEach(function (element) {
+            element.addEventListener('click', function (e) {
+                const msg = element.getAttribute('data-confirm');
+                if (!confirm(msg)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    };
 
-            document.querySelectorAll('form.js-confirm, form.js-confirm-delete').forEach(form => {
-                form.addEventListener('submit', confirmAction);
+    // Product form management
+    AdminPanel.initProductForm = function () {
+        const typeSelect = document.getElementById('type-select');
+        const physicalTypeSelect = document.getElementById('physical-type-select');
+
+        if (!typeSelect || !physicalTypeSelect) return;
+
+        if (!AdminPanel.galleryManager) {
+            AdminPanel.galleryManager = AdminPanel.setupGalleryManager();
+        }
+
+        const variableOnly = document.querySelectorAll('.variable-only');
+        const simpleOnly = document.querySelectorAll('.simple-only');
+        const digitalOnly = document.querySelectorAll('.digital-only');
+
+        function toggleSections() {
+            const isVariable = typeSelect.value === 'variable';
+            const isPhysical = physicalTypeSelect.value === 'physical';
+            const isDigital = physicalTypeSelect.value === 'digital';
+
+            // Variations only show for variable physical products
+            variableOnly.forEach(el => {
+                if (isVariable && isPhysical) {
+                    el.classList.remove('d-none');
+                } else {
+                    el.classList.add('d-none');
+                }
             });
 
-            document.querySelectorAll('[data-confirm]').forEach(el => {
-                el.addEventListener('click', confirmAction);
+            // Simple pricing shows for simple products (both physical and digital)
+            simpleOnly.forEach(el => {
+                if (!isVariable) {
+                    el.classList.remove('d-none');
+                } else {
+                    el.classList.add('d-none');
+                }
             });
-        },
 
-        initProductForm() {
-            const typeSelect = document.getElementById('type-select');
-            const physicalTypeSelect = document.getElementById('physical-type-select');
+            // Digital fields show for digital products
+            digitalOnly.forEach(el => {
+                if (isDigital) {
+                    el.classList.remove('d-none');
+                    el.classList.remove('envato-hidden');
+                } else {
+                    el.classList.add('d-none');
+                    el.classList.add('envato-hidden');
+                }
+            });
+        }
 
-            if (!typeSelect || !physicalTypeSelect) return;
+        // Attach listeners and ensure correct initial visibility
+        typeSelect.addEventListener('change', toggleSections);
+        physicalTypeSelect.addEventListener('change', toggleSections);
+        toggleSections();
 
-            this.galleryManager = this.setupGalleryManager();
+        // Helper function for cartesian product
+        function cartesianProduct(arrays) {
+            return arrays.reduce((acc, curr) => {
+                return acc.flatMap(a => curr.map(b => a.concat(b)));
+            }, [[]]);
+        }
 
-            const toggleSections = () => {
-                const isVariable = typeSelect.value === 'variable';
-                const isPhysical = physicalTypeSelect.value === 'physical';
-                const isDigital = physicalTypeSelect.value === 'digital';
+        // Helper function to get selected attributes
+        function getSelectedAttributes() {
+            return Array.from(document.querySelectorAll('.used-attr-checkbox:checked')).map(cb => cb.value);
+        }
 
-                document.querySelectorAll('.variable-only').forEach(el =>
-                    el.classList.toggle('d-none', !(isVariable && isPhysical))
-                );
+        // Create a variation row with selected attributes
+        function createVariationRow(selectedAttrs) {
+            const tbody = document.querySelector('#variations-table tbody');
+            if (!tbody) return;
 
-                document.querySelectorAll('.simple-only').forEach(el =>
-                    el.classList.toggle('d-none', isVariable)
-                );
+            const rowCount = tbody.querySelectorAll('tr').length;
+            const meta = document.getElementById('product-variation-meta');
+            let attributesHtml = '';
+            let nameParts = [];
 
-                document.querySelectorAll('.digital-only').forEach(el => {
-                    el.classList.toggle('d-none', !isDigital);
-                    el.classList.toggle('envato-hidden', !isDigital);
-                });
-            };
+            if (meta && selectedAttrs.length > 0) {
+                try {
+                    const attrData = JSON.parse(atob(meta.dataset.attributes || 'W10='));
 
-            typeSelect.addEventListener('change', toggleSections);
-            physicalTypeSelect.addEventListener('change', toggleSections);
-            toggleSections();
-
-            // Simplified variation management
-            const getSelectedAttrs = () => Array.from(document.querySelectorAll('.used-attr-checkbox:checked')).map(cb => cb.value);
-
-            const createVariationRow = selectedAttrs => {
-                const tbody = document.querySelector('#variations-table tbody');
-                if (!tbody) return;
-
-                const rowCount = tbody.querySelectorAll('tr').length;
-                const meta = document.getElementById('product-variation-meta');
-                let attributesHtml = '';
-
-                if (meta && selectedAttrs.length > 0) {
-                    try {
-                        const attrData = JSON.parse(atob(meta.dataset.attributes || 'W10='));
-                        attributesHtml = selectedAttrs.map(attrSlug => {
-                            const attr = attrData.find(a => a.slug === attrSlug);
-                            return attr ? `
+                    selectedAttrs.forEach(attrSlug => {
+                        const attr = attrData.find(a => a.slug === attrSlug);
+                        if (attr) {
+                            attributesHtml += `
                                 <select name="variations[${rowCount}][attributes][${attrSlug}]" class="form-select form-select-sm mb-1 variation-attr-select" data-attr-name="${attr.name}">
                                     <option value="">${attr.name}</option>
                                     ${attr.values.map(val => `<option value="${val.value}">${val.value}</option>`).join('')}
-                                </select>` : '';
-                        }).join('');
-                    } catch (e) {
-                        console.error('Error parsing variation meta:', e);
-                    }
+                                </select>
+                            `;
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error parsing variation meta data:', e);
                 }
+            }
 
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td class="text-center"><input type="checkbox" name="variations[${rowCount}][active]" value="1" checked class="form-check-input"></td>
-                    <td>
-                        <div class="mb-2"><input type="text" name="variations[${rowCount}][name]" class="form-control form-control-sm variation-name" placeholder="Variation Name"></div>
-                        <div>${attributesHtml}</div>
-                    </td>
-                    <td class="d-none d-md-table-cell"><input type="text" name="variations[${rowCount}][sku]" class="form-control form-control-sm"></td>
-                    <td><input type="number" step="0.01" name="variations[${rowCount}][price]" class="form-control form-control-sm" required></td>
-                    <td class="d-none d-lg-table-cell"><input type="number" step="0.01" name="variations[${rowCount}][sale_price]" class="form-control form-control-sm"></td>
-                    <td class="d-none d-md-table-cell"><input type="number" name="variations[${rowCount}][stock_qty]" value="0" class="form-control form-control-sm"></td>
-                    <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger remove-variation"><i class="fas fa-trash-alt"></i></button></td>
-                `;
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td class="text-center">
+                    <input type="checkbox" name="variations[${rowCount}][active]" value="1" checked class="form-check-input">
+                </td>
+                <td>
+                    <div class="mb-2">
+                        <input type="text" name="variations[${rowCount}][name]" class="form-control form-control-sm variation-name" placeholder="Variation Name">
+                    </div>
+                    <div>
+                        ${attributesHtml}
+                    </div>
+                </td>
+                <td class="d-none d-md-table-cell">
+                    <input type="text" name="variations[${rowCount}][sku]" class="form-control form-control-sm">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="variations[${rowCount}][price]" class="form-control form-control-sm" required>
+                </td>
+                <td class="d-none d-lg-table-cell">
+                    <input type="number" step="0.01" name="variations[${rowCount}][sale_price]" class="form-control form-control-sm">
+                </td>
+                <td class="d-none d-md-table-cell">
+                    <input type="number" name="variations[${rowCount}][stock_qty]" value="0" class="form-control form-control-sm">
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-variation">
+                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(newRow);
 
-                tbody.appendChild(newRow);
-
-                newRow.querySelectorAll('.variation-attr-select').forEach(select => {
-                    select.addEventListener('change', () => this.updateVariationName(newRow));
+            // Add listener to update name when attributes change
+            newRow.querySelectorAll('.variation-attr-select').forEach(select => {
+                select.addEventListener('change', function () {
+                    updateVariationName(newRow);
                 });
-            };
+            });
+        }
 
-            document.addEventListener('click', e => {
-                if (e.target.closest('.remove-variation')) {
-                    e.preventDefault();
-                    e.target.closest('tr').remove();
+        // Update variation name based on selected attributes
+        function updateVariationName(row) {
+            const selects = row.querySelectorAll('.variation-attr-select');
+            const nameParts = [];
+            selects.forEach(select => {
+                if (select.value) {
+                    const attrName = select.dataset.attrName;
+                    nameParts.push(`${attrName}: ${select.value}`);
                 }
             });
+            const nameInput = row.querySelector('.variation-name');
+            if (nameInput && nameParts.length > 0) {
+                nameInput.value = nameParts.join(', ');
+            }
+        }
 
-            document.getElementById('add-variation')?.addEventListener('click', () => {
-                const selectedAttrs = getSelectedAttrs();
+        // Remove variation row
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.remove-variation')) {
+                e.preventDefault();
+                e.target.closest('tr').remove();
+            }
+        });
+
+        // Add variation row (manual add)
+        const addBtn = document.getElementById('add-variation');
+        if (addBtn) {
+            addBtn.addEventListener('click', function () {
+                const selectedAttrs = getSelectedAttributes();
                 if (selectedAttrs.length === 0) {
                     alert('Please select at least one attribute first.');
                     return;
                 }
                 createVariationRow(selectedAttrs);
             });
+        }
 
-            document.querySelectorAll('.used-attr-checkbox').forEach(cb => {
-                cb.addEventListener('change', () => {
-                    document.querySelectorAll('#variations-table tbody tr:not([data-variation-id])').forEach(row => row.remove());
-                });
+        // Add listeners for attribute checkboxes
+        document.querySelectorAll('.used-attr-checkbox').forEach(cb => {
+            cb.addEventListener('change', function () {
+                // Clear existing dynamic rows when attributes change
+                const tbody = document.querySelector('#variations-table tbody');
+                const existingRows = tbody.querySelectorAll('tr:not([data-variation-id])');
+                existingRows.forEach(row => row.remove());
             });
-        },
+        });
+    };
 
-        updateVariationName(row) {
-            const selects = row.querySelectorAll('.variation-attr-select');
-            const nameParts = Array.from(selects).map(select => select.value ? `${select.dataset.attrName}: ${select.value}` : '').filter(Boolean);
-            const nameInput = row.querySelector('.variation-name');
-            if (nameInput && nameParts.length > 0) {
-                nameInput.value = nameParts.join(', ');
-            }
-        },
+    AdminPanel.getStorageUrl = function (path) {
+        if (!path) {
+            return '';
+        }
 
-        getStorageUrl(path) {
-            if (!path || /^https?:\/\//i.test(path)) return path || '';
-            const base = document.body.getAttribute('data-storage-base') || '';
-            if (!base) return path;
-            const cleaned = path.replace(/^\/+/, '').replace(/^storage\//, '');
-            return base.replace(/\/+$/, '') + '/' + cleaned;
-        },
+        if (/^https?:\/\//i.test(path)) {
+            return path;
+        }
 
-        setupGalleryManager() {
-            const container = document.getElementById('gallery-manager');
-            const input = document.getElementById('gallery-input');
-            if (!container || !input) return null;
+        const base = document.body.getAttribute('data-storage-base') || '';
+        if (!base) {
+            return path;
+        }
 
-            const manager = {
-                getValues: () => {
-                    try {
-                        const parsed = JSON.parse(input.value || '[]');
-                        return Array.isArray(parsed) ? parsed : [];
-                    } catch {
-                        return [];
-                    }
-                },
-                setValues: values => {
-                    input.value = JSON.stringify(values);
-                    input.dispatchEvent(new Event('change'));
-                },
-                add: paths => {
-                    const values = this.getValues();
-                    const list = Array.isArray(paths) ? paths : [paths];
-                    list.forEach(path => {
-                        if (path && !values.includes(path)) values.push(path);
-                    });
-                    this.setValues(values);
-                    this.render();
-                },
-                remove: index => {
-                    const values = this.getValues();
-                    if (index >= 0 && index < values.length) {
-                        values.splice(index, 1);
-                        this.setValues(values);
-                        this.render();
-                    }
-                },
-                render: () => {
-                    const values = this.getValues();
-                    container.innerHTML = '';
+        const trimmedBase = base.replace(/\/+$/, '');
+        const cleaned = path.replace(/^\/+/, '');
+        const withoutStorage = cleaned.startsWith('storage/') ? cleaned.substring(8) : cleaned;
 
-                    if (!values.length) {
-                        container.innerHTML = `<div class="text-muted small">${container.getAttribute('data-empty-text') || 'No images yet.'}</div>`;
+        return trimmedBase + '/' + withoutStorage;
+    };
+
+    AdminPanel.setupGalleryManager = function () {
+        const container = document.getElementById('gallery-manager');
+        const input = document.getElementById('gallery-input');
+
+        if (!container || !input) {
+            return null;
+        }
+
+        const manager = {
+            getValues() {
+                const raw = input.value;
+                if (!raw) {
+                    return [];
+                }
+
+                if (Array.isArray(raw)) {
+                    return raw;
+                }
+
+                try {
+                    const parsed = JSON.parse(raw);
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (e) {
+                    return [];
+                }
+            },
+            setValues(values) {
+                input.value = JSON.stringify(values);
+                input.dispatchEvent(new Event('change'));
+            },
+            add(paths) {
+                const values = this.getValues();
+                const list = Array.isArray(paths) ? paths : [paths];
+
+                list.forEach(path => {
+                    if (!path) {
                         return;
                     }
+                    if (!values.includes(path)) {
+                        values.push(path);
+                    }
+                });
 
-                    values.forEach((path, index) => {
-                        const item = document.createElement('div');
-                        item.className = 'border rounded d-flex align-items-center gap-2 p-1 admin-gallery-item';
-
-                        const thumb = document.createElement('div');
-                        thumb.className = 'admin-gallery-thumb flex-shrink-0';
-                        thumb.style.cssText = 'width:56px;height:56px;border-radius:0.25rem;background-size:cover;background-position:center;';
-                        const url = AdminPanel.getStorageUrl(path);
-                        thumb.style.backgroundImage = url ? `url('${encodeURI(url)}')` : '';
-                        if (!url) thumb.classList.add('bg-light');
-
-                        const label = document.createElement('div');
-                        label.className = 'small text-truncate flex-grow-1';
-                        label.title = label.textContent = path;
-
-                        const removeBtn = document.createElement('button');
-                        removeBtn.type = 'button';
-                        removeBtn.className = 'btn btn-sm btn-outline-danger';
-                        removeBtn.setAttribute('data-remove-index', index.toString());
-                        removeBtn.textContent = '×';
-
-                        item.append(thumb, label, removeBtn);
-                        container.appendChild(item);
-                    });
+                this.setValues(values);
+                this.render();
+            },
+            remove(index) {
+                const values = this.getValues();
+                if (index < 0 || index >= values.length) {
+                    return;
                 }
-            };
+                values.splice(index, 1);
+                this.setValues(values);
+                this.render();
+            },
+            render() {
+                const values = this.getValues();
+                container.innerHTML = '';
 
-            container.addEventListener('click', e => {
-                const btn = e.target.closest('[data-remove-index]');
-                if (btn) {
-                    e.preventDefault();
-                    manager.remove(parseInt(btn.getAttribute('data-remove-index')));
+                if (!values.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'text-muted small';
+                    empty.textContent = container.getAttribute('data-empty-text') || 'No images yet.';
+                    container.appendChild(empty);
+                    return;
                 }
-            });
 
-            manager.render();
-            return manager;
-        },
+                values.forEach((path, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'border rounded d-flex align-items-center gap-2 p-1 admin-gallery-item';
 
-        initMediaManager() {
-            const modalEl = document.getElementById('mediaUploadModal');
-            if (!modalEl) return;
-
-            const form = modalEl.querySelector('#mediaUploadForm');
-            const fileInput = modalEl.querySelector('#mediaUploadInput');
-            const errorBox = modalEl.querySelector('[data-media-error]');
-            const submitBtn = modalEl.querySelector('[data-media-submit]');
-            const hint = modalEl.querySelector('[data-media-hint]');
-            const title = modalEl.querySelector('[data-media-title]');
-            const modal = window.bootstrap?.Modal ? new window.bootstrap.Modal(modalEl) : null;
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-            let currentConfig = null;
-
-            const resetModal = () => {
-                errorBox?.classList.add('d-none');
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = submitBtn.textContent;
-                }
-                form?.reset();
-                fileInput.value = '';
-            };
-
-            const showError = msg => {
-                if (errorBox) {
-                    errorBox.textContent = msg || 'Upload failed.';
-                    errorBox.classList.remove('d-none');
-                }
-            };
-
-            document.querySelectorAll('[data-open-media]').forEach(btn => {
-                btn.addEventListener('click', e => {
-                    e.preventDefault();
-                    const selector = btn.getAttribute('data-media-target');
-                    const targetField = selector ? document.querySelector(selector) : null;
-                    if (!targetField) return;
-
-                    currentConfig = {
-                        targetField,
-                        mode: btn.getAttribute('data-media-mode') === 'gallery' ? 'gallery' : 'single',
-                        accept: btn.getAttribute('data-media-accept') || 'image/*'
-                    };
-
-                    resetModal();
-
-                    if (fileInput) {
-                        fileInput.multiple = currentConfig.mode === 'gallery';
-                        fileInput.setAttribute('accept', currentConfig.accept);
+                    const thumb = document.createElement('div');
+                    thumb.className = 'admin-gallery-thumb flex-shrink-0';
+                    thumb.style.width = '56px';
+                    thumb.style.height = '56px';
+                    thumb.style.borderRadius = '0.25rem';
+                    thumb.style.backgroundSize = 'cover';
+                    thumb.style.backgroundPosition = 'center';
+                    const url = AdminPanel.getStorageUrl(path);
+                    if (url) {
+                        thumb.style.backgroundImage = "url('" + encodeURI(url) + "')";
+                    } else {
+                        thumb.classList.add('bg-light');
                     }
 
-                    hint.textContent = currentConfig.accept.includes('image') ?
-                        (currentConfig.mode === 'gallery' ? 'Accepted formats: JPG, PNG, WEBP. Max size 4 MB each.' : 'Accepted formats: JPG, PNG, WEBP. Max size 4 MB.') :
-                        'Accepted: ' + currentConfig.accept;
+                    const label = document.createElement('div');
+                    label.className = 'small text-truncate flex-grow-1';
+                    label.title = path;
+                    label.textContent = path;
 
-                    title.textContent = btn.getAttribute('data-media-label') || 'Upload Media';
-                    modal?.show();
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn btn-sm btn-outline-danger';
+                    removeBtn.setAttribute('data-remove-index', index.toString());
+                    removeBtn.textContent = '×';
+
+                    item.appendChild(thumb);
+                    item.appendChild(label);
+                    item.appendChild(removeBtn);
+                    container.appendChild(item);
                 });
-            });
+            },
+        };
 
-            form?.addEventListener('submit', async e => {
-                e.preventDefault();
-                if (!currentConfig || !fileInput?.files.length) {
+        container.addEventListener('click', function (event) {
+            const removeBtn = event.target.closest('[data-remove-index]');
+            if (!removeBtn) {
+                return;
+            }
+
+            event.preventDefault();
+            const index = parseInt(removeBtn.getAttribute('data-remove-index'), 10);
+            if (Number.isNaN(index)) {
+                return;
+            }
+
+            manager.remove(index);
+        });
+
+        manager.render();
+
+        return manager;
+    };
+
+    AdminPanel.initMediaManager = function () {
+        const modalEl = document.getElementById('mediaUploadModal');
+        if (!modalEl) {
+            return;
+        }
+
+        const form = modalEl.querySelector('#mediaUploadForm');
+        const fileInput = modalEl.querySelector('#mediaUploadInput');
+        const errorBox = modalEl.querySelector('[data-media-error]');
+        const submitBtn = modalEl.querySelector('[data-media-submit]');
+        const hint = modalEl.querySelector('[data-media-hint]');
+        const title = modalEl.querySelector('[data-media-title]');
+        const submitDefaultText = submitBtn ? submitBtn.textContent : '';
+        const modal = window.bootstrap && window.bootstrap.Modal ? new window.bootstrap.Modal(modalEl) : null;
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : null;
+
+        let currentConfig = null;
+
+        function resetModal() {
+            if (errorBox) {
+                errorBox.classList.add('d-none');
+                errorBox.textContent = '';
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = submitDefaultText;
+            }
+            if (form) {
+                form.reset();
+            }
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        }
+
+        function buildHintText(accept, multiple) {
+            if (!accept || accept.indexOf('image') !== -1) {
+                return multiple ? 'Accepted formats: JPG, PNG, WEBP. Max size 4 MB each.' : 'Accepted formats: JPG, PNG, WEBP. Max size 4 MB.';
+            }
+
+            return 'Accepted: ' + accept;
+        }
+
+        function showError(message) {
+            if (!errorBox) {
+                return;
+            }
+            errorBox.textContent = message || 'Upload failed.';
+            errorBox.classList.remove('d-none');
+        }
+
+        function parseError(data) {
+            if (!data) {
+                return 'Upload failed.';
+            }
+
+            if (typeof data.message === 'string') {
+                return data.message;
+            }
+
+            if (data.errors) {
+                const first = Object.values(data.errors).flat()[0];
+                if (typeof first === 'string') {
+                    return first;
+                }
+            }
+
+            return 'Upload failed.';
+        }
+
+        function attachButton(button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                const selector = button.getAttribute('data-media-target');
+                if (!selector) {
+                    return;
+                }
+
+                const targetField = document.querySelector(selector);
+                if (!targetField) {
+                    return;
+                }
+
+                const mode = button.getAttribute('data-media-mode') === 'gallery' ? 'gallery' : 'single';
+                const accept = button.getAttribute('data-media-accept') || 'image/*';
+                const label = button.getAttribute('data-media-label') || 'Upload Media';
+
+                currentConfig = {
+                    targetField,
+                    mode,
+                    accept,
+                };
+
+                resetModal();
+
+                if (fileInput) {
+                    fileInput.multiple = mode === 'gallery';
+                    fileInput.setAttribute('accept', accept);
+                }
+
+                if (hint) {
+                    hint.textContent = buildHintText(accept, mode === 'gallery');
+                }
+
+                if (title) {
+                    title.textContent = label;
+                }
+
+                if (modal) {
+                    modal.show();
+                }
+            });
+        }
+
+        document.querySelectorAll('[data-open-media]').forEach(attachButton);
+
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                if (!currentConfig || !fileInput) {
+                    return;
+                }
+
+                const files = Array.from(fileInput.files || []);
+                if (!files.length) {
                     showError('Please choose at least one file.');
                     return;
                 }
 
                 const formData = new FormData();
                 const fieldName = fileInput.multiple ? 'images[]' : 'image';
-                Array.from(fileInput.files).forEach(file => formData.append(fieldName, file));
-                if (csrfToken) formData.append('_token', csrfToken);
+                files.forEach(file => formData.append(fieldName, file));
+
+                if (csrfToken) {
+                    formData.append('_token', csrfToken);
+                }
 
                 if (submitBtn) {
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'Uploading…';
                 }
 
-                try {
-                    const response = await fetch(form.getAttribute('action'), {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest',
-                            ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {})
-                        },
-                        body: formData
-                    });
-
-                    const data = await response.json().catch(() => null);
-                    if (!response.ok || !data?.success) {
-                        throw new Error(data?.message || 'Upload failed.');
-                    }
-
-                    if (currentConfig.mode === 'gallery' && this.galleryManager) {
-                        const paths = data.files.map(f => f.path).filter(Boolean);
-                        if (paths.length) this.galleryManager.add(paths);
-                    } else if (currentConfig.targetField) {
-                        const path = data.files[0]?.path;
-                        if (path) {
-                            currentConfig.targetField.value = path;
-                            currentConfig.targetField.dispatchEvent(new Event('change'));
+                fetch(form.getAttribute('action'), {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}),
+                    },
+                    body: formData,
+                })
+                    .then(async response => {
+                        const data = await response.json().catch(() => null);
+                        if (!response.ok || !data || !data.success) {
+                            throw new Error(parseError(data));
                         }
-                    }
+                        return data;
+                    })
+                    .then(data => {
+                        if (currentConfig.mode === 'gallery' && AdminPanel.galleryManager) {
+                            const paths = data.files.map(file => file.path).filter(Boolean);
+                            if (paths.length) {
+                                AdminPanel.galleryManager.add(paths);
+                            }
+                        } else if (currentConfig.targetField) {
+                            const first = data.files[0] ? data.files[0].path : '';
+                            if (typeof first === 'string') {
+                                currentConfig.targetField.value = first;
+                                currentConfig.targetField.dispatchEvent(new Event('change'));
+                            }
+                        }
 
-                    modal?.hide();
-                } catch (error) {
-                    showError(error.message);
-                } finally {
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = submitBtn.textContent;
-                    }
-                }
+                        if (modal) {
+                            modal.hide();
+                        }
+
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = submitDefaultText;
+                        }
+                    })
+                    .catch(error => {
+                        showError(error.message);
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = submitDefaultText;
+                        }
+                    })
+                    .finally(() => {
+                        if (submitBtn && !submitBtn.disabled) {
+                            submitBtn.textContent = submitDefaultText;
+                        }
+                    });
             });
         }
     };
 
-    // Initialize on DOM ready
-    document.readyState === 'loading' ?
-        document.addEventListener('DOMContentLoaded', () => AdminPanel.init()) :
+    // Start when page loads
+    function start() {
         AdminPanel.init();
+    }
+
+    // Initialize
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start);
+    } else {
+        start();
+    }
 
 })();
