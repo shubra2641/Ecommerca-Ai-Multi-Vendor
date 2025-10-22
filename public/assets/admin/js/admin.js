@@ -2,6 +2,8 @@
  * Ultra Simple Admin JavaScript
  * Basic functionality only
  */
+/* eslint-disable no-alert, no-console */
+/* global AdminPanel, atob, Event */
 (function () {
     'use strict';
 
@@ -10,7 +12,7 @@
     AdminPanel.galleryManager = null;
 
     // Initialize everything
-    AdminPanel.init = function () {
+    AdminPanel.init = function() {
         this.initSidebar();
         this.initDropdowns();
         this.initConfirmations();
@@ -19,63 +21,75 @@
     };
 
     // Simple sidebar toggle
-    AdminPanel.initSidebar = function () {
+    AdminPanel.initSidebar = function() {
         const sidebar = document.getElementById('sidebar');
         const toggle = document.getElementById('mobileMenuToggle');
         const overlay = document.querySelector('.sidebar-overlay');
 
-        if (!sidebar || !toggle) return;
+        if (!sidebar || !toggle) {
+            return;
+        }
 
         // Toggle sidebar
-        toggle.addEventListener('click', function (e) {
+        toggle.addEventListener('click', function(e) {
             e.preventDefault();
             sidebar.classList.toggle('active');
-            if (overlay) overlay.classList.toggle('active');
+            if (overlay) {
+                overlay.classList.toggle('active');
+            }
         });
 
         // Close sidebar when clicking overlay
         if (overlay) {
-            overlay.addEventListener('click', function () {
+            overlay.addEventListener('click', function() {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
             });
         }
 
         // Close sidebar on mobile when clicking nav items
-        document.addEventListener('click', function (e) {
+        document.addEventListener('click', function(e) {
             const navItem = e.target.closest('.nav-item');
             if (navItem && window.innerWidth <= 992) {
                 sidebar.classList.remove('active');
-                if (overlay) overlay.classList.remove('active');
+                if (overlay) {
+                    overlay.classList.remove('active');
+                }
             }
         });
 
         // Handle window resize
-        window.addEventListener('resize', function () {
+        window.addEventListener('resize', function() {
             if (window.innerWidth > 992) {
                 sidebar.classList.remove('active');
-                if (overlay) overlay.classList.remove('active');
+                if (overlay) {
+                    overlay.classList.remove('active');
+                }
             }
         });
     };
 
     // Simple dropdowns
-    AdminPanel.initDropdowns = function () {
+    AdminPanel.initDropdowns = function() {
         // Handle dropdown clicks
-        document.addEventListener('click', function (e) {
+        document.addEventListener('click', function(e) {
             const toggle = e.target.closest('.dropdown-toggle');
-            if (!toggle) return;
+            if (!toggle) {
+                return;
+            }
 
             e.preventDefault();
             e.stopPropagation();
 
             const dropdown = toggle.closest('.dropdown');
-            if (!dropdown) return;
+            if (!dropdown) {
+                return;
+            }
 
             const isOpen = dropdown.classList.contains('show');
 
             // Close all other dropdowns
-            document.querySelectorAll('.dropdown.show').forEach(function (openDropdown) {
+            document.querySelectorAll('.dropdown.show').forEach(function(openDropdown) {
                 if (openDropdown !== dropdown) {
                     openDropdown.classList.remove('show');
                     const openToggle = openDropdown.querySelector('.dropdown-toggle');
@@ -94,9 +108,9 @@
         });
 
         // Close dropdowns when clicking outside
-        document.addEventListener('click', function (e) {
+        document.addEventListener('click', function(e) {
             if (!e.target.closest('.dropdown')) {
-                document.querySelectorAll('.dropdown.show').forEach(function (dropdown) {
+                document.querySelectorAll('.dropdown.show').forEach(function(dropdown) {
                     dropdown.classList.remove('show');
                     const toggle = dropdown.querySelector('.dropdown-toggle');
                     if (toggle) toggle.setAttribute('aria-expanded', 'false');
@@ -106,10 +120,10 @@
     };
 
     // Simple confirmations
-    AdminPanel.initConfirmations = function () {
+    AdminPanel.initConfirmations = function() {
         // Form confirmations
-        document.querySelectorAll('form.js-confirm, form.js-confirm-delete').forEach(function (form) {
-            form.addEventListener('submit', function (e) {
+        document.querySelectorAll('form.js-confirm, form.js-confirm-delete').forEach(function(form) {
+            form.addEventListener('submit', function(e) {
                 const msg = form.dataset.confirm || 'Are you sure?';
                 if (!confirm(msg)) {
                     e.preventDefault();
@@ -118,8 +132,8 @@
         });
 
         // Link/button confirmations
-        document.querySelectorAll('[data-confirm]').forEach(function (element) {
-            element.addEventListener('click', function (e) {
+        document.querySelectorAll('[data-confirm]').forEach(function(element) {
+            element.addEventListener('click', function(e) {
                 const msg = element.getAttribute('data-confirm');
                 if (!confirm(msg)) {
                     e.preventDefault();
@@ -129,7 +143,7 @@
     };
 
     // Product form management
-    AdminPanel.initProductForm = function () {
+    AdminPanel.initProductForm = function() {
         const typeSelect = document.getElementById('type-select');
         const physicalTypeSelect = document.getElementById('physical-type-select');
 
@@ -283,7 +297,7 @@
         }
 
         // Remove variation row
-        document.addEventListener('click', function (e) {
+        document.addEventListener('click', function(e) {
             if (e.target.closest('.remove-variation')) {
                 e.preventDefault();
                 e.target.closest('tr').remove();
@@ -293,7 +307,7 @@
         // Add variation row (manual add)
         const addBtn = document.getElementById('add-variation');
         if (addBtn) {
-            addBtn.addEventListener('click', function () {
+            addBtn.addEventListener('click', function() {
                 const selectedAttrs = getSelectedAttributes();
                 if (selectedAttrs.length === 0) {
                     alert('Please select at least one attribute first.');
@@ -305,7 +319,7 @@
 
         // Add listeners for attribute checkboxes
         document.querySelectorAll('.used-attr-checkbox').forEach(cb => {
-            cb.addEventListener('change', function () {
+            cb.addEventListener('change', function() {
                 // Clear existing dynamic rows when attributes change
                 const tbody = document.querySelector('#variations-table tbody');
                 const existingRows = tbody.querySelectorAll('tr:not([data-variation-id])');
@@ -314,7 +328,7 @@
         });
     };
 
-    AdminPanel.getStorageUrl = function (path) {
+    AdminPanel.getStorageUrl = function(path) {
         if (!path) {
             return '';
         }
@@ -335,7 +349,7 @@
         return trimmedBase + '/' + withoutStorage;
     };
 
-    AdminPanel.setupGalleryManager = function () {
+    AdminPanel.setupGalleryManager = function() {
         const container = document.getElementById('gallery-manager');
         const input = document.getElementById('gallery-input');
 
@@ -439,7 +453,7 @@
             },
         };
 
-        container.addEventListener('click', function (event) {
+        container.addEventListener('click', function(event) {
             const removeBtn = event.target.closest('[data-remove-index]');
             if (!removeBtn) {
                 return;
@@ -459,7 +473,7 @@
         return manager;
     };
 
-    AdminPanel.initMediaManager = function () {
+    AdminPanel.initMediaManager = function() {
         const modalEl = document.getElementById('mediaUploadModal');
         if (!modalEl) {
             return;
@@ -531,7 +545,7 @@
         }
 
         function attachButton(button) {
-            button.addEventListener('click', function (event) {
+            button.addEventListener('click', function(event) {
                 event.preventDefault();
 
                 const selector = button.getAttribute('data-media-target');
@@ -578,7 +592,7 @@
         document.querySelectorAll('[data-open-media]').forEach(attachButton);
 
         if (form) {
-            form.addEventListener('submit', function (event) {
+            form.addEventListener('submit', function(event) {
                 event.preventDefault();
 
                 if (!currentConfig || !fileInput) {
@@ -671,4 +685,4 @@
         start();
     }
 
-})();
+}());
