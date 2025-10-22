@@ -68,6 +68,9 @@ class PaytabsGateway
                 try {
                     $client = Http::acceptJson();
                     // Log which config key is used (do not log the secret value)
+                    try {
+                    } catch (\Throwable $_) {
+                    }
                     if (! empty($secret)) {
                         $authType = $gateway->config['auth_type'] ?? null;
                         if ($authType === 'header') {

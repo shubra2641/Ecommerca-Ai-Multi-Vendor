@@ -95,7 +95,6 @@ class ProductRequest extends FormRequest
                     }
                 }
             } catch (\Throwable $e) {
-                \Log::error('Product validation error', ['error' => $e->getMessage()]);
             }
 
             // Stock validation for simple products

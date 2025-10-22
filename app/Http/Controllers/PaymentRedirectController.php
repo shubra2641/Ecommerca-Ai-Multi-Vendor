@@ -84,13 +84,9 @@ class PaymentRedirectController extends Controller
 
                             return view('payments.redirect', ['payment' => $payment]);
                         }
+                    } else {
                     }
                 } catch (\Exception $e) {
-                    Log::error('Payment redirect error', [
-                        'payment_id' => $payment->id,
-                        'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString()
-                    ]);
                 }
             }
         } else {
@@ -182,11 +178,6 @@ class PaymentRedirectController extends Controller
                 $order->save();
             }
         } catch (\Throwable $e) {
-            Log::error('Error updating payment/order failure status', [
-                'payment_id' => $payment->id,
-                'order_id' => $order?->id,
-                'error' => $e->getMessage()
-            ]);
         }
 
         $errorMessage = $payment->failure_reason ?? __('Payment failed or cancelled');

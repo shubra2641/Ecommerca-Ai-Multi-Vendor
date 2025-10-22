@@ -2,23 +2,12 @@
  * Ultra Simple Admin JavaScript
  * Basic functionality only
  */
-/* eslint-disable no-alert, no-console */
-/* global AdminPanel, atob, Event */
-const MOBILE_BREAKPOINT = 992;
-const STORAGE_PREFIX = 'storage/';
 (function () {
     'use strict';
 
     // Simple Admin object
     window.AdminPanel = {};
     AdminPanel.galleryManager = null;
-
-    // Simple HTML escape function to prevent XSS
-    AdminPanel.escapeHtml = function (text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    };
 
     // Initialize everything
     AdminPanel.init = function () {
@@ -27,6 +16,7 @@ const STORAGE_PREFIX = 'storage/';
         this.initConfirmations();
         this.initProductForm();
         this.initMediaManager();
+        this.initCountup();
     };
 
     // Simple sidebar toggle
@@ -35,45 +25,37 @@ const STORAGE_PREFIX = 'storage/';
         const toggle = document.getElementById('mobileMenuToggle');
         const overlay = document.querySelector('.sidebar-overlay');
 
-        if (!sidebar || !toggle) {
-            return;
-        }
+        if (!sidebar || !toggle) return;
 
         // Toggle sidebar
-        toggle.addEventListener('click', (e) => {
+        toggle.addEventListener('click', function (e) {
             e.preventDefault();
             sidebar.classList.toggle('active');
-            if (overlay) {
-                overlay.classList.toggle('active');
-            }
+            if (overlay) overlay.classList.toggle('active');
         });
 
         // Close sidebar when clicking overlay
         if (overlay) {
-            overlay.addEventListener('click', () => {
+            overlay.addEventListener('click', function () {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
             });
         }
 
         // Close sidebar on mobile when clicking nav items
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', function (e) {
             const navItem = e.target.closest('.nav-item');
-            if (navItem && window.innerWidth <= MOBILE_BREAKPOINT) {
+            if (navItem && window.innerWidth <= 992) {
                 sidebar.classList.remove('active');
-                if (overlay) {
-                    overlay.classList.remove('active');
-                }
+                if (overlay) overlay.classList.remove('active');
             }
         });
 
         // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > MOBILE_BREAKPOINT) {
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 992) {
                 sidebar.classList.remove('active');
-                if (overlay) {
-                    overlay.classList.remove('active');
-                }
+                if (overlay) overlay.classList.remove('active');
             }
         });
     };
@@ -81,28 +63,24 @@ const STORAGE_PREFIX = 'storage/';
     // Simple dropdowns
     AdminPanel.initDropdowns = function () {
         // Handle dropdown clicks
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', function (e) {
             const toggle = e.target.closest('.dropdown-toggle');
-            if (!toggle) {
-                return;
-            }
+            if (!toggle) return;
 
             e.preventDefault();
             e.stopPropagation();
 
             const dropdown = toggle.closest('.dropdown');
-            if (!dropdown) {
-                return;
-            }
+            if (!dropdown) return;
 
             const isOpen = dropdown.classList.contains('show');
 
             // Close all other dropdowns
-            document.querySelectorAll('.dropdown.show').forEach((openDropdown) => {
+            document.querySelectorAll('.dropdown.show').forEach(function (openDropdown) {
                 if (openDropdown !== dropdown) {
                     openDropdown.classList.remove('show');
                     const openToggle = openDropdown.querySelector('.dropdown-toggle');
-                    if (openToggle) { openToggle.setAttribute('aria-expanded', 'false'); }
+                    if (openToggle) openToggle.setAttribute('aria-expanded', 'false');
                 }
             });
 
@@ -117,22 +95,21 @@ const STORAGE_PREFIX = 'storage/';
         });
 
         // Close dropdowns when clicking outside
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', function (e) {
             if (!e.target.closest('.dropdown')) {
-                document.querySelectorAll('.dropdown.show').forEach((dropdown) => {
+                document.querySelectorAll('.dropdown.show').forEach(function (dropdown) {
                     dropdown.classList.remove('show');
                     const toggle = dropdown.querySelector('.dropdown-toggle');
-                    if (toggle) { toggle.setAttribute('aria-expanded', 'false'); }
+                    if (toggle) toggle.setAttribute('aria-expanded', 'false');
                 });
             }
         });
     };
 
     // Simple confirmations
-    AdminPanel.initConfirmations = function () {
         // Form confirmations
-        document.querySelectorAll('form.js-confirm, form.js-confirm-delete').forEach((form) => {
-            form.addEventListener('submit', (e) => {
+        document.querySelectorAll('form.js-confirm, form.js-confirm-delete').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
                 const msg = form.dataset.confirm || 'Are you sure?';
                 if (!confirm(msg)) {
                     e.preventDefault();
@@ -141,8 +118,8 @@ const STORAGE_PREFIX = 'storage/';
         });
 
         // Link/button confirmations
-        document.querySelectorAll('[data-confirm]').forEach((element) => {
-            element.addEventListener('click', (e) => {
+        document.querySelectorAll('[data-confirm]').forEach(function (element) {
+            element.addEventListener('click', function (e) {
                 const msg = element.getAttribute('data-confirm');
                 if (!confirm(msg)) {
                     e.preventDefault();
@@ -156,9 +133,7 @@ const STORAGE_PREFIX = 'storage/';
         const typeSelect = document.getElementById('type-select');
         const physicalTypeSelect = document.getElementById('physical-type-select');
 
-        if (!typeSelect || !physicalTypeSelect) {
-            return;
-        }
+        if (!typeSelect || !physicalTypeSelect) return;
 
         if (!AdminPanel.galleryManager) {
             AdminPanel.galleryManager = AdminPanel.setupGalleryManager();
@@ -208,6 +183,13 @@ const STORAGE_PREFIX = 'storage/';
         physicalTypeSelect.addEventListener('change', toggleSections);
         toggleSections();
 
+        // Helper function for cartesian product
+        function cartesianProduct(arrays) {
+            return arrays.reduce((acc, curr) => {
+                return acc.flatMap(a => curr.map(b => a.concat(b)));
+            }, [[]]);
+        }
+
         // Helper function to get selected attributes
         function getSelectedAttributes() {
             return Array.from(document.querySelectorAll('.used-attr-checkbox:checked')).map(cb => cb.value);
@@ -216,13 +198,12 @@ const STORAGE_PREFIX = 'storage/';
         // Create a variation row with selected attributes
         function createVariationRow(selectedAttrs) {
             const tbody = document.querySelector('#variations-table tbody');
-            if (!tbody) {
-                return;
-            }
+            if (!tbody) return;
 
             const rowCount = tbody.querySelectorAll('tr').length;
             const meta = document.getElementById('product-variation-meta');
             let attributesHtml = '';
+            let nameParts = [];
 
             if (meta && selectedAttrs.length > 0) {
                 try {
@@ -231,53 +212,47 @@ const STORAGE_PREFIX = 'storage/';
                     selectedAttrs.forEach(attrSlug => {
                         const attr = attrData.find(a => a.slug === attrSlug);
                         if (attr) {
-                            const escapedSlug = AdminPanel.escapeHtml(attrSlug);
-                            const escapedName = AdminPanel.escapeHtml(attr.name);
-                            const optionsHtml = attr.values.map(val =>
-                                `<option value='${AdminPanel.escapeHtml(val.value)}'>${AdminPanel.escapeHtml(val.value)}</option>`
-                            ).join('');
-
                             attributesHtml += `
-                                <select name='variations[${rowCount}][attributes][${escapedSlug}]' class='form-select form-select-sm mb-1 variation-attr-select' data-attr-name='${escapedName}'>
-                                    <option value=''>${escapedName}</option>
-                                    ${optionsHtml}
+                                <select name="variations[${rowCount}][attributes][${attrSlug}]" class="form-select form-select-sm mb-1 variation-attr-select" data-attr-name="${attr.name}">
+                                    <option value="">${attr.name}</option>
+                                    ${attr.values.map(val => `<option value="${val.value}">${val.value}</option>`).join('')}
                                 </select>
                             `;
                         }
                     });
-                } catch {
-                    console.error('Error parsing variation meta data');
+                } catch (e) {
+                    console.error('Error parsing variation meta data:', e);
                 }
             }
 
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
                 <td class="text-center">
-                    <input type='checkbox' name='variations[${rowCount}][active]' value='1' checked class='form-check-input'>
+                    <input type="checkbox" name="variations[${rowCount}][active]" value="1" checked class="form-check-input">
                 </td>
                 <td>
                     <div class="mb-2">
-                        <input type='text' name='variations[${rowCount}][name]' class='form-control form-control-sm variation-name' placeholder='Variation Name'>
+                        <input type="text" name="variations[${rowCount}][name]" class="form-control form-control-sm variation-name" placeholder="Variation Name">
                     </div>
                     <div>
                         ${attributesHtml}
                     </div>
                 </td>
                 <td class="d-none d-md-table-cell">
-                    <input type='text' name='variations[${rowCount}][sku]' class='form-control form-control-sm'>
+                    <input type="text" name="variations[${rowCount}][sku]" class="form-control form-control-sm">
                 </td>
                 <td>
-                    <input type='number' step='0.01' name='variations[${rowCount}][price]' class='form-control form-control-sm' required>
+                    <input type="number" step="0.01" name="variations[${rowCount}][price]" class="form-control form-control-sm" required>
                 </td>
                 <td class="d-none d-lg-table-cell">
-                    <input type='number' step='0.01' name='variations[${rowCount}][sale_price]' class='form-control form-control-sm'>
+                    <input type="number" step="0.01" name="variations[${rowCount}][sale_price]" class="form-control form-control-sm">
                 </td>
                 <td class="d-none d-md-table-cell">
-                    <input type='number' name='variations[${rowCount}][stock_qty]' value='0' class='form-control form-control-sm'>
+                    <input type="number" name="variations[${rowCount}][stock_qty]" value="0" class="form-control form-control-sm">
                 </td>
                 <td class="text-center">
-                    <button type='button' class='btn btn-sm btn-outline-danger remove-variation'>
-                        <i class='fas fa-trash-alt' aria-hidden='true'></i>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-variation">
+                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
                     </button>
                 </td>
             `;
@@ -285,7 +260,7 @@ const STORAGE_PREFIX = 'storage/';
 
             // Add listener to update name when attributes change
             newRow.querySelectorAll('.variation-attr-select').forEach(select => {
-                select.addEventListener('change', () => {
+                select.addEventListener('change', function () {
                     updateVariationName(newRow);
                 });
             });
@@ -308,7 +283,7 @@ const STORAGE_PREFIX = 'storage/';
         }
 
         // Remove variation row
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', function (e) {
             if (e.target.closest('.remove-variation')) {
                 e.preventDefault();
                 e.target.closest('tr').remove();
@@ -318,7 +293,7 @@ const STORAGE_PREFIX = 'storage/';
         // Add variation row (manual add)
         const addBtn = document.getElementById('add-variation');
         if (addBtn) {
-            addBtn.addEventListener('click', () => {
+            addBtn.addEventListener('click', function () {
                 const selectedAttrs = getSelectedAttributes();
                 if (selectedAttrs.length === 0) {
                     alert('Please select at least one attribute first.');
@@ -330,7 +305,7 @@ const STORAGE_PREFIX = 'storage/';
 
         // Add listeners for attribute checkboxes
         document.querySelectorAll('.used-attr-checkbox').forEach(cb => {
-            cb.addEventListener('change', () => {
+            cb.addEventListener('change', function () {
                 // Clear existing dynamic rows when attributes change
                 const tbody = document.querySelector('#variations-table tbody');
                 const existingRows = tbody.querySelectorAll('tr:not([data-variation-id])');
@@ -355,7 +330,7 @@ const STORAGE_PREFIX = 'storage/';
 
         const trimmedBase = base.replace(/\/+$/, '');
         const cleaned = path.replace(/^\/+/, '');
-        const withoutStorage = cleaned.startsWith(STORAGE_PREFIX) ? cleaned.substring(STORAGE_PREFIX.length) : cleaned;
+        const withoutStorage = cleaned.startsWith('storage/') ? cleaned.substring(8) : cleaned;
 
         return trimmedBase + '/' + withoutStorage;
     };
@@ -382,7 +357,7 @@ const STORAGE_PREFIX = 'storage/';
                 try {
                     const parsed = JSON.parse(raw);
                     return Array.isArray(parsed) ? parsed : [];
-                } catch {
+                } catch (e) {
                     return [];
                 }
             },
@@ -440,7 +415,7 @@ const STORAGE_PREFIX = 'storage/';
                     thumb.style.backgroundPosition = 'center';
                     const url = AdminPanel.getStorageUrl(path);
                     if (url) {
-                        thumb.style.backgroundImage = 'url(\'' + encodeURI(url) + '\')';
+                        thumb.style.backgroundImage = "url('" + encodeURI(url) + "')";
                     } else {
                         thumb.classList.add('bg-light');
                     }
@@ -461,10 +436,10 @@ const STORAGE_PREFIX = 'storage/';
                     item.appendChild(removeBtn);
                     container.appendChild(item);
                 });
-            }
+            },
         };
 
-        container.addEventListener('click', (event) => {
+        container.addEventListener('click', function (event) {
             const removeBtn = event.target.closest('[data-remove-index]');
             if (!removeBtn) {
                 return;
@@ -556,7 +531,7 @@ const STORAGE_PREFIX = 'storage/';
         }
 
         function attachButton(button) {
-            button.addEventListener('click', (event) => {
+            button.addEventListener('click', function (event) {
                 event.preventDefault();
 
                 const selector = button.getAttribute('data-media-target');
@@ -576,7 +551,7 @@ const STORAGE_PREFIX = 'storage/';
                 currentConfig = {
                     targetField,
                     mode,
-                    accept
+                    accept,
                 };
 
                 resetModal();
@@ -603,7 +578,7 @@ const STORAGE_PREFIX = 'storage/';
         document.querySelectorAll('[data-open-media]').forEach(attachButton);
 
         if (form) {
-            form.addEventListener('submit', (event) => {
+            form.addEventListener('submit', function (event) {
                 event.preventDefault();
 
                 if (!currentConfig || !fileInput) {
@@ -634,9 +609,9 @@ const STORAGE_PREFIX = 'storage/';
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
-                        ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {})
+                        ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}),
                     },
-                    body: formData
+                    body: formData,
                 })
                     .then(async response => {
                         const data = await response.json().catch(() => null);
@@ -695,4 +670,5 @@ const STORAGE_PREFIX = 'storage/';
     } else {
         start();
     }
-}());
+
+})();

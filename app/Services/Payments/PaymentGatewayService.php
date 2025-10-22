@@ -72,53 +72,43 @@ class PaymentGatewayService
             }
 
             $json = $resp->json();
-            $status = $this->getPaymentStatusFromApiResponse($json);
+            $status = $json['status'] ?? $json['data']['status'] ?? null;
 
-            $payment->status = $status;
+            if (in_array(strtoupper($status), ['CAPTURED', 'AUTHORIZED', 'PAID', 'SUCCESS'], true)) {
+                $finalStatus = 'paid';
+            } elseif (in_array(strtoupper($status), ['FAILED', 'CANCELLED', 'DECLINED'], true)) {
+                $finalStatus = 'failed';
+            } else {
+                $finalStatus = 'processing';
+            }
+
+            $payment->status = $finalStatus;
             $payment->payload = array_merge($payment->payload ?? [], [
-                $gateway->slug . '_charge_status' => $status
+                $gateway->slug . '_charge_status' => $finalStatus
             ]);
             $payment->save();
 
             if ($payment->status === 'paid') {
-                $this->handleSuccessfulPayment($payment);
+                $order = $payment->order;
+                if (!$order) {
+                    $order = $this->createOrderFromSnapshot($payment);
+                }
+
+                if ($order && $order->status !== 'paid') {
+                    $order->status = 'paid';
+                    $order->save();
+                }
+
+                try {
+                    session()->forget('cart');
+                } catch (\Throwable $_) {
+                    // Ignore cart clearing errors
+                }
             }
 
             return ['payment' => $payment, 'status' => $payment->status, 'charge' => $json];
         } catch (\Throwable $e) {
             return ['success' => false, 'status' => 'pending', 'data' => null];
-        }
-    }
-
-    private function getPaymentStatusFromApiResponse(array $json): string
-    {
-        $status = $json['status'] ?? $json['data']['status'] ?? null;
-
-        if (in_array(strtoupper($status), ['CAPTURED', 'AUTHORIZED', 'PAID', 'SUCCESS'], true)) {
-            return 'paid';
-        } elseif (in_array(strtoupper($status), ['FAILED', 'CANCELLED', 'DECLINED'], true)) {
-            return 'failed';
-        } else {
-            return 'processing';
-        }
-    }
-
-    private function handleSuccessfulPayment(Payment $payment): void
-    {
-        $order = $payment->order;
-        if (!$order) {
-            $order = $this->createOrderFromSnapshot($payment);
-        }
-
-        if ($order && $order->status !== 'paid') {
-            $order->status = 'paid';
-            $order->save();
-        }
-
-        try {
-            session()->forget('cart');
-        } catch (\Throwable $_) {
-            // Ignore cart clearing errors
         }
     }
 

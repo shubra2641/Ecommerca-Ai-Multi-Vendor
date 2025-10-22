@@ -158,7 +158,6 @@ class PaypalController extends Controller
                                 });
                                 $payment->order_id = $order->id;
                             } catch (\Throwable $e) {
-                                Log::error('Error creating order from payment', ['error' => $e->getMessage()]);
                             }
                         }
                     }

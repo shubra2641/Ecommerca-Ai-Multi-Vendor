@@ -10,7 +10,7 @@ class ReturnsController extends Controller
 {
     public function index()
     {
-        $paginator = OrderItem::whereHas('order', fn($q) => $q->where('user_id', auth()->id()))
+        $paginator = OrderItem::whereHas('order', fn ($q) => $q->where('user_id', auth()->id()))
             ->with('product', 'order')
             ->orderByDesc('created_at')
             ->paginate(20);
@@ -71,7 +71,6 @@ class ReturnsController extends Controller
         try {
             session()->flash('refresh_admin_notifications', true);
         } catch (\Throwable $e) {
-            \Log::warning('Error refreshing admin notifications', ['error' => $e->getMessage()]);
         }
 
         return back()->with('success', __('Return request submitted'));

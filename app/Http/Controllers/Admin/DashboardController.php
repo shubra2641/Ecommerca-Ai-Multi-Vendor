@@ -522,7 +522,6 @@ class DashboardController extends Controller
             $stats = $this->buildFreshStats();
             $chartData = $this->getRegistrationChartData();
             $salesChartData = $this->getSalesChartData();
-            $activities = [];
 
             return response()->json([
                 'success' => true,

@@ -44,6 +44,9 @@ class PayeerGateway
                     $client = $client->withToken($secret);
                 }
                 $resp = $client->post($apiBase . '/charges', $chargePayload);
+                try {
+                } catch (\Throwable $_) {
+                }
                 if (! $resp->ok()) {
                     throw new \Exception('Charge error: ' . $resp->status() . ' ' . substr($resp->body(), 0, 200));
                 }

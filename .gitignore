@@ -49,6 +49,3 @@ vendor/
 .cursor/
 .codacy/
 .github/
-
-# Complexity analysis files
-complexity_issues.txt

@@ -106,7 +106,7 @@ class PaymentGatewayController extends Controller
         // Offline gateway logic
         if ($data['driver'] === 'offline') {
             $gateway->transfer_instructions = isset($data['transfer_instructions'])
-                ? strip_tags($data['transfer_instructions'] ?? '')
+                ? $sanitizer->clean($data['transfer_instructions'] ?? '')
                 : null;
             $gateway->requires_transfer_image = ! empty($data['requires_transfer_image']);
             // Remove other driver configurations when switching
