@@ -475,7 +475,9 @@ class ProductCatalogController extends Controller
         // For variable products, check if ANY variation has stock
         if ($product->type === 'variable' && $activeVars->isNotEmpty()) {
             $hasAnyStock = $activeVars->filter(function ($v) {
-                if (!$v->manage_stock) return true; // Unlimited stock
+                if (!$v->manage_stock) {
+                    return true; // Unlimited stock
+                }
                 $availableStock = ($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0);
                 return $availableStock > 0;
             })->isNotEmpty();

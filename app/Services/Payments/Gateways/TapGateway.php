@@ -131,6 +131,7 @@ class TapGateway
                         $payment->order_id = $order->id;
                         $payment->save();
                     } catch (\Throwable $e) {
+                        \Log::error('TapGateway: Error creating order', ['error' => $e->getMessage()]);
                     }
                 }
             }

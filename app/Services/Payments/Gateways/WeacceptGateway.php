@@ -218,6 +218,7 @@ class WeacceptGateway
                                     break;
                                 }
                             } catch (\Throwable $inner2) {
+                                \Log::warning('WeacceptGateway: Auth attempt failed', ['error' => $inner2->getMessage()]);
                             }
                         }
                     }
