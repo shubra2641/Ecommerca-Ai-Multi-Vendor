@@ -4,91 +4,105 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Cache;
 
 class NotificationService
 {
+    /**
+     * Get notification statistics for user
+     */
     public function getStats(User $user): array
     {
-        $cacheKey = "user.{$user->id}.notifications.stats";
-
-        return Cache::remember($cacheKey, 300, function () use ($user) {
-            $total = $user->notifications()->count();
-            $unread = $user->unreadNotifications()->count();
-
-            return [
-                'total' => $total,
-                'unread' => $unread,
-                'read' => $total - $unread,
-            ];
-        });
+        return [
+            'total' => $user->notifications()->count(),
+            'unread' => $user->unreadNotifications()->count(),
+            'read' => $user->readNotifications()->count(),
+        ];
     }
 
+    /**
+     * Get latest notifications for user
+     */
     public function getLatest(User $user, int $limit = 10): Collection
     {
         return $user->notifications()
             ->latest()
-            ->take($limit)
-            ->get(['id', 'data', 'read_at', 'created_at']);
+            ->limit($limit)
+            ->get()
+            ->map(function ($notification) {
+                return [
+                    'id' => $notification->id,
+                    'data' => $notification->data,
+                    'read_at' => $notification->read_at,
+                    'created_at' => $notification->created_at->diffForHumans(),
+                ];
+            });
     }
 
+    /**
+     * Mark notification as read
+     */
     public function markAsRead(User $user, string $id): bool
     {
-        $updated = $user->notifications()
-            ->where('id', $id)
-            ->whereNull('read_at')
-            ->update(['read_at' => now()]);
+        $notification = $user->notifications()->where('id', $id)->first();
 
-        if ($updated > 0) {
-            $this->clearStatsCache($user);
-            return true;
+        if (!$notification) {
+            return false;
         }
 
-        return false;
+        if ($notification->read_at) {
+            return true; // Already read
+        }
+
+        $notification->markAsRead();
+        return true;
     }
 
+    /**
+     * Mark all notifications as read
+     */
     public function markAllAsRead(User $user): int
     {
-        $count = $user->unreadNotifications()->update(['read_at' => now()]);
-
-        if ($count > 0) {
-            $this->clearStatsCache($user);
-        }
-
-        return $count;
+        return $user->unreadNotifications()->update(['read_at' => now()]);
     }
 
+    /**
+     * Delete notification
+     */
     public function delete(User $user, string $id): bool
     {
-        $deleted = $user->notifications()->where('id', $id)->delete();
+        $notification = $user->notifications()->where('id', $id)->first();
 
-        if ($deleted > 0) {
-            $this->clearStatsCache($user);
-            return true;
+        if (!$notification) {
+            return false;
         }
 
-        return false;
+        $notification->delete();
+        return true;
     }
 
+    /**
+     * Clear all notifications
+     */
     public function clearAll(User $user): int
     {
-        $count = $user->notifications()->delete();
-        $this->clearStatsCache($user);
+        $count = $user->notifications()->count();
+        $user->notifications()->delete();
         return $count;
     }
 
+    /**
+     * Get unread count
+     */
     public function getUnreadCount(User $user): int
     {
         return $user->unreadNotifications()->count();
     }
 
+    /**
+     * Get paginated notifications
+     */
     public function getPaginated(User $user, int $perPage = 25)
     {
         return $user->notifications()->latest()->paginate($perPage);
-    }
-
-    private function clearStatsCache(User $user): void
-    {
-        Cache::forget("user.{$user->id}.notifications.stats");
     }
 }
