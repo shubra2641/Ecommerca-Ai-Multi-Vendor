@@ -54,22 +54,22 @@ class PaymentGatewayService
 
     public function verifyGenericGatewayCharge(Payment $payment, PaymentGateway $gateway): array
     {
-        $chargeId = $this->getChargeId($payment, $gateway);
-        $secret = $this->getGatewaySecret($gateway);
+        $chargeId = PaymentGatewayHelper::getChargeId($payment->payload, $gateway->slug);
+        $secret = PaymentGatewayHelper::getGatewaySecret($gateway->config);
 
         if (!$secret || !$chargeId) {
             throw new \RuntimeException('Missing gateway secret or charge id for verify');
         }
 
-        $apiBase = $this->getApiBase($gateway);
+        $apiBase = PaymentGatewayHelper::getApiBase($gateway->config, $gateway->slug);
 
         try {
-            $chargeData = $this->fetchChargeData($apiBase, $secret, $chargeId);
+            $chargeData = PaymentGatewayHelper::fetchChargeData($apiBase, $secret, $chargeId);
             if (!$chargeData) {
                 return ['payment' => $gateway, 'status' => 'pending', 'charge' => null];
             }
 
-            $finalStatus = $this->mapChargeStatus($chargeData);
+            $finalStatus = PaymentGatewayHelper::mapChargeStatus($chargeData);
             $this->updatePaymentStatus($payment, $gateway, $finalStatus);
 
             if ($finalStatus === 'paid') {
@@ -80,40 +80,6 @@ class PaymentGatewayService
         } catch (\Throwable $e) {
             return ['success' => false, 'status' => 'pending', 'data' => null];
         }
-    }
-
-    private function getChargeId(Payment $payment, PaymentGateway $gateway): ?string
-    {
-        return $payment->payload[$gateway->slug . '_charge_id'] ?? $payment->payload['charge_id'] ?? null;
-    }
-
-    private function getGatewaySecret(PaymentGateway $gateway): ?string
-    {
-        $cfg = $gateway->config ?? [];
-        return $cfg['secret_key'] ?? ($cfg['api_key'] ?? null);
-    }
-
-    private function getApiBase(PaymentGateway $gateway): string
-    {
-        $cfg = $gateway->config ?? [];
-        return rtrim($cfg['api_base'] ?? ('https://api.' . $gateway->slug . '.com'), '/');
-    }
-
-    private function fetchChargeData(string $apiBase, string $secret, string $chargeId): ?array
-    {
-        $resp = Http::withToken($secret)->acceptJson()->get($apiBase . '/charges/' . $chargeId);
-        return $resp->ok() ? $resp->json() : null;
-    }
-
-    private function mapChargeStatus(array $chargeData): string
-    {
-        $status = $chargeData['status'] ?? $chargeData['data']['status'] ?? null;
-        if (in_array(strtoupper($status), ['CAPTURED', 'AUTHORIZED', 'PAID', 'SUCCESS'], true)) {
-            return 'paid';
-        } elseif (in_array(strtoupper($status), ['FAILED', 'CANCELLED', 'DECLINED'], true)) {
-            return 'failed';
-        }
-        return 'processing';
     }
 
     private function updatePaymentStatus(Payment $payment, PaymentGateway $gateway, string $status): void
@@ -151,25 +117,19 @@ class PaymentGatewayService
         ?array $snapshot = null
     ): array {
         $cfg = $gateway->config ?? [];
-        $baseUrl = $this->getPayPalBaseUrl($cfg);
+        $baseUrl = PaymentGatewayHelper::getPayPalBaseUrl($cfg);
 
         return DB::transaction(function () use ($order, $orderId, $snapshot, $cfg, $baseUrl) {
             $payment = $this->createPayPalPayment($order, $orderId, $snapshot);
 
-            $token = $this->getPayPalAccessToken($baseUrl, $cfg);
-            $payload = $this->buildPayPalOrderPayload($order, $snapshot, $payment);
-            $orderData = $this->createPayPalOrder($baseUrl, $token, $payload);
+            $token = PaymentGatewayHelper::getPayPalAccessToken($baseUrl, $cfg);
+            $payload = PaymentGatewayHelper::buildPayPalOrderPayload($order, $snapshot, $payment);
+            $orderData = PaymentGatewayHelper::createPayPalOrder($baseUrl, $token, $payload);
 
             $this->updatePayPalPaymentPayload($payment, $orderData, $token);
 
             return ['payment' => $payment, 'redirect_url' => $orderData['approval_url'], 'paypal_order' => $orderData['data']];
         });
-    }
-
-    private function getPayPalBaseUrl(array $cfg): string
-    {
-        $mode = ($cfg['paypal_mode'] ?? 'sandbox') === 'live' ? 'live' : 'sandbox';
-        return $mode === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
     }
 
     private function createPayPalPayment(?Order $order, ?int $orderId, ?array $snapshot): Payment
@@ -186,75 +146,6 @@ class PaymentGatewayService
                 'checkout_snapshot' => $snapshot,
             ],
         ]);
-    }
-
-    private function getPayPalAccessToken(string $baseUrl, array $cfg): string
-    {
-        $response = Http::withBasicAuth($cfg['paypal_client_id'], $cfg['paypal_secret'])
-            ->asForm()
-            ->timeout(25)
-            ->retry(2, 400)
-            ->post($baseUrl . '/v1/oauth2/token', ['grant_type' => 'client_credentials']);
-
-        if (!$response->ok()) {
-            throw new \Exception('Token error: ' . $response->status());
-        }
-
-        $token = $response->json('access_token');
-        if (!$token) {
-            throw new \Exception('Token empty');
-        }
-
-        return $token;
-    }
-
-    private function buildPayPalOrderPayload(?Order $order, ?array $snapshot, Payment $payment): array
-    {
-        $currency = $order?->currency ?? $snapshot['currency'] ?? 'USD';
-        $amount = $order?->total ?? $snapshot['total'] ?? 0;
-
-        return [
-            'intent' => 'CAPTURE',
-            'purchase_units' => [[
-                'amount' => [
-                    'currency_code' => strtoupper($currency),
-                    'value' => number_format($amount, 2, '.', ''),
-                ],
-            ]],
-            'application_context' => [
-                'return_url' => route('paypal.return', ['payment' => $payment->id]),
-                'cancel_url' => route('paypal.cancel', ['payment' => $payment->id]),
-                'shipping_preference' => 'NO_SHIPPING',
-            ],
-        ];
-    }
-
-    private function createPayPalOrder(string $baseUrl, string $token, array $payload): array
-    {
-        $response = Http::withToken($token)
-            ->acceptJson()
-            ->timeout(25)
-            ->retry(2, 500)
-            ->post($baseUrl . '/v2/checkout/orders', $payload);
-
-        if ($response->status() < 200 || $response->status() >= 300) {
-            throw new \Exception('Create error: ' . $response->status());
-        }
-
-        $data = $response->json();
-        $approvalUrl = '';
-        foreach (($data['links'] ?? []) as $link) {
-            if (($link['rel'] ?? '') === 'approve') {
-                $approvalUrl = $link['href'] ?? '';
-                break;
-            }
-        }
-
-        if (!$approvalUrl) {
-            throw new \Exception('Approval link missing');
-        }
-
-        return ['data' => $data, 'approval_url' => $approvalUrl];
     }
 
     private function updatePayPalPaymentPayload(Payment $payment, array $orderData, string $token): void
