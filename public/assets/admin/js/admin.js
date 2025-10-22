@@ -5,7 +5,8 @@
 /* eslint-disable no-alert, no-console */
 /* global AdminPanel, atob, Event */
 const MOBILE_BREAKPOINT = 992;
-(function() {
+const STORAGE_PREFIX = 'storage/';
+(function () {
     'use strict';
 
     // Simple Admin object
@@ -13,7 +14,7 @@ const MOBILE_BREAKPOINT = 992;
     AdminPanel.galleryManager = null;
 
     // Initialize everything
-    AdminPanel.init = function() {
+    AdminPanel.init = function () {
         this.initSidebar();
         this.initDropdowns();
         this.initConfirmations();
@@ -22,7 +23,7 @@ const MOBILE_BREAKPOINT = 992;
     };
 
     // Simple sidebar toggle
-    AdminPanel.initSidebar = function() {
+    AdminPanel.initSidebar = function () {
         const sidebar = document.getElementById('sidebar');
         const toggle = document.getElementById('mobileMenuToggle');
         const overlay = document.querySelector('.sidebar-overlay');
@@ -71,7 +72,7 @@ const MOBILE_BREAKPOINT = 992;
     };
 
     // Simple dropdowns
-    AdminPanel.initDropdowns = function() {
+    AdminPanel.initDropdowns = function () {
         // Handle dropdown clicks
         document.addEventListener('click', (e) => {
             const toggle = e.target.closest('.dropdown-toggle');
@@ -94,7 +95,7 @@ const MOBILE_BREAKPOINT = 992;
                 if (openDropdown !== dropdown) {
                     openDropdown.classList.remove('show');
                     const openToggle = openDropdown.querySelector('.dropdown-toggle');
-                    if (openToggle) {openToggle.setAttribute('aria-expanded', 'false');}
+                    if (openToggle) { openToggle.setAttribute('aria-expanded', 'false'); }
                 }
             });
 
@@ -114,14 +115,14 @@ const MOBILE_BREAKPOINT = 992;
                 document.querySelectorAll('.dropdown.show').forEach((dropdown) => {
                     dropdown.classList.remove('show');
                     const toggle = dropdown.querySelector('.dropdown-toggle');
-                    if (toggle) {toggle.setAttribute('aria-expanded', 'false');}
+                    if (toggle) { toggle.setAttribute('aria-expanded', 'false'); }
                 });
             }
         });
     };
 
     // Simple confirmations
-    AdminPanel.initConfirmations = function() {
+    AdminPanel.initConfirmations = function () {
         // Form confirmations
         document.querySelectorAll('form.js-confirm, form.js-confirm-delete').forEach((form) => {
             form.addEventListener('submit', (e) => {
@@ -144,7 +145,7 @@ const MOBILE_BREAKPOINT = 992;
     };
 
     // Product form management
-    AdminPanel.initProductForm = function() {
+    AdminPanel.initProductForm = function () {
         const typeSelect = document.getElementById('type-select');
         const physicalTypeSelect = document.getElementById('physical-type-select');
 
@@ -325,7 +326,7 @@ const MOBILE_BREAKPOINT = 992;
         });
     };
 
-    AdminPanel.getStorageUrl = function(path) {
+    AdminPanel.getStorageUrl = function (path) {
         if (!path) {
             return '';
         }
@@ -341,12 +342,12 @@ const MOBILE_BREAKPOINT = 992;
 
         const trimmedBase = base.replace(/\/+$/, '');
         const cleaned = path.replace(/^\/+/, '');
-        const withoutStorage = cleaned.startsWith('storage/') ? cleaned.substring(8) : cleaned;
+        const withoutStorage = cleaned.startsWith(STORAGE_PREFIX) ? cleaned.substring(STORAGE_PREFIX.length) : cleaned;
 
         return trimmedBase + '/' + withoutStorage;
     };
 
-    AdminPanel.setupGalleryManager = function() {
+    AdminPanel.setupGalleryManager = function () {
         const container = document.getElementById('gallery-manager');
         const input = document.getElementById('gallery-input');
 
@@ -368,7 +369,7 @@ const MOBILE_BREAKPOINT = 992;
                 try {
                     const parsed = JSON.parse(raw);
                     return Array.isArray(parsed) ? parsed : [];
-                } catch (e) {
+                } catch {
                     return [];
                 }
             },
@@ -470,7 +471,7 @@ const MOBILE_BREAKPOINT = 992;
         return manager;
     };
 
-    AdminPanel.initMediaManager = function() {
+    AdminPanel.initMediaManager = function () {
         const modalEl = document.getElementById('mediaUploadModal');
         if (!modalEl) {
             return;
