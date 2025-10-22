@@ -253,9 +253,9 @@ class HomeController extends Controller
                     try {
                         $image = $p->main_image
                             ? asset('storage/' . $p->main_image)
-                            : asset('images/product-placeholder.svg');
+                            : asset('images/placeholder.svg');
                     } catch (\Throwable $e) {
-                        $image = asset('images/product-placeholder.svg');
+                        $image = asset('images/placeholder.svg');
                     }
                     $p->mini_image_url = $image;
                     $p->mini_image_is_placeholder = empty($p->main_image);

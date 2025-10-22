@@ -8,18 +8,14 @@
         <div class="admin-order-header">
             <div class="header-left">
                 <h1 class="admin-order-title">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
+                    <i class="fas fa-edit"></i>
                     {{ __('Create Blog Post') }}
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Add a new blog post') }}</p>
             </div>
             <div class="header-actions">
                 <a href="{{ route('admin.blog.posts.index') }}" class="admin-btn admin-btn-secondary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
+                    <i class="fas fa-arrow-left"></i>
                     {{ __('Back') }}
                 </a>
             </div>
@@ -33,15 +29,11 @@
             </div>
             <div class="admin-card-body">
                 <button type="submit" class="admin-btn admin-btn-primary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
-                    </svg>
+                    <i class="fas fa-save"></i>
                     {{ __('Save Post') }}
                 </button>
                 <a href="{{ route('admin.blog.posts.index') }}" class="admin-btn admin-btn-secondary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <i class="fas fa-times"></i>
                     {{ __('Cancel') }}
                 </a>
             </div>

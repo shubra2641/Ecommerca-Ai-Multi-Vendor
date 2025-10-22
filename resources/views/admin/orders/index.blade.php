@@ -10,10 +10,7 @@
             <div class="header-left">
                 <div class="admin-header-content">
                     <div class="admin-header-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16 11V7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7V11M5 9H19L18 21H6L5 9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M12 15V15.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-shopping-bag"></i>
                     </div>
                     <div class="admin-header-text">
                         <h1 class="admin-order-title">{{ __('Orders Management') }}</h1>
@@ -23,10 +20,7 @@
             </div>
             <div class="header-actions">
                 <button type="button" class="admin-btn admin-btn-secondary" data-action="export-orders">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 19.6642C20.0391 19.2893 19.5304 19 19 19H5C4.46957 19 3.96086 19.2893 3.58579 19.6642C3.21071 20.0391 3 20.5304 3 21V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <i class="fas fa-download"></i>
                     {{ __('Export') }}
                 </button>
             </div>
@@ -36,9 +30,7 @@
         <div class="admin-modern-card">
             <div class="admin-card-header">
                 <h3 class="admin-card-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 6H21M3 12H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <i class="fas fa-list"></i>
                     {{ __('Orders List') }}
                 </h3>
                 <p class="admin-card-subtitle">{{ __('Browse and manage customer orders') }}</p>
@@ -96,10 +88,7 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-sm btn-outline-primary">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" />
-                                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
-                                        </svg>
+                                        <i class="fas fa-eye"></i>
                                         {{ __('View') }}
                                     </a>
                                 </td>

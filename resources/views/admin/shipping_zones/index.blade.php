@@ -10,18 +10,14 @@
         <div class="admin-order-header">
             <div class="header-left">
                 <h1 class="admin-order-title">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <i class="fas fa-globe"></i>
                     {{ __('Shipping Zones') }}
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Manage shipping zones and their rules') }}</p>
             </div>
             <div class="header-actions">
                 <a href="{{ route('admin.shipping-zones.create') }}" class="admin-btn admin-btn-primary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M12 4v16m8-8H4" />
-                    </svg>
+                    <i class="fas fa-plus"></i>
                     {{ __('Create Zone') }}
                 </a>
             </div>
@@ -30,9 +26,7 @@
         <!-- Zones List -->
         <div class="admin-modern-card">
             <div class="admin-card-header">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
+                <i class="fas fa-list"></i>
                 <h3 class="admin-card-title">{{ __('All Zones') }}</h3>
                 <span class="admin-badge-count">{{ $zones->total() }}</span>
             </div>

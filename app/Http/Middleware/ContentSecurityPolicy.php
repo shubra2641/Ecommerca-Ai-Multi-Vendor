@@ -91,6 +91,8 @@ class ContentSecurityPolicy
             'https://secure.tap.company',
             'https://tap.company',
             'https://accept.paymob.com',
+            'https://www.google.com',
+            'https://maps.google.com',
         ];
 
         $connectHosts = [
@@ -118,7 +120,7 @@ class ContentSecurityPolicy
             'upgrade-insecure-requests',
         ];
         // Report-Only variant (exclude upgrade-insecure-requests to avoid warning)
-        $cspReportOnly = array_filter($cspEnforced, fn ($d) => $d !== 'upgrade-insecure-requests');
+        $cspReportOnly = array_filter($cspEnforced, fn($d) => $d !== 'upgrade-insecure-requests');
 
         $response->headers->set('Content-Security-Policy', implode('; ', $cspEnforced));
         // Reporting endpoints (Report-To & legacy report-uri)

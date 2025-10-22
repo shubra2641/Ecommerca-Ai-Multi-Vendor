@@ -10,10 +10,7 @@
             <div class="header-left">
                 <div class="admin-header-content">
                     <div class="admin-header-icon">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                        <i class="fas fa-cog"></i>
                     </div>
                     <div class="admin-header-text">
                         <h1 class="admin-order-title">{{ __('System Settings') }}</h1>
@@ -23,9 +20,7 @@
             </div>
             <div class="header-actions">
                 <a href="{{ route('admin.settings.index', ['refresh' => '1']) }}" class="admin-btn admin-btn-secondary">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
+                    <i class="fas fa-sync-alt"></i>
                     {{ __('Refresh Info') }}
                 </a>
             </div>
@@ -37,10 +32,7 @@
                 <div class="admin-modern-card">
                     <div class="admin-card-header">
                         <h2 class="admin-card-title">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
+                            <i class="fas fa-cog"></i>
                             {{ __('General Settings') }}
                         </h2>
                     </div>
@@ -311,15 +303,11 @@
                             <div class="admin-card-footer">
                                 <div class="admin-flex-end">
                                     <button type="submit" class="admin-btn admin-btn-primary">
-                                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                                        </svg>
+                                        <i class="fas fa-save"></i>
                                         {{ __('Save Settings') }}
                                     </button>
                                     <button type="button" class="admin-btn admin-btn-secondary js-reset-form" data-action="reset-settings-form">
-                                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                        </svg>
+                                        <i class="fas fa-sync-alt"></i>
                                         {{ __('Reset') }}
                                     </button>
                                 </div>
@@ -334,9 +322,7 @@
                 <div class="admin-modern-card">
                     <div class="admin-card-header">
                         <h2 class="admin-card-title">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <i class="fas fa-info-circle"></i>
                             {{ __('System Information') }}
                         </h2>
                     </div>
@@ -390,10 +376,7 @@
                 <div class="admin-modern-card">
                     <div class="admin-card-header">
                         <h2 class="admin-card-title">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
+                            <i class="fas fa-cog"></i>
                             {{ __('System Maintenance') }}
                         </h2>
                     </div>
@@ -402,9 +385,7 @@
                             <form action="{{ route('admin.cache.clear') }}" method="POST">
                                 @csrf
                                 <button type="submit" class="admin-btn admin-btn-warning admin-btn-block">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
+                                    <i class="fas fa-trash-alt"></i>
                                     {{ __('Clear Cache') }}
                                 </button>
                             </form>
@@ -412,9 +393,7 @@
                             <form action="{{ route('admin.logs.clear') }}" method="POST">
                                 @csrf
                                 <button type="submit" class="admin-btn admin-btn-secondary admin-btn-block">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
+                                    <i class="fas fa-file-alt"></i>
                                     {{ __('Clear Logs') }}
                                 </button>
                             </form>
@@ -422,9 +401,7 @@
                             <form action="{{ route('admin.optimize') }}" method="POST">
                                 @csrf
                                 <button type="submit" class="admin-btn admin-btn-success admin-btn-block">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                    </svg>
+                                    <i class="fas fa-bolt"></i>
                                     {{ __('Optimize System') }}
                                 </button>
                             </form>

@@ -8,11 +8,7 @@
             <div class="header-left">
                 <div class="admin-header-content">
                     <div class="admin-header-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
-                            <path d="M9 9H15V15H9V9Z" stroke="currentColor" stroke-width="2" />
-                            <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" />
-                        </svg>
+                        <i class="fas fa-cog"></i>
                     </div>
                     <div class="admin-header-text">
                         <h1 class="admin-order-title">{{ __('pending_products_heading') }}
@@ -30,9 +26,7 @@
         <div class="admin-modern-card">
             <div class="admin-card-header">
                 <h3 class="admin-card-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <i class="fas fa-filter"></i>
                     {{ __('Filters') }}
                 </h3>
             </div>
@@ -65,11 +59,7 @@
         <div class="admin-modern-card">
             <div class="admin-card-header">
                 <h3 class="admin-card-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
-                        <path d="M9 9H15V15H9V9Z" stroke="currentColor" stroke-width="2" />
-                        <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" />
-                    </svg>
+                    <i class="fas fa-cog"></i>
                     {{ __('Pending Products') }}
                 </h3>
                 <div class="admin-badge-count">{{ $products->count() }} {{ __('products') }}</div>
@@ -116,19 +106,12 @@
                                         <form method="post" action="{{ route('admin.products.approve', $p->id) }}" class="d-inline">
                                             @csrf
                                             <button class="admin-btn admin-btn-small admin-btn-success">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" />
-                                                </svg>
+                                                <i class="fas fa-check"></i>
                                                 {{ __('pending_products_approve') }}
                                             </button>
                                         </form>
                                         <button class="admin-btn admin-btn-small admin-btn-warning" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $p->id }}">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                                                <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2" />
-                                                <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2" />
-                                            </svg>
+                                            <i class="fas fa-times"></i>
                                             {{ __('pending_products_reject_delete') }}
                                         </button>
                                     </div>
@@ -141,11 +124,7 @@
                 @else
                 <div class="admin-empty-state">
                     <div class="admin-notification-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
-                            <path d="M9 9H15V15H9V9Z" stroke="currentColor" stroke-width="2" />
-                            <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" />
-                        </svg>
+                        <i class="fas fa-cog"></i>
                     </div>
                     <h3>{{ __('No pending products') }}</h3>
                     <p>{{ __('All products have been reviewed.') }}</p>
@@ -190,11 +169,7 @@
                         </div>
                     </div>
                     <div class="alert alert-warning d-none mt-3 delete-warning">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10.29 3.86L1.82 18C1.64547 18.3024 1.5729 18.6453 1.61211 18.9873C1.65132 19.3294 1.80051 19.6507 2.03512 19.8995C2.26973 20.1483 2.57796 20.3127 2.91336 20.3683C3.24875 20.4239 3.5947 20.3683 3.9 20.21L12 16.77L20.1 20.21C20.4053 20.3683 20.7512 20.4239 21.0866 20.3683C21.422 20.3127 21.7303 20.1483 21.9649 19.8995C22.1995 19.6507 22.3487 19.3294 22.3879 18.9873C22.4271 18.6453 22.3545 18.3024 22.18 18L13.71 3.86C13.5318 3.56631 13.2807 3.32311 12.9812 3.15447C12.6817 2.98584 12.3438 2.89725 12 2.89725C11.6562 2.89725 11.3183 2.98584 11.0188 3.15447C10.7193 3.32311 10.4682 3.56631 10.29 3.86Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M12 9V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M12 17H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-exclamation-triangle"></i>
                         {{ __('pending_products_delete_warning') }}
                     </div>
                 </div>

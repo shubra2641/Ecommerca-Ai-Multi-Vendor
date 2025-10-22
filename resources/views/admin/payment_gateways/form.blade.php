@@ -10,19 +10,14 @@
         <div class="admin-order-header">
             <div class="header-left">
                 <h1 class="admin-order-title">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <rect x="1" y="4" width="22" height="16" rx="2" />
-                        <path d="M1 10h22" />
-                    </svg>
+                    <i class="fas fa-credit-card"></i>
                     {{ $gateway->exists ? __('Edit Gateway') : __('Create Gateway') }}
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Configure payment gateway settings') }}</p>
             </div>
             <div class="header-actions">
                 <a href="{{ route('admin.payment-gateways.index') }}" class="admin-btn admin-btn-secondary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
+                    <i class="fas fa-arrow-left"></i>
                     {{ __('Back') }}
                 </a>
             </div>
@@ -32,9 +27,7 @@
         <div class="admin-modern-card">
             <div class="admin-card-header">
                 <h2 class="admin-card-title">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <i class="fas fa-info-circle"></i>
                     {{ __('Gateway Information') }}
                 </h2>
             </div>
@@ -98,9 +91,7 @@
                                 <input type="checkbox" name="enabled" value="1" id="enabled" class="admin-checkbox-input"
                                     {{ old('enabled', $gateway->enabled) ? 'checked' : '' }}>
                                 <label for="enabled" class="admin-checkbox-label">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                                    <i class="fas fa-check-circle"></i>
                                     {{ __('Enabled') }}
                                 </label>
                             </div>
@@ -181,10 +172,7 @@
                 <div id="dynamic-driver-config" class="admin-modern-card">
                     <div class="admin-card-header">
                         <h3 class="admin-card-title">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
+                            <i class="fas fa-cogs"></i>
                             {{ __('Gateway Configuration') }}
                         </h3>
                     </div>
@@ -198,9 +186,7 @@
                     <div id="driver-paytabs" class="driver-fields envato-hidden">
                         <div class="admin-card-header">
                             <h3 class="admin-card-title">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                </svg>
+                                <i class="fas fa-star"></i>
                                 PayTabs Configuration
                             </h3>
                         </div>
@@ -220,9 +206,7 @@
                     <div id="driver-tap" class="driver-fields envato-hidden">
                         <div class="admin-card-header">
                             <h3 class="admin-card-title">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                </svg>
+                                <i class="fas fa-star"></i>
                                 Tap Configuration
                             </h3>
                         </div>
@@ -250,9 +234,7 @@
                     <div id="driver-weaccept" class="driver-fields envato-hidden">
                         <div class="admin-card-header">
                             <h3 class="admin-card-title">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                </svg>
+                                <i class="fas fa-star"></i>
                                 WeAccept (Accept / PayMob) Configuration
                             </h3>
                         </div>
@@ -289,9 +271,7 @@
                     <div id="driver-paypal" class="driver-fields envato-hidden">
                         <div class="admin-card-header">
                             <h3 class="admin-card-title">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                </svg>
+                                <i class="fas fa-star"></i>
                                 PayPal Configuration
                             </h3>
                         </div>
@@ -318,9 +298,7 @@
                     <div id="driver-payeer" class="driver-fields envato-hidden">
                         <div class="admin-card-header">
                             <h3 class="admin-card-title">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                </svg>
+                                <i class="fas fa-star"></i>
                                 Payeer Configuration
                             </h3>
                         </div>
@@ -343,9 +321,7 @@
                     </div>
                     <div class="admin-form-actions">
                         <button type="button" id="add-custom" class="admin-btn admin-btn-secondary admin-btn-sm">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M12 4v16m8-8H4" />
-                            </svg>
+                            <i class="fas fa-plus"></i>
                             {{ __('Add custom key') }}
                         </button>
                     </div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductRequest;
 use App\Mail\ProductApproved;
 use App\Mail\ProductRejected;
+use App\Models\Language;
 use App\Models\Product;
 use App\Models\ProductAttribute;
 use App\Models\ProductCategory;
@@ -176,7 +177,7 @@ class ProductController extends Controller
             $merge['seo_keywords'] = $result['seo_tags'];
         }
 
-        return back()->with('success', 'AI generated successfully')->withInput($merge);
+        return back()->with('success', __('AI generated successfully'))->withInput($merge);
     }
 
     protected function applyFilters($query, Request $request)
@@ -221,13 +222,28 @@ class ProductController extends Controller
     {
         $this->sanitizeData($validated, $sanitizer);
 
+        [$name, $nameTranslations] = $this->separateTranslatedField($validated['name'] ?? null);
+        [$shortDescription, $shortDescriptionTranslations] = $this->separateTranslatedField($validated['short_description'] ?? null);
+        [$description, $descriptionTranslations] = $this->separateTranslatedField($validated['description'] ?? null);
+        [$seoTitle, $seoTitleTranslations] = $this->separateTranslatedField($validated['seo_title'] ?? null);
+        [$seoDescription, $seoDescriptionTranslations] = $this->separateTranslatedField($validated['seo_description'] ?? null);
+        [$seoKeywords, $seoKeywordsTranslations] = $this->separateTranslatedField($validated['seo_keywords'] ?? null);
+
+        $slugSource = $name ?? ($nameTranslations ? $this->extractPrimaryTextFromArray($nameTranslations) : '');
+        $slug = Str::slug($slugSource ?? '');
+        $slugTranslations = $nameTranslations ? $this->buildSlugTranslations($nameTranslations) : null;
+
         return [
-            'name' => $validated['name'],
-            'slug' => Str::slug($validated['name']),
+            'name' => $name,
+            'name_translations' => $nameTranslations,
+            'slug' => $slug,
+            'slug_translations' => $slugTranslations,
             'sku' => $validated['sku'] ?? null,
-            'description' => $validated['description'] ?? null,
-            'short_description' => $validated['short_description'] ?? null,
-            'price' => $validated['price'],
+            'description' => $description,
+            'description_translations' => $descriptionTranslations,
+            'short_description' => $shortDescription,
+            'short_description_translations' => $shortDescriptionTranslations,
+            'price' => $validated['price'] ?? null,
             'sale_price' => $validated['sale_price'] ?? null,
             'sale_start' => $validated['sale_start'] ?? null,
             'sale_end' => $validated['sale_end'] ?? null,
@@ -247,10 +263,14 @@ class ProductController extends Controller
             'is_featured' => !empty($validated['is_featured']),
             'is_best_seller' => !empty($validated['is_best_seller']),
             'active' => !empty($validated['active']),
-            'seo_title' => $validated['seo_title'] ?? null,
-            'seo_description' => $validated['seo_description'] ?? null,
-            'seo_keywords' => $validated['seo_keywords'] ?? null,
+            'seo_title' => $seoTitle,
+            'seo_title_translations' => $seoTitleTranslations,
+            'seo_description' => $seoDescription,
+            'seo_description_translations' => $seoDescriptionTranslations,
+            'seo_keywords' => $seoKeywords,
+            'seo_keywords_translations' => $seoKeywordsTranslations,
             'refund_days' => $validated['refund_days'] ?? null,
+            'used_attributes' => $validated['used_attributes'] ?? [],
         ];
     }
 
@@ -258,7 +278,12 @@ class ProductController extends Controller
     {
         $this->syncTags($product, $request->input('tags', []));
         $this->syncVariations($product, $request);
-        $this->syncSerials($product, $request->input('serials', []));
+        $serials = $request->input('serials', []);
+        if ($request->has('__serials_to_sync')) {
+            $serials = (array) $request->input('__serials_to_sync', []);
+        }
+        $serials = is_array($serials) ? $serials : [];
+        $this->syncSerials($product, $serials);
     }
 
     protected function syncTags(Product $product, array $tags)
@@ -277,25 +302,61 @@ class ProductController extends Controller
                 continue;
             }
 
-            $data = $this->prepareVariationData($variationData);
+            $data = $this->prepareVariationData($variationData, $product);
 
             if (isset($variationData['id'])) {
                 $variation = ProductVariation::where('product_id', $product->id)->where('id', $variationData['id'])->first();
                 if ($variation) {
+                    // Preserve existing values if not provided in request
+                    if (empty($variationData['attributes']) && $variation->attribute_data) {
+                        $data['attribute_data'] = $variation->attribute_data;
+                        $data['attribute_hash'] = $variation->attribute_hash;
+                    }
+                    if (empty($variationData['image']) && $variation->image) {
+                        $data['image'] = $variation->image;
+                    }
                     $variation->update($data);
                     $variationIds[] = $variation->id;
                 }
             } else {
-                $variation = $product->variations()->create($data);
+                $variation = null;
+                if (! empty($data['attribute_hash'])) {
+                    $variation = $product->variations()->where('attribute_hash', $data['attribute_hash'])->first();
+                }
+
+                if ($variation) {
+                    $variation->update($data);
+                } else {
+                    $variation = $product->variations()->create($data);
+                }
+
                 $variationIds[] = $variation->id;
             }
         }
 
-        $product->variations()->whereNotIn('id', $variationIds)->delete();
+        // Get all variation IDs that were in the form (including those we just updated/created)
+        $formVariationIds = array_filter(array_column($variations, 'id'));
+
+        // Only delete variations that:
+        // 1. Were present in the form (had an ID)
+        // 2. But are NOT in the updated list (meaning they were intentionally removed)
+        if (!empty($formVariationIds)) {
+            $product->variations()
+                ->whereIn('id', $formVariationIds)
+                ->whereNotIn('id', $variationIds)
+                ->delete();
+        }
     }
 
-    protected function prepareVariationData(array $data)
+    protected function prepareVariationData(array $data, ?Product $product = null)
     {
+        [$attributes, $hash] = $this->normalizeVariationAttributes($data['attributes'] ?? []);
+
+        // Inherit manage_stock from parent product if not explicitly set for variation
+        $manageStock = isset($data['manage_stock'])
+            ? !empty($data['manage_stock'])
+            : ($product ? $product->manage_stock : false);
+
         return [
             'name' => $data['name'] ?? null,
             'sku' => $data['sku'] ?? null,
@@ -303,18 +364,22 @@ class ProductController extends Controller
             'sale_price' => $data['sale_price'] ?? null,
             'sale_start' => $data['sale_start'] ?? null,
             'sale_end' => $data['sale_end'] ?? null,
-            'manage_stock' => !empty($data['manage_stock']),
+            'manage_stock' => $manageStock,
             'stock_qty' => $data['stock_qty'] ?? 0,
             'reserved_qty' => $data['reserved_qty'] ?? 0,
             'backorder' => !empty($data['backorder']),
             'image' => $data['image'] ?? null,
-            'attribute_data' => $data['attributes'] ?? [],
+            'attribute_data' => $attributes,
+            'attribute_hash' => $hash,
             'active' => !empty($data['active']),
         ];
     }
 
     protected function syncSerials(Product $product, array $serials)
     {
+        if (! is_array($serials)) {
+            return;
+        }
         foreach ($serials as $serial) {
             $serial = trim($serial);
             if (empty($serial)) {
@@ -323,6 +388,135 @@ class ProductController extends Controller
 
             ProductSerial::firstOrCreate(['product_id' => $product->id, 'serial' => $serial]);
         }
+    }
+
+    protected function separateTranslatedField($value): array
+    {
+        if (is_array($value)) {
+            $normalized = [];
+            foreach ($value as $locale => $val) {
+                if ($val === null) {
+                    $normalized[$locale] = '';
+                    continue;
+                }
+                $normalized[$locale] = is_string($val) ? trim($val) : trim((string) $val);
+            }
+            $base = $this->extractPrimaryTextFromArray($normalized);
+            $translations = array_filter($normalized, fn($val) => $val !== '');
+
+            return [$base, $translations ?: null];
+        }
+
+        if ($value === null) {
+            return [null, null];
+        }
+
+        $stringValue = is_string($value) ? trim($value) : trim((string) $value);
+
+        return [$stringValue === '' ? null : $stringValue, null];
+    }
+
+    protected function extractPrimaryTextFromArray(array $values): ?string
+    {
+        if (empty($values)) {
+            return null;
+        }
+
+        $defaultCode = $this->getDefaultLanguageCode();
+        if ($defaultCode && isset($values[$defaultCode]) && $values[$defaultCode] !== '') {
+            return $values[$defaultCode];
+        }
+
+        foreach ($values as $val) {
+            if ($val !== '') {
+                return $val;
+            }
+        }
+
+        return null;
+    }
+
+    protected function getDefaultLanguageCode(): ?string
+    {
+        static $code = null;
+
+        if ($code !== null) {
+            return $code;
+        }
+
+        try {
+            $default = Language::where('is_active', 1)->where('is_default', 1)->first();
+            if ($default) {
+                $code = $default->code;
+
+                return $code;
+            }
+
+            $fallback = Language::where('is_active', 1)->first();
+            if ($fallback) {
+                $code = $fallback->code;
+            }
+        } catch (\Throwable $e) {
+            $code = null;
+        }
+
+        return $code;
+    }
+
+    protected function buildSlugTranslations(?array $nameTranslations): ?array
+    {
+        if (empty($nameTranslations)) {
+            return null;
+        }
+
+        $slugs = [];
+        foreach ($nameTranslations as $locale => $value) {
+            $slugs[$locale] = Str::slug((string) $value);
+        }
+
+        return $slugs ?: null;
+    }
+
+    protected function normalizeVariationAttributes($attributes): array
+    {
+        if (is_string($attributes)) {
+            $decoded = json_decode($attributes, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $attributes = $decoded;
+            }
+        }
+
+        if (! is_array($attributes)) {
+            return [[], null];
+        }
+
+        $normalized = [];
+        foreach ($attributes as $slug => $value) {
+            if (is_array($value)) {
+                $value = $value['value'] ?? null;
+            }
+            if ($value === null) {
+                continue;
+            }
+            if (is_string($value)) {
+                $value = trim($value);
+            } else {
+                $value = trim((string) $value);
+            }
+            if ($value === '') {
+                continue;
+            }
+            $normalized[$slug] = $value;
+        }
+
+        if (empty($normalized)) {
+            return [[], null];
+        }
+
+        ksort($normalized);
+        $hash = hash('sha256', json_encode($normalized));
+
+        return [$normalized, $hash];
     }
 
     protected function cleanGallery($gallery)

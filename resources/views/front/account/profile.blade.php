@@ -13,15 +13,11 @@
                     <div class="title-row">
                         <div class="title-content">
                             <h1 class="modern-order-title">
-                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="title-icon">
-                                    <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
+                                <i class="fas fa-user title-icon"></i>
                                 {{ __('Profile') }}
                             </h1>
                             <p class="order-date-modern">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-check-circle"></i>
                                 {{ __('View & Update Your Personal and Contact Information') }}
                             </p>
                         </div>
@@ -34,9 +30,7 @@
                         <div class="modern-card">
                             <div class="card-header-modern">
                                 <h3 class="card-title-modern">
-                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
+                                    <i class="fas fa-user"></i>
                                     {{ __('Contact Information') }}
                                 </h3>
                             </div>

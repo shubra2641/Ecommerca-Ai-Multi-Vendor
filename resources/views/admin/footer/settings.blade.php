@@ -10,11 +10,7 @@
             <div class="header-left">
                 <div class="admin-header-content">
                     <div class="admin-header-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
-                            <path d="M9 9H15V15H9V9Z" stroke="currentColor" stroke-width="2"/>
-                            <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2"/>
-                        </svg>
+                        <i class="fas fa-cog"></i>
                     </div>
                     <div class="admin-header-text">
                         <h1 class="admin-order-title">{{ $footerSettingsTitle ?? __('Footer Settings') }}</h1>
@@ -30,11 +26,7 @@
 
             <div class="admin-card-header">
                 <h3 class="admin-card-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
-                        <path d="M9 9H15V15H9V9Z" stroke="currentColor" stroke-width="2"/>
-                        <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2"/>
-                    </svg>
+                    <i class="fas fa-cog"></i>
                     {{ __('Footer Configuration') }}
                 </h3>
             </div>
@@ -49,10 +41,7 @@
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" name="sections[{{ $k }}]" value="1" @checked($sections[$k])>
                                 <label class="form-check-label">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2"/>
-                                    </svg>
+                                    <i class="fas fa-check-circle"></i>
                                     {{ __($lbl) }}
                                 </label>
                             </div>
@@ -69,11 +58,7 @@
                         <div class="accordion-item mb-2">
                             <h2 class="accordion-header" id="heading-{{ $lang->code }}">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $lang->code }}">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                        <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2"/>
-                                        <path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2Z" stroke="currentColor" stroke-width="2"/>
-                                    </svg>
+                                    <i class="fas fa-globe"></i>
                                     {{ strtoupper($lang->code) }}
                                 </button>
                             </h2>
@@ -128,11 +113,7 @@
                         <div class="admin-modern-card">
                             <div class="admin-card-header">
                                 <h4 class="admin-card-title">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
-                                        <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2"/>
-                                        <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/>
-                                    </svg>
+                                    <i class="fas fa-mobile-alt"></i>
                                     {{ ucfirst($platform) }}
                                 </h4>
                             </div>
@@ -141,10 +122,7 @@
                                     <div class="form-check">
                                         <input type="checkbox" class="form-check-input" name="app_links[{{ $platform }}][enabled]" value="1" @checked($link['enabled'])>
                                         <label class="form-check-label">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2"/>
-                                            </svg>
+                                            <i class="fas fa-check-circle"></i>
                                             {{ __('Enabled') }}
                                         </label>
                                     </div>
@@ -186,11 +164,7 @@
                     @else
                     <div class="admin-empty-state">
                         <div class="admin-notification-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
-                                <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" stroke-width="2"/>
-                            </svg>
+                            <i class="fas fa-info-circle"></i>
                         </div>
                         <p>{{ __('No pages available. Pages will be available once the pages system is set up.') }}</p>
                     </div>
@@ -207,11 +181,7 @@
             <div class="admin-card-footer">
                 <div class="admin-flex-end">
                     <button type="submit" class="admin-btn admin-btn-primary">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16L21 8V19C21 20.1046 20.1046 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M17 21V13H7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <i class="fas fa-save"></i>
                         {{ __('Save Footer Settings') }}
                     </button>
                 </div>

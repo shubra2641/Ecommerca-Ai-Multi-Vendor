@@ -7,6 +7,7 @@ use App\Models\GalleryImage;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage; // If using intervention/image (needs composer require intervention/image)
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
@@ -64,78 +65,57 @@ class GalleryController extends Controller
         $request->validate($rules);
 
         $files = $isMultiple ? $request->file('images') : [$request->file('image')];
+        $meta = $this->sanitizeMeta($request->only('title', 'description', 'alt', 'tags'), $sanitizer);
         $count = 0;
+
         foreach ($files as $file) {
             if (! $file) {
                 continue;
             }
-            $originalPath = $file->store('gallery/original', 'public');
-            $webpPath = null;
-            $thumbPath = null;
-            try {
-                $manager = new ImageManager(new Driver());
-                $imageObj = $manager->read($file->getRealPath());
-                // webp generation
-                $webpFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '.webp';
-                $webpRelative = 'gallery/webp/' . $webpFileName;
-                $imageObj->toWebp(85)->save(Storage::disk('public')->path($webpRelative));
-                $webpPath = $webpRelative;
-                // thumbnail (always jpeg for speed)
-                $thumbClone = $imageObj->clone();
-                $thumbClone->scale(320, 320, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
-                $thumbFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '_thumb.jpg';
-                $thumbRelative = 'gallery/thumbs/' . $thumbFileName;
-                $thumbClone->toJpeg(75)->save(Storage::disk('public')->path($thumbRelative));
-                $thumbPath = $thumbRelative;
-            } catch (\Throwable $e) {
-                // skip transformations
-            }
-            // sanitize metadata inputs
-            $title = $request->input('title');
-            $description = $request->input('description');
-            $alt = $request->input('alt');
-            $tags = $request->input('tags');
-            if (is_string($title) && $title !== '') {
-                $title = $sanitizer->clean($title);
-            }
-            if (is_string($description) && $description !== '') {
-                // allow a subset of HTML in descriptions but clean it
-                $description = $sanitizer->clean($description);
-            }
-            if (is_string($alt) && $alt !== '') {
-                $alt = $sanitizer->clean($alt);
-            }
-            if (is_string($tags) && $tags !== '') {
-                // tags are a comma-separated string; sanitize each token
-                $parts = array_map('trim', explode(',', $tags));
-                $cleanParts = [];
-                foreach ($parts as $p) {
-                    if ($p === '') {
-                        continue;
-                    }
-                    $cleanParts[] = $sanitizer->clean($p);
-                }
-                $tags = implode(',', $cleanParts);
-            }
 
-            GalleryImage::create([
-                'original_path' => $originalPath,
-                'webp_path' => $webpPath,
-                'thumbnail_path' => $thumbPath ?? null,
-                'title' => $title,
-                'description' => $description,
-                'alt' => $alt,
-                'tags' => $tags,
-                'filesize' => $file->getSize(),
-                'mime' => $file->getMimeType(),
-            ]);
+            $this->persistGalleryUpload($file, $meta);
             $count++;
         }
 
         return redirect()->route('admin.gallery.index')->with('success', __(':n image(s) uploaded.', ['n' => $count]));
+    }
+
+    public function quickStore(Request $request, HtmlSanitizer $sanitizer)
+    {
+        $rules = [
+            'title' => ['nullable', 'string', 'max:150'],
+            'description' => ['nullable', 'string', 'max:500'],
+            'alt' => ['nullable', 'string', 'max:150'],
+            'tags' => ['nullable', 'string', 'max:255'],
+            'image' => ['required_without:images', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'images' => ['nullable', 'array', 'max:15'],
+            'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ];
+
+        $request->validate($rules);
+
+        $files = $request->hasFile('images') ? $request->file('images') : [$request->file('image')];
+        $files = array_filter($files);
+
+        if (! count($files)) {
+            return response()->json([
+                'success' => false,
+                'message' => __('No files were uploaded.'),
+            ], 422);
+        }
+
+        $meta = $this->sanitizeMeta($request->only('title', 'description', 'alt', 'tags'), $sanitizer);
+        $stored = [];
+
+        foreach ($files as $file) {
+            $image = $this->persistGalleryUpload($file, $meta);
+            $stored[] = $this->formatGalleryResponse($image);
+        }
+
+        return response()->json([
+            'success' => true,
+            'files' => $stored,
+        ]);
     }
 
     public function edit(GalleryImage $image)
@@ -237,5 +217,105 @@ class GalleryController extends Controller
         $setting->save();
 
         return redirect()->route('admin.settings.index')->with('success', __('Logo updated from gallery.'));
+    }
+
+    private function sanitizeMeta(array $meta, HtmlSanitizer $sanitizer): array
+    {
+        $clean = [
+            'title' => null,
+            'description' => null,
+            'alt' => null,
+            'tags' => null,
+        ];
+
+        if (! empty($meta['title']) && is_string($meta['title'])) {
+            $clean['title'] = $sanitizer->clean($meta['title']);
+        }
+
+        if (! empty($meta['description']) && is_string($meta['description'])) {
+            $clean['description'] = $sanitizer->clean($meta['description']);
+        }
+
+        if (! empty($meta['alt']) && is_string($meta['alt'])) {
+            $clean['alt'] = $sanitizer->clean($meta['alt']);
+        }
+
+        if (! empty($meta['tags']) && is_string($meta['tags'])) {
+            $parts = array_map('trim', explode(',', $meta['tags']));
+            $cleanParts = [];
+
+            foreach ($parts as $part) {
+                if ($part === '') {
+                    continue;
+                }
+
+                $cleanParts[] = $sanitizer->clean($part);
+            }
+
+            if ($cleanParts) {
+                $clean['tags'] = implode(',', $cleanParts);
+            }
+        }
+
+        return $clean;
+    }
+
+    private function persistGalleryUpload(UploadedFile $file, array $meta): GalleryImage
+    {
+        $originalPath = $file->store('gallery/original', 'public');
+        $webpPath = null;
+        $thumbPath = null;
+
+        try {
+            $manager = new ImageManager(new Driver());
+            $imageObj = $manager->read($file->getRealPath());
+
+            $webpFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '.webp';
+            $webpRelative = 'gallery/webp/' . $webpFileName;
+            $imageObj->toWebp(85)->save(Storage::disk('public')->path($webpRelative));
+            $webpPath = $webpRelative;
+
+            $thumbClone = $imageObj->clone();
+            $thumbClone->scale(320, 320, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            $thumbFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '_thumb.jpg';
+            $thumbRelative = 'gallery/thumbs/' . $thumbFileName;
+            $thumbClone->toJpeg(75)->save(Storage::disk('public')->path($thumbRelative));
+            $thumbPath = $thumbRelative;
+        } catch (\Throwable $e) {
+            // leave optional derivatives empty if processing fails
+        }
+
+        return GalleryImage::create([
+            'original_path' => $originalPath,
+            'webp_path' => $webpPath,
+            'thumbnail_path' => $thumbPath,
+            'title' => $meta['title'],
+            'description' => $meta['description'],
+            'alt' => $meta['alt'],
+            'tags' => $meta['tags'],
+            'filesize' => $file->getSize(),
+            'mime' => $file->getMimeType(),
+        ]);
+    }
+
+    private function formatGalleryResponse(GalleryImage $image): array
+    {
+        $path = $image->webp_path ?: $image->original_path;
+
+        $url = $path ? asset('storage/' . ltrim($path, '/')) : null;
+        $thumbPath = $image->thumbnail_path ? asset('storage/' . ltrim($image->thumbnail_path, '/')) : null;
+        $thumb = $thumbPath ?: $url;
+
+        return [
+            'id' => $image->id,
+            'path' => $path,
+            'url' => $url,
+            'thumbnail' => $thumb,
+            'title' => $image->title,
+            'alt' => $image->alt,
+        ];
     }
 }

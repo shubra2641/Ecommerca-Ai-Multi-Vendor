@@ -10,18 +10,14 @@
         <div class="admin-order-header">
             <div class="header-left">
                 <h1 class="admin-order-title">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                    </svg>
+                    <i class="fas fa-undo"></i>
                     {{ __('Return Requests') }}
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Manage product return requests and refunds') }}</p>
             </div>
             <div class="header-actions">
                 <a href="{{ route('admin.orders.index') }}" class="admin-btn admin-btn-secondary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
+                    <i class="fas fa-list"></i>
                     {{ __('View Orders') }}
                 </a>
             </div>
@@ -30,9 +26,7 @@
         <!-- Returns List -->
         <div class="admin-modern-card">
             <div class="admin-card-header">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
+                <i class="fas fa-shopping-bag"></i>
                 <h3 class="admin-card-title">{{ __('All Return Requests') }}</h3>
                 <span class="admin-badge-count">{{ $items->total() }}</span>
             </div>

@@ -37,7 +37,7 @@ class ProductTagController extends Controller
         }
         ProductTag::create($data);
 
-        return redirect()->route('admin.product-tags.index')->with('success', 'Tag created');
+        return redirect()->route('admin.product-tags.index')->with('success', __('Tag created'));
     }
 
     public function edit(ProductTag $productTag)
@@ -60,13 +60,13 @@ class ProductTagController extends Controller
         }
         $productTag->update($data);
 
-        return redirect()->route('admin.product-tags.index')->with('success', 'Updated');
+        return redirect()->route('admin.product-tags.index')->with('success', __('Updated'));
     }
 
     public function destroy(ProductTag $productTag)
     {
         $productTag->delete();
 
-        return back()->with('success', 'Deleted');
+        return back()->with('success', __('Deleted'));
     }
 }

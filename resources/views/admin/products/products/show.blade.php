@@ -10,10 +10,7 @@
             <div class="header-left">
                 <div class="admin-header-content">
                     <div class="admin-header-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
-                            <path d="M9 9H15V15H9V9Z" stroke="currentColor" stroke-width="2" />
-                        </svg>
+                        <i class="fas fa-box"></i>
                     </div>
                     <div class="admin-header-text">
                         <h1 class="admin-order-title">{{ __('Product Details') }}</h1>

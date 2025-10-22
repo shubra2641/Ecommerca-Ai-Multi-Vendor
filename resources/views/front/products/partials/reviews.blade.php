@@ -21,7 +21,7 @@
                                 <div class="review-rating">
                                     @for($i = 1; $i <= 5; $i++)
                                         <i class="fas fa-star star {{ $i <= $review->rating ? 'filled' : '' }}"></i>
-                                    @endfor
+                                        @endfor
                                 </div>
                                 <span class="review-date">{{ $review->created_at->format('M d, Y') }}</span>
                             </div>
@@ -85,28 +85,23 @@
                 @csrf
                 <div class="form-group">
                     <label class="form-label">{{ __('Your Rating') }}</label>
-                    <div class="rating-input" id="ratingInput">
-                        @for($i = 1; $i <= 5; $i++) <button type="button" class="star-btn" data-rating="{{ $i }}"
-                            aria-label="{{ __('Rate :n star(s)', ['n'=>$i]) }}">
-                            <i class="fas fa-star star"></i>
-                            </button>
-                            @endfor
-                            <input type="hidden" name="rating" id="ratingValue" required>
+                    <div class="star-rating-selector">
+                        @for($i = 5; $i >= 1; $i--)
+                        <input type="radio" id="star{{ $i }}" name="rating" value="{{ $i }}" required>
+                        <label for="star{{ $i }}" title="{{ $i }} {{ __('stars') }}">★</label>
+                        @endfor
                     </div>
-                    <fieldset class="rating-fallback">
-                        <legend>{{ __('Choose rating (fallback)') }}</legend>
-                        <div class="stars-inline">
-                            @for($i=1;$i<=5;$i++) <input type="radio" id="rf{{ $i }}" name="rating_fallback"
-                                value="{{ $i }}">
-                                <label for="rf{{ $i }}">{{ $i }}</label>
-                                @endfor
-                        </div>
-                    </fieldset>
+                    @error('rating')
+                    <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label for="reviewComment" class="form-label">{{ __('Your Review') }}</label>
-                    <textarea class="form-control" id="reviewComment" name="comment" rows="4"
+                    <textarea class="form-control" id="reviewComment" name="body" rows="4"
                         placeholder="{{ __('Share your experience with this product...') }}" required></textarea>
+                    @error('body')
+                    <span class="error-message">{{ $message }}</span>
+                    @enderror
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">

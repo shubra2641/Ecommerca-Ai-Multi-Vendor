@@ -8,9 +8,7 @@
       <div class="header-left">
         <div class="admin-header-content">
           <div class="admin-header-icon">
-            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
+            <i class="fas fa-tags"></i>
           </div>
           <div class="admin-header-text">
             <h1 class="admin-order-title">{{ __('Blog Tags') }}</h1>
@@ -25,9 +23,7 @@
       <div class="admin-modern-card">
         <div class="admin-card-header">
           <h2 class="admin-card-title">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path d="M12 5v14m7-7H5" />
-            </svg>
+            <i class="fas fa-plus"></i>
             {{ __('Create Tag') }}
           </h2>
         </div>
@@ -45,9 +41,7 @@
             </div>
             <div class="admin-flex-end">
               <button type="submit" class="admin-btn admin-btn-primary">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
+                <i class="fas fa-check"></i>
                 {{ __('Save') }}
               </button>
             </div>
@@ -59,9 +53,7 @@
       <div class="admin-modern-card">
         <div class="admin-card-header">
           <h2 class="admin-card-title">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
+            <i class="fas fa-tags"></i>
             {{ __('Tags List') }}
           </h2>
           <div class="admin-badge-count">{{ $tags->count() }} {{ __('tags') }}</div>
@@ -83,9 +75,7 @@
                   <td>
                     <div class="d-flex align-items-center">
                       <div class="admin-item-placeholder admin-item-placeholder-primary me-3">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                          <path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                        </svg>
+                        <i class="fas fa-tag"></i>
                       </div>
                       <div>
                         <div class="fw-bold">{{ $tag->name }}</div>
@@ -95,9 +85,7 @@
                   </td>
                   <td>
                     <div class="d-flex align-items-center">
-                      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="me-1">
-                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                      <i class="fas fa-clock me-1"></i>
                       <span class="admin-text-muted">{{ $tag->updated_at->diffForHumans() }}</span>
                     </div>
                   </td>
@@ -109,18 +97,14 @@
                         <input name="name" value="{{ $tag->name }}" class="form-control form-control-sm">
                         <input name="slug" value="{{ $tag->slug }}" class="form-control form-control-sm" readonly>
                         <button type="submit" class="btn btn-sm btn-outline-primary" title="{{ __('Save') }}">
-                          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M5 13l4 4L19 7" />
-                          </svg>
+                          <i class="fas fa-check"></i>
                         </button>
                       </form>
                       <form method="POST" action="{{ route('admin.blog.tags.destroy', $tag) }}" class="js-confirm" data-confirm="{{ __('Are you sure you want to delete this tag?') }}">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}">
-                          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
+                          <i class="fas fa-trash"></i>
                         </button>
                       </form>
                     </div>
@@ -132,9 +116,7 @@
           </div>
           @else
           <div class="admin-empty-state">
-            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-              <path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
+            <i class="fas fa-tags" style="font-size: 48px;"></i>
             <h3>{{ __('No Tags Found') }}</h3>
             <p>{{ __('Get started by creating your first blog tag') }}</p>
           </div>

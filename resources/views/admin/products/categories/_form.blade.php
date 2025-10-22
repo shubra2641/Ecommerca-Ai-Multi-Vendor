@@ -3,15 +3,11 @@
         <div class="admin-text-muted small fw-semibold">{{ __('Category Form') }}</div>
         <div class="ms-auto d-flex gap-2">
             <button type="button" class="admin-btn admin-btn-small admin-btn-outline" data-collapse-all>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 12H16M12 8V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+                <i class="fas fa-compress d-sm-none"></i>
                 {{ __('Collapse All') }}
             </button>
             <button type="button" class="admin-btn admin-btn-small admin-btn-outline" data-expand-all>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 12H16M12 8V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+                <i class="fas fa-compress d-sm-none"></i>
                 {{ __('Expand All') }}
             </button>
         </div>
@@ -22,15 +18,10 @@
 <div class="admin-modern-card mb-4" data-section>
     <div class="admin-card-header d-flex justify-content-between align-items-center cursor-pointer" data-toggle-section>
         <h3 class="admin-card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22 19C22 19.5304 21.7893 20.0391 21.4142 20.4142C21.0391 20.7893 20.5304 21 20 21H4C3.46957 21 2.96086 20.7893 2.58579 20.4142C2.21071 20.0391 2 19.5304 2 19V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H15L22 10V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M15 3V10H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+            <i class="fas fa-file-alt"></i>
             {{ __('Basic Info') }}
         </h3>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="section-caret admin-text-muted">
-            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+        <i class="fas fa-chevron-down section-caret admin-text-muted"></i>
     </div>
     <div class="admin-card-body">
         <div class="admin-form-grid">
@@ -61,9 +52,7 @@
                 <label class="admin-form-label d-flex justify-content-between align-items-center">
                     <span>{{ __('Description (Base)') }}</span>
                     <button type="submit" form="category-form" formaction="{{ route('admin.product-categories.ai.suggest') }}?target=base" formmethod="get" class="admin-btn admin-btn-small admin-btn-outline">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-lightbulb"></i>
                         {{ __('AI Generate') }}
                     </button>
                 </label>
@@ -79,10 +68,7 @@
                 <div class="input-group">
                     <input name="image" value="{{ old('image',$model->image ?? '') }}" class="admin-form-input" placeholder="/storage/uploads/cat.jpg">
                     <button type="button" class="admin-btn admin-btn-outline" data-open-media="image">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M22 19C22 19.5304 21.7893 20.0391 21.4142 20.4142C21.0391 20.7893 20.5304 21 20 21H4C3.46957 21 2.96086 20.7893 2.58579 20.4142C2.21071 20.0391 2 19.5304 2 19V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H15L22 10V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M15 3V10H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-folder-open"></i>
                     </button>
                 </div>
             </div>
@@ -101,14 +87,10 @@
 <div class="admin-modern-card mb-4" data-section>
     <div class="admin-card-header d-flex justify-content-between align-items-center cursor-pointer" data-toggle-section>
         <h3 class="admin-card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+            <i class="fas fa-star"></i>
             {{ __('Translations') }}
         </h3>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="section-caret admin-text-muted">
-            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+        <i class="fas fa-chevron-down section-caret admin-text-muted"></i>
     </div>
     <div class="admin-card-body">
         <div class="lang-tabs-wrapper" data-lang-tabs-variant="primary">
@@ -132,9 +114,7 @@
                         <label class="admin-form-label d-flex justify-content-between align-items-center">
                             <span>{{ __('Description') }}</span>
                             <button type="submit" form="category-form" formaction="{{ route('admin.product-categories.ai.suggest') }}?target=i18n&locale={{ $lang->code }}" formmethod="get" class="admin-btn admin-btn-small admin-btn-outline">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
+                                <i class="fas fa-lightbulb"></i>
                                 AI
                             </button>
                         </label>
@@ -150,15 +130,10 @@
 <div class="admin-modern-card" data-section>
     <div class="admin-card-header d-flex justify-content-between align-items-center cursor-pointer" data-toggle-section>
         <h3 class="admin-card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
-                <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+            <i class="fas fa-search"></i>
             {{ __('SEO') }}
         </h3>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="section-caret admin-text-muted">
-            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+        <i class="fas fa-chevron-down section-caret admin-text-muted"></i>
     </div>
     <div class="admin-card-body">
         <div class="admin-form-grid">
@@ -174,9 +149,7 @@
                 <label class="admin-form-label d-flex justify-content-between align-items-center">
                     <span>{{ __('SEO Description') }}</span>
                     <button type="submit" form="category-form" formaction="{{ route('admin.product-categories.ai.suggest') }}?target=seo" formmethod="get" class="admin-btn admin-btn-small admin-btn-outline">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-lightbulb"></i>
                         {{ __('AI Generate') }}
                     </button>
                 </label>

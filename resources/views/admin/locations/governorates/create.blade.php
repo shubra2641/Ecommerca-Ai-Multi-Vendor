@@ -10,18 +10,14 @@
 		<div class="admin-order-header">
 			<div class="header-left">
 				<h1 class="admin-order-title">
-					<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-						<path d="M12 4v16m8-8H4" />
-					</svg>
+					<i class="fas fa-plus"></i>
 					{{ __('Add Governorate') }}
 				</h1>
 				<p class="admin-order-subtitle">{{ __('Create a new governorate') }}</p>
 			</div>
 			<div class="header-actions">
 				<a href="{{ route('admin.governorates.index') }}" class="admin-btn admin-btn-secondary">
-					<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-						<path d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-					</svg>
+					<i class="fas fa-arrow-left"></i>
 					{{ __('Back') }}
 				</a>
 			</div>
@@ -33,9 +29,7 @@
 			<!-- Governorate Details -->
 			<div class="admin-modern-card">
 				<div class="admin-card-header">
-					<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-						<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-					</svg>
+					<i class="fas fa-clipboard-list"></i>
 					<h3 class="admin-card-title">{{ __('Governorate Details') }}</h3>
 				</div>
 				<div class="admin-card-body">
@@ -70,9 +64,7 @@
 							{{ __('Cancel') }}
 						</a>
 						<button type="submit" class="admin-btn admin-btn-success admin-btn-large">
-							<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-								<path d="M5 13l4 4L19 7" />
-							</svg>
+							<i class="fas fa-check"></i>
 							{{ __('Save') }}
 						</button>
 					</div>

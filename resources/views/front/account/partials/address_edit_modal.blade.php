@@ -2,15 +2,11 @@
   <div class="modal-content-modern">
     <div class="modal-header-modern">
       <div class="modal-title-wrapper">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="modal-icon">
-          <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-        </svg>
+        <i class="fas fa-edit modal-icon"></i>
         <h3 class="modal-title">{{ __('Edit Address') }}</h3>
       </div>
       <button type="button" class="modal-close-modern" data-action="close-modal">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M6 18L18 6M6 6l12 12" />
-        </svg>
+        <i class="fas fa-times"></i>
       </button>
     </div>
     <div class="modal-body">

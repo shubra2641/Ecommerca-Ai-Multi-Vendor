@@ -268,7 +268,7 @@ class ProductCatalogController extends Controller
      */
     public function show($slug)
     {
-        $product = Product::with(['category', 'tags', 'variations'])
+        $product = Product::with(['category', 'tags', 'variations', 'vendor'])
             ->withCount([
                 'reviews as approved_reviews_count' => function ($q) {
                     $q->where('approved', true);
@@ -404,6 +404,9 @@ class ProductCatalogController extends Controller
             }
             $activeVars = $activeVars->map(function ($v) {
                 $v->effective_price = $v->effectivePrice();
+                $v->stock_qty = $v->stock_qty ?? 0;
+                $v->reserved_qty = $v->reserved_qty ?? 0;
+                $v->manage_stock = $v->manage_stock ?? false;
                 return $v;
             });
         }
@@ -433,6 +436,7 @@ class ProductCatalogController extends Controller
                 'icon' => $icon,
                 'is_color' => $isColor,
                 'values' => $values,
+                'swatch_map' => $isColor ? $this->buildSwatchMap($values) : [],
             ];
         }
 
@@ -468,7 +472,17 @@ class ProductCatalogController extends Controller
         }
 
         // Flags
-        $isOut = ($available === 0);
+        // For variable products, check if ANY variation has stock
+        if ($product->type === 'variable' && $activeVars->isNotEmpty()) {
+            $hasAnyStock = $activeVars->filter(function ($v) {
+                if (!$v->manage_stock) return true; // Unlimited stock
+                $availableStock = ($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0);
+                return $availableStock > 0;
+            })->isNotEmpty();
+            $isOut = !$hasAnyStock;
+        } else {
+            $isOut = ($available === 0);
+        }
         $hasDiscount = $onSale;
         $brandName = $product->brand->name ?? null;
 
@@ -560,6 +574,105 @@ class ProductCatalogController extends Controller
             'inCart',
             'activeVars'
         ));
+    }
+
+    /**
+     * Build a color swatch lookup for variation attributes.
+     */
+    protected function buildSwatchMap(array $values): array
+    {
+        $presets = [
+            'black' => '#000000',
+            'white' => '#ffffff',
+            'gray' => '#808080',
+            'grey' => '#808080',
+            'silver' => '#c0c0c0',
+            'charcoal' => '#36454f',
+            'graphite' => '#383e42',
+            'slate' => '#708090',
+            'red' => '#ff0000',
+            'crimson' => '#dc143c',
+            'maroon' => '#800000',
+            'burgundy' => '#800020',
+            'brick' => '#b22222',
+            'orange' => '#ff8c00',
+            'amber' => '#ffbf00',
+            'gold' => '#ffd700',
+            'yellow' => '#ffd700',
+            'mustard' => '#ffdb58',
+            'olive' => '#556b2f',
+            'green' => '#008000',
+            'forest green' => '#228b22',
+            'mint' => '#3eb489',
+            'emerald' => '#50c878',
+            'teal' => '#008080',
+            'cyan' => '#00b7eb',
+            'aqua' => '#00ffff',
+            'turquoise' => '#40e0d0',
+            'blue' => '#0052cc',
+            'navy' => '#001f3f',
+            'navy blue' => '#001f3f',
+            'light blue' => '#87cefa',
+            'sky blue' => '#87ceeb',
+            'royal blue' => '#4169e1',
+            'purple' => '#800080',
+            'violet' => '#8a2be2',
+            'lavender' => '#e6e6fa',
+            'magenta' => '#ff00ff',
+            'pink' => '#ff69b4',
+            'rose' => '#ff007f',
+            'peach' => '#ffdab9',
+            'coral' => '#ff7f50',
+            'brown' => '#8b4513',
+            'chocolate' => '#7b3f00',
+            'tan' => '#d2b48c',
+            'beige' => '#f5f5dc',
+            'cream' => '#fffdd0',
+            'khaki' => '#c3b091',
+            'sand' => '#f4a460',
+            'bronze' => '#cd7f32',
+            'copper' => '#b87333',
+            'transparent' => '#f3f4f6',
+        ];
+
+        $map = [];
+        foreach ($values as $raw) {
+            if (!is_string($raw)) {
+                continue;
+            }
+
+            $value = trim($raw);
+            if ($value === '') {
+                continue;
+            }
+
+            $normalized = strtolower($value);
+            $key = $normalized;
+
+            // Check if it's already a hex color
+            if (preg_match('/^#([0-9a-f]{3}|[0-9a-f]{6})$/i', $value)) {
+                $map[$key] = $value;
+                continue;
+            }
+
+            // Check direct preset match
+            if (isset($presets[$normalized])) {
+                $map[$key] = $presets[$normalized];
+                continue;
+            }
+
+            // Try without spaces
+            $fallback = str_replace(' ', '', $normalized);
+            if (isset($presets[$fallback])) {
+                $map[$key] = $presets[$fallback];
+                continue;
+            }
+
+            // Default neutral gray
+            $map[$key] = '#f3f4f6';
+        }
+
+        return $map;
     }
 
     /**

@@ -86,7 +86,7 @@ class OrderController extends Controller
 
         GenerateVendorOrdersCsv::dispatch($export->id, $filters);
 
-        return back()->with('success', 'Export requested. You will receive an email when it is ready.');
+        return back()->with('success', __('Export requested. You will receive an email when it is ready.'));
     }
 
     public function downloadExport(Request $r, $filename)

@@ -9,42 +9,28 @@
         <div class="admin-order-header">
             <div class="admin-order-title">
                 <h1>
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M12 1v6m0 0l3-3m-3 3l-3-3m6 9v6m0 0l3 3m-3-3l3 3M5 12H1m0 0l3 3m-3-3l3-3m18 0h-4m0 0l3 3m-3-3l3-3" />
-                    </svg>
+                    <i class="fas fa-chart-line"></i>
                     {{ __('Financial Report') }}
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Financial analysis and balance statistics') }}</p>
             </div>
             <div class="header-actions">
                 <button type="button" class="admin-btn admin-btn-secondary js-refresh-page" data-action="refresh">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M23 4v6h-6M1 20v-6h6m15-4a9 9 0 11-18 0 9 9 0 0118 0zM1 10a9 9 0 0118 0" />
-                    </svg>
+                    <i class="fas fa-sync-alt"></i>
                     {{ __('Refresh') }}
                 </button>
                 <div class="dropdown">
                     <button class="admin-btn admin-btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
+                        <i class="fas fa-download"></i>
                         {{ __('Export') }}
                     </button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item js-export" href="#" data-export-type="excel" data-report="financial">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
+                                <i class="fas fa-file-excel"></i>
                                 {{ __('Excel') }}
                             </a></li>
                         <li><a class="dropdown-item js-export" href="#" data-export-type="pdf" data-report="financial">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                    <polyline points="14,2 14,8 20,8" />
-                                    <line x1="16" y1="13" x2="8" y2="13" />
-                                    <line x1="16" y1="17" x2="8" y2="17" />
-                                    <polyline points="10,9 9,9 8,9" />
-                                </svg>
+                                <i class="fas fa-file-pdf"></i>
                                 {{ __('PDF') }}
                             </a></li>
                     </ul>
@@ -57,14 +43,10 @@
             <div class="admin-stat-card admin-stat-success">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 1v6m0 0l3-3m-3 3l-3-3m6 9v6m0 0l3 3m-3-3l3 3M5 12H1m0 0l3 3m-3-3l3-3m18 0h-4m0 0l3 3m-3-3l3-3" />
-                        </svg>
+                        <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
+                        <i class="fas fa-chart-bar"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -74,10 +56,7 @@
                 </div>
                 <div class="admin-stat-footer">
                     <div class="admin-stat-trend admin-stat-trend-up">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                            <path d="M17 9l-5 5-3-3-3 3" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                         <span>{{ __('All time') }}</span>
                     </div>
                 </div>
@@ -86,14 +65,10 @@
             <div class="admin-stat-card admin-stat-primary">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
+                        <i class="fas fa-store"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
+                        <i class="fas fa-chart-bar"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -103,10 +78,7 @@
                 </div>
                 <div class="admin-stat-footer">
                     <div class="admin-stat-trend admin-stat-trend-up">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                            <path d="M17 9l-5 5-3-3-3 3" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                         <span>{{ __('Vendor earnings') }}</span>
                     </div>
                 </div>
@@ -115,14 +87,10 @@
             <div class="admin-stat-card admin-stat-info">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-                        </svg>
+                        <i class="fas fa-users"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
+                        <i class="fas fa-chart-bar"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -132,10 +100,7 @@
                 </div>
                 <div class="admin-stat-footer">
                     <div class="admin-stat-trend admin-stat-trend-up">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                            <path d="M17 9l-5 5-3-3-3 3" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                         <span>{{ __('Customer deposits') }}</span>
                     </div>
                 </div>
@@ -144,14 +109,10 @@
             <div class="admin-stat-card admin-stat-warning">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M3 3v18h18M7 12l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-chart-pie"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
+                        <i class="fas fa-chart-bar"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -161,9 +122,7 @@
                 </div>
                 <div class="admin-stat-footer">
                     <div class="admin-stat-trend admin-stat-trend-neutral">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
+                        <i class="fas fa-dot-circle"></i>
                         <span>{{ __('Per account') }}</span>
                     </div>
                 </div>

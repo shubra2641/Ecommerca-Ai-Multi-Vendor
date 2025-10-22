@@ -206,6 +206,7 @@ Route::middleware([
         Route::get('/', [GalleryController::class, 'index'])->name('index');
         Route::get('/upload', [GalleryController::class, 'create'])->name('create');
         Route::post('/', [GalleryController::class, 'store'])->name('store');
+        Route::post('/quick-upload', [GalleryController::class, 'quickStore'])->name('quick-upload');
         Route::get('/{image}/edit', [GalleryController::class, 'edit'])->name('edit');
         Route::put('/{image}', [GalleryController::class, 'update'])->name('update');
         Route::delete('/{image}', [GalleryController::class, 'destroy'])->name('destroy');

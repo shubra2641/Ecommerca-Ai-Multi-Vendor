@@ -13,15 +13,11 @@
                     <div class="title-row">
                         <div class="title-content">
                             <h1 class="modern-order-title">
-                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="title-icon">
-                                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
+                                <i class="fas fa-edit title-icon"></i>
                                 {{ __('Edit Address') }}
                             </h1>
                             <p class="order-date-modern">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-check-circle"></i>
                                 {{ __('Update your address information') }}
                             </p>
                         </div>
@@ -32,9 +28,7 @@
                 <div class="modern-card">
                     <div class="card-header-modern">
                         <h3 class="card-title-modern">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
+                            <i class="fas fa-edit"></i>
                             {{ __('Address Information') }}
                         </h3>
                     </div>

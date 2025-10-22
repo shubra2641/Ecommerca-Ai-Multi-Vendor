@@ -25,10 +25,7 @@
             </div>
             <div class="header-actions">
                 <a href="{{ route('admin.social.index') }}" class="admin-btn admin-btn-secondary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12,19 5,12 12,5"></polyline>
-                    </svg>
+                    <i class="fas fa-arrow-left"></i>
                     {{ __('Back') }}
                 </a>
             </div>
@@ -44,9 +41,7 @@
             <div class="admin-modern-card">
                 <div class="admin-card-header">
                     <div class="admin-card-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                        </svg>
+                        <i class="fas fa-share-alt"></i>
                         {{ __('Social Link Information') }}
                     </div>
                 </div>

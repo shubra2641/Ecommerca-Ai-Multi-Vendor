@@ -38,7 +38,7 @@ class ProductAttributeController extends Controller
 
         $attr = ProductAttribute::create($data);
 
-        return redirect()->route('admin.product-attributes.edit', $attr)->with('success', 'Attribute created');
+        return redirect()->route('admin.product-attributes.edit', $attr)->with('success', __('Attribute created'));
     }
 
     public function edit(ProductAttribute $productAttribute)
@@ -66,7 +66,7 @@ class ProductAttributeController extends Controller
 
         $productAttribute->update($data);
 
-        return back()->with('success', 'Updated');
+        return back()->with('success', __('Updated'));
     }
 
     public function storeValue(Request $r, ProductAttribute $productAttribute, HtmlSanitizer $sanitizer)
@@ -84,7 +84,7 @@ class ProductAttributeController extends Controller
 
         $productAttribute->values()->create($data);
 
-        return back()->with('success', 'Value added');
+        return back()->with('success', __('Value added'));
     }
 
     public function updateValue(
@@ -109,20 +109,20 @@ class ProductAttributeController extends Controller
 
         $value->update($data);
 
-        return back()->with('success', 'Value updated');
+        return back()->with('success', __('Value updated'));
     }
 
     public function deleteValue(ProductAttribute $productAttribute, ProductAttributeValue $value)
     {
         $value->delete();
 
-        return back()->with('success', 'Value deleted');
+        return back()->with('success', __('Value deleted'));
     }
 
     public function destroy(ProductAttribute $productAttribute)
     {
         $productAttribute->delete();
 
-        return back()->with('success', 'Deleted');
+        return back()->with('success', __('Deleted'));
     }
 }

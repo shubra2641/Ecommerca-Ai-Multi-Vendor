@@ -3,15 +3,11 @@
         <div class="admin-text-muted small fw-semibold">{{ __('Attribute Form') }}</div>
         <div class="ms-auto d-flex gap-2">
             <button type="button" class="admin-btn admin-btn-small admin-btn-outline" data-collapse-all>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="d-sm-none">
-                    <path d="M8 12H16M12 8V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+                <i class="fas fa-compress d-sm-none"></i>
                 <span class="d-none d-sm-inline">{{ __('Collapse All') }}</span>
             </button>
             <button type="button" class="admin-btn admin-btn-small admin-btn-outline" data-expand-all>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="d-sm-none">
-                    <path d="M8 12H16M12 8V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+                <i class="fas fa-compress d-sm-none"></i>
                 <span class="d-none d-sm-inline">{{ __('Expand All') }}</span>
             </button>
         </div>
@@ -22,15 +18,10 @@
 <div class="admin-modern-card mb-4" data-section>
     <div class="admin-card-header d-flex justify-content-between align-items-center cursor-pointer" data-toggle-section>
         <h3 class="admin-card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+            <i class="fas fa-clock"></i>
             {{ __('Basic Information') }}
         </h3>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="section-caret admin-text-muted">
-            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+        <i class="fas fa-chevron-down section-caret admin-text-muted"></i>
     </div>
     <div class="admin-card-body">
         <div class="admin-form-grid">
@@ -53,15 +44,10 @@
 <div class="admin-modern-card mb-4" data-section>
     <div class="admin-card-header d-flex justify-content-between align-items-center cursor-pointer" data-toggle-section>
         <h3 class="admin-card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
-                <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+            <i class="fas fa-cog"></i>
             {{ __('Configuration') }}
         </h3>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="section-caret admin-text-muted">
-            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+        <i class="fas fa-chevron-down section-caret admin-text-muted"></i>
     </div>
     <div class="admin-card-body">
         <div class="admin-form-grid">
@@ -107,22 +93,10 @@
 <div class="admin-modern-card" data-section>
     <div class="admin-card-header d-flex justify-content-between align-items-center cursor-pointer" data-toggle-section>
         <h3 class="admin-card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                <line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                <line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                <line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                <line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                <line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                <line x1="1" y1="14" x2="7" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                <line x1="9" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                <line x1="17" y1="16" x2="23" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+            <i class="fas fa-sliders-h"></i>
             {{ __('Advanced Settings') }}
         </h3>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="section-caret admin-text-muted">
-            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+        <i class="fas fa-chevron-down section-caret admin-text-muted"></i>
     </div>
     <div class="admin-card-body">
         <div class="admin-form-grid">

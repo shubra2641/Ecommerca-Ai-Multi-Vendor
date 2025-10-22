@@ -196,6 +196,9 @@ class CheckoutController extends Controller
             $order->status = 'completed';
             $order->save();
 
+            // Dispatch OrderPaid event to trigger stock deduction
+            event(new \App\Events\OrderPaid($order));
+
             return response()->json(['ok' => true, 'payment_id' => $payment->id]);
         });
     }
@@ -234,6 +237,9 @@ class CheckoutController extends Controller
                 $order->payment_status = 'paid';
                 $order->status = 'completed';
                 $order->save();
+
+                // Dispatch OrderPaid event to trigger stock deduction
+                event(new \App\Events\OrderPaid($order));
 
                 return response()->json(['ok' => true]);
             });

@@ -11,16 +11,12 @@
                 <!-- Header with Back Button -->
                 <div class="order-modern-header">
                     <a href="{{ route('user.orders') }}" class="btn-back-modern">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M19 12H5M12 19l-7-7 7-7" />
-                        </svg>
+                        <i class="fas fa-arrow-left"></i>
                         <span>{{ __('Back to Orders') }}</span>
                     </a>
                     <div class="header-actions">
                         <a href="{{ route('user.orders.invoice.pdf',$order->id) }}" class="btn-download" target="_blank">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
-                            </svg>
+                            <i class="fas fa-download"></i>
                             <span>{{ __('Download PDF') }}</span>
                         </a>
                     </div>
@@ -32,10 +28,7 @@
                         <div class="title-content">
                             <h1 class="modern-order-title">{{ __('Order') }} <span class="order-number">#{{ $order->id }}</span></h1>
                             <p class="order-date-modern">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <path d="M12 6v6l4 2" />
-                                </svg>
+                                <i class="fas fa-clock"></i>
                                 {{ $order->created_at->format('F j, Y \a\t g:i A') }}
                             </p>
                         </div>
@@ -49,9 +42,7 @@
                 <!-- Status Timeline -->
                 <div class="timeline-card-modern">
                     <h3 class="card-title-modern">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <i class="fas fa-stream"></i>
                         {{ __('Order Timeline') }}
                     </h3>
                     <div class="timeline-container">
@@ -59,9 +50,7 @@
                         <div class="timeline-item {{ in_array($key,$ovbShipmentStages['reached']) ? 'completed' : '' }} {{ $key === $ovbShipmentStages['current'] ? 'active' : '' }}">
                             <div class="timeline-marker">
                                 @if(in_array($key,$ovbShipmentStages['reached']))
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                    <path d="M20 6L9 17l-5-5" />
-                                </svg>
+                                <i class="fas fa-check"></i>
                                 @else
                                 <span class="marker-dot"></span>
                                 @endif
@@ -87,9 +76,7 @@
                         <div class="modern-card items-card">
                             <div class="card-header-modern">
                                 <h3 class="card-title-modern">
-                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                    </svg>
+                                    <i class="fas fa-box-open"></i>
                                     {{ __('Order Items') }}
                                 </h3>
                                 <span class="badge-count">{{ $order->items->count() }} {{ __('items') }}</span>
@@ -109,10 +96,7 @@
                                         @endif
                                         <div class="item-meta-modern">
                                             <span class="meta-item">
-                                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                    <rect x="1" y="3" width="15" height="13" />
-                                                    <path d="M16 8h4v8h-4M1 12h12" />
-                                                </svg>
+                                                <i class="fas fa-box"></i>
                                                 {{ __('Qty') }}: <strong>{{ $it->qty }}</strong>
                                             </span>
                                             <span class="meta-item price-tag">
@@ -133,19 +117,13 @@
                         <div class="modern-card address-card">
                             <div class="card-header-modern">
                                 <h3 class="card-title-modern">
-                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                        <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
+                                    <i class="fas fa-map-marker-alt"></i>
                                     {{ __('Delivery Address') }}
                                 </h3>
                             </div>
                             <div class="address-box-modern">
                                 <div class="address-icon-modern">
-                                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                                        <path d="M9 22V12h6v10" />
-                                    </svg>
+                                    <i class="fas fa-home"></i>
                                 </div>
                                 <div class="address-text-modern">{!! nl2br(e($ovbAddressText)) !!}</div>
                             </div>
@@ -160,9 +138,7 @@
                         <div class="modern-card summary-card sticky-card">
                             <div class="card-header-modern">
                                 <h3 class="card-title-modern">
-                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                    </svg>
+                                    <i class="fas fa-receipt"></i>
                                     {{ __('Order Summary') }}
                                 </h3>
                             </div>
@@ -195,10 +171,7 @@
                         <div class="modern-card payment-card">
                             <div class="card-header-modern">
                                 <h3 class="card-title-modern">
-                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <rect x="1" y="4" width="22" height="16" rx="2" />
-                                        <path d="M1 10h22" />
-                                    </svg>
+                                    <i class="fas fa-credit-card"></i>
                                     {{ __('Payment Info') }}
                                 </h3>
                             </div>
@@ -219,9 +192,7 @@
                         <!-- Actions -->
                         <div class="actions-card-modern">
                             <a href="{{ route('user.invoices') }}" class="btn-action-modern btn-secondary">
-                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
+                                <i class="fas fa-file-invoice"></i>
                                 {{ __('View All Invoices') }}
                             </a>
                         </div>

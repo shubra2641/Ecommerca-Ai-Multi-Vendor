@@ -67,9 +67,7 @@
                 class="form-check-input @error('is_featured') is-invalid @enderror"
                 id="is_featured" {{ old('is_featured', $model->is_featured ?? false) ? 'checked' : '' }}>
             <label class="form-check-label" for="is_featured">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+                <i class="fas fa-star"></i>
                 {{ __('Featured Tag') }}
             </label>
             @error('is_featured')
@@ -85,10 +83,7 @@
                 class="form-check-input @error('is_active') is-invalid @enderror"
                 id="is_active" {{ old('is_active', $model->is_active ?? true) ? 'checked' : '' }}>
             <label class="form-check-label" for="is_active">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" />
-                </svg>
+                <i class="fas fa-check"></i>
                 {{ __('Active') }}
             </label>
             @error('is_active')

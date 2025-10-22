@@ -4,7 +4,7 @@
         <div class="hero-slider-track" data-hero-slider-track>
             @foreach($slides as $sl)
                 <div class="hero-slide" role="group" aria-roledescription="slide" aria-label="{{ $loop->iteration.' / '.$slides->count() }}">
-                    <img class="hero-slide-img" src="{{ $sl->image ? asset('storage/'.$sl->image) : asset('images/product-placeholder.svg') }}" alt="{{ $sl->title ?? $sl->subtitle ?? ('Slide '.$loop->iteration) }}">
+                    <img class="hero-slide-img" src="{{ $sl->image ? asset('storage/'.$sl->image) : asset('images/placeholder.svg') }}" alt="{{ $sl->title ?? $sl->subtitle ?? ('Slide '.$loop->iteration) }}">
                     <div class="hero-slide-overlay">
                         @if(!empty($sl->title))<h2 class="hero-slide-title">{{ $sl->title }}</h2>@endif
                         @if(!empty($sl->subtitle))<p class="hero-slide-sub">{{ $sl->subtitle }}</p>@endif
@@ -22,7 +22,7 @@
     <noscript>
         <div class="hero-noscript-fallback">
             @if(($slides ?? collect())->first())
-                <img src="{{ ($slides->first()->image ? asset('storage/'.$slides->first()->image) : asset('images/product-placeholder.svg')) }}" alt="{{ $slides->first()->title ?? 'Slide' }}" class="hero-slide-img">
+                <img src="{{ ($slides->first()->image ? asset('storage/'.$slides->first()->image) : asset('images/placeholder.svg')) }}" alt="{{ $slides->first()->title ?? 'Slide' }}" class="hero-slide-img">
             @endif
         </div>
     </noscript>

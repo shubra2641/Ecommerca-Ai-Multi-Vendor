@@ -76,9 +76,7 @@
                                     <form action="{{ route('cart.remove') }}" method="post" class="remove-form">@csrf
                                         <input type="hidden" name="cart_key" value="{{ $it['cart_key'] }}">
                                         <button type="submit" class="circle-btn icon-btn remove-btn" aria-label="Remove item">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                                <path d="M9 3v1H4v2h16V4h-5V3H9zm1 5v9h2V8H10zm4 0v9h2V8h-2zM7 8v9h2V8H7z" fill="currentColor" />
-                                            </svg>
+                                            <i class="fas fa-trash" aria-hidden="true"></i>
                                         </button>
                                     </form>
 

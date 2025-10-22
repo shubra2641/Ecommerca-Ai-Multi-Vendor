@@ -128,13 +128,17 @@ class CheckoutProcessor
             }
         }
 
-        // Create order items
+        // Create order items and reserve stock
         foreach ($checkoutData['items'] as $item) {
             $meta = [];
-            if ($item['variant']) {
+            $variantId = $item['variant'] ?? null;
+            $variant = null;
+
+            if ($variantId) {
                 // Get variant details
-                $variant = \App\Models\ProductVariation::find($item['variant']);
+                $variant = \App\Models\ProductVariation::find($variantId);
                 if ($variant) {
+                    $meta['variant_id'] = $variant->id; // Store variant_id for StockAdjustmentListener
                     $meta['variant'] = [
                         'id' => $variant->id,
                         'name' => $variant->name,
@@ -145,14 +149,11 @@ class CheckoutProcessor
             }
 
             $name = $item['product']->name;
-            if ($item['variant']) {
-                $variant = \App\Models\ProductVariation::find($item['variant']);
-                if ($variant) {
-                    $name .= ' - ' . $variant->name;
-                }
+            if ($variant) {
+                $name .= ' - ' . $variant->name;
             }
 
-            \App\Models\OrderItem::create([
+            $orderItem = \App\Models\OrderItem::create([
                 'order_id' => $order->id,
                 'product_id' => $item['product']->id,
                 'name' => $name,
@@ -161,6 +162,13 @@ class CheckoutProcessor
                 'meta' => $meta,
                 'purchased_at' => now(),
             ]);
+
+            // Reserve stock when order is created
+            if ($variant) {
+                \App\Services\StockService::reserveVariation($variant, $item['qty']);
+            } else {
+                \App\Services\StockService::reserve($item['product'], $item['qty']);
+            }
         }
 
         return $order;

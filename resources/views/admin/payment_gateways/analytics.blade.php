@@ -10,9 +10,7 @@
         <div class="admin-order-header">
             <div class="header-left">
                 <h1 class="admin-order-title">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
+                    <i class="fas fa-chart-line"></i>
                     {{ __('Gateway Analytics') }}
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Detailed performance analytics for payment gateways') }}</p>
@@ -25,15 +23,11 @@
                     <option value="365">{{ __('Last Year') }}</option>
                 </select>
                 <button type="button" class="admin-btn admin-btn-primary" data-action="export-analytics">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
+                    <i class="fas fa-file-export"></i>
                     {{ __('Export') }}
                 </button>
                 <a href="{{ route('admin.payment-gateways-management.dashboard') }}" class="admin-btn admin-btn-secondary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
+                    <i class="fas fa-arrow-left"></i>
                     {{ __('Back') }}
                 </a>
             </div>

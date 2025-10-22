@@ -48,7 +48,7 @@ class ProductSerialController extends Controller
             }
         }
 
-        return back()->with('success', "Imported {$created} serials");
+        return back()->with('success', __('Imported {$created} serials'));
     }
 
     public function export(Product $product)
@@ -75,11 +75,11 @@ class ProductSerialController extends Controller
             abort(404);
         }
         if ($serial->sold_at) {
-            return back()->with('warning', 'Already sold');
+            return back()->with('warning', __('Already sold'));
         }
         $serial->sold_at = now();
         $serial->save();
 
-        return back()->with('success', 'Marked as sold');
+        return back()->with('success', __('Marked as sold'));
     }
 }

@@ -9,18 +9,14 @@
         <div class="admin-order-header">
             <div class="admin-order-title">
                 <h1>
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
+                    <i class="fas fa-boxes"></i>
                     {{ __('Inventory Report') }}
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Comprehensive inventory analysis and stock management') }}</p>
             </div>
             <div class="header-actions">
                 <a href="{{ route('admin.reports.export', 'inventory') }}" class="admin-btn admin-btn-secondary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
+                    <i class="fas fa-download"></i>
                     {{ __('Export Report') }}
                 </a>
             </div>
@@ -31,14 +27,10 @@
             <div class="admin-stat-card admin-stat-primary">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
+                        <i class="fas fa-boxes"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-check"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -48,9 +40,7 @@
                 </div>
                 <div class="admin-stat-footer">
                     <span class="admin-stat-trend admin-stat-trend-up">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                         {{ __('Growing') }}
                     </span>
                 </div>
@@ -59,14 +49,10 @@
             <div class="admin-stat-card admin-stat-success">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M3 3v18h18M7 12l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <i class="fas fa-check-circle"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -76,9 +62,7 @@
                 </div>
                 <div class="admin-stat-footer">
                     <span class="admin-stat-trend admin-stat-trend-up">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                         +{{ number_format((($totals['manage_stock_count'] ?? 0) / max($totals['total_products'] ?? 1, 1)) * 100, 1) }}%
                     </span>
                 </div>
@@ -87,14 +71,10 @@
             <div class="admin-stat-card admin-stat-danger">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                        </svg>
+                        <i class="fas fa-exclamation-triangle"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                        </svg>
+                        <i class="fas fa-exclamation-triangle"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -104,9 +84,7 @@
                 </div>
                 <div class="admin-stat-footer">
                     <span class="admin-stat-trend admin-stat-trend-neutral">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                        </svg>
+                        <i class="fas fa-exclamation-triangle"></i>
                         {{ __('Action needed') }}
                     </span>
                 </div>
@@ -115,14 +93,10 @@
             <div class="admin-stat-card admin-stat-warning">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <i class="fas fa-clock"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <i class="fas fa-clock"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -132,9 +106,7 @@
                 </div>
                 <div class="admin-stat-footer">
                     <span class="admin-stat-trend admin-stat-trend-neutral">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <i class="fas fa-clock"></i>
                         {{ __('Monitor closely') }}
                     </span>
                 </div>
@@ -193,17 +165,12 @@
                                 <td>
                                     @if($p['manage_stock'])
                                     <span class="admin-status-badge admin-status-badge-success">
-                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
+                                        <i class="fas fa-check"></i>
                                         {{ __('Yes') }}
                                     </span>
                                     @else
                                     <span class="admin-status-badge admin-status-badge-secondary">
-                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
+                                        <i class="fas fa-times"></i>
                                         {{ __('No') }}
                                     </span>
                                     @endif
@@ -218,17 +185,12 @@
                                 <td>
                                     @if($p['has_serials'])
                                     <span class="admin-status-badge admin-status-badge-success">
-                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
+                                        <i class="fas fa-check"></i>
                                         {{ __('Yes') }}
                                     </span>
                                     @else
                                     <span class="admin-status-badge admin-status-badge-secondary">
-                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
+                                        <i class="fas fa-times"></i>
                                         {{ __('No') }}
                                     </span>
                                     @endif
@@ -239,9 +201,7 @@
                                 <td>
                                     @if(!empty($p['variations']) && $p['variations']->count() > 0)
                                     <button class="admin-btn admin-btn-small admin-btn-outline" data-bs-toggle="collapse" data-bs-target="#vars-{{ $p['id'] }}">
-                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path d="M9 5l7 7-7 7" />
-                                        </svg>
+                                        <i class="fas fa-chevron-right"></i>
                                         {{ $p['variations']->count() }} {{ __('Variations') }}
                                     </button>
                                     <div class="collapse mt-2" id="vars-{{ $p['id'] }}">
@@ -292,9 +252,7 @@
                 @else
                 <div class="admin-empty-state">
                     <div class="admin-notification-icon">
-                        <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
+                        <i class="fas fa-boxes"></i>
                     </div>
                     <h3>{{ __('No Products Found') }}</h3>
                     <p>{{ __('No products available for inventory report.') }}</p>

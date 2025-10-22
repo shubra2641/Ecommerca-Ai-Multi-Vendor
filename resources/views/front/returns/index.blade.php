@@ -12,17 +12,11 @@
                     <div class="title-row">
                         <div class="title-content">
                             <h1 class="modern-order-title">
-                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="title-icon">
-                                    <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                                    <path d="M8 5a2 2 0 012-2h4a2 2 0 012 2v4H8V5z" />
-                                    <path d="M9 12l2 2 4-4" />
-                                </svg>
+                                <i class="fas fa-undo title-icon"></i>
                                 {{ __('title') }}
                             </h1>
                             <p class="order-date-modern">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-check-circle"></i>
                                 {{ __('Manage your return requests and track their status') }}
                             </p>
                         </div>
@@ -32,11 +26,7 @@
                 @if($items->isEmpty())
                 <div class="modern-card">
                     <div class="empty-state">
-                        <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" class="empty-icon">
-                            <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                            <path d="M8 5a2 2 0 012-2h4a2 2 0 012 2v4H8V5z" />
-                            <path d="M9 12l2 2 4-4" />
-                        </svg>
+                        <i class="fas fa-undo empty-icon"></i>
                         <p class="empty-text">{{ __('empty') }}</p>
                     </div>
                 </div>
@@ -46,9 +36,7 @@
                 <div class="modern-card">
                     <div class="card-header-modern">
                         <h3 class="card-title-modern">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                            </svg>
+                            <i class="fas fa-shopping-bag"></i>
                             {{ __('Return Items') }}
                         </h3>
                     </div>

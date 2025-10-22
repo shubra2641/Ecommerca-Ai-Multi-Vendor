@@ -73,7 +73,7 @@ class ProductCategoryController extends Controller
 
         return redirect()
             ->route('admin.product-categories.index')
-            ->with('success', 'Category created');
+            ->with('success', __('Category created'));
     }
 
     public function edit(ProductCategory $productCategory)
@@ -130,14 +130,14 @@ class ProductCategoryController extends Controller
         }
         $productCategory->update($data);
 
-        return redirect()->route('admin.product-categories.index')->with('success', 'Updated');
+        return redirect()->route('admin.product-categories.index')->with('success', __('Updated'));
     }
 
     public function destroy(ProductCategory $productCategory)
     {
         $productCategory->delete();
 
-        return back()->with('success', 'Deleted');
+        return back()->with('success', __('Deleted'));
     }
 
     public function export(Request $r)
@@ -191,6 +191,6 @@ class ProductCategoryController extends Controller
             $merge['seo_keywords'] = $result['seo_tags'];
         }
 
-        return back()->with('success', 'AI generated successfully')->withInput($merge);
+        return back()->with('success', __('AI generated successfully'))->withInput($merge);
     }
 }

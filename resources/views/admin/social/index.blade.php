@@ -10,9 +10,7 @@
             <div class="header-left">
                 <div class="admin-header-content">
                     <div class="admin-header-icon">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2M9 12l2 2 4-4" />
-                        </svg>
+                        <i class="fas fa-share-alt"></i>
                     </div>
                     <div class="admin-header-text">
                         <h1 class="admin-order-title">{{ __('Social Links') }}</h1>
@@ -22,9 +20,7 @@
             </div>
             <div class="header-actions">
                 <a href="{{ route('admin.social.create') }}" class="admin-btn admin-btn-primary">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M12 5v14m7-7H5" />
-                    </svg>
+                    <i class="fas fa-plus"></i>
                     {{ __('Add Link') }}
                 </a>
             </div>
@@ -34,9 +30,7 @@
         <div class="admin-modern-card">
             <div class="admin-card-header">
                 <h2 class="admin-card-title">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2M9 12l2 2 4-4" />
-                    </svg>
+                    <i class="fas fa-share-alt"></i>
                     {{ __('Social Links') }}
                 </h2>
                 <div class="admin-badge-count">{{ $links->count() }} {{ __('Links') }}</div>
@@ -44,15 +38,11 @@
             <div class="admin-card-body">
                 @if(!$links->count())
                 <div class="admin-empty-state">
-                    <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" class="admin-notification-icon">
-                        <path d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2M9 12l2 2 4-4" />
-                    </svg>
+                    <i class="fas fa-share-alt admin-notification-icon"></i>
                     <h3>{{ __('No Social Links') }}</h3>
                     <p>{{ __('No social links yet. Click Add Link to create one.') }}</p>
                     <a href="{{ route('admin.social.create') }}" class="admin-btn admin-btn-primary">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 5v14m7-7H5" />
-                        </svg>
+                        <i class="fas fa-plus"></i>
                         {{ __('Add First Link') }}
                     </a>
                 </div>
@@ -76,9 +66,7 @@
                                 @foreach($links as $link)
                                 <tr data-id="{{ $link->id }}">
                                     <td class="text-muted cursor-move">
-                                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path d="M8 9l4-4 4 4M8 15l4 4 4-4" />
-                                        </svg>
+                                        <i class="fas fa-arrows-alt-v"></i>
                                     </td>
                                     <td>
                                         <div class="user-info">
@@ -136,9 +124,7 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="btn btn-sm btn-outline-danger">
-                                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
+                                                    <i class="fas fa-trash"></i>
                                                     {{ __('Delete') }}
                                                 </button>
                                             </form>
@@ -151,9 +137,7 @@
                     </div>
                     <div class="d-flex justify-content-end mt-3">
                         <button type="submit" class="btn btn-secondary" id="save-order" disabled>
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M5 13l4 4L19 7" />
-                            </svg>
+                            <i class="fas fa-check"></i>
                             {{ __('Save Order') }}
                         </button>
                     </div>

@@ -10,9 +10,7 @@
             <div class="header-left">
                 <div class="admin-header-content">
                     <div class="admin-header-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 6H21M3 12H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-list"></i>
                     </div>
                     <div class="admin-header-text">
                         <h1 class="admin-order-title">{{ __('Product Attributes Management') }}</h1>
@@ -22,16 +20,11 @@
             </div>
             <div class="header-actions">
                 <button type="button" class="admin-btn admin-btn-secondary" data-action="export-attributes">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 19.6642C20.0391 19.2893 19.5304 19 19 19H5C4.46957 19 3.96086 19.2893 3.58579 19.6642C3.21071 20.0391 3 20.5304 3 21V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <i class="fas fa-download"></i>
                     {{ __('Export') }}
                 </button>
                 <a href="{{ route('admin.product-attributes.create') }}" class="admin-btn admin-btn-primary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <i class="fas fa-plus"></i>
                     {{ __('Add Attribute') }}
                 </a>
             </div>
@@ -42,15 +35,10 @@
             <div class="admin-stat-card">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M20.59 13.41L13.42 20.58C12.05 21.95 10.1 21.95 8.73 20.58L3.42 15.27C2.05 13.9 2.05 11.95 3.42 10.58L10.59 3.41C11.95 2.05 13.9 2.05 15.27 3.41L20.58 8.72C21.95 10.09 21.95 12.04 20.59 13.41Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M7 13L9 15L13 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-tags"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -60,9 +48,7 @@
                 </div>
                 <div class="admin-stat-footer">
                     <div class="admin-stat-trend admin-stat-trend-up">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                         <span>{{ __('Growing') }}</span>
                     </div>
                 </div>
@@ -71,16 +57,10 @@
             <div class="admin-stat-card">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" />
-                        </svg>
+                        <i class="fas fa-check"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" />
-                        </svg>
+                        <i class="fas fa-check-circle"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -90,9 +70,7 @@
                 </div>
                 <div class="admin-stat-footer">
                     <div class="admin-stat-trend admin-stat-trend-up">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                         <span>{{ __('Active') }}</span>
                     </div>
                 </div>
@@ -101,14 +79,10 @@
             <div class="admin-stat-card">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 6H21M3 12H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-list"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -118,9 +92,7 @@
                 </div>
                 <div class="admin-stat-footer">
                     <div class="admin-stat-trend admin-stat-trend-up">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                         <span>{{ __('Select') }}</span>
                     </div>
                 </div>
@@ -129,15 +101,10 @@
             <div class="admin-stat-card">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20Z" stroke="currentColor" stroke-width="2" />
-                            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-clock"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -147,9 +114,7 @@
                 </div>
                 <div class="admin-stat-footer">
                     <div class="admin-stat-trend admin-stat-trend-up">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                         <span>{{ __('Colors') }}</span>
                     </div>
                 </div>
@@ -160,10 +125,7 @@
         <div class="admin-modern-card mb-4">
             <div class="admin-card-header">
                 <h3 class="admin-card-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
-                        <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <i class="fas fa-search"></i>
                     {{ __('Filter & Search') }}
                 </h3>
                 <p class="admin-card-subtitle">{{ __('Search and filter attributes') }}</p>
@@ -175,10 +137,7 @@
                         <div class="admin-input-group">
                             <input type="text" name="search" value="{{ request('search') }}" class="admin-form-input admin-form-input-search" placeholder="{{ __('Search attributes...') }}">
                             <div class="admin-input-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
-                                    <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
+                                <i class="fas fa-search"></i>
                             </div>
                         </div>
                     </div>
@@ -202,16 +161,11 @@
                     <div class="admin-filter-actions">
                         <div class="admin-filter-buttons">
                             <button type="submit" class="admin-btn admin-btn-primary admin-btn-filter">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
-                                    <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
+                                <i class="fas fa-search"></i>
                                 {{ __('Filter') }}
                             </button>
                             <a href="{{ route('admin.product-attributes.index') }}" class="admin-btn admin-btn-outline admin-btn-clear">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
+                                <i class="fas fa-times"></i>
                                 {{ __('Clear') }}
                             </a>
                         </div>
@@ -270,20 +224,13 @@
                                 <div class="attribute-actions mt-auto">
                                     <div class="d-flex gap-2">
                                         <a href="{{ route('admin.product-attributes.edit', $attr) }}" class="admin-btn admin-btn-outline flex-fill">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13M18.5 2.5C18.8978 2.10218 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10218 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
+                                            <i class="fas fa-edit"></i>
                                             <span class="d-none d-sm-inline ms-1">{{ __('Edit') }}</span>
                                         </a>
                                         <form method="POST" action="{{ route('admin.product-attributes.destroy',$attr) }}" class="d-inline js-confirm" data-confirm="{{ __('Are you sure you want to delete this attribute?') }}">@csrf
                                             @method('DELETE')
                                             <button type="submit" class="admin-btn admin-btn-danger">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    <path d="M10 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    <path d="M14 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                </svg>
+                                                <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -310,17 +257,12 @@
                 @else
                 <div class="admin-empty-state text-center py-5">
                     <div class="admin-notification-icon mb-3">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M20.59 13.41L13.42 20.58C12.05 21.95 10.1 21.95 8.73 20.58L3.42 15.27C2.05 13.9 2.05 11.95 3.42 10.58L10.59 3.41C11.95 2.05 13.9 2.05 15.27 3.41L20.58 8.72C21.95 10.09 21.95 12.04 20.59 13.41Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M7 13L9 15L13 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-tags"></i>
                     </div>
                     <h5>{{ __('No attributes found') }}</h5>
                     <p class="admin-text-muted mb-4">{{ __('Start by creating your first product attribute to define selectable characteristics.') }}</p>
                     <a href="{{ route('admin.product-attributes.create') }}" class="admin-btn admin-btn-primary">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <i class="fas fa-plus"></i>
                         {{ __('Add First Attribute') }}
                     </a>
                 </div>

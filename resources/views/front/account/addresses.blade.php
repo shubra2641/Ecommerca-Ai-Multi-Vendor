@@ -13,16 +13,11 @@
                     <div class="title-row">
                         <div class="title-content">
                             <h1 class="modern-order-title">
-                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="title-icon">
-                                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
+                                <i class="fas fa-map-marker-alt title-icon"></i>
                                 {{ __('Addresses') }}
                             </h1>
                             <p class="order-date-modern">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-check-circle"></i>
                                 {{ __('Manage your addresses') }}
                             </p>
                         </div>
@@ -33,9 +28,7 @@
                 <div class="modern-card">
                     <div class="card-header-modern">
                         <h3 class="card-title-modern">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
+                            <i class="fas fa-plus"></i>
                             {{ $editingAddress ? __('Edit Address') : __('Add New Address') }}
                         </h3>
                     </div>
@@ -144,16 +137,12 @@
 
                             <div class="form-row">
                                 <button class="btn-action-modern btn-primary btn-full" type="submit">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                                    <i class="fas fa-check-circle"></i>
                                     {{ $editingAddress ? __('Update address') : __('Save address') }}
                                 </button>
                                 @if($editingAddress)
                                 <a href="{{ route('user.addresses') }}" class="btn-action-modern btn-secondary btn-full">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
+                                    <i class="fas fa-times"></i>
                                     {{ __('Cancel') }}
                                 </a>
                                 @endif
@@ -168,9 +157,7 @@
                     <div class="modern-card">
                         <div class="card-header-modern">
                             <h3 class="card-title-modern">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-check-circle"></i>
                                 {{ __('Default address') }}
                             </h3>
                         </div>
@@ -183,9 +170,7 @@
                     <div class="modern-card">
                         <div class="card-header-modern">
                             <h3 class="card-title-modern">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                </svg>
+                                <i class="fas fa-address-book"></i>
                                 {{ __('Other addresses') }}
                             </h3>
                         </div>
@@ -198,10 +183,7 @@
                             </div>
                             @else
                             <div class="empty-state empty-state-small">
-                                <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24" class="empty-icon">
-                                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
+                                <i class="fas fa-box-open empty-icon" style="font-size:48px"></i>
                                 <p class="empty-text">{{ __('No other addresses.') }}</p>
                             </div>
                             @endif

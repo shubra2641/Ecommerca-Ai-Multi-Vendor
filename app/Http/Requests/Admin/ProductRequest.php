@@ -38,8 +38,8 @@ class ProductRequest extends FormRequest
             'main_image' => 'nullable|string',
             'gallery' => 'nullable',
             'manage_stock' => 'boolean',
-            'stock_qty' => 'nullable|integer',
-            'reserved_qty' => 'nullable|integer',
+            'stock_qty' => 'nullable|integer|min:0',
+            'reserved_qty' => 'nullable|integer|min:0',
             'backorder' => 'boolean',
             'is_featured' => 'boolean',
             'is_best_seller' => 'boolean',
@@ -96,6 +96,14 @@ class ProductRequest extends FormRequest
                 }
             } catch (\Throwable $e) {
             }
+
+            // Stock validation for simple products
+            if ($this->input('type') === 'simple' && $this->input('manage_stock')) {
+                if (!$this->filled('stock_qty') || $this->input('stock_qty') < 0) {
+                    $v->errors()->add('stock_qty', __('Stock quantity is required for simple products with stock management enabled'));
+                }
+            }
+
             // Digital product validations
             $isDigital = ($this->input('physical_type') === 'digital') || ($this->input('type') === 'digital');
             if ($isDigital) {
@@ -158,6 +166,7 @@ class ProductRequest extends FormRequest
                         continue;
                     }
                     $localAttrError = false;
+                    $normalized = [];
                     foreach ($attrRaw as $attrSlug => $attrVal) {
                         if (! isset($attributesMap[$attrSlug])) {
                             $errors["variations.{$idx}.attributes.{$attrSlug}"] = "Unknown attribute '{$attrSlug}'";
@@ -165,12 +174,22 @@ class ProductRequest extends FormRequest
 
                             continue;
                         }
+                        $value = is_array($attrVal) ? ($attrVal['value'] ?? null) : $attrVal;
+                        $value = is_string($value) ? trim($value) : $value;
+                        if ($value === '' || $value === null) {
+                            continue;
+                        }
+                        $normalized[$attrSlug] = $value;
                     }
                     if ($localAttrError) {
                         continue;
                     }
+                    if (empty($normalized)) {
+                        continue;
+                    }
+                    ksort($normalized);
                     // uniqueness check based on json-encoded attributes map
-                    $key = json_encode($attrRaw);
+                    $key = json_encode($normalized);
                     if (isset($seen[$key])) {
                         $errors["variations.{$idx}"] = 'Duplicate variation attributes found';
                     }

@@ -48,7 +48,7 @@ class VendorWithdrawalController extends Controller
     public function approve(Request $r, VendorWithdrawal $withdrawal)
     {
         if ($withdrawal->status !== 'pending') {
-            return back()->with('error', 'Already processed');
+            return back()->with('error', __('Already processed'));
         }
         $user = $withdrawal->user;
         $r->validate([
@@ -125,13 +125,13 @@ class VendorWithdrawalController extends Controller
         }
 
         // Also notify admins (audit) if needed
-        return back()->with('success', 'Withdrawal approved and payout created');
+        return back()->with('success', __('Withdrawal approved and payout created'));
     }
 
     public function reject(Request $r, VendorWithdrawal $withdrawal)
     {
         if ($withdrawal->status !== 'pending') {
-            return back()->with('error', 'Already processed');
+            return back()->with('error', __('Already processed'));
         }
         $r->validate([
             'admin_note' => 'nullable|string|max:1000',
@@ -160,13 +160,13 @@ class VendorWithdrawalController extends Controller
             }
         }
 
-        return back()->with('success', 'Withdrawal rejected');
+        return back()->with('success', __('Withdrawal rejected'));
     }
 
     public function execute(Request $r, Payout $payout)
     {
         if ($payout->status !== 'pending') {
-            return back()->with('error', 'Payout already processed');
+            return back()->with('error', __('Payout already processed'));
         }
         $user = $payout->user;
         $amount = (float) $payout->amount; // already held earlier
@@ -222,7 +222,7 @@ class VendorWithdrawalController extends Controller
             logger()->warning('Failed to queue payout executed mail: ' . $e->getMessage());
         }
 
-        return back()->with('success', 'Payout executed');
+        return back()->with('success', __('Payout executed'));
     }
 
     public function payoutsShow(Payout $payout)

@@ -73,7 +73,7 @@ class ProductApprovalController extends Controller
             logger()->warning('Vendor product approval notification failed: ' . $e->getMessage());
         }
 
-        return back()->with('success', 'Product approved');
+        return back()->with('success', __('Product approved'));
     }
 
     public function reject(Request $r, Product $product, \App\Services\HtmlSanitizer $sanitizer)
@@ -112,7 +112,7 @@ class ProductApprovalController extends Controller
                 logger()->warning('Failed to send vendor deletion notification: ' . $e->getMessage());
             }
 
-            return back()->with('success', 'Product deleted');
+            return back()->with('success', __('Product deleted'));
         }
         try {
             Mail::to($product->vendor->email)->queue(new ProductRejected($product, $reason));
@@ -132,6 +132,6 @@ class ProductApprovalController extends Controller
             logger()->warning('Vendor product rejection notification failed: ' . $e->getMessage());
         }
 
-        return back()->with('success', 'Product rejected');
+        return back()->with('success', __('Product rejected'));
     }
 }

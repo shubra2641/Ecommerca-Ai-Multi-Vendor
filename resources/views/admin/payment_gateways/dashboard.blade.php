@@ -10,25 +10,18 @@
         <div class="admin-order-header">
             <div class="header-left">
                 <h1 class="admin-order-title">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <rect x="1" y="4" width="22" height="16" rx="2" />
-                        <path d="M1 10h22" />
-                    </svg>
+                    <i class="fas fa-credit-card"></i>
                     {{ __('Payment Gateway Management') }}
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Monitor and manage your payment gateways') }}</p>
             </div>
             <div class="header-actions">
                 <button type="button" class="admin-btn admin-btn-primary" data-action="sync-gateways">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
+                    <i class="fas fa-sync-alt"></i>
                     {{ __('Sync Gateways') }}
                 </button>
                 <a href="{{ route('admin.payment-gateways.index') }}" class="admin-btn admin-btn-secondary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                    </svg>
+                    <i class="fas fa-list"></i>
                     {{ __('Gateway List') }}
                 </a>
             </div>

@@ -13,16 +13,12 @@
             <!-- Header with Back Button -->
             <div class="order-modern-header">
                 <a href="{{ route('user.orders') }}" class="btn-back-modern">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M19 12H5M12 19l-7-7 7-7" />
-                    </svg>
+                    <i class="fas fa-arrow-left"></i>
                     <span>{{ __('Back to Orders') }}</span>
                 </a>
                 <div class="header-actions">
                     <a href="{{ route('user.orders.invoice.pdf',$order->id) }}" class="btn-download" target="_blank">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
-                        </svg>
+                        <i class="fas fa-download"></i>
                         <span>{{ __('Download Invoice') }}</span>
                     </a>
                 </div>
@@ -34,10 +30,7 @@
                     <div class="title-content">
                         <h1 class="modern-order-title">{{ __('Order') }} <span class="order-number">#{{ $order->id }}</span></h1>
                         <p class="order-date-modern">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M12 6v6l4 2" />
-                            </svg>
+                            <i class="fas fa-clock"></i>
                             {{ $order->created_at->format('F j, Y \a\t g:i A') }}
                         </p>
                     </div>

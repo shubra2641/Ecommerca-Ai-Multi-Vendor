@@ -10,18 +10,14 @@
         <div class="admin-order-header">
             <div class="header-left">
                 <h1 class="admin-order-title">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                    </svg>
+                    <i class="fas fa-ticket-alt"></i>
                     {{ __('Edit Coupon') }}
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Update coupon information') }}</p>
             </div>
             <div class="header-actions">
                 <a href="{{ route('admin.coupons.index') }}" class="admin-btn admin-btn-secondary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
+                    <i class="fas fa-arrow-left"></i>
                     {{ __('Back') }}
                 </a>
             </div>

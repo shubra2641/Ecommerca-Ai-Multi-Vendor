@@ -53,18 +53,8 @@ class ProductCardComposer
         $wishActive = in_array($product->id, $wishlistIds, true);
         $cmpActive = in_array($product->id, $compareIds, true);
 
-        // Placeholder image (base64 svg) - static cache
-        static $placeholderData = null;
-        if ($placeholderData === null) {
-            $svg = <<<'SVG'
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-    <rect width="200" height="200" fill="#f5f5f5"/>
-    <text x="100" y="105" text-anchor="middle" fill="#999" font-size="14">No Image</text>
-</svg>
-SVG;
-
-            $placeholderData = 'data:image/svg+xml;base64,' . base64_encode($svg);
-        }
+        // Placeholder image - using Font Awesome icon
+        $placeholderData = asset('images/placeholder.png');
         $imageUrl = $product->main_image ? asset($product->main_image) : $placeholderData;
 
         $view->with([

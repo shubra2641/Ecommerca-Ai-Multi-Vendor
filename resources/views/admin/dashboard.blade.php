@@ -11,10 +11,7 @@
             <div class="header-left">
                 <div class="admin-header-content">
                     <div class="admin-header-icon">
-                        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" />
-                            <path d="M9 22V12H15V22" />
-                        </svg>
+                        <i class="fas fa-home"></i>
                     </div>
                     <div class="admin-header-text">
                         <h1 class="admin-order-title">{{ __('Admin Dashboard') }}</h1>
@@ -25,37 +22,23 @@
             <div class="header-actions">
                 <button type="button" class="admin-btn admin-btn-secondary" id="refreshDashboardBtn"
                     data-bs-toggle="tooltip" title="{{ __('Refresh dashboard data') }}">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M23 4v6h-6M1 20v-6h6m15-4a9 9 0 11-18 0 9 9 0 0118 0zM1 10a9 9 0 0118 0" />
-                    </svg>
+                    <i class="fas fa-sync-alt"></i>
                     {{ __('Refresh') }}
                 </button>
                 <div class="dropdown d-inline-block">
                     <button class="admin-btn admin-btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 5V19M5 12H19" />
-                        </svg>
+                        <i class="fas fa-plus"></i>
                         {{ __('Quick Actions') }}
                     </button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ route('admin.users.create') }}">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M16 7A4 4 0 1 1 8 7A4 4 0 0 1 16 7Z" />
-                                    <path d="M12 14A7 7 0 0 0 5 21H19A7 7 0 0 0 12 14Z" />
-                                    <path d="M12 5V19M5 12H19" />
-                                </svg> {{ __('Add New User') }}
+                                <i class="fas fa-user-plus"></i> {{ __('Add New User') }}
                             </a></li>
                         <li><a class="dropdown-item" href="{{ route('admin.currencies.create') }}">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <path d="M12 6V12L16 14" />
-                                </svg> {{ __('Add Currency') }}
+                                <i class="fas fa-dollar-sign"></i> {{ __('Add Currency') }}
                             </a></li>
                         <li><a class="dropdown-item" href="{{ route('admin.languages.create') }}">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M12.87 15.07L10.33 12.53L7.5 15.35L4.67 12.53L2.13 15.07" />
-                                    <path d="M12.87 8.93L10.33 11.47L7.5 8.65L4.67 11.47L2.13 8.93" />
-                                </svg> {{ __('Add Language') }}
+                                <i class="fas fa-language"></i> {{ __('Add Language') }}
                             </a></li>
                     </ul>
                 </div>
@@ -90,14 +73,10 @@
             <div class="admin-stat-card admin-stat-primary">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
+                        <i class="fas fa-users"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -110,14 +89,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.users.index') }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-up">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                         <span>+12%</span>
                         <small>{{ __('this month') }}</small>
                     </div>
@@ -128,14 +103,10 @@
             <div class="admin-stat-card admin-stat-success">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
+                        <i class="fas fa-store"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -148,14 +119,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.users.index', ['role' => 'vendor']) }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-up">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                         <span>+8%</span>
                         <small>{{ __('this month') }}</small>
                     </div>
@@ -166,15 +133,10 @@
             <div class="admin-stat-card admin-stat-warning">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M12 6V12L16 14" />
-                        </svg>
+                        <i class="fas fa-clock"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 8V12L16 14" />
-                        </svg>
+                        <i class="fas fa-exclamation-triangle"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -187,15 +149,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.users.pending') }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-warning">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M12 6V12L16 14" />
-                        </svg>
+                        <i class="fas fa-clock"></i>
                         <span>{{ __('Needs attention') }}</span>
                     </div>
                 </div>
@@ -205,15 +162,10 @@
             <div class="admin-stat-card admin-stat-info">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M3 3V21H21" />
-                            <path d="M9 9L12 6L16 10L20 6" />
-                        </svg>
+                        <i class="fas fa-chart-line"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -226,15 +178,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.users.index', ['filter' => 'active_today']) }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-info">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M3 3V21H21" />
-                            <path d="M9 9L12 6L16 10L20 6" />
-                        </svg>
+                        <i class="fas fa-chart-line"></i>
                         <span>{{ __('Real-time') }}</span>
                     </div>
                 </div>
@@ -247,15 +194,10 @@
             <div class="admin-stat-card admin-stat-success">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" />
-                            <path d="M12 6V12L16 14" />
-                        </svg>
+                        <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2V22M17 5H9.5A3.5 3.5 0 0 0 9.5 12H14.5A3.5 3.5 0 0 1 14.5 19H6" />
-                        </svg>
+                        <i class="fas fa-dollar-sign"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -268,14 +210,10 @@
                 <div class="admin-stat-footer">
                     <a href="#" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-success">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2V22M17 5H9.5A3.5 3.5 0 0 0 9.5 12H14.5A3.5 3.5 0 0 1 14.5 19H6" />
-                        </svg>
+                        <i class="fas fa-dollar-sign"></i>
                         <span>{{ $defaultCurrency ? $defaultCurrency->code : '' }}</span>
                     </div>
                 </div>
@@ -285,16 +223,10 @@
             <div class="admin-stat-card admin-stat-danger">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M16 7A4 4 0 1 1 8 7A4 4 0 0 1 16 7Z" />
-                            <path d="M12 14A7 7 0 0 0 5 21H19A7 7 0 0 0 12 14Z" />
-                            <path d="M12 5V19M5 12H19" />
-                        </svg>
+                        <i class="fas fa-user-plus"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -307,14 +239,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.users.index', ['filter' => 'today']) }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-danger">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                         <span>{{ __('Today') }}</span>
                     </div>
                 </div>
@@ -324,15 +252,10 @@
             <div class="admin-stat-card admin-stat-danger">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 22S8 18 8 12V5L12 3L16 5V12C16 18 12 22 12 22Z" />
-                            <path d="M9 12L11 14L15 10" />
-                        </svg>
+                        <i class="fas fa-shield-alt"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -345,14 +268,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.users.index', ['role' => 'admin']) }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-danger">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                         <span>{{ __('Admins') }}</span>
                     </div>
                 </div>
@@ -362,15 +281,10 @@
             <div class="admin-stat-card admin-stat-info">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M16 7A4 4 0 1 1 8 7A4 4 0 0 1 16 7Z" />
-                            <path d="M12 14A7 7 0 0 0 5 21H19A7 7 0 0 0 12 14Z" />
-                        </svg>
+                        <i class="fas fa-users"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -383,14 +297,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.users.index', ['role' => 'customer']) }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-info">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                         <span>{{ __('Customers') }}</span>
                     </div>
                 </div>
@@ -404,17 +314,10 @@
             <div class="admin-stat-card admin-stat-danger">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                            <line x1="16" y1="2" x2="16" y2="6" />
-                            <line x1="8" y1="2" x2="8" y2="6" />
-                            <line x1="3" y1="10" x2="21" y2="10" />
-                        </svg>
+                        <i class="fas fa-calendar-week"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -427,14 +330,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.users.index', ['filter' => 'this_week']) }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-danger">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                         <span>{{ __('This Week') }}</span>
                     </div>
                 </div>
@@ -444,17 +343,10 @@
             <div class="admin-stat-card admin-stat-success">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                            <line x1="16" y1="2" x2="16" y2="6" />
-                            <line x1="8" y1="2" x2="8" y2="6" />
-                            <line x1="3" y1="10" x2="21" y2="10" />
-                        </svg>
+                        <i class="fas fa-calendar-week"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -467,14 +359,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.users.index', ['filter' => 'this_month']) }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-success">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                         <span>{{ __('This Month') }}</span>
                     </div>
                 </div>
@@ -484,14 +372,10 @@
             <div class="admin-stat-card admin-stat-info">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -504,14 +388,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.users.index', ['status' => 'approved']) }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-info">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                         <span>{{ isset($topStats['approval_rate']) ? $topStats['approval_rate'] . '%' : '0%' }}</span>
                         <small>{{ __('approval rate') }}</small>
                     </div>
@@ -525,15 +405,10 @@
             <div class="admin-stat-card admin-stat-primary">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M16 11V7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7V11M5 9H19L18 21H6L5 9Z" />
-                            <path d="M12 15V15.01" />
-                        </svg>
+                        <i class="fas fa-shopping-bag"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -546,14 +421,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.orders.index') }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-primary">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                         <span>{{ __('All time') }}</span>
                     </div>
                 </div>
@@ -563,14 +434,10 @@
             <div class="admin-stat-card admin-stat-success">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2V22M17 5H9.5A3.5 3.5 0 0 0 9.5 12H14.5A3.5 3.5 0 0 1 14.5 19H6" />
-                        </svg>
+                        <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -583,14 +450,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.orders.index') }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-success">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                         <span>{{ $defaultCurrency->code ?? '' }}</span>
                     </div>
                 </div>
@@ -600,17 +463,10 @@
             <div class="admin-stat-card admin-stat-warning">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                            <line x1="16" y1="2" x2="16" y2="6" />
-                            <line x1="8" y1="2" x2="8" y2="6" />
-                            <line x1="3" y1="10" x2="21" y2="10" />
-                        </svg>
+                        <i class="fas fa-calendar-week"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -623,14 +479,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.orders.index', ['filter' => 'today']) }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-warning">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                         <span>{{ __('Today') }}</span>
                     </div>
                 </div>
@@ -640,15 +492,10 @@
             <div class="admin-stat-card admin-stat-info">
                 <div class="admin-stat-header">
                     <div class="admin-stat-icon-wrapper">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M3 3V21H21" />
-                            <path d="M9 9L12 6L16 10L20 6" />
-                        </svg>
+                        <i class="fas fa-chart-line"></i>
                     </div>
                     <div class="admin-stat-badge">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
                 <div class="admin-stat-content">
@@ -661,14 +508,10 @@
                 <div class="admin-stat-footer">
                     <a href="{{ route('admin.orders.index', ['filter' => 'today']) }}" class="admin-btn admin-btn-secondary">
                         {{ __('View Details') }}
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M7 14l3-3 3 3 5-5" />
-                        </svg>
+                        <i class="fas fa-arrow-up"></i>
                     </a>
                     <div class="admin-stat-trend admin-stat-trend-info">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
+                        <i class="fas fa-star"></i>
                         <span>{{ $defaultCurrency->code ?? '' }}</span>
                     </div>
                 </div>
@@ -684,10 +527,7 @@
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                             <div>
                                 <h3 class="admin-card-title">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M9 9L12 6L16 10L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                                    <i class="fas fa-chart-line"></i>
                                     {{ __('User Registration Trends') }}
                                 </h3>
                                 <p class="admin-card-subtitle" id="chart-last-updated">
@@ -703,9 +543,7 @@
                             <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
                                 <a href="{{ route('admin.dashboard', ['refresh' => '1']) }}" class="admin-btn admin-btn-outline" data-bs-toggle="tooltip"
                                     title="{{ __('Refresh dashboard data') }}">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M23 4v6h-6M1 20v-6h6m15-4a9 9 0 11-18 0 9 9 0 0118 0zM1 10a9 9 0 0118 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                                    <i class="fas fa-sync-alt"></i>
                                     <span class="d-none d-md-inline ms-1">{{ __('Refresh') }}</span>
                                 </a>
                                 <div class="btn-group btn-group-sm" role="group">
@@ -745,19 +583,14 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h3 class="admin-card-title">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M16 7A4 4 0 1 1 8 7A4 4 0 0 1 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M12 14A7 7 0 0 0 5 21H19A7 7 0 0 0 12 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                                    <i class="fas fa-users"></i>
                                     {{ __('Top Active Users') }}
                                 </h3>
                                 <p class="admin-card-subtitle">{{ __('Most active users this week') }}</p>
                             </div>
                             <button class="admin-btn admin-btn-outline d-lg-none" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#topUsersCollapseNew" aria-expanded="true">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
+                                <i class="fas fa-chevron-down"></i>
                             </button>
                         </div>
                     </div>
@@ -790,10 +623,7 @@
                             @else
                             <div class="admin-empty-state">
                                 <div class="admin-notification-icon">
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M16 7A4 4 0 1 1 8 7A4 4 0 0 1 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M12 14A7 7 0 0 0 5 21H19A7 7 0 0 0 12 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                                    <i class="fas fa-users"></i>
                                 </div>
                                 <p class="admin-text-muted">{{ __('No active users data available') }}</p>
                             </div>
@@ -812,10 +642,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h3 class="admin-card-title">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M9 9L12 6L16 10L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                                    <i class="fas fa-chart-line"></i>
                                     {{ __('Sales & Revenue') }}
                                 </h3>
                                 <p class="admin-card-subtitle">{{ __('Last 30 days') }}</p>
@@ -846,10 +673,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h3 class="admin-card-title">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M22 12A10 10 0 0 0 12 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                                    <i class="fas fa-chart-pie"></i>
                                     {{ __('Order Status Distribution') }}
                                 </h3>
                             </div>

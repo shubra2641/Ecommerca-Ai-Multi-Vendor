@@ -2698,7 +2698,7 @@ button[type="submit"] {
     border-radius: 50%;
     position     : relative;
     border       : 2px solid #ddd;
-    background   : var(--swatch, #eee);
+    background   : #eee;
     text-indent  : -9999px;
     overflow     : hidden;
 }
@@ -5583,8 +5583,8 @@ body[dir="rtl"] .timeline-item:last-child::after,
 }
 
 .badge-soft.badge-stock.high-stock {
-    background: #dcfce7;
-    color     : #166534;
+    background: #dbeafe;
+    color     : #1e40af;
 }
 
 .badge-soft.badge-stock.out-stock {
@@ -5836,7 +5836,7 @@ body[dir="rtl"] .timeline-item:last-child::after,
     position     : relative;
     border       : 2px solid #ffffff;
     box-shadow   : 0 0 0 1px #e2e8f0;
-    background   : var(--swatch, #f1f5f9);
+    background   : #f1f5f9;
 }
 
 .variation-attr-block .color-swatch-wrapper .option-btn.color.active {
@@ -5974,6 +5974,15 @@ body[dir="rtl"] .timeline-item:last-child::after,
     --btn-color: #111;
 }
 
+.btn-buy.btn-out-of-stock {
+    --btn-bg   : #dc2626;
+    --btn-color: #fff;
+    cursor: not-allowed;
+}
+
+.btn-buy.btn-out-of-stock:hover {
+    --btn-bg: #b91c1c;
+}
 
 .btn-notify {
     --btn-bg    : #0a7a3a;
@@ -6145,10 +6154,13 @@ body[dir="rtl"] .timeline-item:last-child::after,
     height       : 36px;
     border-radius: 8px;
     padding      : 0;
+    background   : #f3f4f6;
+    border       : 2px solid #e2e8f0;
 }
 
-.attr-option-btn.color[data-swatch] {
-    background: var(--swatch);
+.attr-option-btn.color.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 .stock-indicator {
@@ -6273,6 +6285,43 @@ body[dir="rtl"] .timeline-item:last-child::after,
     font-weight  : 600;
 }
 
+/* Pure CSS Star Rating - No JavaScript Required */
+.star-rating-selector {
+    display        : flex;
+    flex-direction : row-reverse;
+    justify-content: flex-end;
+    gap            : 4px;
+    margin-bottom  : 8px;
+}
+
+.star-rating-selector input[type="radio"] {
+    display: none;
+}
+
+.star-rating-selector label {
+    cursor     : pointer;
+    font-size  : 32px;
+    color      : #d1d5db;
+    transition : color 0.2s ease, transform 0.2s ease;
+    line-height: 1;
+    user-select: none;
+}
+
+.star-rating-selector label:hover,
+.star-rating-selector label:hover ~ label {
+    color    : #fbbf24;
+    transform: scale(1.1);
+}
+
+.star-rating-selector input[type="radio"]:checked ~ label {
+    color: #f59e0b;
+}
+
+.star-rating-selector input[type="radio"]:checked + label {
+    color: #f59e0b;
+}
+
+/* Legacy rating input for backwards compatibility */
 .reviews-section .rating-input {
     display: flex;
     gap    : 6px;
@@ -6299,6 +6348,22 @@ body[dir="rtl"] .timeline-item:last-child::after,
 .reviews-section .star-btn.active .star,
 .reviews-section .star-btn .star.filled {
     color: #f59e0b;
+}
+
+.reviews-section .error-message {
+    display      : block;
+    color        : #dc2626;
+    font-size    : 13px;
+    margin-top   : 4px;
+    font-weight  : 500;
+}
+
+.reviews-section .form-label {
+    display      : block;
+    margin-bottom: 8px;
+    font-weight  : 600;
+    font-size    : 14px;
+    color        : #1f2937;
 }
 
 .reviews-section textarea.form-control {

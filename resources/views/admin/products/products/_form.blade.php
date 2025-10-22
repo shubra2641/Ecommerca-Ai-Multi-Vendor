@@ -7,9 +7,7 @@
         <div class="admin-modern-card mb-4">
             <div class="admin-card-header">
                 <h3 class="admin-card-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <i class="fas fa-star"></i>
                     {{ __('Basic Information') }}
                 </h3>
             </div>
@@ -45,9 +43,7 @@
                                     <label class="admin-form-label d-flex justify-content-between align-items-center">
                                         <span>{{ __('Description') }}</span>
                                         <button type="submit" form="product-form" formaction="{{ route('admin.products.ai.suggest') }}?target=description&locale={{ $lang->code }}" formmethod="get" class="admin-btn admin-btn-small admin-btn-outline">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
+                                            <i class="fas fa-lightbulb"></i>
                                             {{ __('AI Generate') }}
                                         </button>
                                     </label>
@@ -85,7 +81,7 @@
                     </div>
                     <div class="admin-form-group">
                         <label class="admin-form-label">{{ __('Physical/Digital') }}</label>
-                        <select name="physical_type" class="admin-form-input">
+                        <select name="physical_type" class="admin-form-input" id="physical-type-select">
                             <option value="physical" @selected(old('physical_type',$m?->physical_type ??
                                 'physical')==='physical')>{{ __('Physical') }}</option>
                             <option value="digital" @selected(old('physical_type',$m?->physical_type ??
@@ -134,7 +130,7 @@
                 </div>
 
                 <!-- Variable Product Variations -->
-                <div class="variable-only mt-4 envato-hidden">
+                <div class="variable-only mt-4 d-none">
                     <h6 class="admin-card-title mb-3">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M3 6H21M3 12H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -186,7 +182,62 @@
                                     <th class="text-center">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
-                            <tbody></tbody>
+                            <tbody>
+                                @if($pfClientVariations)
+                                @foreach($pfClientVariations as $index => $variation)
+                                <tr data-variation-id="{{ $variation['id'] ?? '' }}">
+                                    @if(isset($variation['id']))
+                                    <input type="hidden" name="variations[{{ $index }}][id]" value="{{ $variation['id'] }}">
+                                    @endif
+                                    <td class="text-center">
+                                        <input type="checkbox" name="variations[{{ $index }}][active]" value="1" @checked($variation['active'] ?? true) class="form-check-input">
+                                    </td>
+                                    <td>
+                                        <div class="mb-2">
+                                            <input type="text" name="variations[{{ $index }}][name]" value="{{ $variation['name'] ?? '' }}" class="form-control form-control-sm" placeholder="{{ __('Variation Name') }}">
+                                        </div>
+                                        <div>
+                                            @if($pfUsedAttributes)
+                                            @foreach($pfUsedAttributes as $attrSlug)
+                                            @php
+                                            $attr = collect($pfAttrData)->firstWhere('slug', $attrSlug);
+                                            $selectedValue = $variation['attributes'][$attrSlug] ?? '';
+                                            @endphp
+                                            @if($attr)
+                                            <select name="variations[{{ $index }}][attributes][{{ $attrSlug }}]" class="form-select form-select-sm mb-1">
+                                                <option value="">{{ $attr['name'] }}</option>
+                                                @foreach($attr['values'] as $val)
+                                                <option value="{{ $val['value'] }}" @selected($selectedValue===$val['value'])>{{ $val['value'] }}</option>
+                                                @endforeach
+                                            </select>
+                                            @endif
+                                            @endforeach
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td class="d-none d-md-table-cell">
+                                        <input type="text" name="variations[{{ $index }}][sku]" value="{{ $variation['sku'] ?? '' }}" class="form-control form-control-sm">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="0.01" name="variations[{{ $index }}][price]" value="{{ $variation['price'] ?? '' }}" class="form-control form-control-sm" required>
+                                    </td>
+                                    <td class="d-none d-lg-table-cell">
+                                        <input type="number" step="0.01" name="variations[{{ $index }}][sale_price]" value="{{ $variation['sale_price'] ?? '' }}" class="form-control form-control-sm">
+                                    </td>
+                                    <td class="d-none d-md-table-cell">
+                                        <input type="number" name="variations[{{ $index }}][stock_qty]" value="{{ $variation['stock_qty'] ?? 0 }}" class="form-control form-control-sm">
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-variation">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                @endforeach
+                                @endif
+                            </tbody>
                         </table>
                     </div>
                     <button type="button" class="admin-btn admin-btn-small admin-btn-secondary" id="add-variation">
@@ -273,7 +324,7 @@
                     <div class="input-group">
                         <input name="main_image" value="{{ old('main_image',$m?->main_image) }}" class="admin-form-input"
                             placeholder="/storage/...">
-                        <button type="button" class="admin-btn admin-btn-outline" data-open-media="main_image">
+                        <button type="button" class="admin-btn admin-btn-outline" data-open-media="1" data-media-target="input[name='main_image']" data-media-mode="single" data-media-accept="image/*" data-media-label="{{ __('Main Image') }}">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M22 19C22 19.5304 21.7893 20.0391 21.4142 20.4142C21.0391 20.7893 20.5304 21 20 21H4C3.46957 21 2.96086 20.7893 2.58579 20.4142C2.21071 20.0391 2 19.5304 2 19V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H15L22 10V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 <path d="M15 3V10H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -282,14 +333,14 @@
                     </div>
                 </div>
 
-                <div id="product-variation-meta" data-existing='{{ e(json_encode($pfClientVariations, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'
-                    data-attributes='{{ e(json_encode($pfAttrData, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'
-                    data-used='{{ e(json_encode($pfUsedAttributes, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'></div>
+                <div id="product-variation-meta" data-existing="{{ base64_encode(json_encode($pfClientVariations, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}"
+                    data-attributes="{{ base64_encode(json_encode($pfAttrData, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}"
+                    data-used="{{ base64_encode(json_encode($pfUsedAttributes, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}"></div>
 
                 <div class="admin-form-group">
                     <label class="admin-form-label">{{ __('Gallery') }}</label>
-                    <div id="gallery-manager" class="d-flex flex-wrap gap-2 mb-2"></div>
-                    <button type="button" class="admin-btn admin-btn-small admin-btn-outline" id="add-gallery-image">
+                    <div id="gallery-manager" class="d-flex flex-wrap gap-2 mb-2" data-empty-text="{{ __('No gallery images yet.') }}"></div>
+                    <button type="button" class="admin-btn admin-btn-small admin-btn-outline" id="add-gallery-image" data-open-media="1" data-media-target="#gallery-input" data-media-mode="gallery" data-media-accept="image/*" data-media-label="{{ __('Gallery Images') }}">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
@@ -303,14 +354,14 @@
                 </div>
 
                 <!-- Digital Download Settings (only shown for digital products) -->
-                <div class="admin-form-group digital-only envato-hidden">
+                <div class="admin-form-group digital-only envato-hidden d-none">
                     <h6 class="admin-card-title mb-2">{{ __('Digital Download') }}</h6>
                     <div class="admin-form-group">
                         <label class="admin-form-label">{{ __('Download File (path)') }}</label>
                         <div class="input-group">
                             <input name="download_file" value="{{ old('download_file', $m?->download_file) }}"
                                 class="admin-form-input" placeholder="/storage/downloads/file.zip">
-                            <button type="button" class="admin-btn admin-btn-outline" data-open-media="download_file">
+                            <button type="button" class="admin-btn admin-btn-outline">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M22 19C22 19.5304 21.7893 20.0391 21.4142 20.4142C21.0391 20.7893 20.5304 21 20 21H4C3.46957 21 2.96086 20.7893 2.58579 20.4142C2.21071 20.0391 2 19.5304 2 19V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H15L22 10V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                     <path d="M15 3V10H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />

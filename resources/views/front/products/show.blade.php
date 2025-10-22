@@ -52,20 +52,21 @@
                 <p class="product-subtitle clamp-2">{{ $product->short_description }}</p>
                 @endif
                 @php
-                $rating = $product->reviews_avg_rating ?? 0;
+                $displayRating = $rating ?? 0;
+                $displayCount = $reviewsCount ?? 0;
                 $stars = [];
                 for ($i = 1; $i <= 5; $i++) {
-                    $stars[]=['filled'=> $i <= round($rating)];
+                    $stars[]=['filled'=> $i <= round($displayRating)];
                         }
                         @endphp
-                        <div class="rating-line" aria-label="Rating {{ number_format($rating,1) }} out of 5">
+                        <div class="rating-line" aria-label="Rating {{ number_format($displayRating,1) }} out of 5">
                         <span class="stars" aria-hidden="true">
                             @foreach($stars as $s)
                             <span class="star {{ $s['filled'] ? 'filled' : '' }}">{{ $s['filled'] ? '★' : '☆' }}</span>
                             @endforeach
                         </span>
-                        <span class="rating-value">{{ number_format($product->reviews_avg_rating ?? 0,1) }}</span>
-                        <a href="#reviews" class="rating-count">{{ $product->reviews_count ?? 0 }} {{ __('Ratings') }}</a>
+                        <span class="rating-value">{{ number_format($displayRating, 1) }}</span>
+                        <a href="#reviews" class="rating-count">{{ $displayCount }} {{ __('Ratings') }}</a>
             </div>
             <div class="price-line product-pricing" data-original-price="1">
                 @if($product->type === 'variable')
@@ -109,21 +110,25 @@
                 @endif
                 @php
                 $stock = $product->availableStock();
-                $stockClass = 'badge-success';
+                $stockClass = 'high-stock';
                 $levelLabel = __('In Stock');
 
                 if ($stock === null) {
                 $stockClass = 'badge-info';
                 $levelLabel = __('Unlimited');
                 } elseif ($stock <= 0) {
-                    $stockClass='badge-danger' ;
+                    $stockClass='out-stock' ;
                     $levelLabel=__('Out of Stock');
                     } elseif ($stock <=5) {
-                    $stockClass='badge-warning' ;
+                    $stockClass='low-stock' ;
                     $levelLabel=__('Low Stock');
                     }
                     @endphp
-                    <span class="badge-soft badge-stock {{ $stockClass }}" id="topStockBadge">{{ $levelLabel }}</span>
+                    <span class="badge-soft badge-stock {{ $stockClass }}" id="topStockBadge"
+                    data-in-stock="{{ __('In Stock') }}"
+                    data-low-stock="{{ __('Low Stock') }}"
+                    data-out-of-stock="{{ __('Out of Stock') }}"
+                    data-unlimited="{{ __('Unlimited') }}">{{ $levelLabel }}</span>
             </div>
             <div class="divider-line"></div>
 
@@ -137,9 +142,15 @@
                         <div class="attr-options">
                             @foreach($attr['values'] as $index => $v)
                             @if($attr['is_color'])
+                            @php
+                            $rawSwatch = is_string($v) ? trim($v) : '';
+                            $lookup = strtolower($rawSwatch);
+                            $map = $attr['swatch_map'] ?? [];
+                            $swatch = $map[$lookup] ?? ($rawSwatch !== '' ? $rawSwatch : '#f3f4f6');
+                            @endphp
                             <div class="color-swatch-wrapper">
                                 <input type="radio" name="attr_{{ $attr['name'] }}" value="{{ $v }}" id="attr_{{ $attr['name'] }}_{{ $index }}" class="attr-radio">
-                                <label for="attr_{{ $attr['name'] }}_{{ $index }}" class="option-btn color attr-option-btn" aria-label="{{ $v }}" title="{{ $v }}" data-attr-value="{{ $v }}" data-swatch="{{ $v }}"></label>
+                                <label for="attr_{{ $attr['name'] }}_{{ $index }}" class="option-btn color attr-option-btn" aria-label="{{ $v }}" title="{{ $v }}" data-attr-value="{{ $v }}" data-swatch="{{ $swatch }}"></label>
                                 <span class="swatch-label">{{ $v }}</span>
                             </div>
                             @else
@@ -154,7 +165,10 @@
             </div>
             @endif
 
-            <div class="stock-status">
+            <div class="stock-status"
+                data-out-of-stock="{{ __('Out of stock') }}"
+                data-in-stock="{{ __('In stock') }}"
+                data-in-stock-text="{{ __('in stock') }}">
                 @php
                 $available = $product->availableStock();
                 @endphp
@@ -225,8 +239,14 @@
             <div class="seller">
                 <div class="avatar"></div>
                 <div>
-                    <div class="seller-name">{{ __('Sold by') }} {{ $product->seller ? $product->seller->name : 'Store' }}</div>
-                    <div class="seller-score">{{ number_format($product->reviews_avg_rating ?? 0,1) }} • <small>{{ $product->reviews_count ?? 0 }} {{ __('ratings') }}</small></div>
+                    <div class="seller-name">
+                        @if($product->vendor_id && $product->vendor)
+                        {{ __('Sold by') }} {{ $product->vendor->name }}
+                        @else
+                        {{ __('Sold by') }} {{ config('app.name', 'Store') }}
+                        @endif
+                    </div>
+                    <div class="seller-score">{{ number_format($rating ?? 0, 1) }} • <small>{{ $reviewsCount ?? 0 }} {{ __('ratings') }}</small></div>
                 </div>
             </div>
             @if($onSale)
@@ -265,7 +285,10 @@
                         <button type="button" class="qty-action qty-increase" aria-label="Increase quantity">+</button>
                     </div>
                 </div>
-                <button class="btn-buy front-button" type="submit" {{ ($product->stock_quantity ?? 1) == 0 ? 'disabled' : '' }}>{{ __('ADD TO CART') }}</button>
+                <button class="btn-buy front-button {{ $isOut ? 'btn-out-of-stock' : '' }}" type="submit"
+                    {{ ($product->stock_quantity ?? 1) == 0 ? 'disabled' : '' }}
+                    data-add-text="{{ __('ADD TO CART') }}"
+                    data-out-of-stock-text="{{ __('OUT OF STOCK') }}">{{ __('ADD TO CART') }}</button>
             </form>
             @endif
         </aside>

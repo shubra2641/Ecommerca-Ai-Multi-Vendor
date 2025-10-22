@@ -11,30 +11,22 @@
             <div class="header-left">
                 <div class="admin-header-content">
                     <div class="admin-header-icon">
-                        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
+                        <i class="fas fa-users"></i>
                     </div>
                     <div class="admin-header-text">
                         <h1 class="admin-order-title">{{ __('Users Management') }}</h1>
                         <p class="admin-order-subtitle">{{ __('Manage all users and their permissions') }}</p>
                         <div class="admin-header-stats">
                             <span class="admin-stat-item-mini">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
+                                <i class="fas fa-user"></i>
                                 {{ $users->total() }} {{ __('Total Users') }}
                             </span>
                             <span class="admin-stat-item-mini">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-check-circle"></i>
                                 {{ $users->where('approved_at', '!=', null)->count() }} {{ __('Approved') }}
                             </span>
                             <span class="admin-stat-item-mini">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i class="fas fa-clock"></i>
                                 {{ $users->where('approved_at', null)->count() }} {{ __('Pending') }}
                             </span>
                         </div>
@@ -44,15 +36,11 @@
             <div class="header-actions">
                 <div class="admin-action-group">
                     <a href="{{ route('admin.users.create') }}" class="admin-btn admin-btn-primary admin-btn-large">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M12 4v16m8-8H4" />
-                        </svg>
+                        <i class="fas fa-plus"></i>
                         {{ __('Add New User') }}
                     </a>
                     <a href="{{ route('admin.users.export') }}" class="admin-btn admin-btn-secondary admin-btn-large">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
+                        <i class="fas fa-download"></i>
                         {{ __('Export') }}
                     </a>
                 </div>

@@ -10,26 +10,20 @@
         <div class="admin-order-header">
             <div class="header-left">
                 <h1 class="admin-order-title">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
+                    <i class="fas fa-shopping-bag"></i>
                     {{ __('Order') }} <span class="order-id-badge">#{{ $order->id }}</span>
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Order details, payments and management') }}</p>
             </div>
             <div class="header-actions">
                 <a href="{{ route('admin.orders.index') }}" class="admin-btn admin-btn-secondary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M19 12H5M12 19l-7-7 7-7" />
-                    </svg>
+                    <i class="fas fa-arrow-left"></i>
                     {{ __('Back to Orders') }}
                 </a>
                 <form method="POST" action="{{ route('admin.orders.retry-assign', $order->id) }}" class="d-inline admin-form">
                     @csrf
                     <button class="admin-btn admin-btn-primary">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
+                        <i class="fas fa-redo"></i>
                         {{ __('Retry Serials') }}
                     </button>
                 </form>
@@ -45,9 +39,7 @@
                 <!-- Summary Card -->
                 <div class="admin-modern-card admin-summary-card">
                     <div class="admin-card-header">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                        </svg>
+                        <i class="fas fa-clipboard-check"></i>
                         <h3 class="admin-card-title">{{ __('Summary') }}</h3>
                     </div>
                     <div class="admin-card-body">
@@ -120,9 +112,7 @@
                         </div>
                         <div class="admin-card-actions">
                             <a href="{{ route('admin.orders.show', $order) }}" class="admin-btn-block admin-btn-outline">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
+                                <i class="fas fa-sync-alt"></i>
                                 {{ __('Refresh') }}
                             </a>
                         </div>
@@ -132,10 +122,7 @@
                 <!-- Status History Card -->
                 <div class="admin-modern-card">
                     <div class="admin-card-header">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M12 6v6l4 2" />
-                        </svg>
+                        <i class="fas fa-clock"></i>
                         <h3 class="admin-card-title">{{ __('Status History') }}</h3>
                     </div>
                     <div class="admin-card-body">
@@ -168,9 +155,7 @@
                 <!-- Order Items -->
                 <div class="admin-modern-card">
                     <div class="admin-card-header">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
+                        <i class="fas fa-shopping-bag"></i>
                         <h3 class="admin-card-title">{{ __('Items') }}</h3>
                         <span class="admin-badge-count">{{ $order->items->count() }}</span>
                     </div>
@@ -222,10 +207,7 @@
                 <!-- Customer & Shipping -->
                 <div class="admin-modern-card">
                     <div class="admin-card-header">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                        <i class="fas fa-map-marker-alt"></i>
                         <h3 class="admin-card-title">{{ __('Customer & Shipping') }}</h3>
                     </div>
                     <div class="admin-card-body">
@@ -261,10 +243,7 @@
                 <!-- Payments -->
                 <div class="admin-modern-card">
                     <div class="admin-card-header">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <rect x="1" y="4" width="22" height="16" rx="2" />
-                            <path d="M1 10h22" />
-                        </svg>
+                        <i class="fas fa-credit-card"></i>
                         <h3 class="admin-card-title">{{ __('Payments') }}</h3>
                     </div>
                     <div class="admin-card-body">
@@ -288,9 +267,7 @@
                                     <img src="{{ asset('storage/'.$att->path) }}" alt="Payment proof">
                                     @else
                                     <a href="{{ asset('storage/'.$att->path) }}" target="_blank" class="admin-attachment-link">
-                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
+                                        <i class="fas fa-paperclip"></i>
                                         {{ basename($att->path) }}
                                     </a>
                                     @endif
@@ -303,18 +280,14 @@
                                 <form method="POST" action="{{ route('admin.orders.payments.accept', $payment->id) }}" class="d-inline admin-form">
                                     @csrf
                                     <button class="admin-btn-small admin-btn-success">
-                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path d="M5 13l4 4L19 7" />
-                                        </svg>
+                                        <i class="fas fa-check"></i>
                                         {{ __('Accept') }}
                                     </button>
                                 </form>
                                 <form method="POST" action="{{ route('admin.orders.payments.reject', $payment->id) }}" class="d-inline admin-form">
                                     @csrf
                                     <button class="admin-btn-small admin-btn-warning">
-                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
+                                        <i class="fas fa-times"></i>
                                         {{ __('Reject') }}
                                     </button>
                                 </form>
@@ -328,10 +301,7 @@
                 <!-- Manage Order -->
                 <div class="admin-modern-card admin-manage-card">
                     <div class="admin-card-header">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                        <i class="fas fa-cog"></i>
                         <h3 class="admin-card-title">{{ __('Manage') }}</h3>
                     </div>
                     <div class="admin-card-body">
@@ -352,9 +322,7 @@
                                 </div>
                                 <div class="admin-form-actions">
                                     <button class="admin-btn admin-btn-primary admin-btn-large">
-                                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path d="M5 13l4 4L19 7" />
-                                        </svg>
+                                        <i class="fas fa-check"></i>
                                         {{ __('Update') }}
                                     </button>
                                 </div>
