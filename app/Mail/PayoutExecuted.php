@@ -15,7 +15,7 @@ class PayoutExecuted extends Mailable implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public $payout;
+    private Payout $payout;
 
     public function __construct(Payout $payout)
     {

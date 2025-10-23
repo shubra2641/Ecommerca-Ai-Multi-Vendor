@@ -13,7 +13,7 @@ class ProductPendingForReview extends Mailable
     use Queueable;
     use SerializesModels;
 
-    public $product;
+    private $product;
 
     public function __construct($product)
     {

@@ -14,7 +14,7 @@ class ProductInterestConfirmation extends Mailable
     use Queueable;
     use SerializesModels;
 
-    public ProductInterest $interest;
+    private ProductInterest $interest;
 
     public function __construct(ProductInterest $interest)
     {

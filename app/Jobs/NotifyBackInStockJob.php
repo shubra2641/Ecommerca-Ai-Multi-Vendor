@@ -21,7 +21,7 @@ class NotifyBackInStockJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public int $productId;
+    private int $productId;
 
     public function __construct(int $productId)
     {

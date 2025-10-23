@@ -20,7 +20,7 @@ class SendInterestConfirmationJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public int $interestId;
+    private int $interestId;
 
     public function __construct(int $interestId)
     {

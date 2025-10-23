@@ -47,16 +47,16 @@ class GenerateVendorOrdersCsv implements ShouldQueue
         }
 
         $q = OrderItem::with('order', 'product')
-            ->whereHas('product', fn ($qq) => $qq->where('vendor_id', $export->vendor_id));
+            ->whereHas('product', fn($qq) => $qq->where('vendor_id', $export->vendor_id));
 
         if (! empty($this->filters['status'])) {
-            $q->whereHas('order', fn ($qo) => $qo->where('status', $this->filters['status']));
+            $q->whereHas('order', fn($qo) => $qo->where('status', $this->filters['status']));
         }
         if (! empty($this->filters['start_date'])) {
-            $q->whereHas('order', fn ($qo) => $qo->whereDate('created_at', '>=', $this->filters['start_date']));
+            $q->whereHas('order', fn($qo) => $qo->whereDate('created_at', '>=', $this->filters['start_date']));
         }
         if (! empty($this->filters['end_date'])) {
-            $q->whereHas('order', fn ($qo) => $qo->whereDate('created_at', '<=', $this->filters['end_date']));
+            $q->whereHas('order', fn($qo) => $qo->whereDate('created_at', '<=', $this->filters['end_date']));
         }
 
         $filename = 'vendor_orders_' . $export->vendor_id . '_' . date('Ymd_His') . '_' . Str::random(6) . '.csv';
