@@ -28,8 +28,28 @@ class Coupon extends Model
 
     public function isValidForTotal($total)
     {
+        if (! $this->active) {
+            return false;
+        }
+
         $now = now();
-        return $this->active && (! $this->starts_at || ! $now->lt($this->starts_at)) && (! $this->ends_at || ! $now->gt($this->ends_at)) && ($this->uses_total === null || $this->used_count < $this->uses_total) && ($this->min_order_total === null || $total >= $this->min_order_total);
+        if ($this->starts_at && $now->lt($this->starts_at)) {
+            return false;
+        }
+
+        if ($this->ends_at && $now->gt($this->ends_at)) {
+            return false;
+        }
+
+        if ($this->uses_total !== null && $this->used_count >= $this->uses_total) {
+            return false;
+        }
+
+        if ($this->min_order_total !== null && $total < $this->min_order_total) {
+            return false;
+        }
+
+        return true;
     }
 
     public function isValid($total)

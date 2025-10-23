@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Concerns\TranslatableTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use App\Concerns\TranslatableTrait;
 
 class Product extends Model
 {
@@ -183,18 +183,7 @@ class Product extends Model
             return $this->variations->filter(fn($v) => $v->active)->map(fn($v) => $v->effectivePrice())->min() ?? (float) $this->price;
         }
 
-        $now = Carbon::now();
-        $onSale = $this->sale_price && $this->sale_price < $this->price;
-        if ($onSale) {
-            if ($this->sale_start && $now->lt($this->sale_start)) {
-                $onSale = false;
-            }
-            if ($this->sale_end && $now->gt($this->sale_end)) {
-                $onSale = false;
-            }
-        }
-
-        return $onSale ? (float) $this->sale_price : (float) $this->price;
+        return $this->isOnSale() ? (float) $this->sale_price : (float) $this->price;
     }
 
     public function availableStock(): ?int

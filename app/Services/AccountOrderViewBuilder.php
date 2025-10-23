@@ -56,12 +56,12 @@ class AccountOrderViewBuilder
             'phone',
         ];
         $parts = collect($orderedKeys)
-            ->filter(fn($k) => ! empty($addrSource[$k]))
-            ->map(fn($k) => $addrSource[$k])
+            ->filter(fn ($k) => ! empty($addrSource[$k]))
+            ->map(fn ($k) => $addrSource[$k])
             ->toArray();
 
         $extraParts = collect($addrSource)
-            ->filter(fn($v) => is_scalar($v) && ! in_array($v, $parts, true))
+            ->filter(fn ($v) => is_scalar($v) && ! in_array($v, $parts, true))
             ->values()
             ->toArray();
 
@@ -163,7 +163,7 @@ class AccountOrderViewBuilder
 
         if (! empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data'])) {
             return collect($it->meta['attribute_data'])
-                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
                 ->join(', ');
         }

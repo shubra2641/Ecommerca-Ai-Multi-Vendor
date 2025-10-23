@@ -10,6 +10,8 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\VendorWithdrawal;
+use App\Services\VendorDashboardService;
+use App\Services\WithdrawalSettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -20,56 +22,18 @@ class DashboardController extends Controller
         $vendorId = $r->user()->id;
         $vendor = User::find($vendorId);
 
-        // Calculate total sales from completed orders
-        $totalSales = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
-            ->sum(DB::raw('(price * COALESCE(qty, 1))'));
-
-        // Count unique orders
-        $ordersCount = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->distinct('order_id')
-            ->count('order_id');
-
-        // Pending withdrawals
-        $pendingWithdrawals = VendorWithdrawal::where('user_id', $vendorId)
-            ->where('status', 'pending')
-            ->sum('amount');
-
-        // Total products count
-        $productsCount = Product::where('vendor_id', $vendorId)->count();
-
-        // Active products count (approved)
-        $activeProductsCount = Product::where('vendor_id', $vendorId)
-            ->where('active', true)
-            ->count();
-
-        // Pending products count (under review)
-        $pendingProductsCount = Product::where('vendor_id', $vendorId)
-            ->where('active', false)
-            ->whereNull('rejection_reason')
-            ->count();
-
-        // Calculate vendor's actual balance
-        $totalWithdrawals = VendorWithdrawal::where('user_id', $vendorId)
-            ->where('status', 'completed')
-            ->sum('amount');
-
-        $actualBalance = $totalSales - $totalWithdrawals;
+        $dashboardService = new VendorDashboardService();
+        $dashboardData = $dashboardService->getDashboardData($vendorId);
 
         // Previously this endpoint updated the stored vendor balance on each read.
         // That caused unexpected writes when the mobile app fetches the dashboard after login.
         // To avoid side-effects on read, do NOT persist the computed balance here.
         // Instead log the stored vs computed balance for diagnosis.
-        if ($vendor && abs($vendor->balance - $actualBalance) > 0.01) {
+        if ($vendor && abs($vendor->balance - $dashboardData['actual_balance']) > 0.01) {
             // If you want to re-enable persistence after fixing root cause, restore the update call:
             // $vendor->update(['balance' => $actualBalance]);
             null;
         }
-
-        $recentOrders = Order::whereHas('items.product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->latest('created_at')
-            ->limit(5)
-            ->get();
 
         // Generate sales chart data for last 12 months
         $salesChartData = $this->generateSalesChartData($vendorId);
@@ -80,14 +44,14 @@ class DashboardController extends Controller
         $ordersGrowth = $this->calculateOrdersGrowth($vendorId);
 
         return response()->json([
-            'total_sales' => (float) $totalSales,
-            'total_orders' => (int) $ordersCount,
-            'pending_withdrawals' => (float) $pendingWithdrawals,
-            'total_products' => (int) $productsCount,
-            'active_products' => (int) $activeProductsCount,
-            'pending_products' => (int) $pendingProductsCount,
-            'actual_balance' => (float) $actualBalance,
-            'recent_orders' => $recentOrders,
+            'total_sales' => $dashboardData['total_sales'],
+            'total_orders' => $dashboardData['total_orders'],
+            'pending_withdrawals' => $dashboardData['pending_withdrawals'],
+            'total_products' => $dashboardData['total_products'],
+            'active_products' => $dashboardData['active_products'],
+            'pending_products' => $dashboardData['pending_products'],
+            'actual_balance' => $dashboardData['actual_balance'],
+            'recent_orders' => $dashboardData['recent_orders'],
             'sales_chart' => $salesChartData,
             'orders_chart' => $ordersChartData,
             'orders_growth' => (float) $ordersGrowth,
@@ -104,8 +68,8 @@ class DashboardController extends Controller
         $availableBalance = (float) ($user->balance ?? 0);
 
         // Calculate total sales from completed orders only
-        $totalSales = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $totalSales = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->sum(DB::raw('(price * COALESCE(qty, 1))'));
 
         // Calculate total withdrawals
@@ -148,63 +112,8 @@ class DashboardController extends Controller
             });
 
         // Load withdrawal settings for client
-        $setting = \App\Models\Setting::first();
-        $minimumAmount = isset($setting->min_withdrawal_amount) ? (float) $setting->min_withdrawal_amount : 10.0;
-        $rawGateways = $setting->withdrawal_gateways ?? ['Bank Transfer'];
-        if (is_string($rawGateways)) {
-            $decoded = json_decode($rawGateways, true);
-            if (is_array($decoded)) {
-                $rawGateways = $decoded;
-            } else {
-                $rawGateways = array_filter(array_map('trim', preg_split('/\r?\n/', $rawGateways)));
-            }
-        }
-        if (! is_array($rawGateways)) {
-            $rawGateways = (array) $rawGateways;
-        }
-        $gateways = [];
-        foreach ($rawGateways as $g) {
-            // If the gateway is already an array with label/name, use it
-            if (is_array($g)) {
-                $label = $g['label'] ?? ($g['name'] ?? null);
-                if ($label) {
-                    $slug = \Illuminate\Support\Str::slug($label);
-                    $gateways[] = ['slug' => $slug, 'label' => $label];
-                }
-
-                continue;
-            }
-
-            // If gateway is numeric, try to find by id in payment_gateways
-            if (is_numeric($g)) {
-                $pg = \App\Models\PaymentGateway::find((int) $g);
-                if ($pg) {
-                    $gateways[] = [
-                        'slug' => $pg->slug ?? \Illuminate\Support\Str::slug($pg->name ?? (string) $pg->id),
-                        'label' => $pg->name ?? $pg->slug,
-                    ];
-
-                    continue;
-                }
-            }
-
-            // If gateway is a string, try to match slug in payment_gateways
-            if (is_string($g) && $g !== '') {
-                $pg = \App\Models\PaymentGateway::where('slug', $g)->first();
-                if ($pg) {
-                    $gateways[] = ['slug' => $pg->slug, 'label' => $pg->name ?? $pg->slug];
-
-                    continue;
-                }
-
-                // Fallback: return stored text as label and slugify it
-                $slug = \Illuminate\Support\Str::slug($g);
-                $gateways[] = ['slug' => $slug, 'label' => $g];
-            }
-        }
-
-        $commissionEnabled = (bool) ($setting->withdrawal_commission_enabled ?? false);
-        $commissionRate = (float) ($setting->withdrawal_commission_rate ?? 0);
+        $withdrawalSettingsService = new WithdrawalSettingsService();
+        $withdrawalSettings = $withdrawalSettingsService->getWithdrawalSettings();
 
         // Standardize response shape to match other API endpoints (success + data)
         return response()->json([
@@ -218,12 +127,7 @@ class DashboardController extends Controller
                     'currency' => $user->currency ?? 'USD',
                 ],
                 'recent_withdrawals' => $recentWithdrawals,
-                'settings' => [
-                    'minimum_withdrawal' => $minimumAmount,
-                    'withdrawal_gateways' => $gateways,
-                    'withdrawal_commission_enabled' => $commissionEnabled,
-                    'withdrawal_commission_rate' => $commissionRate,
-                ],
+                'settings' => $withdrawalSettings,
             ],
         ]);
     }
@@ -239,8 +143,8 @@ class DashboardController extends Controller
             $date = now()->subMonths($i);
             $monthKey = $date->format('M Y');
 
-            $monthlySales = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-                ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+            $monthlySales = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
+                ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
                 ->whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->sum(DB::raw('(price * COALESCE(qty, 1))'));
@@ -262,8 +166,8 @@ class DashboardController extends Controller
             $date = now()->subMonths($i);
             $monthKey = $date->format('M Y');
 
-            $monthlyOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-                ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+            $monthlyOrders = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
+                ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
                 ->whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->distinct('order_id')
@@ -280,14 +184,14 @@ class DashboardController extends Controller
      */
     private function calculateSalesGrowth($vendorId)
     {
-        $currentMonth = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $currentMonth = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
             ->sum(DB::raw('(price * COALESCE(qty, 1))'));
 
-        $previousMonth = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $previousMonth = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->whereYear('created_at', now()->subMonth()->year)
             ->whereMonth('created_at', now()->subMonth()->month)
             ->sum(DB::raw('(price * COALESCE(qty, 1))'));
@@ -304,15 +208,15 @@ class DashboardController extends Controller
      */
     private function calculateOrdersGrowth($vendorId)
     {
-        $currentMonthOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $currentMonthOrders = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
             ->distinct('order_id')
             ->count('order_id');
 
-        $previousMonthOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $previousMonthOrders = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->whereYear('created_at', now()->subMonth()->year)
             ->whereMonth('created_at', now()->subMonth()->month)
             ->distinct('order_id')

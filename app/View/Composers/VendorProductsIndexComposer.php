@@ -55,7 +55,8 @@ final class VendorProductsIndexComposer
                 return [$product->id => [
                     'available' => $available,
                     'stock_qty' => $stockQty,
-                ]];
+                ],
+                ];
             })
             ->toArray();
     }

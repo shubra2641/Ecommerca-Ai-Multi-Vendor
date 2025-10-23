@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\Vendor;
 use App\Http\Controllers\Controller;
 use App\Models\BalanceHistory;
 use App\Models\VendorWithdrawal;
+use App\Services\WithdrawalSettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -35,59 +36,8 @@ class WithdrawalsController extends Controller
         $availableBalance = $user->balance ?? 0;
 
         // Load settings for withdrawal UI (gateways, minimum, commission)
-        $setting = \App\Models\Setting::first();
-        $minimumAmount = isset($setting->min_withdrawal_amount) ? (float) $setting->min_withdrawal_amount : 10.0;
-        $rawGateways = $setting->withdrawal_gateways ?? ['Bank Transfer'];
-        if (is_string($rawGateways)) {
-            $decoded = json_decode($rawGateways, true);
-            if (is_array($decoded)) {
-                $rawGateways = $decoded;
-            } else {
-                $rawGateways = array_filter(array_map('trim', preg_split('/\r?\n/', $rawGateways)));
-            }
-        }
-        if (! is_array($rawGateways)) {
-            $rawGateways = (array) $rawGateways;
-        }
-        $gateways = [];
-        foreach ($rawGateways as $g) {
-            if (is_array($g)) {
-                $label = $g['label'] ?? ($g['name'] ?? null);
-                if ($label) {
-                    $slug = \Illuminate\Support\Str::slug($label);
-                    $gateways[] = ['slug' => $slug, 'label' => $label];
-                }
-
-                continue;
-            }
-
-            if (is_numeric($g)) {
-                $pg = \App\Models\PaymentGateway::find((int) $g);
-                if ($pg) {
-                    $gateways[] = [
-                        'slug' => $pg->slug ?? \Illuminate\Support\Str::slug($pg->name ?? (string) $pg->id),
-                        'label' => $pg->name ?? $pg->slug,
-                    ];
-
-                    continue;
-                }
-            }
-
-            if (is_string($g) && $g !== '') {
-                $pg = \App\Models\PaymentGateway::where('slug', $g)->first();
-                if ($pg) {
-                    $gateways[] = ['slug' => $pg->slug, 'label' => $pg->name ?? $pg->slug];
-
-                    continue;
-                }
-
-                $slug = \Illuminate\Support\Str::slug($g);
-                $gateways[] = ['slug' => $slug, 'label' => $g];
-            }
-        }
-
-        $commissionEnabled = (bool) ($setting->withdrawal_commission_enabled ?? false);
-        $commissionRate = (float) ($setting->withdrawal_commission_rate ?? 0);
+        $withdrawalSettingsService = new WithdrawalSettingsService();
+        $withdrawalSettings = $withdrawalSettingsService->getWithdrawalSettings();
 
         return response()->json([
             'success' => true,
@@ -119,12 +69,7 @@ class WithdrawalsController extends Controller
                     'pending_withdrawals' => (float) $pendingWithdrawals,
                     'currency' => $user->currency ?? 'USD',
                 ],
-                'settings' => [
-                    'minimum_withdrawal' => $minimumAmount,
-                    'withdrawal_gateways' => $gateways,
-                    'withdrawal_commission_enabled' => $commissionEnabled,
-                    'withdrawal_commission_rate' => $commissionRate,
-                ],
+                'settings' => $withdrawalSettings,
             ],
         ]);
     }
@@ -132,45 +77,23 @@ class WithdrawalsController extends Controller
     public function requestWithdrawal(Request $r)
     {
         // Get settings for validation
+        $withdrawalSettingsService = new WithdrawalSettingsService();
         $setting = \App\Models\Setting::first();
         $min = $setting->min_withdrawal_amount ?? 1;
-        $allowedGateways = $setting->withdrawal_gateways ?? ['Bank Transfer', 'PayPal'];
-
-        // Normalize gateways
-        if (is_string($allowedGateways)) {
-            $decoded = json_decode($allowedGateways, true);
-            if (is_array($decoded)) {
-                $allowedGateways = $decoded;
-            } else {
-                $allowedGateways = array_filter(array_map('trim', preg_split('/\r?\n/', $allowedGateways)));
-            }
-        }
-        if (! is_array($allowedGateways)) {
-            $allowedGateways = (array) $allowedGateways;
-        }
-
-        // Build gateway slugs for validation
-        $gatewaySlugs = [];
-        foreach ($allowedGateways as $gw) {
-            if (is_array($gw)) {
-                $label = $gw['label'] ?? ($gw['name'] ?? null);
-                if ($label) {
-                    $gatewaySlugs[] = \Illuminate\Support\Str::slug($label);
-                }
-            } elseif (is_string($gw) && $gw !== '') {
-                $gatewaySlugs[] = \Illuminate\Support\Str::slug($gw);
-            }
-        }
+        $gatewaySlugs = $withdrawalSettingsService->getWithdrawalGatewaySlugs();
 
         // Validate request
         $data = $r->validate([
-            'amount' => ['required', 'numeric', 'min:'.$min],
+            'amount' => ['required', 'numeric', 'min:' . $min],
             'currency' => 'required|string',
-            'payment_method' => ['required', 'string', function ($attribute, $value, $fail) use ($gatewaySlugs): void {
-                if (! in_array($value, $gatewaySlugs)) {
-                    $fail('Invalid payment method');
-                }
-            },
+            'payment_method' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) use ($gatewaySlugs): void {
+                    if (! in_array($value, $gatewaySlugs)) {
+                        $fail('Invalid payment method');
+                    }
+                },
             ],
             'notes' => 'nullable|string|max:500',
             'transfer' => 'nullable|array',
@@ -187,8 +110,9 @@ class WithdrawalsController extends Controller
         }
 
         // Calculate commission
-        $commissionEnabled = (bool) ($setting->withdrawal_commission_enabled ?? false);
-        $commissionRate = (float) ($setting->withdrawal_commission_rate ?? 0);
+        $commissionSettings = $withdrawalSettingsService->getCommissionSettings();
+        $commissionEnabled = $commissionSettings['enabled'];
+        $commissionRate = $commissionSettings['rate'];
         $gross = (float) $data['amount'];
         $commissionExact = $commissionEnabled && $commissionRate > 0 ? $gross * $commissionRate / 100 : 0.0;
         $commissionAmount = $commissionEnabled && $commissionRate > 0 ? round($commissionExact, 2) : 0.0;
@@ -236,7 +160,7 @@ class WithdrawalsController extends Controller
                     $w
                 );
             } catch (\Throwable $e) {
-                logger()->warning('Failed logging withdrawal hold: '.$e->getMessage());
+                logger()->warning('Failed logging withdrawal hold: ' . $e->getMessage());
             }
 
             DB::commit();
@@ -248,7 +172,7 @@ class WithdrawalsController extends Controller
                     $admin->notify(new \App\Notifications\AdminVendorWithdrawalCreated($w));
                 }
             } catch (\Throwable $e) {
-                logger()->warning('Admin withdrawal notification failed: '.$e->getMessage());
+                logger()->warning('Admin withdrawal notification failed: ' . $e->getMessage());
             }
 
             return response()->json([
@@ -261,7 +185,7 @@ class WithdrawalsController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create withdrawal: '.$e->getMessage(),
+                'message' => 'Failed to create withdrawal: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -308,7 +232,7 @@ class WithdrawalsController extends Controller
                     $withdrawal
                 );
             } catch (\Throwable $e) {
-                logger()->warning('Failed logging withdrawal cancellation: '.$e->getMessage());
+                logger()->warning('Failed logging withdrawal cancellation: ' . $e->getMessage());
             }
 
             DB::commit();
@@ -323,7 +247,7 @@ class WithdrawalsController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to cancel withdrawal: '.$e->getMessage(),
+                'message' => 'Failed to cancel withdrawal: ' . $e->getMessage(),
             ], 500);
         }
     }

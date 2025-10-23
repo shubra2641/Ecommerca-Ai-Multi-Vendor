@@ -95,7 +95,7 @@ class CartViewBuilder
     private function buildAttributeLabel(array $attributeData): string
     {
         return collect($attributeData)
-            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
             ->values()
             ->join(', ');
     }

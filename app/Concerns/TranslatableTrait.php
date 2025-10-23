@@ -30,7 +30,7 @@ trait TranslatableTrait
      */
     public function translate(string $field, ?string $locale = null)
     {
-        $locale = $locale ?: app()->getLocale();
+        $locale = $locale ? $locale : app()->getLocale();
         $fallback = config('app.fallback_locale');
         $translations = parent::getAttribute($field . '_translations');
         if (is_array($translations)) {

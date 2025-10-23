@@ -74,7 +74,7 @@ final class AdminProductFormComposer
                     'name' => $a->name,
                     'slug' => $a->slug,
                     'values' => $a->values
-                        ->map(fn($v) => [
+                        ->map(fn ($v) => [
                             'id' => $v->id,
                             'value' => $v->value,
                             'slug' => $v->slug,
@@ -86,8 +86,6 @@ final class AdminProductFormComposer
             ->values()
             ->all();
     }
-
-
 
     private function getClientVariations($model): array
     {
@@ -161,7 +159,8 @@ final class AdminProductFormComposer
                 'ph_seo_title' => __('SEO Title') . ' (' . $code . ')',
                 'ph_seo_keywords' => __('SEO Keywords') . ' (' . $code . ')',
                 'ph_seo_description' => __('SEO Description') . ' (' . $code . ')',
-            ]];
+            ],
+            ];
         })->all();
     }
 }
