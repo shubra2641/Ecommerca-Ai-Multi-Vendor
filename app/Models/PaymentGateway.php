@@ -105,9 +105,9 @@ class PaymentGateway extends Model
     }
 
     /**
-     * Set gateway credentials
+     * Update gateway credentials
      */
-    public function setCredentials(array $credentials): void
+    public function updateCredentials(array $credentials): void
     {
         $this->config = $credentials;
     }

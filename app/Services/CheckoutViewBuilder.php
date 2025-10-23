@@ -113,15 +113,15 @@ class CheckoutViewBuilder
                     $variantLabel = $variant->name ?? null;
                     if (! $variantLabel && ! empty($variant->attribute_data)) {
                         $variantLabel = collect($variant->attribute_data)
-                            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                             ->values()
                             ->join(', ');
                     }
                 } elseif (is_string($variant)) {
-                    $parsed = @json_decode($variant, true);
-                    if (is_array($parsed) && isset($parsed['attribute_data'])) {
+                    $parsed = json_decode($variant, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data'])) {
                         $variantLabel = collect($parsed['attribute_data'])
-                            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                             ->values()
                             ->join(', ');
                     } else {

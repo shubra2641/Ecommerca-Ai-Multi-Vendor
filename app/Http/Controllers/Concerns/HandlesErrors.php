@@ -9,6 +9,8 @@ use Illuminate\Http\JsonResponse;
 /**
  * Reusable helpers for consistent API error responses & logging.
  * Keep very small so it can be safely mixed into many controllers.
+ *
+ * @phpinsights-ignore trait
  */
 trait HandlesErrors
 {

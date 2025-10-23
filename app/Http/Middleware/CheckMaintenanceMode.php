@@ -45,7 +45,7 @@ class CheckMaintenanceMode
             $locale = app()->getLocale();
             $messages = is_array($setting->maintenance_message)
                 ? $setting->maintenance_message
-                : (@json_decode($setting->maintenance_message, true) ?: []);
+                : (json_decode($setting->maintenance_message, true) ? json_decode($setting->maintenance_message, true) : []);
             $message = $messages[$locale] ?? $messages['en'] ??
                 __('The site is under maintenance. Please check back later.');
 

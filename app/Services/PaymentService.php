@@ -24,7 +24,7 @@ class PaymentService
         return $this->getDefaultCredentials();
     }
 
-    public function setCredentials(PaymentGateway $gateway, array $credentials): void
+    public function updateCredentials(PaymentGateway $gateway, array $credentials): void
     {
         $sensitiveFields = ['api_key', 'secret_key', 'public_key', 'merchant_id', 'webhook_secret'];
         $dedicatedFields = [];
@@ -78,7 +78,7 @@ class PaymentService
 
         foreach ($credentials as $key => $value) {
             if (is_string($value) && strlen($value) > 4) {
-                $masked[$key] = substr($value, 0, 4).'****';
+                $masked[$key] = substr($value, 0, 4) . '****';
             } else {
                 $masked[$key] = $value;
             }

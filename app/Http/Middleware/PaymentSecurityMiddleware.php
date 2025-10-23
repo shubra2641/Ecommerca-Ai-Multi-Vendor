@@ -17,7 +17,7 @@ class PaymentSecurityMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         // Rate limiting for payment endpoints
-        $key = 'payment-attempts:'.$request->ip();
+        $key = 'payment-attempts:' . $request->ip();
 
         if (RateLimiter::tooManyAttempts($key, 10)) {
             return response()->json([
@@ -50,7 +50,7 @@ class PaymentSecurityMiddleware
     private function validateCsrfToken(Request $request): void
     {
         if ($request->isMethod('POST') && ! $request->hasValidSignature()) {
-            $token = $request->header('X-CSRF-TOKEN') ?: $request->input('_token');
+            $token = $request->header('X-CSRF-TOKEN') ? $request->header('X-CSRF-TOKEN') : $request->input('_token');
 
             if (! $token || ! hash_equals(session()->token(), $token)) {
                 abort(419, 'CSRF token mismatch');

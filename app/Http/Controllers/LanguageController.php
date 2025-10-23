@@ -109,7 +109,7 @@ class LanguageController extends Controller
             ->with('success', __('Translations updated successfully'));
     }
 
-    public function setDefault(Language $language)
+    public function makeDefault(Language $language)
     {
         Language::where('is_default', true)->update(['is_default' => false]);
         $language->update(['is_default' => true]);

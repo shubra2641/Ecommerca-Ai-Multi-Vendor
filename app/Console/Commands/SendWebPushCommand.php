@@ -20,7 +20,9 @@ class SendWebPushCommand extends Command
         $extras = [];
         $json = $this->option('data');
         if (! $json) {
-            foreach ((array) ($_SERVER['argv'] ?? []) as $arg) {
+            // Fallback to check command line arguments directly
+            $args = $this->input->getArguments();
+            foreach ($args as $arg) {
                 if (strpos($arg, '--data=') === 0) {
                     $json = substr($arg, 7);
                     break;

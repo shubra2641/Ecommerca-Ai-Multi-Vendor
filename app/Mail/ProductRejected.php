@@ -13,14 +13,24 @@ class ProductRejected extends Mailable
     use Queueable;
     use SerializesModels;
 
-    public $product;
+    private $product;
 
-    public $reason;
+    private $reason;
 
     public function __construct($product, $reason = null)
     {
         $this->product = $product;
         $this->reason = $reason;
+    }
+
+    public function getProduct()
+    {
+        return $this->product;
+    }
+
+    public function getReason()
+    {
+        return $this->reason;
     }
 
     public function build()

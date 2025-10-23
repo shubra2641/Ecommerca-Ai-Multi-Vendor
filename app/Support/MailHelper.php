@@ -12,7 +12,7 @@ class MailHelper
      */
     public static function mailIsAvailable(): bool
     {
-        $driver = config('mail.default') ?: env('MAIL_MAILER');
+        $driver = config('mail.default') ? config('mail.default') : env('MAIL_MAILER');
         if (! $driver) {
             return false;
         }

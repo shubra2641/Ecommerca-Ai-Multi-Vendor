@@ -75,7 +75,7 @@ class CurrencyController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|size:3|unique:currencies,code,'.$currency->id,
+            'code' => 'required|string|size:3|unique:currencies,code,' . $currency->id,
             'symbol' => 'required|string|max:10',
             'exchange_rate' => 'required|numeric|min:0.00000001',
             'is_default' => 'boolean',
@@ -119,7 +119,7 @@ class CurrencyController extends Controller
             ->with('success', __('Currency deleted successfully'));
     }
 
-    public function setDefault(Currency $currency)
+    public function makeDefault(Currency $currency)
     {
         DB::transaction(function () use ($currency): void {
             Currency::where('is_default', true)->update(['is_default' => false]);

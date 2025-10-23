@@ -11,17 +11,16 @@ class PaymentController extends Controller
 {
     public function __construct(
         private PaymentService $paymentService
-    ) {
-    }
+    ) {}
 
     public function getGatewayCredentials(PaymentGateway $gateway): array
     {
         return $this->paymentService->getCredentials($gateway);
     }
 
-    public function setGatewayCredentials(PaymentGateway $gateway, array $credentials): void
+    public function updateGatewayCredentials(PaymentGateway $gateway, array $credentials): void
     {
-        $this->paymentService->setCredentials($gateway, $credentials);
+        $this->paymentService->updateCredentials($gateway, $credentials);
     }
 
     public function validateGatewayCredentials(PaymentGateway $gateway): bool

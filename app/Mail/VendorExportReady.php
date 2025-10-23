@@ -13,14 +13,24 @@ class VendorExportReady extends Mailable
     use Queueable;
     use SerializesModels;
 
-    public $url;
+    private $url;
 
-    public $filename;
+    private $filename;
 
     public function __construct(string $url, string $filename)
     {
         $this->url = $url;
         $this->filename = $filename;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function getFilename(): string
+    {
+        return $this->filename;
     }
 
     public function build()

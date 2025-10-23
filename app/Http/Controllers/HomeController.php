@@ -77,7 +77,6 @@ class HomeController extends Controller
         }
         // index sections by key for quick lookup for limits
         $sectionsIndex = $sections->keyBy('key');
-        $GLOBALS['__sections_index'] = $sectionsIndex; // used inside closure above if needed
 
         // Cache categories for better performance (legacy var name) limited by section config if exists
         $categories = Cache::remember('home_categories', 1800, function () use ($sectionsIndex) {
@@ -203,7 +202,7 @@ class HomeController extends Controller
             return $bn;
         });
         $banners = $bannersCollection->groupBy(function ($b) {
-            return $b->placement_key ?: 'default';
+            return $b->placement_key ? $b->placement_key : 'default';
         });
 
         // Showcase mini sections aggregate (no logic left in Blade)
@@ -233,7 +232,7 @@ class HomeController extends Controller
                         ->orderByDesc('approved_reviews_count')
                         ->take($limit)->get(),
                     'showcase_brands' => Brand::active()
-                        ->withCount(['products' => fn ($q) => $q->active()])
+                        ->withCount(['products' => fn($q) => $q->active()])
                         ->orderByDesc('products_count')
                         ->take($limit)->get(),
                     default => collect(),
@@ -301,7 +300,7 @@ class HomeController extends Controller
             ]);
         }
         $showcaseSections = $showcaseSections->sortBy(
-            fn ($s) => optional($sectionsIndex->get($s['key']))->sort_order ?? 9999
+            fn($s) => optional($sectionsIndex->get($s['key']))->sort_order ?? 9999
         )->values();
         // Extract brand section separately & compute grid column count excluding brands
         $brandSec = $showcaseSections->firstWhere('type', 'brands');

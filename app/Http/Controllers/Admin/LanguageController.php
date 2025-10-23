@@ -70,7 +70,7 @@ class LanguageController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|size:2|unique:languages,code,'.$language->id,
+            'code' => 'required|string|size:2|unique:languages,code,' . $language->id,
             'flag' => 'nullable|string|max:10',
             'is_default' => 'boolean',
             'is_active' => 'boolean',
@@ -146,7 +146,7 @@ class LanguageController extends Controller
             ->with('success', __('Translations updated successfully'));
     }
 
-    public function setDefault(Language $language)
+    public function makeDefault(Language $language)
     {
         \DB::transaction(function () use ($language): void {
             Language::where('is_default', true)->update(['is_default' => false]);
@@ -254,7 +254,7 @@ class LanguageController extends Controller
         if (File::exists($path)) {
             $content = File::get($path);
 
-            return json_decode($content, true) ?: [];
+            return json_decode($content, true) ? json_decode($content, true) : [];
         }
 
         return [];

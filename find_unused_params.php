@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 function findUnusedParameters($directory)
 {
     $unusedParams = [];
@@ -40,7 +42,7 @@ function findUnusedParameters($directory)
                         ) {
                             // This is likely a parameter
                             $paramName = $tokenValue;
-                            if (!isset($functions[$currentFunction]['params'][$paramName])) {
+                            if (! isset($functions[$currentFunction]['params'][$paramName])) {
                                 $functions[$currentFunction]['params'][$paramName] = 0;
                             }
                         }
@@ -69,7 +71,7 @@ function findUnusedParameters($directory)
                     $unusedParams[] = [
                         'file' => $file->getPathname(),
                         'function' => $funcName,
-                        'parameter' => $param
+                        'parameter' => $param,
                     ];
                 }
             }
@@ -82,10 +84,10 @@ function findUnusedParameters($directory)
 // Run the analysis
 $unusedParams = findUnusedParameters(__DIR__ . '/app');
 
-echo "Found " . count($unusedParams) . " unused parameters:\n\n";
+echo 'Found ' . count($unusedParams) . " unused parameters:\n\n";
 foreach ($unusedParams as $param) {
-    echo "File: " . str_replace(__DIR__ . '/', '', $param['file']) . "\n";
-    echo "Function: " . $param['function'] . "\n";
-    echo "Parameter: " . $param['parameter'] . "\n";
+    echo 'File: ' . str_replace(__DIR__ . '/', '', $param['file']) . "\n";
+    echo 'Function: ' . $param['function'] . "\n";
+    echo 'Parameter: ' . $param['parameter'] . "\n";
     echo "---\n";
 }
