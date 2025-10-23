@@ -80,8 +80,18 @@ class CheckoutProcessor
      */
     public function createOrder(array $checkoutData, Request $request): Order
     {
-        // Prepare base order payload
-        $payload = [
+        $payload = $this->prepareOrderPayload($checkoutData);
+        $order = Order::create($payload);
+
+        $this->handleShippingAddress($order, $checkoutData);
+        $this->createOrderItems($order, $checkoutData);
+
+        return $order;
+    }
+
+    private function prepareOrderPayload(array $checkoutData): array
+    {
+        return [
             'user_id' => $checkoutData['user']?->id,
             'status' => 'pending',
             'total' => $checkoutData['total'],
@@ -93,87 +103,112 @@ class CheckoutProcessor
             'shipping_zone_id' => $checkoutData['shipping_zone_id'] ?? null,
             'shipping_estimated_days' => $checkoutData['shipping_estimated_days'] ?? null,
             'shipping_address' => $checkoutData['shipping_address'] ?? null,
-            'shipping_address_id' => null,
+            'shipping_address_id' => $checkoutData['selected_address_id'] ?? null,
         ];
+    }
 
-        // If caller provided a selected address id (from saved addresses), attach it
-        if (! empty($checkoutData['selected_address_id'])) {
-            $payload['shipping_address_id'] = $checkoutData['selected_address_id'];
+    private function handleShippingAddress(Order $order, array $checkoutData): void
+    {
+        if (!empty($checkoutData['selected_address_id']) || !$checkoutData['user']) {
+            return;
         }
 
-        // Create the order first so we can attach address if needed
-        $order = Order::create($payload);
-
-        // If no selected address id but user is authenticated, create an Address record and link it
-        if (empty($payload['shipping_address_id']) && $checkoutData['user']) {
-            try {
-                $addrData = $checkoutData['shipping_address'] ?? [];
-                $addr = \App\Models\Address::create([
-                    'user_id' => $checkoutData['user']->id,
-                    'name' => $addrData['customer_name'] ?? null,
-                    'phone' => $addrData['customer_phone'] ?? null,
-                    'country_id' => $addrData['country_id'] ?? null,
-                    'governorate_id' => $addrData['governorate_id'] ?? null,
-                    'city_id' => $addrData['city_id'] ?? null,
-                    'line1' => $addrData['customer_address'] ?? null,
-                    'line2' => null,
-                    'postal_code' => null,
-                    'is_default' => false,
-                ]);
-                if ($addr && $addr->id) {
-                    $order->shipping_address_id = $addr->id;
-                    $order->save();
-                }
-            } catch (\Throwable $e) {
-                // swallow address creation errors but log
-                logger()->warning('Failed to persist shipping address for order ' . $order->id . ': ' . $e->getMessage());
+        try {
+            $addr = $this->createShippingAddress($checkoutData);
+            if ($addr && $addr->id) {
+                $order->shipping_address_id = $addr->id;
+                $order->save();
             }
+        } catch (\Throwable $e) {
+            logger()->warning('Failed to persist shipping address for order ' . $order->id . ': ' . $e->getMessage());
         }
+    }
 
-        // Create order items and reserve stock
+    private function createShippingAddress(array $checkoutData): ?\App\Models\Address
+    {
+        $addrData = $checkoutData['shipping_address'] ?? [];
+        return \App\Models\Address::create([
+            'user_id' => $checkoutData['user']->id,
+            'name' => $addrData['customer_name'] ?? null,
+            'phone' => $addrData['customer_phone'] ?? null,
+            'country_id' => $addrData['country_id'] ?? null,
+            'governorate_id' => $addrData['governorate_id'] ?? null,
+            'city_id' => $addrData['city_id'] ?? null,
+            'line1' => $addrData['customer_address'] ?? null,
+            'line2' => null,
+            'postal_code' => null,
+            'is_default' => false,
+        ]);
+    }
+
+    private function createOrderItems(Order $order, array $checkoutData): void
+    {
         foreach ($checkoutData['items'] as $item) {
-            $meta = [];
-            $variantId = $item['variant'] ?? null;
-            $variant = null;
+            $this->createOrderItem($order, $item);
+        }
+    }
 
-            if ($variantId) {
-                // Get variant details
-                $variant = \App\Models\ProductVariation::find($variantId);
-                if ($variant) {
-                    $meta['variant_id'] = $variant->id; // Store variant_id for StockAdjustmentListener
-                    $meta['variant'] = [
-                        'id' => $variant->id,
-                        'name' => $variant->name,
-                        'sku' => $variant->sku,
-                        'price' => $variant->price,
-                    ];
-                }
-            }
+    private function createOrderItem(Order $order, array $item): void
+    {
+        $meta = $this->prepareItemMeta($item);
+        $name = $this->prepareItemName($item, $meta['variant'] ?? null);
 
-            $name = $item['product']->name;
+        \App\Models\OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $item['product']->id,
+            'name' => $name,
+            'qty' => $item['qty'],
+            'price' => $item['price'],
+            'meta' => $meta,
+            'purchased_at' => now(),
+        ]);
+
+        $this->reserveStock($item);
+    }
+
+    private function prepareItemMeta(array $item): array
+    {
+        $meta = [];
+        $variantId = $item['variant'] ?? null;
+
+        if ($variantId) {
+            $variant = \App\Models\ProductVariation::find($variantId);
             if ($variant) {
-                $name .= ' - ' . $variant->name;
+                $meta['variant_id'] = $variant->id;
+                $meta['variant'] = [
+                    'id' => $variant->id,
+                    'name' => $variant->name,
+                    'sku' => $variant->sku,
+                    'price' => $variant->price,
+                ];
             }
+        }
 
-            \App\Models\OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item['product']->id,
-                'name' => $name,
-                'qty' => $item['qty'],
-                'price' => $item['price'],
-                'meta' => $meta,
-                'purchased_at' => now(),
-            ]);
+        return $meta;
+    }
 
-            // Reserve stock when order is created
+    private function prepareItemName(array $item, ?array $variant): string
+    {
+        $name = $item['product']->name;
+        if ($variant) {
+            $name .= ' - ' . $variant['name'];
+        }
+
+        return $name;
+    }
+
+    private function reserveStock(array $item): void
+    {
+        $variantId = $item['variant'] ?? null;
+
+        if ($variantId) {
+            $variant = \App\Models\ProductVariation::find($variantId);
             if ($variant) {
                 \App\Services\StockService::reserveVariation($variant, $item['qty']);
-            } else {
-                \App\Services\StockService::reserve($item['product'], $item['qty']);
             }
+        } else {
+            \App\Services\StockService::reserve($item['product'], $item['qty']);
         }
-
-        return $order;
     }
 
     /**

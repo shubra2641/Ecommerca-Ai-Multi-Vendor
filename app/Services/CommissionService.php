@@ -15,23 +15,37 @@ class CommissionService
         if (! $product->vendor_id) {
             return 0.0; // only vendor products incur commission
         }
+
+        $settings = self::getCommissionSettings();
+        $mode = $settings->commission_mode ?? 'flat';
+
+        return match ($mode) {
+            'category' => self::getCategoryCommissionRate($product),
+            default => (float) ($settings->commission_flat_rate ?? 0.0),
+        };
+    }
+
+    private static function getCommissionSettings()
+    {
         static $settings = null;
         if ($settings === null) {
             $settings = Setting::first();
         }
-        $mode = $settings->commission_mode ?? 'flat';
-        if ($mode === 'category') {
-            $cat = $product->category;
-            // Walk up the category tree until a commission_rate is found
-            while ($cat) {
-                if ($cat->commission_rate !== null) {
-                    return (float) $cat->commission_rate;
-                }
-                $cat = $cat->parent;
+
+        return $settings;
+    }
+
+    private static function getCategoryCommissionRate(Product $product): float
+    {
+        $cat = $product->category;
+        while ($cat) {
+            if ($cat->commission_rate !== null) {
+                return (float) $cat->commission_rate;
             }
+            $cat = $cat->parent;
         }
 
-        return (float) ($settings->commission_flat_rate ?? 0.0);
+        return 0.0;
     }
 
     /** Compute commission + vendor earnings for a line. */

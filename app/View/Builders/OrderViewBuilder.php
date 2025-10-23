@@ -75,18 +75,14 @@ class OrderViewBuilder
             return null;
         }
 
-        if (! empty($it->meta['variant_name'])) {
-            return $it->meta['variant_name'];
-        }
-
-        if (! empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data'])) {
-            return collect($it->meta['attribute_data'])
+        return match (true) {
+            !empty($it->meta['variant_name']) => $it->meta['variant_name'],
+            !empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data']) => collect($it->meta['attribute_data'])
                 ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
-                ->join(', ');
-        }
-
-        return null;
+                ->join(', '),
+            default => null,
+        };
     }
 
     private static function resolveAddressIds(array $addrSource): array

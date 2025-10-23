@@ -67,30 +67,40 @@ class PaymentGatewayService
         $apiBase = rtrim($cfg['api_base'] ?? ('https://api.' . $gateway->slug . '.com'), '/');
 
         try {
-            $resp = Http::withToken($secret)->acceptJson()->get($apiBase . '/charges/' . $chargeId);
-
-            if (!$resp->ok()) {
-                return ['payment' => $gateway, 'status' => 'pending', 'charge' => null];
-            }
-
-            $json = $resp->json();
-            $status = $json['status'] ?? $json['data']['status'] ?? null;
-            $finalStatus = $this->determineStatus($status);
-
-            $payment->status = $finalStatus;
-            $payment->payload = array_merge($payment->payload ?? [], [
-                $gateway->slug . '_charge_status' => $finalStatus,
-            ]);
-            $payment->save();
-
-            if ($finalStatus === 'paid') {
-                $this->handlePaidPayment($payment);
-            }
-
-            return ['payment' => $payment, 'status' => $payment->status, 'charge' => $json];
+            $response = $this->makeApiRequest($apiBase, $secret, $chargeId);
+            return $this->processApiResponse($payment, $gateway, $response);
         } catch (\Throwable $e) {
             return ['success' => false, 'status' => 'pending', 'data' => null];
         }
+    }
+
+    private function makeApiRequest(string $apiBase, string $secret, string $chargeId): array
+    {
+        $resp = Http::withToken($secret)->acceptJson()->get($apiBase . '/charges/' . $chargeId);
+
+        if (!$resp->ok()) {
+            return ['status' => 'pending', 'data' => null];
+        }
+
+        return $resp->json();
+    }
+
+    private function processApiResponse(Payment $payment, PaymentGateway $gateway, array $response): array
+    {
+        $status = $response['status'] ?? $response['data']['status'] ?? null;
+        $finalStatus = $this->determineStatus($status);
+
+        $payment->status = $finalStatus;
+        $payment->payload = array_merge($payment->payload ?? [], [
+            $gateway->slug . '_charge_status' => $finalStatus,
+        ]);
+        $payment->save();
+
+        if ($finalStatus === 'paid') {
+            $this->handlePaidPayment($payment);
+        }
+
+        return ['payment' => $payment, 'status' => $payment->status, 'charge' => $response];
     }
 
     private function determineStatus(?string $status): string
@@ -99,13 +109,11 @@ class PaymentGatewayService
             return 'processing';
         }
 
-        if (in_array(strtoupper($status), ['CAPTURED', 'AUTHORIZED', 'PAID', 'SUCCESS'], true)) {
-            return 'paid';
-        } elseif (in_array(strtoupper($status), ['FAILED', 'CANCELLED', 'DECLINED'], true)) {
-            return 'failed';
-        } else {
-            return 'processing';
-        }
+        return match (strtoupper($status)) {
+            'CAPTURED', 'AUTHORIZED', 'PAID', 'SUCCESS' => 'paid',
+            'FAILED', 'CANCELLED', 'DECLINED' => 'failed',
+            default => 'processing',
+        };
     }
 
     private function handlePaidPayment(Payment $payment): void

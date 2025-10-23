@@ -35,12 +35,9 @@ final class OrdersComposer
 
     private function buildVariantLabels($order): array
     {
-        $variantLabels = [];
-        foreach ($order->items as $item) {
-            $variantLabels[$item->id] = OrderViewBuilder::variantLabel($item);
-        }
-
-        return $variantLabels;
+        return $order->items->mapWithKeys(function ($item) {
+            return [$item->id => OrderViewBuilder::variantLabel($item)];
+        })->toArray();
     }
 
     private function composeOrderList(View $view, $orders): void
@@ -51,12 +48,9 @@ final class OrdersComposer
 
     private function buildOrderSummaries($orders): array
     {
-        $firstSummaries = [];
-        foreach ($orders as $order) {
-            $firstSummaries[$order->id] = $this->getOrderFirstItemSummary($order);
-        }
-
-        return $firstSummaries;
+        return $orders->mapWithKeys(function ($order) {
+            return [$order->id => $this->getOrderFirstItemSummary($order)];
+        })->toArray();
     }
 
     private function getOrderFirstItemSummary($order): string
