@@ -33,7 +33,13 @@ final class AdminProductsIndexComposer
     private function calculateProductStocks($products, int $low, int $soon): array
     {
         return collect($products)
-            ->filter(fn ($p) => $p->manage_stock)
+            ->filter(function ($p) {
+                try {
+                    return $p->manage_stock;
+                } catch (\Throwable $e) {
+                    return false;
+                }
+            })
             ->mapWithKeys(function ($p) use ($low, $soon) {
                 $available = (int) $p->availableStock();
                 $status = match (true) {
@@ -57,11 +63,23 @@ final class AdminProductsIndexComposer
     private function calculateVariationStocks($products, int $low, int $soon): array
     {
         return collect($products)
-            ->filter(fn ($p) => $p->type === 'variable')
+            ->filter(function ($p) {
+                try {
+                    return $p->type === 'variable';
+                } catch (\Throwable $e) {
+                    return false;
+                }
+            })
             ->flatMap(function ($p) use ($low, $soon) {
                 $variations = $p->relationLoaded('variations') ? $p->variations : $p->variations()->get();
                 return collect($variations)
-                    ->filter(fn ($v) => $v->manage_stock)
+                    ->filter(function ($v) {
+                        try {
+                            return $v->manage_stock;
+                        } catch (\Throwable $e) {
+                            return false;
+                        }
+                    })
                     ->mapWithKeys(function ($v) use ($low, $soon) {
                         $available = (int) (($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0));
                         $status = match (true) {

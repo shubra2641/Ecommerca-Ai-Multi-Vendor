@@ -6,11 +6,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
+class PostCategory extends Model
 {
     use HasFactory;
 
-    use HasFactory;
-    use HasFactory;
+    protected array $translatable = [
+        'name',
         'slug',
         'description',
         'seo_title',
@@ -62,26 +64,27 @@ use Illuminate\Database\Eloquent\Model;
      */
     public function getAttribute($key)
     {
-        // if key is explicitly requested translations array, return normal behavior
-        if (isset($this->translatable) && in_array($key, $this->translatable, true)) {
-            $translationsKey = $key . '_translations';
-            $raw = parent::getAttribute($key); // base stored value
-            $translations = parent::getAttribute($translationsKey);
-            if (is_array($translations)) {
-                $locale = app()->getLocale();
-                $fallback = config('app.fallback_locale');
-                if (isset($translations[$locale]) && $translations[$locale] !== '') {
-                    return $translations[$locale];
-                }
-                if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
-                    return $translations[$fallback];
-                }
-            }
-
-            return $raw; // fallback to raw column value
+        if (! isset($this->translatable) || ! in_array($key, $this->translatable, true)) {
+            return parent::getAttribute($key);
         }
 
-        return parent::getAttribute($key);
+        $translationsKey = $key . '_translations';
+        $raw = parent::getAttribute($key);
+        $translations = parent::getAttribute($translationsKey);
+        if (! is_array($translations)) {
+            return $raw;
+        }
+
+        $locale = app()->getLocale();
+        $fallback = config('app.fallback_locale');
+        if (isset($translations[$locale]) && $translations[$locale] !== '') {
+            return $translations[$locale];
+        }
+        if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
+            return $translations[$fallback];
+        }
+
+        return $raw;
     }
 
     /**
@@ -93,32 +96,11 @@ use Illuminate\Database\Eloquent\Model;
             return $this->getAttribute($field);
         }
         $translations = parent::getAttribute($field . '_translations');
-        $locale = $locale ? $locale : app()->getLocale();
-        $fallback = config('app.fallback_locale');
-        if (is_array($translations)) {
-            if (isset($translations[$locale]) && $translations[$locale] !== '') {
-                return $translations[$locale];
-            }
-            if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
-                return $translations[$fallback];
-            }
+        if (! is_array($translations)) {
+            return parent::getAttribute($field);
         }
-
-        return parent::getAttribute($field);
-    }
-
-    public function parent()
-    {
-        return $this->belongsTo(PostCategory::class, 'parent_id');
-    }
-
-    public function children()
-    {
-        return $this->hasMany(PostCategory::class, 'parent_id');
-    }
-
-    public function posts()
-    {
-        return $this->hasMany(Post::class, 'category_id');
+        $locale = $locale ?: app()->getLocale();
+        $fallback = config('app.fallback_locale');
+        return $translations[$locale] ?? ($fallback ? $translations[$fallback] : null) ?? parent::getAttribute($field);
     }
 }
