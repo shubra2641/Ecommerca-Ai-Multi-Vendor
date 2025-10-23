@@ -62,7 +62,7 @@ class FillMissingTranslations extends Command
                 }
             }
             if (empty($translatable)) {
-                $this->line('No translatable fields defined on '.class_basename($class));
+                $this->line('No translatable fields defined on ' . class_basename($class));
 
                 continue;
             }
@@ -70,7 +70,7 @@ class FillMissingTranslations extends Command
                 foreach ($chunk as $model) {
                     $dirty = false;
                     foreach ($translatable as $field) {
-                        $translationsAttr = $field.'_translations';
+                        $translationsAttr = $field . '_translations';
                         $translations = $model->{$translationsAttr} ?? [];
                         if (! is_array($translations)) {
                             $translations = [];
@@ -98,7 +98,7 @@ class FillMissingTranslations extends Command
             });
             $bar->finish();
             $this->newLine();
-            $this->info(class_basename($class).": updated {$updated} records");
+            $this->info(class_basename($class) . ": updated {$updated} records");
         }
 
         $this->info('Done.');
