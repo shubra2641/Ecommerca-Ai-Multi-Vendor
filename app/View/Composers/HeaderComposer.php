@@ -16,7 +16,8 @@ final class HeaderComposer
 {
     public function compose(View $view): void
     {
-        $setting = $this->getSetting($view);
+        $setting = $view->getData()['setting'] ??
+            (Schema::hasTable('settings') ? \App\Models\Setting::first() : null);
 
         $currencies = Cache::remember('active_currencies', 3600, function () {
             if (Schema::hasTable('currencies')) {
@@ -29,7 +30,19 @@ final class HeaderComposer
 
             return collect();
         });
-        $currentCurrency = $this->resolveCurrentCurrency($currencies);
+        $currentCurrency = $currencies->firstWhere('is_default', true) ?? $currencies->first();
+
+        $sessionCurrencyId = session('currency_id');
+        if (!$sessionCurrencyId) {
+            // keep current
+        } else {
+            $sc = Currency::find($sessionCurrencyId);
+            if (!$sc || !$currencies->contains('id', $sc->id)) {
+                // keep current
+            } else {
+                $currentCurrency = $sc;
+            }
+        }
 
         $data = [
             'setting' => $setting,
@@ -53,9 +66,89 @@ final class HeaderComposer
             }),
             'currencies' => $currencies,
             'currentCurrency' => $currentCurrency,
-            'cartCount' => $this->getSessionCount('cart'),
-            'compareCount' => $this->getSessionCount('compare'),
-            'wishlistCount' => $this->getWishlistCount(),
+            'cartCount' => (function () {
+
+                $session = session('cart');
+
+                return match (true) {
+
+                    is_array($session) => count($session),
+
+                    $session instanceof \Countable => count($session),
+
+                    default => 0,
+
+                };
+
+            })(),
+            'compareCount' => (function () {
+
+                $session = session('compare');
+
+                return match (true) {
+
+                    is_array($session) => count($session),
+
+                    $session instanceof \Countable => count($session),
+
+                    default => 0,
+
+                };
+
+            })(),
+            'wishlistCount' => (function () {
+
+                $isAuthenticated = (function () {
+
+                    try {
+
+                        return Auth::check() && Schema::hasTable('wishlist_items');
+
+                    } catch (\Throwable $e) {
+
+                        return false;
+
+                    }
+
+                })();
+
+                if (!$isAuthenticated) {
+
+                    $session = session('wishlist');
+
+                    return match (true) {
+
+                        is_array($session) => count($session),
+
+                        $session instanceof \Countable => count($session),
+
+                        default => 0,
+
+                    };
+
+                }
+
+                try {
+
+                    return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
+
+                } catch (\Throwable $e) {
+
+                    $session = session('wishlist');
+
+                    return match (true) {
+
+                        is_array($session) => count($session),
+
+                        $session instanceof \Countable => count($session),
+
+                        default => 0,
+
+                    };
+
+                }
+
+            })(),
             'activeLanguages' => Cache::remember('header_active_languages', 1800, function () {
                 if (Schema::hasTable('languages')) {
                     try {
@@ -81,58 +174,6 @@ final class HeaderComposer
             $view->with('currentCurrency', $currentCurrency);
         } catch (\Throwable $e) {
             $view->with('currency_symbol', '$');
-        }
-    }
-
-    private function getSetting(View $view)
-    {
-        return $view->getData()['setting'] ??
-            (Schema::hasTable('settings') ? \App\Models\Setting::first() : null);
-    }
-
-    private function resolveCurrentCurrency($currencies)
-    {
-        $current = $currencies->firstWhere('is_default', true) ?? $currencies->first();
-
-        $sessionCurrencyId = session('currency_id');
-        if (!$sessionCurrencyId) {
-            return $current;
-        }
-
-        $sc = Currency::find($sessionCurrencyId);
-        return (!$sc || !$currencies->contains('id', $sc->id)) ? $current : $sc;
-    }
-
-    private function getSessionCount(string $key): int
-    {
-        $session = session($key);
-
-        return match (true) {
-            is_array($session) => count($session),
-            $session instanceof \Countable => count($session),
-            default => 0,
-        };
-    }
-
-    private function getWishlistCount(): int
-    {
-        if (!$this->isAuthenticatedUserWithWishlistTable()) {
-            return $this->getSessionCount('wishlist');
-        }
-
-        try {
-            return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
-        } catch (\Throwable $e) {
-            return $this->getSessionCount('wishlist');
-        }
-    }
-
-    private function isAuthenticatedUserWithWishlistTable(): bool
-    {
-        try {
-            return Auth::check() && Schema::hasTable('wishlist_items');
-        } catch (\Throwable $e) {
-            return false;
         }
     }
 }

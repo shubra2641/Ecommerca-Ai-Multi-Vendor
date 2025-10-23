@@ -56,12 +56,9 @@ class ProductCategory extends Model
             if (is_array($translations)) {
                 $locale = app()->getLocale();
                 $fallback = config('app.fallback_locale');
-                if (isset($translations[$locale]) && $translations[$locale] !== '') {
-                    return $translations[$locale];
-                }
-                if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
-                    return $translations[$fallback];
-                }
+                $translated = $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? null : null);
+
+                return $translated !== null && $translated !== '' ? $translated : $raw;
             }
 
             return $raw; // fallback to raw column value
