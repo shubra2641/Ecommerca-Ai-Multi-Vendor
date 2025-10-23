@@ -18,8 +18,30 @@ final class HeaderComposer
         $setting = $view->getData()['setting'] ??
             (Schema::hasTable('settings') ? \App\Models\Setting::first() : null);
 
-        $currencies = $this->getCurrencies();
-        $currentCurrency = $this->resolveCurrentCurrency($currencies);
+        $currencies = Cache::remember('active_currencies', 3600, function () {
+            if (Schema::hasTable('currencies')) {
+                try {
+                    return Currency::active()->take(4)->get();
+                } catch (Throwable $e) {
+                    return collect();
+                }
+            }
+
+            return collect();
+        });
+
+        $current = $currencies->firstWhere('is_default', true) ?? $currencies->first();
+        $sessionCurrencyId = session('currency_id');
+        if (! $sessionCurrencyId) {
+            $currentCurrency = $current;
+        } else {
+            $sc = Currency::find($sessionCurrencyId);
+            if (! $sc || ! $currencies->contains('id', $sc->id)) {
+                $currentCurrency = $current;
+            } else {
+                $currentCurrency = $sc;
+            }
+        }
 
         $data = $this->buildData($setting, $currencies, $currentCurrency);
 
@@ -34,36 +56,7 @@ final class HeaderComposer
             $view->with('currency_symbol', '$');
         }
     }
-    private function getCurrencies()
-    {
-        return Cache::remember('active_currencies', 3600, function () {
-            if (Schema::hasTable('currencies')) {
-                try {
-                    return Currency::active()->take(4)->get();
-                } catch (Throwable $e) {
-                    return collect();
-                }
-            }
 
-            return collect();
-        });
-    }
-    private function resolveCurrentCurrency($currencies)
-    {
-        $current = $currencies->firstWhere('is_default', true) ?? $currencies->first();
-
-        $sessionCurrencyId = session('currency_id');
-        if (! $sessionCurrencyId) {
-            return $current;
-        }
-
-        $sc = Currency::find($sessionCurrencyId);
-        if (! $sc || ! $currencies->contains('id', $sc->id)) {
-            return $current;
-        }
-
-        return $sc;
-    }
 
     private function buildData($setting, $currencies, $currentCurrency)
     {
@@ -94,9 +87,21 @@ final class HeaderComposer
             return collect();
         });
 
-        $cartCount = $this->getSessionCount('cart');
-        $compareCount = $this->getSessionCount('compare');
-        $wishlistCount = $isAuthenticatedForWishlist ? \App\Models\WishlistItem::where('user_id', Auth::id())->count() : $this->getSessionCount('wishlist');
+        $cartCount = match (true) {
+            is_array(session('cart')) => count(session('cart')),
+            session('cart') instanceof \Countable => count(session('cart')),
+            default => 0,
+        };
+        $compareCount = match (true) {
+            is_array(session('compare')) => count(session('compare')),
+            session('compare') instanceof \Countable => count(session('compare')),
+            default => 0,
+        };
+        $wishlistCount = $isAuthenticatedForWishlist ? \App\Models\WishlistItem::where('user_id', Auth::id())->count() : match (true) {
+            is_array(session('wishlist')) => count(session('wishlist')),
+            session('wishlist') instanceof \Countable => count(session('wishlist')),
+            default => 0,
+        };
 
         return [
             'setting' => $setting,
@@ -111,15 +116,5 @@ final class HeaderComposer
             'wishlistCount' => $wishlistCount,
             'activeLanguages' => $activeLanguages,
         ];
-    }
-
-    private function getSessionCount(string $key): int
-    {
-        $session = session($key);
-        return match (true) {
-            is_array($session) => count($session),
-            $session instanceof \Countable => count($session),
-            default => 0,
-        };
     }
 }

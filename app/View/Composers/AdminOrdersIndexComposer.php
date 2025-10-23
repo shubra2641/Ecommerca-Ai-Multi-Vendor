@@ -47,7 +47,7 @@ final class AdminOrdersIndexComposer
         return match (true) {
             ! empty($meta['variant_name']) => $meta['variant_name'],
             ! empty($meta['attribute_data']) && is_array($meta['attribute_data']) => collect($meta['attribute_data'])
-                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                 ->join(', '),
             default => null,
         };
@@ -70,9 +70,9 @@ final class AdminOrdersIndexComposer
     private function resolveAddressComponents(array $ship): array
     {
         try {
-            $ship = $this->resolveCountry($ship);
-            $ship = $this->resolveGovernorate($ship);
-            $ship = $this->resolveCity($ship);
+            $ship['country'] = $this->resolveCountry($ship);
+            $ship['governorate'] = $this->resolveGovernorate($ship);
+            $ship['city'] = $this->resolveCity($ship);
         } catch (\Throwable $e) {
             logger()->warning('Failed to resolve address components: ' . $e->getMessage());
         }
@@ -80,31 +80,22 @@ final class AdminOrdersIndexComposer
         return $ship;
     }
 
-    private function resolveCountry(array $ship): array
+    private function resolveCountry(array $ship): mixed
     {
         $countryId = $ship['country_id'] ?? $ship['country'] ?? null;
-
-        $ship['country'] = ($countryId && is_numeric($countryId) && $country = Country::find($countryId)) ? $country->name : $ship['country'];
-
-        return $ship;
+        return ($countryId && is_numeric($countryId) && $country = Country::find($countryId)) ? $country->name : $ship['country'];
     }
 
-    private function resolveGovernorate(array $ship): array
+    private function resolveGovernorate(array $ship): mixed
     {
         $govId = $ship['governorate_id'] ?? $ship['governorate'] ?? null;
-
-        $ship['governorate'] = ($govId && is_numeric($govId) && $governorate = Governorate::find($govId)) ? $governorate->name : $ship['governorate'];
-
-        return $ship;
+        return ($govId && is_numeric($govId) && $governorate = Governorate::find($govId)) ? $governorate->name : $ship['governorate'];
     }
 
-    private function resolveCity(array $ship): array
+    private function resolveCity(array $ship): mixed
     {
         $cityId = $ship['city_id'] ?? $ship['city'] ?? null;
-
-        $ship['city'] = ($cityId && is_numeric($cityId) && $city = City::find($cityId)) ? $city->name : $ship['city'];
-
-        return $ship;
+        return ($cityId && is_numeric($cityId) && $city = City::find($cityId)) ? $city->name : $ship['city'];
     }
 
     private function buildShippingParts(array $ship): array

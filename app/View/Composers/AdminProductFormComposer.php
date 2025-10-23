@@ -19,11 +19,22 @@ final class AdminProductFormComposer
         $languages = $this->getLanguages();
         $categories = $this->getCategories();
         $pfAttrData = $this->getAttributeData();
-        $pfUsedAttributes = $this->getUsedAttributes($model);
+        $pfUsedAttributes = $model && is_array($model->used_attributes ?? null) ? $model->used_attributes : (is_array(old('used_attributes')) ? old('used_attributes') : []);
         $pfClientVariations = $this->getClientVariations($model);
         $pfHasSerials = (bool) ($model->has_serials ?? old('has_serials', false));
         $pfLangMeta = $this->getLanguageMeta($languages, $model);
-        $formSettings = $this->getFormSettings($data, $model);
+
+        $isVendorForm = (bool) ($data['isVendorForm'] ?? false);
+        $pfShowActive = ! $isVendorForm;
+        $currentLocale = app()->getLocale();
+        $defaultLocale = $languages->firstWhere('is_default', 1)?->code ?? ($languages->first()?->code);
+        $formSettings = [
+            'm' => $model,
+            'pfShowActive' => $pfShowActive,
+            'isVendorForm' => $isVendorForm,
+            'currentLocale' => $currentLocale,
+            'defaultLocale' => $defaultLocale,
+        ];
 
         $view->with(array_merge(compact(
             'languages',
@@ -76,15 +87,7 @@ final class AdminProductFormComposer
             ->all();
     }
 
-    private function getUsedAttributes($model): array
-    {
-        if ($model && is_array($model->used_attributes ?? null)) {
-            return $model->used_attributes;
-        }
 
-        $ua = old('used_attributes');
-        return is_array($ua) ? $ua : [];
-    }
 
     private function getClientVariations($model): array
     {
@@ -160,24 +163,5 @@ final class AdminProductFormComposer
                 'ph_seo_description' => __('SEO Description') . ' (' . $code . ')',
             ]];
         })->all();
-    }
-
-    private function getFormSettings($data, $model): array
-    {
-        $isVendorForm = (bool) ($data['isVendorForm'] ?? false);
-        $pfShowActive = ! $isVendorForm;
-
-        $currentLocale = app()->getLocale();
-        $languages = $this->getLanguages();
-        $defaultLocale = $languages->firstWhere('is_default', 1)?->code ??
-            ($languages->first()?->code);
-
-        return [
-            'm' => $model,
-            'pfShowActive' => $pfShowActive,
-            'isVendorForm' => $isVendorForm,
-            'currentLocale' => $currentLocale,
-            'defaultLocale' => $defaultLocale,
-        ];
     }
 }

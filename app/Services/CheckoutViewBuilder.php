@@ -18,9 +18,34 @@ class CheckoutViewBuilder
         [$currentCurrency, $defaultCurrency, $currency_symbol, $displayTotal] = $this->prepareCurrenciesAndTotals($currencyId, $total);
         $this->convertCurrency($items, $currentCurrency, $defaultCurrency);
         [$coupon, $discount, $discounted_total, $displayDiscountedTotal] = $this->applyCoupon($appliedCouponId, $total, $displayTotal, $currentCurrency, $defaultCurrency);
-        [$addresses, $defaultAddress, $gateways] = $this->prepareAddressesAndGateways($user);
+        $addresses = collect();
+        if ($user) {
+            try {
+                $addresses = $user->addresses()->get();
+            } catch (\Throwable $e) {
+            }
+        }
+        $defaultAddress = $addresses->firstWhere('is_default', true);
+        $gateways = PaymentGateway::where('enabled', true)->get();
         $this->buildItemDetails($items);
-        $checkoutConfig = $this->prepareCheckoutConfig($displayDiscountedTotal, $total, $coupon, $discount, $user);
+        $checkoutConfig = [
+            'baseTotal' => (float) $displayDiscountedTotal,
+            'rawItemsSubtotal' => (float) $total,
+            'coupon' => $coupon ? [
+                'id' => $coupon->id,
+                'code' => $coupon->code,
+                'discount' => (float) $discount,
+            ] : null,
+            'initial' => [
+                'country' => $user?->country_id,
+                'governorate' => $user?->governorate_id,
+                'city' => $user?->city_id,
+            ],
+            'labels' => [
+                'selectGovernorate' => __('Select Governorate'),
+                'selectCity' => __('Select City'),
+            ],
+        ];
 
         return compact(
             'items',
@@ -176,41 +201,5 @@ class CheckoutViewBuilder
         } catch (\Throwable $e) {
         }
         return [$currentCurrency, $defaultCurrency, $currency_symbol, $displayTotal];
-    }
-
-    private function prepareAddressesAndGateways($user): array
-    {
-        $addresses = collect();
-        if ($user) {
-            try {
-                $addresses = $user->addresses()->get();
-            } catch (\Throwable $e) {
-            }
-        }
-        $defaultAddress = $addresses->firstWhere('is_default', true);
-        $gateways = PaymentGateway::where('enabled', true)->get();
-        return [$addresses, $defaultAddress, $gateways];
-    }
-
-    private function prepareCheckoutConfig(float $displayDiscountedTotal, float $total, $coupon, float $discount, $user): array
-    {
-        return [
-            'baseTotal' => (float) $displayDiscountedTotal,
-            'rawItemsSubtotal' => (float) $total,
-            'coupon' => $coupon ? [
-                'id' => $coupon->id,
-                'code' => $coupon->code,
-                'discount' => (float) $discount,
-            ] : null,
-            'initial' => [
-                'country' => $user?->country_id,
-                'governorate' => $user?->governorate_id,
-                'city' => $user?->city_id,
-            ],
-            'labels' => [
-                'selectGovernorate' => __('Select Governorate'),
-                'selectCity' => __('Select City'),
-            ],
-        ];
     }
 }
