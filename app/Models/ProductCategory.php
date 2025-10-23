@@ -57,4 +57,49 @@ class ProductCategory extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    /**
+     * Override getAttribute to inject translation resolution for configured attributes.
+     */
+    public function getAttribute($key)
+    {
+        if (! isset($this->translatable) || ! in_array($key, $this->translatable, true)) {
+            return parent::getAttribute($key);
+        }
+
+        $translationsKey = $key . '_translations';
+        $raw = parent::getAttribute($key);
+        $translations = parent::getAttribute($translationsKey);
+        if (! is_array($translations)) {
+            return $raw;
+        }
+
+        $locale = app()->getLocale();
+        $fallback = config('app.fallback_locale');
+        if (isset($translations[$locale]) && $translations[$locale] !== '') {
+            return $translations[$locale];
+        }
+        if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
+            return $translations[$fallback];
+        }
+
+        return $raw;
+    }
+
+    /**
+     * Helper manual translation fetch if needed in code.
+     */
+    public function translate(string $field, ?string $locale = null)
+    {
+        if (! isset($this->translatable) || ! in_array($field, $this->translatable, true)) {
+            return $this->getAttribute($field);
+        }
+        $translations = parent::getAttribute($field . '_translations');
+        if (! is_array($translations)) {
+            return parent::getAttribute($field);
+        }
+        $locale = $locale ?: app()->getLocale();
+        $fallback = config('app.fallback_locale');
+        return $translations[$locale] ?? ($fallback ? $translations[$fallback] : null) ?? parent::getAttribute($field);
+    }
 }
