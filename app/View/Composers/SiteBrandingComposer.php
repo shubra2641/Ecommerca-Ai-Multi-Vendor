@@ -20,7 +20,7 @@ class SiteBrandingComposer
                 'logoPath' => null,
             ];
             try {
-                $setting = Cache::remember('site_settings', 3600, fn () => \App\Models\Setting::first());
+                $setting = Cache::remember('site_settings', 3600, fn() => \App\Models\Setting::first());
                 if ($setting) {
                     $cached['setting'] = $setting;
                     $cached['selectedFont'] = cache()->get('settings.font_family', $setting->font_family ?? 'Inter');

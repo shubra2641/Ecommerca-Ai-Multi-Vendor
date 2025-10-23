@@ -55,7 +55,7 @@ class ProductSerialController extends Controller
 
     public function export(Product $product)
     {
-        $filename = 'product_'.$product->id.'_serials_'.date('Ymd_His').'.csv';
+        $filename = 'product_' . $product->id . '_serials_' . date('Ymd_His') . '.csv';
         $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$filename}"];
         $callback = function () use ($product): void {
             $out = fopen('php://output', 'w');
