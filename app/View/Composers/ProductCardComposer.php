@@ -85,7 +85,7 @@ final class ProductCardComposer
     {
         $rating = $product->reviews_avg_rating ?? 0.0;
 
-        return (int) floor($rating ? $rating : 0);
+        return (int) floor((float) $rating);
     }
 
     private function getDescriptionSnippet($product): string
@@ -96,12 +96,12 @@ final class ProductCardComposer
         return $snippet === '...' ? '' : $snippet;
     }
 
-    private function getDisplayPrice($product)
+    private function getDisplayPrice($product): mixed
     {
         return $product->display_price ?? ($product->price ?? ($product->effectivePrice() ?? 0));
     }
 
-    private function getDisplaySalePrice($product)
+    private function getDisplaySalePrice($product): mixed
     {
         $price = $product->price ?? null;
         $sale = ($product->sale_price ?? null) && $product->sale_price < $price ? $product->sale_price : null;

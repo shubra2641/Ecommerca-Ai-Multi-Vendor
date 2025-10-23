@@ -6,7 +6,7 @@ namespace App\View\Composers;
 
 use Illuminate\View\View;
 
-class CartComposer
+final class CartComposer
 {
     public function compose(View $view): void
     {

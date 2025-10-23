@@ -6,7 +6,7 @@ namespace App\View\Composers;
 
 use Illuminate\View\View;
 
-class ErrorRoleComposer
+final class ErrorRoleComposer
 {
     public function compose(View $view): void
     {

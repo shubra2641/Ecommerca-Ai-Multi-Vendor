@@ -7,7 +7,7 @@ namespace App\View\Composers;
 use App\View\Builders\CheckoutViewBuilder;
 use Illuminate\View\View;
 
-class CheckoutComposer
+final class CheckoutComposer
 {
     public function compose(View $view): void
     {

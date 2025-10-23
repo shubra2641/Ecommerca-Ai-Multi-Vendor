@@ -7,7 +7,7 @@ namespace App\View\Composers;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class CatalogSidebarComposer
+final class CatalogSidebarComposer
 {
     protected Request $request;
 
