@@ -22,7 +22,6 @@ class HandlePaymentWebhook implements ShouldQueue
         try {
             $payment = $event->payment;
             $status = $event->status;
-            $gateway = $event->gateway;
             $webhookData = $event->webhookData ?? [];
 
             // Validate webhook data

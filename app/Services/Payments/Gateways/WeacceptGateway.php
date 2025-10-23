@@ -44,22 +44,6 @@ class WeacceptGateway
         $allowInsecure = (bool) ($cfg['allow_insecure_ssl'] ?? env('PAYMOB_ALLOW_INSECURE_SSL', false));
         $proxy = $cfg['http_proxy'] ?? env('HTTP_PROXY') ?? env('http_proxy');
 
-        $txArgs = [
-            $snapshot,
-            $apiBase,
-            $apiKey,
-            $integrationId,
-            $iframeId,
-            $currency,
-            $gateway,
-            $mock,
-            $timeoutSec,
-            $connectTimeout,
-            $caBundle,
-            $allowInsecure,
-            $proxy,
-        ];
-
         return \Illuminate\Support\Facades\DB::transaction(function () use (
             $snapshot,
             $apiBase,
@@ -102,13 +86,6 @@ class WeacceptGateway
             // -> get payment_token and redirect
             $amountCents = (int) round(($snapshot['total'] ?? 0) * 100);
 
-            $initLog = [
-                'payment_id' => $payment->id,
-                'amount_cents' => $amountCents,
-                'currency' => $currency,
-                'mock' => $mock,
-            ];
-
             try {
                 // If mock mode is enabled, skip external requests and return a local redirect to the return route
                 if ($mock) {
@@ -130,12 +107,6 @@ class WeacceptGateway
 
                 // 1) auth token
                 $authUrl = $apiPrefix.'/auth/tokens';
-                $details = [
-                    'payment_id' => $payment->id,
-                    'auth_url' => $authUrl,
-                    'api_prefix' => $apiPrefix,
-                    'api_key_tail' => substr((string) $apiKey, -4),
-                ];
                 // Sanitize API key (strip whitespace/newlines) and try several candidate keys
                 // if auth fails
                 $candidates = [];
@@ -159,14 +130,8 @@ class WeacceptGateway
                 $candidates = array_values(array_filter(array_unique($candidates)));
 
                 $authResp = null;
-                $lastBody = null;
                 foreach ($candidates as $try) {
                     try {
-                        $attemptInfo = [
-                            'payment_id' => $payment->id,
-                            'auth_url' => $authUrl,
-                            'api_key_tail' => substr($try, -8),
-                        ];
 
                         $http = Http::acceptJson()
                             ->timeout($timeoutSec)
@@ -182,14 +147,6 @@ class WeacceptGateway
                         }
 
                         $authResp = $http->post($authUrl, ['api_key' => $try]);
-                        $lastBody = $authResp->body();
-                        $bodyPreview = $lastBody ? substr($lastBody, 0, 1000) : null;
-                        $authRespLog = [
-                            'payment_id' => $payment->id,
-                            'auth_url' => $authUrl,
-                            'status' => $authResp->status(),
-                            'body' => $bodyPreview,
-                        ];
                         if ($authResp->successful()) {
                             $authJson = $authResp->json();
                             break;
@@ -212,7 +169,6 @@ class WeacceptGateway
                                 }
 
                                 $authResp = $http->post($authUrl, ['api_key' => $try]);
-                                $lastBody = $authResp->body();
                                 if ($authResp->successful()) {
                                     $authJson = $authResp->json();
                                     break;

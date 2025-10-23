@@ -75,11 +75,6 @@ class HomeController extends Controller
                 'cta_label' => $computedCta,
             ];
         }
-        $sectionLimit = function (string $key, int $fallback) {
-            $sec = $thisSection = $GLOBALS['__home_sections_cache'] ?? null; // placeholder not used
-
-            return optional($GLOBALS['__sections_index'][$key] ?? null)->item_limit ?? $fallback;
-        };
         // index sections by key for quick lookup for limits
         $sectionsIndex = $sections->keyBy('key');
         $GLOBALS['__sections_index'] = $sectionsIndex; // used inside closure above if needed

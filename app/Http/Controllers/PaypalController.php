@@ -67,14 +67,12 @@ class PaypalController extends Controller
             } catch (\Illuminate\Http\Client\RequestException $reqEx) {
                 $resp = $reqEx->response;
                 $respBody = null;
-                $respStatus = null;
                 if ($resp) {
                     try {
                         $respBody = $resp->json();
                     } catch (\Throwable $_) {
                         $respBody = $resp->body();
                     }
-                    $respStatus = $resp->status();
                 }
                 // Mark payment failed and return
                 $payment->status = 'failed';

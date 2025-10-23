@@ -155,7 +155,7 @@ class CheckoutProcessor
                 $name .= ' - '.$variant->name;
             }
 
-            $orderItem = \App\Models\OrderItem::create([
+            \App\Models\OrderItem::create([
                 'order_id' => $order->id,
                 'product_id' => $item['product']->id,
                 'name' => $name,

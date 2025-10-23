@@ -50,7 +50,7 @@ class ProductSerialController extends Controller
             }
         }
 
-        return back()->with('success', __('Imported {$created} serials'));
+        return back()->with('success', __('Imported :count serials', ['count' => $created]));
     }
 
     public function export(Product $product)

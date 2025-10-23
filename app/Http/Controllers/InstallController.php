@@ -229,7 +229,6 @@ class InstallController extends Controller
 
         $env = file_get_contents($envPath);
         foreach ($vars as $key => $value) {
-            $escaped = preg_quote('='.$this->envValue($key, $env), '/');
             if (Str::contains($env, $key.'=')) {
                 $env = preg_replace('/^'.$key.'=.*/m', $key.'="'.addslashes($value).'"', $env);
             } else {

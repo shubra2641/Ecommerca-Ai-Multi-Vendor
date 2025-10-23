@@ -171,7 +171,6 @@ class VendorWithdrawalController extends Controller
             return back()->with('error', __('Payout already processed'));
         }
         $user = $payout->user;
-        $amount = (float) $payout->amount; // already held earlier
         // At execution, we assume funds held; just validate that the withdrawal still exists
         $previous = (float) $user->balance; // current balance shouldn't decrease now
         $new = $previous; // unchanged

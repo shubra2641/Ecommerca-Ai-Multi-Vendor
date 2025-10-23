@@ -45,7 +45,6 @@ class NotifyBackInStockJob implements ShouldQueue
         $delaySeconds = 0;
         $sentThisMinute = 0;
         $nowMinuteKey = 'notify_rate:'.now()->format('YmdHi');
-        $baseCount = cache()->get($nowMinuteKey, 0);
         ProductInterest::where('product_id', $product->id)
             ->active()
             ->whereIn('type', [ProductInterest::TYPE_BACK_IN_STOCK, ProductInterest::TYPE_STOCK])

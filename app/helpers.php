@@ -67,8 +67,7 @@ if (! function_exists('storage_image_url')) {
                 return \Illuminate\Support\Facades\Storage::disk('public')->url($candidate);
             }
         } catch (\Throwable $e) {
-            // fall back
-            // do nothing
+            // Fall back - intentionally empty
         }
 
         // Fallback behavior - preserve previous semantics
@@ -93,8 +92,7 @@ if (! function_exists('asset_modified_time')) {
                 return (int) filemtime($full);
             }
         } catch (Throwable $e) {
-            // ignore
-            // do nothing
+            // Ignore - intentionally empty
         }
 
         return time();

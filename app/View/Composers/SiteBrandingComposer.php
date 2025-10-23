@@ -28,8 +28,7 @@ class SiteBrandingComposer
                     $cached['logoPath'] = $setting->logo ?? null;
                 }
             } catch (\Throwable $e) {
-                // silent fail keeps defaults
-                // do nothing
+                // Silent fail to keep defaults - intentionally empty
             }
         }
         $view->with($cached);

@@ -17,15 +17,10 @@ class PaytabsGateway
         // Accept multiple possible config keys used in different installs
         $secret = $cfg['secret_key'] ??
             ($cfg['api_key'] ?? ($cfg['paytabs_server_key'] ?? ($cfg['server_key'] ?? null)));
-        $usedSecretKey = null;
         if (! empty($cfg['secret_key'])) {
-            $usedSecretKey = 'secret_key';
         } elseif (! empty($cfg['api_key'])) {
-            $usedSecretKey = 'api_key';
         } elseif (! empty($cfg['paytabs_server_key'])) {
-            $usedSecretKey = 'paytabs_server_key';
         } elseif (! empty($cfg['server_key'])) {
-            $usedSecretKey = 'server_key';
         }
         $currency = strtoupper(
             $cfg['paytabs_currency'] ?? ($snapshot['currency'] ?? 'USD')

@@ -349,7 +349,7 @@ class CartController extends Controller
         $cart = $this->getCart();
         $total = 0;
 
-        foreach ($cart as $pid => $row) {
+        foreach ($cart as $row) {
             $total += $row['price'] * $row['qty'];
         }
 
@@ -438,7 +438,7 @@ class CartController extends Controller
         // recompute totals for AJAX clients
         $cart = $this->getCart();
         $total = 0;
-        foreach ($cart as $pid => $row) {
+        foreach ($cart as $row) {
             $total += $row['price'] * $row['qty'];
         }
         $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
