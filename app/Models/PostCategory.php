@@ -68,23 +68,14 @@ class PostCategory extends Model
             return parent::getAttribute($key);
         }
 
-        $translationsKey = $key . '_translations';
-        $raw = parent::getAttribute($key);
-        $translations = parent::getAttribute($translationsKey);
+        $translations = parent::getAttribute($key . '_translations');
         if (! is_array($translations)) {
-            return $raw;
+            return parent::getAttribute($key);
         }
 
         $locale = app()->getLocale();
         $fallback = config('app.fallback_locale');
-        if (isset($translations[$locale]) && $translations[$locale] !== '') {
-            return $translations[$locale];
-        }
-        if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
-            return $translations[$fallback];
-        }
-
-        return $raw;
+        return $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? parent::getAttribute($key) : parent::getAttribute($key));
     }
 
     /**
@@ -92,15 +83,12 @@ class PostCategory extends Model
      */
     public function translate(string $field, ?string $locale = null)
     {
-        if (! isset($this->translatable) || ! in_array($field, $this->translatable, true)) {
-            return $this->getAttribute($field);
-        }
-        $translations = parent::getAttribute($field . '_translations');
-        if (! is_array($translations)) {
-            return parent::getAttribute($field);
-        }
         $locale = $locale ?: app()->getLocale();
         $fallback = config('app.fallback_locale');
-        return $translations[$locale] ?? ($fallback ? $translations[$fallback] : null) ?? parent::getAttribute($field);
+        $translations = parent::getAttribute($field . '_translations');
+        if (is_array($translations)) {
+            return $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? $this->getAttribute($field) : $this->getAttribute($field));
+        }
+        return $this->getAttribute($field);
     }
 }

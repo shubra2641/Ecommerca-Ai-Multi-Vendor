@@ -179,20 +179,21 @@ class Product extends Model
     public function effectivePrice(): float
     {
         if ($this->type === 'variable') {
-            $min = $this->variations->filter(fn($v) => $v->active)->map(fn($v) => $v->effectivePrice())->min();
-
-            return $min ?? (float) $this->price;
+            return $this->variations->filter(fn($v) => $v->active)->map(fn($v) => $v->effectivePrice())->min() ?? (float) $this->price;
         }
+
         $now = Carbon::now();
-        if ($this->sale_price && $this->sale_price < $this->price) {
-            if (($this->sale_start && $now->lt($this->sale_start)) || ($this->sale_end && $now->gt($this->sale_end))) {
-                return (float) $this->price;
+        $onSale = $this->sale_price && $this->sale_price < $this->price;
+        if ($onSale) {
+            if ($this->sale_start && $now->lt($this->sale_start)) {
+                $onSale = false;
             }
-
-            return (float) $this->sale_price;
+            if ($this->sale_end && $now->gt($this->sale_end)) {
+                $onSale = false;
+            }
         }
 
-        return (float) $this->price;
+        return $onSale ? (float) $this->sale_price : (float) $this->price;
     }
 
     public function availableStock(): ?int
@@ -233,23 +234,14 @@ class Product extends Model
             return parent::getAttribute($key);
         }
 
-        $translationsKey = $key . '_translations';
-        $raw = parent::getAttribute($key);
-        $translations = parent::getAttribute($translationsKey);
+        $translations = parent::getAttribute($key . '_translations');
         if (! is_array($translations)) {
-            return $raw;
+            return parent::getAttribute($key);
         }
 
         $locale = app()->getLocale();
         $fallback = config('app.fallback_locale');
-        if (isset($translations[$locale]) && $translations[$locale] !== '') {
-            return $translations[$locale];
-        }
-        if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
-            return $translations[$fallback];
-        }
-
-        return $raw;
+        return $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? parent::getAttribute($key) : parent::getAttribute($key));
     }
 
     /**
@@ -257,15 +249,12 @@ class Product extends Model
      */
     public function translate(string $field, ?string $locale = null)
     {
-        if (! isset($this->translatable) || ! in_array($field, $this->translatable, true)) {
-            return $this->getAttribute($field);
-        }
-        $translations = parent::getAttribute($field . '_translations');
-        if (! is_array($translations)) {
-            return parent::getAttribute($field);
-        }
         $locale = $locale ?: app()->getLocale();
         $fallback = config('app.fallback_locale');
-        return $translations[$locale] ?? ($fallback ? $translations[$fallback] : null) ?? parent::getAttribute($field);
+        $translations = parent::getAttribute($field . '_translations');
+        if (is_array($translations)) {
+            return $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? $this->getAttribute($field) : $this->getAttribute($field));
+        }
+        return $this->getAttribute($field);
     }
 }

@@ -33,13 +33,13 @@ class StockAdjustmentListener
                         $item->committed = true;
                         $item->save();
                         logger()->info(
-                            'StockAdjustmentListener: committed variation '.$variation->id.
-                            ' qty '.$qty.' for order '.$order->id
+                            'StockAdjustmentListener: committed variation ' . $variation->id .
+                                ' qty ' . $qty . ' for order ' . $order->id
                         );
                     } else {
                         logger()->warning(
-                            'StockAdjustmentListener: failed to commit variation '.$variation->id.
-                            ' qty '.$qty.' for order '.$order->id
+                            'StockAdjustmentListener: failed to commit variation ' . $variation->id .
+                                ' qty ' . $qty . ' for order ' . $order->id
                         );
                     }
                 }
@@ -49,13 +49,13 @@ class StockAdjustmentListener
                     $item->committed = true;
                     $item->save();
                     logger()->info(
-                        'StockAdjustmentListener: committed product '.$product->id.
-                        ' qty '.$qty.' for order '.$order->id
+                        'StockAdjustmentListener: committed product ' . $product->id .
+                            ' qty ' . $qty . ' for order ' . $order->id
                     );
                 } else {
                     logger()->warning(
-                        'StockAdjustmentListener: failed to commit product '.$product->id.
-                        ' qty '.$qty.' for order '.$order->id
+                        'StockAdjustmentListener: failed to commit product ' . $product->id .
+                            ' qty ' . $qty . ' for order ' . $order->id
                     );
                 }
             }
@@ -111,14 +111,11 @@ class StockAdjustmentListener
     {
         $order = $event->order->loadMissing('items.product');
         foreach ($order->items as $item) {
-            if (! $item->committed || $item->restocked) {
+            if (! $item->committed || $item->restocked || ! $item->product) {
                 continue;
             } // nothing to do
             $qty = (int) $item->qty;
             $product = $item->product;
-            if (! $product) {
-                continue;
-            }
             $variantId = is_array($item->meta) ? ($item->meta['variant_id'] ?? null) : null;
             if ($variantId) {
                 $variation = ProductVariation::find($variantId);
