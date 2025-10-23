@@ -96,7 +96,7 @@ final class HeaderComposer
 
         $cartCount = $this->getSessionCount('cart');
         $compareCount = $this->getSessionCount('compare');
-        $wishlistCount = $isAuthenticatedForWishlist ? $this->getWishlistDbCount() : $this->getSessionCount('wishlist');
+        $wishlistCount = $isAuthenticatedForWishlist ? \App\Models\WishlistItem::where('user_id', Auth::id())->count() : $this->getSessionCount('wishlist');
 
         return [
             'setting' => $setting,
@@ -111,15 +111,6 @@ final class HeaderComposer
             'wishlistCount' => $wishlistCount,
             'activeLanguages' => $activeLanguages,
         ];
-    }
-
-    private function getWishlistDbCount(): int
-    {
-        try {
-            return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
-        } catch (\Throwable $e) {
-            return $this->getSessionCount('wishlist');
-        }
     }
 
     private function getSessionCount(string $key): int

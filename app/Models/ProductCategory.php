@@ -58,11 +58,12 @@ class ProductCategory extends Model
 
         $locale = app()->getLocale();
         $fallback = config('app.fallback_locale');
-        $translated = $translations[$locale] ?? null;
-        if ($translated === null && $fallback) {
-            $translated = $translations[$fallback] ?? null;
-        }
-        if ($translated !== null && $translated !== '') {
+        $translated = match (true) {
+            isset($translations[$locale]) && $translations[$locale] !== '' => $translations[$locale],
+            $fallback && isset($translations[$fallback]) && $translations[$fallback] !== '' => $translations[$fallback],
+            default => null,
+        };
+        if ($translated !== null) {
             return $translated;
         }
 
