@@ -261,15 +261,6 @@ class Product extends Model
         }
         $locale = $locale ?: app()->getLocale();
         $fallback = config('app.fallback_locale');
-        $translated = $this->getTranslatedValue($translations, $locale, $fallback);
-        if ($translated !== null) {
-            return $translated;
-        }
-        return parent::getAttribute($field);
-    }
-
-    private function getTranslatedValue(array $translations, string $locale, ?string $fallback): ?string
-    {
         $translated = $translations[$locale] ?? null;
         if ($translated && $translated !== '') {
             return $translated;
@@ -280,7 +271,7 @@ class Product extends Model
                 return $fallbackValue;
             }
         }
-        return null;
+        return parent::getAttribute($field);
     }
 
     protected static function boot(): void

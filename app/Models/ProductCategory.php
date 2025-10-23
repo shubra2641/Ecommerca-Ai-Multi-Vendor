@@ -43,9 +43,6 @@ class ProductCategory extends Model
         'commission_rate' => 'decimal:2',
     ];
 
-    /**
-     * Override getAttribute to inject translation resolution for configured attributes.
-     */
     public function getAttribute($key)
     {
         if (! isset($this->translatable) || ! in_array($key, $this->translatable, true)) {
@@ -61,7 +58,10 @@ class ProductCategory extends Model
 
         $locale = app()->getLocale();
         $fallback = config('app.fallback_locale');
-        $translated = $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? null : null);
+        $translated = $translations[$locale] ?? null;
+        if ($translated === null && $fallback) {
+            $translated = $translations[$fallback] ?? null;
+        }
         if ($translated !== null && $translated !== '') {
             return $translated;
         }
@@ -69,9 +69,6 @@ class ProductCategory extends Model
         return $raw;
     }
 
-    /**
-     * Helper manual translation fetch if needed in code.
-     */
     public function translate(string $field, ?string $locale = null)
     {
         if (! isset($this->translatable) || ! in_array($field, $this->translatable, true)) {
@@ -85,12 +82,6 @@ class ProductCategory extends Model
 
         $locale = $locale ?: app()->getLocale();
         $fallback = config('app.fallback_locale');
-
-        return $this->getTranslatedValue($translations, $locale, $fallback, $field);
-    }
-
-    private function getTranslatedValue(array $translations, string $locale, ?string $fallback, string $field)
-    {
         $translated = $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? null : null);
         if ($translated !== null && $translated !== '') {
             return $translated;

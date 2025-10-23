@@ -55,24 +55,27 @@ class CartViewBuilder
     private function buildVariantLabel(array $it): ?string
     {
         $variant = $it['variant'] ?? null;
-        if (! $variant) {
-            $attributes = $it['attributes'] ?? null;
-            return $attributes ? (is_array($attributes) ? implode(', ', $attributes) : $attributes) : null;
-        }
+        return match (true) {
+            ! $variant => $this->getAttributesLabel($it),
+            is_object($variant) => $this->getObjectVariantLabel($variant),
+            ! is_string($variant) => (string) $variant,
+            default => $this->parseVariantJson($variant),
+        };
+    }
 
-        if (is_object($variant)) {
-            return match (true) {
-                ! empty($variant->name) => $variant->name,
-                ! empty($variant->attribute_data) => $this->buildAttributeLabel($variant->attribute_data),
-                default => null,
-            };
-        }
+    private function getAttributesLabel(array $it): ?string
+    {
+        $attributes = $it['attributes'] ?? null;
+        return $attributes ? (is_array($attributes) ? implode(', ', $attributes) : $attributes) : null;
+    }
 
-        if (! is_string($variant)) {
-            return (string) $variant;
-        }
-
-        return $this->parseVariantJson($variant);
+    private function getObjectVariantLabel($variant): ?string
+    {
+        return match (true) {
+            ! empty($variant->name) => $variant->name,
+            ! empty($variant->attribute_data) => $this->buildAttributeLabel($variant->attribute_data),
+            default => null,
+        };
     }
 
     private function parseVariantJson(string $variant): string
