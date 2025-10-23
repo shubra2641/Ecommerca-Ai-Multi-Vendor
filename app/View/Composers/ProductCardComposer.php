@@ -34,11 +34,14 @@ final class ProductCardComposer
             'cardCmpActive' => in_array($product->id, $compareIds, true),
             'cardRating' => $product->reviews_avg_rating ?? 0.0,
             'cardReviewsCount' => $product->reviews_count ?? 0,
-            'cardFullStars' => $this->calculateFullStars($product),
-            'cardSnippet' => $this->getDescriptionSnippet($product),
-            'cardDisplayPrice' => $this->getDisplayPrice($product),
+            'cardFullStars' => (int) floor((float) ($product->reviews_avg_rating ?? 0.0)),
+            'cardSnippet' => (function () use ($product) {
+                $desc = trim(strip_tags($product->short_description ?? $product->description ?? ''));
+                return $desc ? Str::limit($desc, 50, '...') : '';
+            })(),
+            'cardDisplayPrice' => $product->display_price ?? ($product->price ?? ($product->effectivePrice() ?? 0)),
             'cardDisplaySalePrice' => $this->getDisplaySalePriceValue($product),
-            'cardImageUrl' => $this->getImageUrl($product),
+            'cardImageUrl' => $product->main_image ? asset($product->main_image) : asset('images/placeholder.png'),
         ];
     }
 
@@ -60,16 +63,6 @@ final class ProductCardComposer
             : null;
     }
 
-    private function calculateFullStars($product): int
-    {
-        return (int) floor((float) ($product->reviews_avg_rating ?? 0.0));
-    }
-
-    private function getDisplayPrice($product)
-    {
-        return $product->display_price ?? ($product->price ?? ($product->effectivePrice() ?? 0));
-    }
-
     private function getDisplaySalePriceValue($product): mixed
     {
         $price = $product->price ?? null;
@@ -81,13 +74,6 @@ final class ProductCardComposer
         };
     }
 
-    private function getImageUrl($product): string
-    {
-        $placeholderData = asset('images/placeholder.png');
-
-        return $product->main_image ? asset($product->main_image) : $placeholderData;
-    }
-
     private function getAvailableStock($product): ?int
     {
         return match (true) {
@@ -95,12 +81,5 @@ final class ProductCardComposer
             !$product->manage_stock => null,
             default => max(0, ($product->stock_qty ?? 0) - ($product->reserved_qty ?? 0)),
         };
-    }
-
-    private function getDescriptionSnippet($product): string
-    {
-        $desc = trim(strip_tags($product->short_description ?? $product->description ?? ''));
-
-        return $desc ? Str::limit($desc, 50, '...') : '';
     }
 }

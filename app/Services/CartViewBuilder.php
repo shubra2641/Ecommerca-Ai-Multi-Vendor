@@ -83,15 +83,7 @@ class CartViewBuilder
         }
 
         $parsed = json_decode($variant, true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return $variant;
-        }
-
-        if (!is_array($parsed)) {
-            return $variant;
-        }
-
-        if (!isset($parsed['attribute_data'])) {
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($parsed) || !isset($parsed['attribute_data'])) {
             return $variant;
         }
 

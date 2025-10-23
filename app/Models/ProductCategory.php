@@ -72,7 +72,11 @@ class ProductCategory extends Model
      */
     public function translate(string $field, ?string $locale = null)
     {
-        if (!isset($this->translatable) || !in_array($field, $this->translatable, true)) {
+        if (!isset($this->translatable)) {
+            return $this->getAttribute($field);
+        }
+
+        if (!in_array($field, $this->translatable, true)) {
             return $this->getAttribute($field);
         }
 
