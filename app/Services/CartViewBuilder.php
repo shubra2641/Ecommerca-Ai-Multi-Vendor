@@ -72,6 +72,11 @@ class CartViewBuilder
             return (string) $variant;
         }
 
+        return $this->parseVariantJson($variant);
+    }
+
+    private function parseVariantJson(string $variant): string
+    {
         if (strlen($variant) === 0) {
             return '';
         }

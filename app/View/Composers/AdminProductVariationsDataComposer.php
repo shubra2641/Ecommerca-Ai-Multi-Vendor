@@ -51,22 +51,18 @@ final class AdminProductVariationsDataComposer
         }
 
         $attributeData = $attributes->map(function ($a) {
-            try {
-                return [
-                    'id' => $a->id,
-                    'name' => $a->name,
-                    'slug' => $a->slug,
-                    'values' => $a->values->map(function ($v) {
-                        return [
-                            'id' => $v->id,
-                            'value' => $v->value,
-                            'slug' => $v->slug,
-                        ];
-                    })->values()->all(),
-                ];
-            } catch (\Throwable $e) {
-                return [];
-            }
+            return [
+                'id' => $a->id,
+                'name' => $a->name,
+                'slug' => $a->slug,
+                'values' => $a->values->map(function ($v) {
+                    return [
+                        'id' => $v->id,
+                        'value' => $v->value,
+                        'slug' => $v->slug,
+                    ];
+                })->values()->all(),
+            ];
         })->filter()->values()->all();
 
         $languageData = Language::where('is_active', 1)
