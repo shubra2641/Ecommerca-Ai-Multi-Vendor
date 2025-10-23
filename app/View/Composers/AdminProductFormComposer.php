@@ -63,10 +63,10 @@ final class AdminProductFormComposer
                     'name' => $a->name,
                     'slug' => $a->slug,
                     'values' => $a->values
-                        ->map(fn($v) => [
+                        ->map(fn ($v) => [
                             'id' => $v->id,
                             'value' => $v->value,
-                            'slug' => $v->slug
+                            'slug' => $v->slug,
                         ])
                         ->values()
                         ->all(),
@@ -88,7 +88,7 @@ final class AdminProductFormComposer
 
     private function getClientVariations($model): array
     {
-        if (!$model) {
+        if (! $model) {
             return [];
         }
 
@@ -179,7 +179,7 @@ final class AdminProductFormComposer
             'pfShowActive' => $pfShowActive,
             'isVendorForm' => $isVendorForm,
             'currentLocale' => $currentLocale,
-            'defaultLocale' => $defaultLocale
+            'defaultLocale' => $defaultLocale,
         ];
     }
 }

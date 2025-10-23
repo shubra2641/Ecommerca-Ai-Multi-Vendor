@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 
 class NewShippingController extends Controller
 {
-
     public function quote(Request $request)
     {
         $country = $request->input('country');

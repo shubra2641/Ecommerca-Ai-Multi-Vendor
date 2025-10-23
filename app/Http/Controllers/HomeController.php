@@ -273,7 +273,7 @@ final class HomeController extends Controller
             ] as $sk
         ) {
             $secCfg = $sectionsIndex->get($sk);
-            if (!$secCfg || !$secCfg->enabled) {
+            if (! $secCfg || ! $secCfg->enabled) {
                 continue;
             }
             $limit = $secCfg->item_limit ?? 4;
@@ -288,13 +288,13 @@ final class HomeController extends Controller
                         ->orderByDesc('approved_reviews_count')
                         ->take($limit)->get(),
                     'showcase_brands' => Brand::active()
-                        ->withCount(['products' => fn($q) => $q->active()])
+                        ->withCount(['products' => fn ($q) => $q->active()])
                         ->orderByDesc('products_count')
                         ->take($limit)->get(),
                     default => collect(),
                 };
             });
-            if (!$items->count()) {
+            if (! $items->count()) {
                 continue;
             }
             $type = $sk === 'showcase_brands' ? 'brands' : 'products';
@@ -309,7 +309,7 @@ final class HomeController extends Controller
             ]);
         }
         $showcaseSections = $showcaseSections->sortBy(
-            fn($s) => optional($sectionsIndex->get($s['key']))->sort_order ?? 9999
+            fn ($s) => optional($sectionsIndex->get($s['key']))->sort_order ?? 9999
         )->values();
         $brandSec = $showcaseSections->firstWhere('type', 'brands');
         $showcaseSectionsActiveCount = $showcaseSections->where('type', '!=', 'brands')->count();

@@ -12,26 +12,28 @@ class MailHelper
      */
     public static function mailIsAvailable(): bool
     {
-        $driver = config('mail.default') ? config('mail.default') : env('MAIL_MAILER');
-        if (! $driver) {
+        $driver = config('mail.default') ?: env('MAIL_MAILER');
+        if (!$driver) {
             return false;
         }
 
-        // treat array and log as non-real drivers — skip sending
         if (in_array($driver, ['array', 'log'], true)) {
             return false;
         }
 
-        // For smtp require host and at least username/password OR a from address
-        if ($driver === 'smtp' || $driver === 'mail') {
-            $host = env('MAIL_HOST');
-            $username = env('MAIL_USERNAME');
-            $password = env('MAIL_PASSWORD');
-
-            return ! empty($host) && (! empty($username) || ! empty($password));
+        if (in_array($driver, ['smtp', 'mail'], true)) {
+            return self::isSmtpConfigured();
         }
 
-        // For other drivers (ses, postmark, sendmail, resend, mailgun) assume configured
         return true;
+    }
+
+    private static function isSmtpConfigured(): bool
+    {
+        $host = env('MAIL_HOST');
+        $username = env('MAIL_USERNAME');
+        $password = env('MAIL_PASSWORD');
+
+        return !empty($host) && (!empty($username) || !empty($password));
     }
 }

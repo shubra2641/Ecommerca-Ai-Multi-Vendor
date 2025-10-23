@@ -60,7 +60,7 @@ class PaymentGatewayService
         $cfg = $gateway->config ?? [];
         $secret = $cfg['secret_key'] ?? ($cfg['api_key'] ?? null);
 
-        if (! $secret || ! $chargeId) {
+        if (!$secret || !$chargeId) {
             throw new \RuntimeException('Missing gateway secret or charge id for verify');
         }
 
@@ -69,20 +69,14 @@ class PaymentGatewayService
         try {
             $resp = Http::withToken($secret)->acceptJson()->get($apiBase . '/charges/' . $chargeId);
 
-            if (! $resp->ok()) {
+            if (!$resp->ok()) {
                 return ['payment' => $gateway, 'status' => 'pending', 'charge' => null];
             }
 
             $json = $resp->json();
             $status = $json['status'] ?? $json['data']['status'] ?? null;
 
-            if (in_array(strtoupper($status), ['CAPTURED', 'AUTHORIZED', 'PAID', 'SUCCESS'], true)) {
-                $finalStatus = 'paid';
-            } elseif (in_array(strtoupper($status), ['FAILED', 'CANCELLED', 'DECLINED'], true)) {
-                $finalStatus = 'failed';
-            } else {
-                $finalStatus = 'processing';
-            }
+            $finalStatus = $this->determineStatus($status);
 
             $payment->status = $finalStatus;
             $payment->payload = array_merge($payment->payload ?? [], [
@@ -91,27 +85,47 @@ class PaymentGatewayService
             $payment->save();
 
             if ($payment->status === 'paid') {
-                $order = $payment->order;
-                if (! $order) {
-                    $order = $this->createOrderFromSnapshot($payment);
-                }
-
-                if ($order && $order->status !== 'paid') {
-                    $order->status = 'paid';
-                    $order->save();
-                }
-
-                try {
-                    session()->forget('cart');
-                } catch (\Throwable $_) {
-                    // Ignore cart clearing errors
-                    null;
-                }
+                $this->handlePaidPayment($payment);
             }
 
             return ['payment' => $payment, 'status' => $payment->status, 'charge' => $json];
         } catch (\Throwable $e) {
             return ['success' => false, 'status' => 'pending', 'data' => null];
+        }
+    }
+
+    private function determineStatus(?string $status): string
+    {
+        if (!$status) {
+            return 'processing';
+        }
+
+        if (in_array(strtoupper($status), ['CAPTURED', 'AUTHORIZED', 'PAID', 'SUCCESS'], true)) {
+            return 'paid';
+        } elseif (in_array(strtoupper($status), ['FAILED', 'CANCELLED', 'DECLINED'], true)) {
+            return 'failed';
+        } else {
+            return 'processing';
+        }
+    }
+
+    private function handlePaidPayment(Payment $payment): void
+    {
+        $order = $payment->order;
+        if (!$order) {
+            $order = $this->createOrderFromSnapshot($payment);
+        }
+
+        if ($order && $order->status !== 'paid') {
+            $order->status = 'paid';
+            $order->save();
+        }
+
+        try {
+            session()->forget('cart');
+        } catch (\Throwable $_) {
+            // Ignore cart clearing errors
+            null;
         }
     }
 

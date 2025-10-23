@@ -26,14 +26,14 @@ final class ProductCatalogController extends Controller
             $slugMap = Cache::remember(
                 'product_category_slug_id_map',
                 600,
-                fn() => ProductCategory::pluck('id', 'slug')->all()
+                fn () => ProductCategory::pluck('id', 'slug')->all()
             );
             $id = $slugMap[$cat] ?? null;
             if ($id) {
                 $childIds = Cache::remember(
                     'category_children_ids_' . $id,
                     600,
-                    fn() => ProductCategory::where('parent_id', $id)->pluck('id')->all()
+                    fn () => ProductCategory::where('parent_id', $id)->pluck('id')->all()
                 );
                 $query->where(function ($qq) use ($id, $childIds): void {
                     $qq->where('product_category_id', $id)
@@ -45,7 +45,7 @@ final class ProductCatalogController extends Controller
         // Tag filter
         $tag = $request->get('tag');
         if ($tag) {
-            $query->whereHas('tags', fn($t) => $t->where('slug', $tag));
+            $query->whereHas('tags', fn ($t) => $t->where('slug', $tag));
         }
 
         $query = $this->applyFilters($query, $request);
@@ -562,10 +562,10 @@ final class ProductCatalogController extends Controller
     private function buildGallery($product): array
     {
         $images = collect();
-        if (!empty($product->main_image)) {
+        if (! empty($product->main_image)) {
             $images->push($product->main_image);
         }
-        if (!empty($product->gallery) && is_array($product->gallery)) {
+        if (! empty($product->gallery) && is_array($product->gallery)) {
             $images = $images->merge(collect($product->gallery)->filter());
         }
         if ($product->type === 'variable' && $product->variations->count()) {
@@ -576,7 +576,7 @@ final class ProductCatalogController extends Controller
             $images->push('front/images/default-product.png');
         }
 
-        $gallery = $images->unique()->map(fn($p) => ['raw' => $p, 'url' => asset($p)]);
+        $gallery = $images->unique()->map(fn ($p) => ['raw' => $p, 'url' => asset($p)]);
         $mainImage = $gallery->first();
 
         return compact('gallery', 'mainImage');
@@ -594,7 +594,7 @@ final class ProductCatalogController extends Controller
 
         $levelLabel = match (true) {
             $available === 0 => __('Out of stock'),
-            !is_numeric($available) => __('In stock'),
+            ! is_numeric($available) => __('In stock'),
             $available <= 5 => __('In stock') . " ({$available}) • Low stock",
             $available <= 20 => __('In stock') . " ({$available}) • Mid stock",
             default => __('In stock') . " ({$available}) • High stock",
@@ -609,7 +609,7 @@ final class ProductCatalogController extends Controller
         $activeVars = collect();
         if ($product->type === 'variable') {
             $activeVars = $product->variations->where('active', true);
-            $prices = $activeVars->map(fn($v) => $v->effectivePrice())->filter();
+            $prices = $activeVars->map(fn ($v) => $v->effectivePrice())->filter();
             if ($prices->count()) {
                 $minP = $prices->min();
                 $maxP = $prices->max();
@@ -686,9 +686,9 @@ final class ProductCatalogController extends Controller
     private function buildFlags($product, $available, $onSale, $activeVars): array
     {
         $hasAnyStock = $product->type !== 'variable' || $activeVars->isEmpty() || $activeVars->contains(function ($v) {
-            return !$v->manage_stock || (($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0) > 0);
+            return ! $v->manage_stock || (($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0) > 0);
         });
-        $isOut = !$hasAnyStock;
+        $isOut = ! $hasAnyStock;
         $hasDiscount = $onSale;
         $brandName = $product->brand->name ?? null;
 

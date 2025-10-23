@@ -41,15 +41,19 @@ final class AccountSidebarComposer
                     ->count();
             }
 
-            $wishlist = session('wishlist');
-            return is_array($wishlist) ? count($wishlist) : 0;
+            return $this->getWishlistFromSession();
         } catch (\Throwable $e) {
             logger()->warning(
                 'Failed to get wishlist count from database: ' .
                     $e->getMessage()
             );
-            $wishlist = session('wishlist');
-            return is_array($wishlist) ? count($wishlist) : 0;
+            return $this->getWishlistFromSession();
         }
+    }
+
+    private function getWishlistFromSession(): int
+    {
+        $wishlist = session('wishlist');
+        return is_array($wishlist) ? count($wishlist) : 0;
     }
 }

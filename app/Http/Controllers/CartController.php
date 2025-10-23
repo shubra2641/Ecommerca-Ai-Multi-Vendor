@@ -213,7 +213,7 @@ final class CartController extends Controller
         $code = strtoupper(trim($data['coupon']));
         $coupon = Coupon::where('code', $code)->first();
 
-        if (!$coupon) {
+        if (! $coupon) {
             return back()->with('error', __('Invalid coupon code'));
         }
 
@@ -225,7 +225,7 @@ final class CartController extends Controller
 
         $serverDisplayedTotal = $this->calculateServerDisplayedTotal($total);
 
-        if (!$this->isCouponValidForTotal($coupon, $serverDisplayedTotal)) {
+        if (! $this->isCouponValidForTotal($coupon, $serverDisplayedTotal)) {
             return back()->with('error', __('Coupon is not valid or expired'));
         }
 
@@ -339,7 +339,7 @@ final class CartController extends Controller
             $vid = isset($parts[1]) ? (int) $parts[1] : null;
 
             $product = Product::find($pid);
-            if (!$product) {
+            if (! $product) {
                 continue;
             }
 
@@ -385,14 +385,14 @@ final class CartController extends Controller
 
     private function buildVariantLabel($variation)
     {
-        if (!$variation) {
+        if (! $variation) {
             return null;
         }
         $variantLabel = $variation->name ?? null;
-        if (!$variantLabel && !empty($variation->attribute_data)) {
+        if (! $variantLabel && ! empty($variation->attribute_data)) {
             try {
                 $variantLabel = collect($variation->attribute_data)
-                    ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                    ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                     ->values()
                     ->join(', ');
             } catch (\Throwable $e) {
@@ -422,7 +422,7 @@ final class CartController extends Controller
         $discounted_total = $total;
         if (session()->has('applied_coupon_id')) {
             $coupon = Coupon::find(session('applied_coupon_id'));
-            if (!$coupon || !$coupon->isValidForTotal($total)) {
+            if (! $coupon || ! $coupon->isValidForTotal($total)) {
                 session()->forget('applied_coupon_id');
                 $coupon = null;
             } else {

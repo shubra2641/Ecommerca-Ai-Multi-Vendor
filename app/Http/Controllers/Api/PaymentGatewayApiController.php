@@ -9,7 +9,6 @@ use App\Models\PaymentGateway;
 
 class PaymentGatewayApiController extends Controller
 {
-
     public function enabled()
     {
         $g = PaymentGateway::where('enabled', true)->get();

@@ -13,58 +13,35 @@ class OrderViewBuilder
     public static function buildAddressText($order): string
     {
         $addrSource = $order->shipping_address ?? $order->billing_address ?? $order->address;
-        if (is_array($addrSource)) {
-            $countryId = $addrSource['country_id'] ?? $addrSource['country'] ?? null;
-            $govId = $addrSource['governorate_id'] ?? $addrSource['governorate'] ?? null;
-            $cityId = $addrSource['city_id'] ?? $addrSource['city'] ?? null;
-            if ($countryId && is_numeric($countryId)) {
-                $c = Country::find($countryId);
-                if ($c) {
-                    $addrSource['country'] = $c->name;
-                    $addrSource['country_id'] = $countryId;
-                }
-            }
-            if ($govId && is_numeric($govId)) {
-                $g = Governorate::find($govId);
-                if ($g) {
-                    $addrSource['governorate'] = $g->name;
-                    $addrSource['governorate_id'] = $govId;
-                }
-            }
-            if ($cityId && is_numeric($cityId)) {
-                $ci = City::find($cityId);
-                if ($ci) {
-                    $addrSource['city'] = $ci->name;
-                    $addrSource['city_id'] = $cityId;
-                }
-            }
-            $orderedKeys = [
-                'name',
-                'title',
-                'line1',
-                'line2',
-                'city',
-                'governorate',
-                'postal_code',
-                'country',
-                'phone',
-            ];
-            $parts = [];
-            foreach ($orderedKeys as $k) {
-                if (! empty($addrSource[$k])) {
-                    $parts[] = $addrSource[$k];
-                }
-            }
-            foreach ($addrSource as $v) {
-                if (is_scalar($v) && ! in_array($v, $parts, true)) {
-                    $parts[] = $v;
-                }
-            }
-
-            return implode("\n", $parts);
+        if (! is_array($addrSource)) {
+            return (string) ($addrSource ?? '');
         }
 
-        return (string) ($addrSource ?? '');
+        $addrSource = self::resolveAddressIds($addrSource);
+
+        $orderedKeys = [
+            'name',
+            'title',
+            'line1',
+            'line2',
+            'city',
+            'governorate',
+            'postal_code',
+            'country',
+            'phone',
+        ];
+
+        $parts = collect($orderedKeys)
+            ->filter(fn($k) => ! empty($addrSource[$k]))
+            ->map(fn($k) => $addrSource[$k])
+            ->toArray();
+
+        $extraParts = collect($addrSource)
+            ->filter(fn($v) => is_scalar($v) && ! in_array($v, $parts, true))
+            ->values()
+            ->toArray();
+
+        return implode("\n", array_merge($parts, $extraParts));
     }
 
     public static function shipmentStages($status): array
@@ -80,11 +57,12 @@ class OrderViewBuilder
         if (in_array($status, ['cancelled', 'refunded'], true)) {
             $reached = [$status];
         } else {
-            foreach (['pending', 'processing', 'completed'] as $linear) {
-                $reached[] = $linear;
-                if ($linear === $status) {
-                    break;
-                }
+            $stages_order = ['pending', 'processing', 'completed'];
+            $index = array_search($status, $stages_order, true);
+            if ($index !== false) {
+                $reached = array_slice($stages_order, 0, $index + 1);
+            } else {
+                $reached = $stages_order;
             }
         }
 
@@ -93,18 +71,43 @@ class OrderViewBuilder
 
     public static function variantLabel($it): ?string
     {
-        $variantLabel = null;
-        if (! empty($it->meta) && is_array($it->meta)) {
-            if (! empty($it->meta['variant_name'])) {
-                $variantLabel = $it->meta['variant_name'];
-            } elseif (! empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data'])) {
-                $variantLabel = collect($it->meta['attribute_data'])
-                    ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
-                    ->values()
-                    ->join(', ');
+        if (empty($it->meta) || ! is_array($it->meta)) {
+            return null;
+        }
+
+        if (! empty($it->meta['variant_name'])) {
+            return $it->meta['variant_name'];
+        }
+
+        if (! empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data'])) {
+            return collect($it->meta['attribute_data'])
+                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                ->values()
+                ->join(', ');
+        }
+
+        return null;
+    }
+
+    private static function resolveAddressIds(array $addrSource): array
+    {
+        $types = [
+            'country' => Country::class,
+            'governorate' => Governorate::class,
+            'city' => City::class,
+        ];
+
+        foreach ($types as $type => $modelClass) {
+            $id = $addrSource[$type . '_id'] ?? $addrSource[$type] ?? null;
+            if ($id && is_numeric($id)) {
+                $model = $modelClass::find($id);
+                if ($model) {
+                    $addrSource[$type] = $model->name;
+                    $addrSource[$type . '_id'] = $id;
+                }
             }
         }
 
-        return $variantLabel;
+        return $addrSource;
     }
 }

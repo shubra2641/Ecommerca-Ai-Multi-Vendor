@@ -65,19 +65,19 @@ final class AdminOrderComposer
     {
         $payload = $payment->payload;
 
-        if (is_array($payload)) {
-            return $payload['note'] ?? '';
-        }
+        return match (true) {
+            is_array($payload) => $payload['note'] ?? '',
+            is_object($payload) => $payload->note ?? '',
+            is_string($payload) && $payload !== '' => $this->getNoteFromJson($payload),
+            default => '',
+        };
+    }
 
-        if (is_object($payload)) {
-            return $payload->note ?? '';
-        }
-
-        if (is_string($payload) && $payload !== '') {
-            $decoded = json_decode($payload, true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                return $decoded['note'] ?? '';
-            }
+    private function getNoteFromJson(string $payload): string
+    {
+        $decoded = json_decode($payload, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded['note'] ?? '';
         }
 
         return '';

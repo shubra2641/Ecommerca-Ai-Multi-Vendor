@@ -43,7 +43,7 @@ class PostCategoryController extends Controller
             'parent_id' => 'nullable|exists:post_categories,id',
         ]);
         $fallback = config('app.fallback_locale');
-        $defaultName = $data['name'][$fallback] ?? collect($data['name'])->first(fn($v) => ! empty($v));
+        $defaultName = $data['name'][$fallback] ?? collect($data['name'])->first(fn ($v) => ! empty($v));
         $slugTranslations = $data['slug'] ?? [];
         foreach ($data['name'] as $loc => $v) {
             if (! isset($slugTranslations[$loc]) || $slugTranslations[$loc] === '') {
@@ -76,7 +76,7 @@ class PostCategoryController extends Controller
                 }
                 $payload[$f . '_translations'] = array_filter($clean);
                 $payload[$f] = $payload[$f . '_translations'][$fallback] ??
-                    collect($payload[$f . '_translations'])->first(fn($v) => ! empty($v));
+                    collect($payload[$f . '_translations'])->first(fn ($v) => ! empty($v));
             }
         }
         PostCategory::create($payload);
@@ -110,7 +110,7 @@ class PostCategoryController extends Controller
         ]);
         $fallback = config('app.fallback_locale');
         $defaultName = $data['name'][$fallback] ??
-            collect($data['name'])->first(fn($v) => ! empty($v)) ??
+            collect($data['name'])->first(fn ($v) => ! empty($v)) ??
             $category->getRawOriginal('name');
         $slugTranslations = $data['slug'] ?? ($category->slug_translations ?? []);
         foreach ($data['name'] as $loc => $v) {
@@ -134,7 +134,7 @@ class PostCategoryController extends Controller
                 }
                 $payload[$f . '_translations'] = array_filter($clean);
                 $payload[$f] = $payload[$f . '_translations'][$fallback] ??
-                    collect($payload[$f . '_translations'])->first(fn($v) => ! empty($v));
+                    collect($payload[$f . '_translations'])->first(fn ($v) => ! empty($v));
             }
         }
         $category->update($payload);
@@ -159,18 +159,18 @@ class PostCategoryController extends Controller
         // Extract title from multilingual name array
         if (is_array($nameInput)) {
             // If locale specified, try to get title from that locale
-            if ($locale && !empty($nameInput[$locale])) {
+            if ($locale && ! empty($nameInput[$locale])) {
                 $title = $nameInput[$locale];
             } else {
                 // Otherwise get first non-empty value
                 $title = collect($nameInput)->filter()->first();
             }
         } else {
-            $title = $nameInput ?: $request->input('title');
+            $title = $nameInput ? $nameInput : $request->input('title');
         }
 
         // Validate title - ensure it's a string
-        if (empty($title) || !is_string($title)) {
+        if (empty($title) || ! is_string($title)) {
             return back()->with('error', __('Please enter a name first'));
         }
 

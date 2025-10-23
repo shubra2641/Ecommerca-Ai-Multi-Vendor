@@ -24,44 +24,48 @@ class ShippingResolver
         ?int $cityId = null,
         ?int $zoneId = null
     ): ?array {
-        if (! $countryId) {
+        if (!$countryId) {
             return null;
         }
         $base = ShippingRule::with('zone')->where('active', true)
             ->where('country_id', $countryId)
-            ->when($zoneId, fn ($q) => $q->where('zone_id', $zoneId));
+            ->when($zoneId, fn($q) => $q->where('zone_id', $zoneId));
 
-        $rule = null;
-        $level = null;
-        if ($cityId) {
-            $rule = (clone $base)->where('city_id', $cityId)->first();
-            if ($rule) {
-                $level = 'city';
-            }
-        }
-        if (! $rule && $governorateId) {
-            $rule = (clone $base)->whereNull('city_id')->where('governorate_id', $governorateId)->first();
-            if ($rule) {
-                $level = 'governorate';
-            }
-        }
-        if (! $rule) {
-            $rule = (clone $base)->whereNull('governorate_id')->whereNull('city_id')->first();
-            if ($rule) {
-                $level = 'country';
-            }
-        }
-        if (! $rule) {
-            return null;
-        }
-
-        return [
-            'zone_id' => $rule->zone_id,
-            'zone_name' => $rule->zone?->name,
-            'price' => $rule->price,
-            'estimated_days' => $rule->estimated_days,
-            'level' => $level,
+        $attempts = [
+            [['city_id' => $cityId], 'city'],
+            [['city_id' => null, 'governorate_id' => $governorateId], 'governorate'],
+            [['governorate_id' => null, 'city_id' => null], 'country'],
         ];
+
+        foreach ($attempts as [$conditions, $level]) {
+            $result = $this->findRule($base, $conditions, $level);
+            if ($result) {
+                $rule = $result['rule'];
+                return [
+                    'zone_id' => $rule->zone_id,
+                    'zone_name' => $rule->zone?->name,
+                    'price' => $rule->price,
+                    'estimated_days' => $rule->estimated_days,
+                    'level' => $result['level'],
+                ];
+            }
+        }
+
+        return null;
+    }
+
+    private function findRule($base, array $conditions, string $level): ?array
+    {
+        $query = clone $base;
+        foreach ($conditions as $column => $value) {
+            if ($value === null) {
+                $query->whereNull($column);
+            } else {
+                $query->where($column, $value);
+            }
+        }
+        $rule = $query->first();
+        return $rule ? ['rule' => $rule, 'level' => $level] : null;
     }
 
     /**
@@ -81,7 +85,7 @@ class ShippingResolver
         }
         $rules = ShippingRule::with('zone')->where('active', true)
             ->where('country_id', $countryId)
-            ->when($zoneId, fn ($q) => $q->where('zone_id', $zoneId))
+            ->when($zoneId, fn($q) => $q->where('zone_id', $zoneId))
             ->get();
 
         $bestPerZone = [];

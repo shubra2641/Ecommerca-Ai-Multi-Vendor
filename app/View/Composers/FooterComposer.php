@@ -48,7 +48,7 @@ final class FooterComposer
 
     private function getLocalizedContent($setting, string $locale): array
     {
-        $t = fn($arr, $fallback) => $arr[$locale] ?? ($arr['en'] ?? __($fallback));
+        $t = fn ($arr, $fallback) => $arr[$locale] ?? ($arr['en'] ?? __($fallback));
 
         return [
             'supportHeading' => $t($setting->footer_support_heading ?? [], "We're Always Here To Help"),
@@ -79,7 +79,7 @@ final class FooterComposer
         $appLinks = $setting->footer_app_links ?? [];
 
         return collect($appLinks)
-            ->filter(fn($a) => ($a['enabled'] ?? false) && ($a['url'] ?? null))
+            ->filter(fn ($a) => ($a['enabled'] ?? false) && ($a['url'] ?? null))
             ->sortBy('order');
     }
 

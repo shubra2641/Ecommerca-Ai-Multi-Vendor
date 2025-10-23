@@ -21,7 +21,7 @@ final class AdminProductVariationsDataComposer
 
     private function getExistingVariations($model): array
     {
-        if (!$model) {
+        if (! $model) {
             return [];
         }
 
@@ -64,7 +64,7 @@ final class AdminProductVariationsDataComposer
                         return [
                             'id' => $v->id,
                             'value' => $v->value,
-                            'slug' => $v->slug
+                            'slug' => $v->slug,
                         ];
                     })->values()->all(),
                 ];
@@ -79,7 +79,7 @@ final class AdminProductVariationsDataComposer
         return Language::where('is_active', 1)
             ->orderByDesc('is_default')
             ->get()
-            ->map(fn($l) => [
+            ->map(fn ($l) => [
                 'code' => $l->code,
                 'name' => $l->name,
                 'is_default' => $l->is_default,

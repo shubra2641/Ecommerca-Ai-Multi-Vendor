@@ -117,18 +117,18 @@ class PostController extends Controller
         // Extract title from multilingual name array
         if (is_array($nameInput)) {
             // If locale specified, try to get title from that locale
-            if ($locale && !empty($nameInput[$locale])) {
+            if ($locale && ! empty($nameInput[$locale])) {
                 $title = $nameInput[$locale];
             } else {
                 // Otherwise get first non-empty value
                 $title = collect($nameInput)->filter()->first();
             }
         } else {
-            $title = $nameInput ?: $request->input('name');
+            $title = $nameInput ? $nameInput : $request->input('name');
         }
 
         // Validate title - ensure it's a string
-        if (empty($title) || !is_string($title)) {
+        if (empty($title) || ! is_string($title)) {
             return back()->with('error', __('Please enter a name first'));
         }
 
@@ -172,7 +172,7 @@ class PostController extends Controller
     private function buildPostPayload(array $data, HtmlSanitizer $sanitizer, ?Post $post = null): array
     {
         $fallback = config('app.fallback_locale');
-        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn($v) => ! empty($v)) ?? '';
+        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn ($v) => ! empty($v)) ?? '';
 
         $payload = [
             'title' => $defaultTitle,
@@ -197,7 +197,7 @@ class PostController extends Controller
                     $translations[$locale] = $sanitizer->clean($value);
                 }
                 $payload[$field . '_translations'] = $translations;
-                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn($v) => ! empty($v));
+                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn ($v) => ! empty($v));
             }
         }
 
@@ -227,7 +227,7 @@ class PostController extends Controller
         $base = $slug;
         $i = 1;
 
-        while (Post::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
+        while (Post::where('slug', $slug)->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))->exists()) {
             $slug = $base . '-' . $i;
             $i++;
         }
