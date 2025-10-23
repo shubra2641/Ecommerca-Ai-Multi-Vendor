@@ -67,8 +67,8 @@ final class OrdersComposer
             return __('Order');
         }
 
-        $itemName = $firstItem->name ?: __('Order');
-        $variantName = isset($firstItem->meta['variant_name']) && is_array($firstItem->meta) ? $firstItem->meta['variant_name'] : null;
+        $itemName = $firstItem->name ?? __('Order');
+        $variantName = data_get($firstItem->meta, 'variant_name');
 
         return $variantName ? $itemName . ' - ' . $variantName : $itemName;
     }

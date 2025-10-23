@@ -49,35 +49,7 @@ final class HeaderComposer
 
     private function getCategoriesAndCurrencies(): array
     {
-        return [
-            'rootCats' => $this->getRootCategories(),
-            'currencies' => $this->getActiveCurrencies(),
-            'currentCurrency' => $this->getCurrentCurrency(),
-        ];
-    }
-
-    private function getRootCategories()
-    {
-        return Cache::remember('root_categories', 3600, function () {
-            if (Schema::hasTable('product_categories')) {
-                try {
-                    return ProductCategory::where('active', 1)
-                        ->whereNull('parent_id')
-                        ->orderBy('name')
-                        ->take(14)
-                        ->get();
-                } catch (Throwable $e) {
-                    return collect();
-                }
-            }
-
-            return collect();
-        });
-    }
-
-    private function getActiveCurrencies()
-    {
-        return Cache::remember('active_currencies', 3600, function () {
+        $currencies = Cache::remember('active_currencies', 3600, function () {
             if (Schema::hasTable('currencies')) {
                 try {
                     return Currency::active()->take(4)->get();
@@ -88,67 +60,69 @@ final class HeaderComposer
 
             return collect();
         });
-    }
 
-    private function getCurrentCurrency()
-    {
-        $currencies = $this->getActiveCurrencies();
-        $currentCurrency = $currencies->firstWhere('is_default', true) ?? $currencies->first();
+        $current = $currencies->firstWhere('is_default', true) ?? $currencies->first();
 
         $sessionCurrencyId = session('currency_id');
-        if ($sessionCurrencyId) {
+        if (!$sessionCurrencyId) {
+            $currentCurrency = $current;
+        } else {
             $sc = Currency::find($sessionCurrencyId);
-            if ($sc && $currencies->contains('id', $sc->id)) {
-                $currentCurrency = $sc;
-            }
+            $currentCurrency = (!$sc || !$currencies->contains('id', $sc->id)) ? $current : $sc;
         }
 
-        return $currentCurrency;
+        return [
+            'rootCats' => Cache::remember('root_categories', 3600, function () {
+                if (Schema::hasTable('product_categories')) {
+                    try {
+                        return ProductCategory::where('active', 1)
+                            ->whereNull('parent_id')
+                            ->orderBy('name')
+                            ->take(14)
+                            ->get();
+                    } catch (Throwable $e) {
+                        return collect();
+                    }
+                }
+
+                return collect();
+            }),
+            'currencies' => $currencies,
+            'currentCurrency' => $currentCurrency,
+        ];
     }
 
     private function getCartAndWishlistData(): array
     {
         return [
-            'cartCount' => $this->getCartCount(),
-            'compareCount' => $this->getCompareCount(),
+            'cartCount' => $this->getSessionCount('cart'),
+            'compareCount' => $this->getSessionCount('compare'),
             'wishlistCount' => $this->getWishlistCount(),
         ];
-    }
-
-    private function getCartCount(): int
-    {
-        return $this->getSessionCount('cart');
-    }
-
-    private function getCompareCount(): int
-    {
-        return $this->getSessionCount('compare');
     }
 
     private function getSessionCount(string $key): int
     {
         $session = session($key);
 
-        if (is_array($session)) {
-            return count($session);
-        }
-
-        if ($session instanceof \Countable) {
-            return count($session);
-        }
-
-        return 0;
+        return match (true) {
+            is_array($session) => count($session),
+            $session instanceof \Countable => count($session),
+            default => 0,
+        };
     }
 
     private function getWishlistCount(): int
     {
-        // Try to get authenticated user's wishlist count
-        if ($this->isAuthenticatedUserWithWishlistTable()) {
-            return $this->getAuthenticatedUserWishlistCount();
+        if (!$this->isAuthenticatedUserWithWishlistTable()) {
+            return $this->getSessionCount('wishlist');
         }
 
-        // Fallback to session-based wishlist
-        return $this->getSessionWishlistCount();
+        try {
+            return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
+        } catch (\Throwable $e) {
+            return $this->getSessionCount('wishlist');
+        }
     }
 
     private function isAuthenticatedUserWithWishlistTable(): bool
@@ -158,20 +132,6 @@ final class HeaderComposer
         } catch (\Throwable $e) {
             return false;
         }
-    }
-
-    private function getAuthenticatedUserWishlistCount(): int
-    {
-        try {
-            return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
-        } catch (\Throwable $e) {
-            return $this->getSessionWishlistCount();
-        }
-    }
-
-    private function getSessionWishlistCount(): int
-    {
-        return $this->getSessionCount('wishlist');
     }
 
     private function getLanguages()
@@ -197,7 +157,28 @@ final class HeaderComposer
     private function addCurrencyData(View $view): void
     {
         try {
-            $currentCurrency = $this->getCurrentCurrency();
+            $currencies = Cache::remember('active_currencies', 3600, function () {
+                if (Schema::hasTable('currencies')) {
+                    try {
+                        return Currency::active()->take(4)->get();
+                    } catch (Throwable $e) {
+                        return collect();
+                    }
+                }
+
+                return collect();
+            });
+
+            $current = $currencies->firstWhere('is_default', true) ?? $currencies->first();
+
+            $sessionCurrencyId = session('currency_id');
+            if (!$sessionCurrencyId) {
+                $currentCurrency = $current;
+            } else {
+                $sc = Currency::find($sessionCurrencyId);
+                $currentCurrency = (!$sc || !$currencies->contains('id', $sc->id)) ? $current : $sc;
+            }
+
             $symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
             $view->with('currency_symbol', $symbol ?? '$');
             $view->with('defaultCurrency', Currency::getDefault());
