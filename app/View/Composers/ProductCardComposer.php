@@ -26,19 +26,14 @@ final class ProductCardComposer
         $wishlistIds = $data['wishlistIds'] ?? [];
         $compareIds = $data['compareIds'] ?? [];
 
-        $price = $product->price ?? 0;
-        $salePrice = $product->sale_price ?? null;
-        $cardOnSale = $salePrice && $salePrice < $price;
-        $cardDiscountPercent = $this->calculateDiscountPercent($price, $salePrice);
+        $prices = $this->getCardPrices($product);
         $cardAvailable = $this->getAvailableStock($product);
-        $cardDisplaySalePrice = $cardOnSale ? (float) $salePrice : null;
-        $effectivePrice = $price > 0 ? $price : ($product->effectivePrice() ?? 0);
-        $cardDisplayPrice = $product->display_price ?? $effectivePrice;
+
         $desc = trim(strip_tags($product->short_description ?? $product->description ?? ''));
         $cardSnippet = $desc ? Str::limit($desc, 50, '...') : '';
         return [
-            'cardOnSale' => $cardOnSale,
-            'cardDiscountPercent' => $cardDiscountPercent,
+            'cardOnSale' => $prices['cardOnSale'],
+            'cardDiscountPercent' => $prices['cardDiscountPercent'],
             'cardAvailable' => $cardAvailable,
             'cardWishActive' => in_array($product->id, $wishlistIds, true),
             'cardCmpActive' => in_array($product->id, $compareIds, true),
@@ -46,9 +41,26 @@ final class ProductCardComposer
             'cardReviewsCount' => $product->reviews_count ?? 0,
             'cardFullStars' => (int) floor((float) ($product->reviews_avg_rating ?? 0.0)),
             'cardSnippet' => $cardSnippet,
-            'cardDisplayPrice' => $cardDisplayPrice,
-            'cardDisplaySalePrice' => $cardDisplaySalePrice,
+            'cardDisplayPrice' => $prices['cardDisplayPrice'],
+            'cardDisplaySalePrice' => $prices['cardDisplaySalePrice'],
             'cardImageUrl' => $product->main_image ? asset($product->main_image) : asset('images/placeholder.png'),
+        ];
+    }
+
+    private function getCardPrices($product): array
+    {
+        $price = $product->price ?? 0;
+        $salePrice = $product->sale_price ?? null;
+        $cardOnSale = $salePrice && $salePrice < $price;
+        $cardDiscountPercent = $this->calculateDiscountPercent($price, $salePrice);
+        $cardDisplaySalePrice = $cardOnSale ? (float) $salePrice : null;
+        $effectivePrice = $price > 0 ? $price : ($product->effectivePrice() ?? 0);
+        $cardDisplayPrice = $product->display_price ?? $effectivePrice;
+        return [
+            'cardOnSale' => $cardOnSale,
+            'cardDiscountPercent' => $cardDiscountPercent,
+            'cardDisplaySalePrice' => $cardDisplaySalePrice,
+            'cardDisplayPrice' => $cardDisplayPrice,
         ];
     }
 
