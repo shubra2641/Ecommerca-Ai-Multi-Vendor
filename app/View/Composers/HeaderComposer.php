@@ -61,16 +61,6 @@ final class HeaderComposer
             return collect();
         });
 
-        $current = $currencies->firstWhere('is_default', true) ?? $currencies->first();
-
-        $sessionCurrencyId = session('currency_id');
-        if (!$sessionCurrencyId) {
-            $currentCurrency = $current;
-        } else {
-            $sc = Currency::find($sessionCurrencyId);
-            $currentCurrency = (!$sc || !$currencies->contains('id', $sc->id)) ? $current : $sc;
-        }
-
         return [
             'rootCats' => Cache::remember('root_categories', 3600, function () {
                 if (Schema::hasTable('product_categories')) {
@@ -88,8 +78,21 @@ final class HeaderComposer
                 return collect();
             }),
             'currencies' => $currencies,
-            'currentCurrency' => $currentCurrency,
+            'currentCurrency' => $this->resolveCurrentCurrency($currencies),
         ];
+    }
+
+    private function resolveCurrentCurrency($currencies)
+    {
+        $current = $currencies->firstWhere('is_default', true) ?? $currencies->first();
+
+        $sessionCurrencyId = session('currency_id');
+        if (!$sessionCurrencyId) {
+            return $current;
+        }
+
+        $sc = Currency::find($sessionCurrencyId);
+        return (!$sc || !$currencies->contains('id', $sc->id)) ? $current : $sc;
     }
 
     private function getCartAndWishlistData(): array
@@ -169,16 +172,7 @@ final class HeaderComposer
                 return collect();
             });
 
-            $current = $currencies->firstWhere('is_default', true) ?? $currencies->first();
-
-            $sessionCurrencyId = session('currency_id');
-            if (!$sessionCurrencyId) {
-                $currentCurrency = $current;
-            } else {
-                $sc = Currency::find($sessionCurrencyId);
-                $currentCurrency = (!$sc || !$currencies->contains('id', $sc->id)) ? $current : $sc;
-            }
-
+            $currentCurrency = $this->resolveCurrentCurrency($currencies);
             $symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
             $view->with('currency_symbol', $symbol ?? '$');
             $view->with('defaultCurrency', Currency::getDefault());
