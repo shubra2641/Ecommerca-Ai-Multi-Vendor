@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Payments\Gateways;
 
 use App\Models\Payment;
@@ -193,7 +195,7 @@ class WeacceptGateway
                             break;
                         }
                         // If 403, continue trying other candidates; otherwise stop and throw below
-                        if ($authResp->status() != 403) {
+                        if ($authResp->status() !== 403) {
                             break;
                         }
                     } catch (\Throwable $inner) {
@@ -211,7 +213,6 @@ class WeacceptGateway
 
                                 $authResp = $http->post($authUrl, ['api_key' => $try]);
                                 $lastBody = $authResp->body();
-                                $insecureInfo = ['payment_id' => $payment->id, 'status' => $authResp->status()];
                                 if ($authResp->successful()) {
                                     $authJson = $authResp->json();
                                     break;
@@ -223,7 +224,6 @@ class WeacceptGateway
                 }
                 if (! $authResp || ! $authResp->successful()) {
                     $status = $authResp ? $authResp->status() : 'no_response';
-                    $bodyPreview = $lastBody ? substr($lastBody, 0, 1000) : null;
                     throw new \Exception('Auth token error: ' . $status);
                 }
                 $authJson = $authResp->json();
@@ -285,7 +285,6 @@ class WeacceptGateway
                         throw $e;
                     }
                 }
-                $orderBodyPreview = substr($orderResp->body(), 0, 500);
                 if (! $orderResp->successful()) {
                     throw new \Exception('Order creation error: ' . $orderResp->status());
                 }
@@ -391,7 +390,7 @@ class WeacceptGateway
                 // If the gateway config explicitly prefers standalone, use it as primary redirect
                 $prefStandalone = data_get($gateway->config ?? [], 'weaccept_prefer_standalone');
                 if ($prefStandalone) {
-                    $result['redirect_url'] = $standaloneUrl ?: $iframeUrl;
+                    $result['redirect_url'] = $standaloneUrl ? $standaloneUrl : $iframeUrl;
                 }
 
                 return $result;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use App\Events\OrderCancelled;
@@ -26,9 +28,7 @@ class EventServiceProvider extends ServiceProvider
 
     /**
      * The subscriber classes to register.
-     *
-     * @var array
      */
-    protected $subscribe = [
+    protected array $subscribe = [
     ];
 }

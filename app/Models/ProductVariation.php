@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -40,10 +42,36 @@ class ProductVariation extends Model
         'name_translations' => 'array',
     ];
 
-    protected static function boot()
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function isOnSale(): bool
+    {
+        if (! $this->sale_price) {
+            return false;
+        }
+        $now = Carbon::now();
+        if ($this->sale_start && $now->lt($this->sale_start)) {
+            return false;
+        }
+        if ($this->sale_end && $now->gt($this->sale_end)) {
+            return false;
+        }
+
+        return $this->sale_price < $this->price;
+    }
+
+    public function effectivePrice(): float
+    {
+        return $this->isOnSale() ? (float) $this->sale_price : (float) $this->price;
+    }
+
+    protected static function boot(): void
     {
         parent::boot();
-        static::saving(function ($model) {
+        static::saving(function ($model): void {
             $data = $model->attribute_data;
             if (is_string($data)) {
                 $decoded = json_decode($data, true);
@@ -74,31 +102,5 @@ class ProductVariation extends Model
                 $model->attribute_hash = null;
             }
         });
-    }
-
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
-    }
-
-    public function isOnSale(): bool
-    {
-        if (! $this->sale_price) {
-            return false;
-        }
-        $now = Carbon::now();
-        if ($this->sale_start && $now->lt($this->sale_start)) {
-            return false;
-        }
-        if ($this->sale_end && $now->gt($this->sale_end)) {
-            return false;
-        }
-
-        return $this->sale_price < $this->price;
-    }
-
-    public function effectivePrice(): float
-    {
-        return $this->isOnSale() ? (float) $this->sale_price : (float) $this->price;
     }
 }

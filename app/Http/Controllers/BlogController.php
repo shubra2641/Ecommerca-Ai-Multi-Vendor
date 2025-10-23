@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Post;
@@ -12,7 +14,7 @@ class BlogController extends Controller
     {
         $locale = app()->getLocale();
         $page = request('page', 1);
-        $posts = cache()->remember("blog.index.$locale.$page", 300, function () {
+        $posts = cache()->remember("blog.index.{$locale}.{$page}", 300, function () {
             return Post::where('published', true)->orderByDesc('published_at')->paginate(10);
         });
 
@@ -22,15 +24,15 @@ class BlogController extends Controller
     public function show($slug)
     {
         $locale = app()->getLocale();
-        $cacheKey = "blog.post.$locale.$slug";
+        $cacheKey = "blog.post.{$locale}.{$slug}";
         $post = cache()->remember($cacheKey, 600, function () use ($slug, $locale) {
-            return Post::where(function ($q) use ($slug, $locale) {
+            return Post::where(function ($q) use ($slug, $locale): void {
                 $q->where('slug', $slug)
-                    ->orWhere("slug_translations->$locale", $slug);
+                    ->orWhere("slug_translations->{$locale}", $slug);
             })->where('published', true)->firstOrFail();
         });
         $related = cache()->remember(
-            "blog.post.$locale.$slug.related",
+            "blog.post.{$locale}.{$slug}.related",
             600,
             fn () => Post::where('published', true)
                 ->where('id', '!=', $post->id)
@@ -46,10 +48,10 @@ class BlogController extends Controller
     {
         $locale = app()->getLocale();
         $category = cache()->remember(
-            "blog.cat.$locale.$slug",
+            "blog.cat.{$locale}.{$slug}",
             600,
             fn () => PostCategory::where('slug', $slug)
-                ->orWhere("slug_translations->$locale", $slug)
+                ->orWhere("slug_translations->{$locale}", $slug)
                 ->firstOrFail()
         );
         $posts = Post::where('published', true)
@@ -64,10 +66,10 @@ class BlogController extends Controller
     {
         $locale = app()->getLocale();
         $tag = cache()->remember(
-            "blog.tag.$locale.$slug",
+            "blog.tag.{$locale}.{$slug}",
             600,
             fn () => Tag::where('slug', $slug)
-                ->orWhere("slug_translations->$locale", $slug)
+                ->orWhere("slug_translations->{$locale}", $slug)
                 ->firstOrFail()
         );
         $posts = $tag->posts()

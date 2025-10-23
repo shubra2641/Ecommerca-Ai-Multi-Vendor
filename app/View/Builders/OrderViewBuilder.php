@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\View\Builders;
 
 use App\Models\City;
@@ -88,7 +90,7 @@ class OrderViewBuilder
                 $variantLabel = $it->meta['variant_name'];
             } elseif (! empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data'])) {
                 $variantLabel = collect($it->meta['attribute_data'])
-                    ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                    ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                     ->values()
                     ->join(', ');
             }

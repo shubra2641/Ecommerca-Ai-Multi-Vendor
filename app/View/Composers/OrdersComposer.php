@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\View\Composers;
 
 use App\View\Builders\OrderViewBuilder;
@@ -34,7 +36,7 @@ class OrdersComposer
                 if ($firstItem && is_array($firstItem->meta ?? null) && ! empty($firstItem->meta['variant_name'])) {
                     $firstName .= ' - ' . $firstItem->meta['variant_name'];
                 }
-                $firstSummaries[$o->id] = $firstName ?: __('Order');
+                $firstSummaries[$o->id] = $firstName ? $firstName : __('Order');
             }
             $view->with('ordersFirstSummaries', $firstSummaries);
         }

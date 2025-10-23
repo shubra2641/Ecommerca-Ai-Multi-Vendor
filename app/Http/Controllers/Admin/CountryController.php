@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -9,16 +11,16 @@ use Illuminate\Http\Request;
 
 class CountryController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('can:access-admin');
+    }
     public function index()
     {
         $countries = Country::orderBy('name')->paginate(50);
 
         return view('admin.locations.countries.index', compact('countries'));
-    }
-
-    public function __construct()
-    {
-        $this->middleware('can:access-admin');
     }
 
     public function create()

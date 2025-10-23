@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,13 +38,6 @@ class Admin extends Model
         'password' => 'hashed',
     ];
 
-    protected static function booted()
-    {
-        static::addGlobalScope('admin', function ($builder) {
-            $builder->where('role', 'admin');
-        });
-    }
-
     public function getIsActiveAttribute()
     {
         return ! is_null($this->approved_at);
@@ -56,5 +51,12 @@ class Admin extends Model
     public function scopePending($query)
     {
         return $query->whereNull('approved_at');
+    }
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('admin', function ($builder): void {
+            $builder->where('role', 'admin');
+        });
     }
 }

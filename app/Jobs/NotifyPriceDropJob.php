@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Mail\ProductPriceDropNotification;
@@ -40,13 +42,13 @@ class NotifyPriceDropJob implements ShouldQueue
         if ($oldPrice <= 0 || $currentBase <= 0 || $currentBase >= $oldPrice) {
             return;
         }
-        $percent = (($oldPrice - $currentBase) / $oldPrice) * 100;
+        $percent = ($oldPrice - $currentBase) / $oldPrice * 100;
         ProductInterest::where('product_id', $product->id)
             ->active()
             ->where('type', ProductInterest::TYPE_PRICE_DROP)
             ->where('status', ProductInterest::STATUS_PENDING)
             ->orderBy('id')
-            ->chunk($chunkSize, function ($chunk) use ($oldPrice, $currentBase, $percent) {
+            ->chunk($chunkSize, function ($chunk) use ($oldPrice, $currentBase, $percent): void {
                 foreach ($chunk as $interest) {
                     if (\App\Support\MailHelper::mailIsAvailable()) {
                         Mail::to($interest->email)->queue(new ProductPriceDropNotification(

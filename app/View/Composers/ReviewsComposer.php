@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\View\Composers;
 
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +18,7 @@ class ReviewsComposer
         if ($user && $product && method_exists($user, 'orders')) {
             $canReview = $user->orders()
                 ->whereIn('status', ['completed', 'paid', 'delivered'])
-                ->whereHas('items', function ($q) use ($product) {
+                ->whereHas('items', function ($q) use ($product): void {
                     $q->where('product_id', $product->id);
                 })
                 ->exists();

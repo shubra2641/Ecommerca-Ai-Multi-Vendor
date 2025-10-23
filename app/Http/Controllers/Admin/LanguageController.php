@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -42,7 +44,7 @@ class LanguageController extends Controller
             }
         }
 
-        \DB::transaction(function () use ($request, $clean) {
+        \DB::transaction(function () use ($request, $clean): void {
             // If setting as default, remove default from others
             if ($request->is_default) {
                 Language::where('is_default', true)->update(['is_default' => false]);
@@ -82,7 +84,7 @@ class LanguageController extends Controller
             }
         }
 
-        \DB::transaction(function () use ($request, $language, $clean) {
+        \DB::transaction(function () use ($request, $language, $clean): void {
             // If setting as default, remove default from others
             if ($request->is_default && ! $language->is_default) {
                 Language::where('is_default', true)->update(['is_default' => false]);
@@ -131,7 +133,7 @@ class LanguageController extends Controller
         }
 
         // Sanitize all translation values to avoid HTML/JS injection
-        array_walk_recursive($translations, function (&$value) use ($sanitizer) {
+        array_walk_recursive($translations, function (&$value) use ($sanitizer): void {
             if (is_string($value)) {
                 $value = $sanitizer->clean($value);
             }
@@ -146,7 +148,7 @@ class LanguageController extends Controller
 
     public function setDefault(Language $language)
     {
-        \DB::transaction(function () use ($language) {
+        \DB::transaction(function () use ($language): void {
             Language::where('is_default', true)->update(['is_default' => false]);
             $language->update(['is_default' => true]);
         });
@@ -188,76 +190,6 @@ class LanguageController extends Controller
 
         return redirect()->route('admin.languages.translations', $language)
             ->with('success', __('Translation deleted successfully'));
-    }
-
-    private function getTranslations($langCode)
-    {
-        $path = resource_path("lang/{$langCode}.json");
-        if (File::exists($path)) {
-            $content = File::get($path);
-
-            return json_decode($content, true) ?: [];
-        }
-
-        return [];
-    }
-
-    private function createTranslationFile($langCode)
-    {
-        $defaultTranslations = [
-            'Welcome' => 'Welcome',
-            'Dashboard' => 'Dashboard',
-            'Users Management' => 'Users Management',
-            'All Users' => 'All Users',
-            'Add User' => 'Add User',
-            'Edit User' => 'Edit User',
-            'Languages' => 'Languages',
-            'Languages Management' => 'Languages Management',
-            'Add Language' => 'Add Language',
-            'Edit Language' => 'Edit Language',
-            'Manage Translations' => 'Manage Translations',
-            'Currencies' => 'Currencies',
-            'Currencies Management' => 'Currencies Management',
-            'Add Currency' => 'Add Currency',
-            'Edit Currency' => 'Edit Currency',
-            'Exchange Rate' => 'Exchange Rate',
-            'Default Currency' => 'Default Currency',
-            'Settings' => 'Settings',
-            'Profile' => 'Profile',
-            'Logout' => 'Logout',
-            'Name' => 'Name',
-            'Code' => 'Code',
-            'Flag' => 'Flag',
-            'Symbol' => 'Symbol',
-            'Actions' => 'Actions',
-            'Edit' => 'Edit',
-            'Delete' => 'Delete',
-            'Create' => 'Create',
-            'Update' => 'Update',
-            'Cancel' => 'Cancel',
-            'Save' => 'Save',
-            'Active' => 'Active',
-            'Default' => 'Default',
-            'Status' => 'Status',
-            'Yes' => 'Yes',
-            'No' => 'No',
-            'Email' => 'Email',
-            'Phone' => 'Phone',
-            'Role' => 'Role',
-            'Balance' => 'Balance',
-            'Created At' => 'Created At',
-            'Updated At' => 'Updated At',
-            'Are you sure?' => 'Are you sure?',
-            'This action cannot be undone' => 'This action cannot be undone',
-            'Confirm' => 'Confirm',
-            'Success' => 'Success',
-            'Error' => 'Error',
-            'Warning' => 'Warning',
-            'Info' => 'Info',
-        ];
-
-        $path = resource_path("lang/{$langCode}.json");
-        File::put($path, json_encode($defaultTranslations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
 
     public function refreshCache()
@@ -314,5 +246,75 @@ class LanguageController extends Controller
         Language::whereIn('id', $ids)->where('is_default', false)->delete();
 
         return redirect()->back()->with('success', __('Languages deleted successfully'));
+    }
+
+    private function getTranslations($langCode)
+    {
+        $path = resource_path("lang/{$langCode}.json");
+        if (File::exists($path)) {
+            $content = File::get($path);
+
+            return json_decode($content, true) ?: [];
+        }
+
+        return [];
+    }
+
+    private function createTranslationFile($langCode): void
+    {
+        $defaultTranslations = [
+            'Welcome' => 'Welcome',
+            'Dashboard' => 'Dashboard',
+            'Users Management' => 'Users Management',
+            'All Users' => 'All Users',
+            'Add User' => 'Add User',
+            'Edit User' => 'Edit User',
+            'Languages' => 'Languages',
+            'Languages Management' => 'Languages Management',
+            'Add Language' => 'Add Language',
+            'Edit Language' => 'Edit Language',
+            'Manage Translations' => 'Manage Translations',
+            'Currencies' => 'Currencies',
+            'Currencies Management' => 'Currencies Management',
+            'Add Currency' => 'Add Currency',
+            'Edit Currency' => 'Edit Currency',
+            'Exchange Rate' => 'Exchange Rate',
+            'Default Currency' => 'Default Currency',
+            'Settings' => 'Settings',
+            'Profile' => 'Profile',
+            'Logout' => 'Logout',
+            'Name' => 'Name',
+            'Code' => 'Code',
+            'Flag' => 'Flag',
+            'Symbol' => 'Symbol',
+            'Actions' => 'Actions',
+            'Edit' => 'Edit',
+            'Delete' => 'Delete',
+            'Create' => 'Create',
+            'Update' => 'Update',
+            'Cancel' => 'Cancel',
+            'Save' => 'Save',
+            'Active' => 'Active',
+            'Default' => 'Default',
+            'Status' => 'Status',
+            'Yes' => 'Yes',
+            'No' => 'No',
+            'Email' => 'Email',
+            'Phone' => 'Phone',
+            'Role' => 'Role',
+            'Balance' => 'Balance',
+            'Created At' => 'Created At',
+            'Updated At' => 'Updated At',
+            'Are you sure?' => 'Are you sure?',
+            'This action cannot be undone' => 'This action cannot be undone',
+            'Confirm' => 'Confirm',
+            'Success' => 'Success',
+            'Error' => 'Error',
+            'Warning' => 'Warning',
+            'Info' => 'Info',
+        ];
+
+        $path = resource_path("lang/{$langCode}.json");
+        File::put($path, json_encode($defaultTranslations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
 }

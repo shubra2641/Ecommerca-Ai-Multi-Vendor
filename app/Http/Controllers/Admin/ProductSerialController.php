@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -55,10 +57,10 @@ class ProductSerialController extends Controller
     {
         $filename = 'product_' . $product->id . '_serials_' . date('Ymd_His') . '.csv';
         $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$filename}"];
-        $callback = function () use ($product) {
+        $callback = function () use ($product): void {
             $out = fopen('php://output', 'w');
             fputcsv($out, ['id', 'serial', 'sold_at']);
-            $product->serials()->chunk(200, function ($rows) use ($out) {
+            $product->serials()->chunk(200, function ($rows) use ($out): void {
                 foreach ($rows as $r) {
                     fputcsv($out, [$r->id, $r->serial, $r->sold_at]);
                 }

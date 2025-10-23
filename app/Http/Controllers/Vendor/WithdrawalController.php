@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
@@ -54,7 +56,7 @@ class WithdrawalController extends Controller
 
         $amount = (float) $request->input('amount');
         $commissionRate = $setting->withdrawal_commission_rate ?? 0;
-        $commissionAmount = $amount * ($commissionRate / 100);
+        $commissionAmount = $amount * $commissionRate / 100;
         $netAmount = $amount - $commissionAmount;
 
         if ($user->balance < $amount) {
@@ -125,7 +127,7 @@ class WithdrawalController extends Controller
         return $gateways;
     }
 
-    private function logTransaction($user, $withdrawal, $netAmount)
+    private function logTransaction($user, $withdrawal, $netAmount): void
     {
         try {
             BalanceHistory::createTransaction(

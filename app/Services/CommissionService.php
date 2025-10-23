@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Product;
@@ -37,7 +39,7 @@ class CommissionService
     {
         $subtotal = $unitPrice * $qty;
         $rate = self::rateForProduct($product);
-        $commission = $rate > 0 ? round($subtotal * ($rate / 100), 2) : 0.0;
+        $commission = $rate > 0 ? round($subtotal * $rate / 100, 2) : 0.0;
         $vendorEarnings = round($subtotal - $commission, 2); // shipping & tax excluded (handled at order level)
 
         return [

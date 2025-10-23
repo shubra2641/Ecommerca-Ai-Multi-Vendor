@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Language;
@@ -126,7 +128,7 @@ class LanguageController extends Controller
         return [];
     }
 
-    private function createTranslationFile($langCode)
+    private function createTranslationFile($langCode): void
     {
         $defaultTranslations = [
             'Welcome' => 'Welcome',

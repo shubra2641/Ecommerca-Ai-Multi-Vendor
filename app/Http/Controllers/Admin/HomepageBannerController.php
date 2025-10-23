@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -12,22 +14,6 @@ use Illuminate\View\View;
 
 class HomepageBannerController extends Controller
 {
-    private function activeLanguages()
-    {
-        return Cache::remember('active_languages_full', 3600, function () {
-            try {
-                return \DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
-            } catch (\Throwable $e) {
-                return collect([
-                    (object) [
-                        'code' => config('app.locale', 'en'),
-                        'is_default' => 1,
-                        'name' => strtoupper(config('app.locale', 'en')),
-                    ],
-                ]);
-            }
-        });
-    }
 
     public function index(): View
     {
@@ -93,8 +79,8 @@ class HomepageBannerController extends Controller
             } $data['image'] = $request->file('image')->store('uploads/homepage/banners', 'public');
         } $data['enabled'] = (bool) ($data['enabled'] ?? false);
         $merge = function ($e, $i) {
-            $e = $e ?: [];
-            foreach (($i ?: []) as $k => $v) {
+            $e = $e ? $e : [];
+            foreach (($i ? $i : []) as $k => $v) {
                 if ($v === '') {
                     unset($e[$k]);
 
@@ -134,5 +120,21 @@ class HomepageBannerController extends Controller
         Cache::forget('homepage_banners_enabled');
 
         return back()->with('success', __('Banner deleted.'));
+    }
+    private function activeLanguages()
+    {
+        return Cache::remember('active_languages_full', 3600, function () {
+            try {
+                return \DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
+            } catch (\Throwable $e) {
+                return collect([
+                    (object) [
+                        'code' => config('app.locale', 'en'),
+                        'is_default' => 1,
+                        'name' => strtoupper(config('app.locale', 'en')),
+                    ],
+                ]);
+            }
+        });
     }
 }

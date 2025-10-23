@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductIdRequest;
@@ -8,15 +10,6 @@ use Illuminate\Http\Request;
 
 class CompareController extends Controller
 {
-    protected function getList(): array
-    {
-        return session('compare', []);
-    }
-
-    protected function save(array $list): void
-    {
-        session(['compare' => $list]);
-    }
 
     public function toggle(ProductIdRequest $r)
     {
@@ -63,5 +56,14 @@ class CompareController extends Controller
             'wishlistIds' => session('wishlist', []),
             'currency_symbol' => $currency_symbol,
         ]);
+    }
+    protected function getList(): array
+    {
+        return session('compare', []);
+    }
+
+    protected function save(array $list): void
+    {
+        session(['compare' => $list]);
     }
 }

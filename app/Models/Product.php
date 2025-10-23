@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,16 +25,6 @@ class Product extends Model
         'seo_description',
         'seo_keywords',
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-        static::creating(function (Product $p) {
-            if ($p->vendor_id && $p->active === null) {
-                $p->active = false; // force review state
-            }
-        });
-    }
 
     protected $fillable = [
         'vendor_id',
@@ -172,10 +164,10 @@ class Product extends Model
 
         return $q->whereNotNull('sale_price')
             ->whereColumn('sale_price', '<', 'price')
-            ->where(function ($qq) use ($now) {
+            ->where(function ($qq) use ($now): void {
                 $qq->whereNull('sale_start')->orWhere('sale_start', '<=', $now);
             })
-            ->where(function ($qq) use ($now) {
+            ->where(function ($qq) use ($now): void {
                 $qq->whereNull('sale_end')->orWhere('sale_end', '>=', $now);
             });
     }
@@ -188,7 +180,7 @@ class Product extends Model
     public function effectivePrice(): float
     {
         if ($this->type === 'variable') {
-            $min = $this->variations->filter(fn($v) => $v->active)->map(fn($v) => $v->effectivePrice())->min();
+            $min = $this->variations->filter(fn ($v) => $v->active)->map(fn ($v) => $v->effectivePrice())->min();
 
             return $min ?? (float) $this->price;
         }
@@ -227,5 +219,15 @@ class Product extends Model
     public function translated(string $field, ?string $lang = null)
     {
         return $this->translate($field, $lang);
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::creating(function (Product $p): void {
+            if ($p->vendor_id && $p->active === null) {
+                $p->active = false; // force review state
+            }
+        });
     }
 }

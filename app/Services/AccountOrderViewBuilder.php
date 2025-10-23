@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\City;
@@ -103,7 +105,7 @@ class AccountOrderViewBuilder
             ];
         }
 
-        $subtotal = $order->subtotal ?? ($order->total - ($order->shipping_price ?? 0));
+        $subtotal = $order->subtotal ?? $order->total - ($order->shipping_price ?? 0);
 
         return compact('addrText', 'stages', 'current', 'reached', 'itemRows', 'subtotal');
     }

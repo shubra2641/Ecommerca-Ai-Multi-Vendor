@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
@@ -7,7 +9,6 @@ use App\Http\Requests\Vendor\OrderFilterRequest;
 use App\Jobs\GenerateVendorOrdersCsv;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -51,10 +52,10 @@ class OrderController extends Controller
         }
 
         $filename = 'vendor_orders_'.date('Ymd_His').'.csv';
-        $response = new StreamedResponse(function () use ($q) {
+        $response = new StreamedResponse(function () use ($q): void {
             $handle = fopen('php://output', 'w');
             fputcsv($handle, ['order_id', 'order_date', 'product', 'quantity', 'total_price', 'status']);
-            $q->chunk(200, function ($items) use ($handle) {
+            $q->chunk(200, function ($items) use ($handle): void {
                 foreach ($items as $it) {
                     fputcsv($handle, [
                         $it->order_id,

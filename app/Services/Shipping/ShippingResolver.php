@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Shipping;
 
 use App\Models\ShippingRule;
@@ -66,7 +68,7 @@ class ShippingResolver
      * Return all matching shipping options (one per zone) for the given location.
      * Picks the best rule per zone using precedence city > governorate > country.
      *
-     * @return array[] empty array if none
+     * @return array<array> empty array if none
      */
     public function resolveAll(
         ?int $countryId,
@@ -87,9 +89,9 @@ class ShippingResolver
             $zoneKey = $r->zone_id;
             // determine priority: 3=city match,2=governorate match,1=country level
             $priority = 0;
-            if ($cityId && $r->city_id && $r->city_id == $cityId) {
+            if ($cityId && $r->city_id && $r->city_id === $cityId) {
                 $priority = 3;
-            } elseif (! $r->city_id && $governorateId && $r->governorate_id && $r->governorate_id == $governorateId) {
+            } elseif (! $r->city_id && $governorateId && $r->governorate_id && $r->governorate_id === $governorateId) {
                 $priority = 2;
             } elseif (! $r->city_id && ! $r->governorate_id) {
                 $priority = 1;

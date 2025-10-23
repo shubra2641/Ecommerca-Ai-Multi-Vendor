@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -160,7 +162,7 @@ class ShippingGroupController extends Controller
                 return null; // invalid governorate for country
             }
             if ($cityId) {
-                $city = City::where('id', $cityId)->whereHas('governorate', function ($q) use ($govId, $countryId) {
+                $city = City::where('id', $cityId)->whereHas('governorate', function ($q) use ($govId, $countryId): void {
                     $q->where('id', $govId)->where('country_id', $countryId);
                 })->first();
                 if (! $city) {

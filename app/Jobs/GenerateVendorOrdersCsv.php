@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Mail\VendorExportReady;
@@ -33,7 +35,7 @@ class GenerateVendorOrdersCsv implements ShouldQueue
         $this->filters = $filters;
     }
 
-    public function handle()
+    public function handle(): void
     {
         $export = VendorExport::find($this->vendorExportId);
         if (! $export) {
@@ -62,7 +64,7 @@ class GenerateVendorOrdersCsv implements ShouldQueue
         $handle = fopen($temp, 'w');
         fputcsv($handle, ['order_id', 'order_date', 'product', 'quantity', 'total_price', 'status']);
 
-        $q->chunk(200, function ($items) use ($handle) {
+        $q->chunk(200, function ($items) use ($handle): void {
             foreach ($items as $it) {
                 fputcsv($handle, [
                     $it->order_id,

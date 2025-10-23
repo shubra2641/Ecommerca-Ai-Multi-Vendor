@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CheckoutRequest;
@@ -59,7 +61,7 @@ class CheckoutController extends Controller
             $coupon = \App\Models\Coupon::find(session('applied_coupon_id'));
             if ($coupon && $coupon->isValid($subtotal)) {
                 if ($coupon->type === 'percentage') {
-                    $discount = $subtotal * ($coupon->value / 100);
+                    $discount = $subtotal * $coupon->value / 100;
                 } else {
                     $discount = min($coupon->value, $subtotal);
                 }
@@ -75,45 +77,6 @@ class CheckoutController extends Controller
             return $this->handlePaymentResult($paymentResult, $request);
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
-        }
-    }
-
-    /**
-     * Handle payment result
-     */
-    private function handlePaymentResult(array $paymentResult, Request $request)
-    {
-        switch ($paymentResult['type']) {
-            case 'redirect':
-                session()->forget('cart');
-                session()->flash('refresh_admin_notifications', true);
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => true,
-                        'redirect_url' => $paymentResult['redirect_url'],
-                        'payment_id' => $paymentResult['payment']?->id ?? null,
-                    ]);
-                }
-
-                return redirect()->away($paymentResult['redirect_url']);
-
-            case 'offline':
-                session()->forget('cart');
-
-                return redirect($paymentResult['redirect_url'])
-                    ->with('success', __('Order created. Follow the payment instructions.'))
-                    ->with('refresh_admin_notifications', true);
-
-            case 'stripe':
-                session()->put('stripe_pending_cart', session('cart'));
-                session()->forget('cart');
-                session()->flash('refresh_admin_notifications', true);
-
-                return redirect()->away($paymentResult['redirect_url']);
-
-            default:
-                return back()->with('error', __('Unsupported payment method'));
         }
     }
 
@@ -314,7 +277,8 @@ class CheckoutController extends Controller
                             'unit_amount' => (int) round(($order->total ?? 0) * 100),
                         ],
                         'quantity' => 1,
-                    ]],
+                    ],
+                    ],
                     'success_url' => url('/checkout/success?order=' . $order->id),
                     'cancel_url' => url('/checkout/cancel?order=' . $order->id),
                     'metadata' => ['order_id' => $order->id],
@@ -381,7 +345,7 @@ class CheckoutController extends Controller
                         ->orderBy('id')
                         ->first();
 
-                    $amount = ($session['amount_total'] ?? ($order->total * 100)) / 100;
+                    $amount = ($session['amount_total'] ?? $order->total * 100) / 100;
 
                     if ($payment) {
                         $payment->status = 'completed';
@@ -475,5 +439,44 @@ class CheckoutController extends Controller
             ->with('order', $order)
             ->with('payment', null)
             ->with('error_message', $errorMessage);
+    }
+
+    /**
+     * Handle payment result
+     */
+    private function handlePaymentResult(array $paymentResult, Request $request)
+    {
+        switch ($paymentResult['type']) {
+            case 'redirect':
+                session()->forget('cart');
+                session()->flash('refresh_admin_notifications', true);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'redirect_url' => $paymentResult['redirect_url'],
+                        'payment_id' => $paymentResult['payment']?->id ?? null,
+                    ]);
+                }
+
+                return redirect()->away($paymentResult['redirect_url']);
+
+            case 'offline':
+                session()->forget('cart');
+
+                return redirect($paymentResult['redirect_url'])
+                    ->with('success', __('Order created. Follow the payment instructions.'))
+                    ->with('refresh_admin_notifications', true);
+
+            case 'stripe':
+                session()->put('stripe_pending_cart', session('cart'));
+                session()->forget('cart');
+                session()->flash('refresh_admin_notifications', true);
+
+                return redirect()->away($paymentResult['redirect_url']);
+
+            default:
+                return back()->with('error', __('Unsupported payment method'));
+        }
     }
 }

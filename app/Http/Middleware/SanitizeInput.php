@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -12,7 +14,7 @@ class SanitizeInput
         if ($request->isMethod('POST') || $request->isMethod('PUT') || $request->isMethod('PATCH')) {
             $input = $request->all();
             $allowHtml = config('sanitizer.allow_html_fields', []);
-            array_walk_recursive($input, function (&$value, $key) use ($allowHtml) {
+            array_walk_recursive($input, function (&$value, $key) use ($allowHtml): void {
                 if (! is_string($value)) {
                     return;
                 }

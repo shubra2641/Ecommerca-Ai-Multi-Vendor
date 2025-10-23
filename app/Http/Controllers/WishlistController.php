@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductIdRequest;
@@ -9,24 +11,6 @@ use Illuminate\Http\Request;
 
 class WishlistController extends Controller
 {
-    protected function getSessionList(): array
-    {
-        return session('wishlist', []);
-    }
-
-    protected function saveSession(array $list): void
-    {
-        session(['wishlist' => $list]);
-    }
-
-    protected function getUserListIds($user)
-    {
-        if (! $user) {
-            return [];
-        }
-
-        return WishlistItem::where('user_id', $user->id)->pluck('product_id')->all();
-    }
 
     public function index(Request $request)
     {
@@ -73,5 +57,23 @@ class WishlistController extends Controller
         }
 
         return back()->with('success', __('Wishlist updated'));
+    }
+    protected function getSessionList(): array
+    {
+        return session('wishlist', []);
+    }
+
+    protected function saveSession(array $list): void
+    {
+        session(['wishlist' => $list]);
+    }
+
+    protected function getUserListIds($user)
+    {
+        if (! $user) {
+            return [];
+        }
+
+        return WishlistItem::where('user_id', $user->id)->pluck('product_id')->all();
     }
 }

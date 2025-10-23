@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\CountryController;
@@ -60,11 +62,11 @@ Route::middleware([
     'role:admin',
     'can:access-admin',
     \App\Http\Middleware\EnsureEmailActivated::class,
-])->group(function () {
+])->group(function (): void {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     // Reports routes
-    Route::prefix('reports')->name('admin.reports.')->group(function () {
+    Route::prefix('reports')->name('admin.reports.')->group(function (): void {
         Route::get('/', [ReportsController::class, 'index'])->name('index');
         Route::get('/users', [ReportsController::class, 'usersReport'])->name('users');
         Route::get('/vendors', [ReportsController::class, 'vendorsReport'])->name('vendors');
@@ -77,7 +79,7 @@ Route::middleware([
     });
 
     // Notify interests management
-    Route::prefix('notify')->name('admin.notify.')->group(function () {
+    Route::prefix('notify')->name('admin.notify.')->group(function (): void {
         Route::get('/', [AdminNotifyController::class, 'index'])->name('index');
         Route::put('/{interest}/mark', [AdminNotifyController::class, 'markNotified'])
             ->name('mark');
@@ -109,14 +111,14 @@ Route::middleware([
         ->name('admin.notifications.send.store');
 
     // Profile management routes
-    Route::prefix('profile')->name('admin.profile.')->group(function () {
+    Route::prefix('profile')->name('admin.profile.')->group(function (): void {
         Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
         Route::put('/update', [ProfileController::class, 'update'])->name('update');
         Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
     });
 
     // Users management routes
-    Route::prefix('users')->name('admin.users.')->group(function () {
+    Route::prefix('users')->name('admin.users.')->group(function (): void {
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::get('/create', [UserController::class, 'create'])->name('create');
         Route::post('/', [UserController::class, 'store'])->name('store');
@@ -140,7 +142,7 @@ Route::middleware([
     });
 
     // Balance exports
-    Route::prefix('balances')->name('admin.balances.')->group(function () {
+    Route::prefix('balances')->name('admin.balances.')->group(function (): void {
         Route::get('/', [UserController::class, 'balances'])->name('index');
         Route::get('/export/excel', [UserController::class, 'exportExcel'])->name('export.excel');
         Route::get('/export/pdf', [UserController::class, 'exportPdf'])->name('export.pdf');
@@ -148,7 +150,7 @@ Route::middleware([
     });
 
     // Languages management
-    Route::prefix('languages')->name('admin.languages.')->group(function () {
+    Route::prefix('languages')->name('admin.languages.')->group(function (): void {
         Route::get('/', [AdminLanguageController::class, 'index'])->name('index');
         Route::get('/create', [AdminLanguageController::class, 'create'])->name('create');
         Route::post('/', [AdminLanguageController::class, 'store'])->name('store');
@@ -173,7 +175,7 @@ Route::middleware([
     });
 
     // Currencies management
-    Route::prefix('currencies')->name('admin.currencies.')->group(function () {
+    Route::prefix('currencies')->name('admin.currencies.')->group(function (): void {
         Route::get('/', [CurrencyController::class, 'index'])->name('index');
         Route::get('/create', [CurrencyController::class, 'create'])->name('create');
         Route::post('/', [CurrencyController::class, 'store'])->name('store');
@@ -191,7 +193,7 @@ Route::middleware([
     });
 
     // Social links management
-    Route::prefix('social-links')->name('admin.social.')->group(function () {
+    Route::prefix('social-links')->name('admin.social.')->group(function (): void {
         Route::get('/', [SocialLinkController::class, 'index'])->name('index');
         Route::get('/create', [SocialLinkController::class, 'create'])->name('create');
         Route::post('/', [SocialLinkController::class, 'store'])->name('store');
@@ -202,7 +204,7 @@ Route::middleware([
     });
 
     // Gallery management routes
-    Route::prefix('gallery')->name('admin.gallery.')->group(function () {
+    Route::prefix('gallery')->name('admin.gallery.')->group(function (): void {
         Route::get('/', [GalleryController::class, 'index'])->name('index');
         Route::get('/upload', [GalleryController::class, 'create'])->name('create');
         Route::post('/', [GalleryController::class, 'store'])->name('store');
@@ -215,9 +217,9 @@ Route::middleware([
     });
 
     // Blog management routes
-    Route::prefix('blog')->name('admin.blog.')->group(function () {
+    Route::prefix('blog')->name('admin.blog.')->group(function (): void {
         // Posts
-        Route::prefix('posts')->name('posts.')->group(function () {
+        Route::prefix('posts')->name('posts.')->group(function (): void {
             Route::get('/', [PostController::class, 'index'])->name('index');
             Route::get('/create', [PostController::class, 'create'])->name('create');
             Route::post('/', [PostController::class, 'store'])->name('store');
@@ -230,7 +232,7 @@ Route::middleware([
                 ->name('ai.suggest');
         });
         // Categories
-        Route::prefix('categories')->name('categories.')->group(function () {
+        Route::prefix('categories')->name('categories.')->group(function (): void {
             Route::get('/', [PostCategoryController::class, 'index'])->name('index');
             Route::get('/create', [PostCategoryController::class, 'create'])->name('create');
             Route::post('/', [PostCategoryController::class, 'store'])->name('store');
@@ -243,7 +245,7 @@ Route::middleware([
         });
 
         // AI Suggestions
-        Route::prefix('ai')->name('ai.')->group(function () {
+        Route::prefix('ai')->name('ai.')->group(function (): void {
             Route::post('/blog-post', [\App\Http\Controllers\AI\SuggestionController::class, 'blogPost'])
                 ->name('blog-post');
             Route::post('/product', [\App\Http\Controllers\AI\SuggestionController::class, 'product'])
@@ -252,7 +254,7 @@ Route::middleware([
                 ->name('category');
         });
         // Tags
-        Route::prefix('tags')->name('tags.')->group(function () {
+        Route::prefix('tags')->name('tags.')->group(function (): void {
             Route::get('/', [TagController::class, 'index'])->name('index');
             Route::post('/', [TagController::class, 'store'])->name('store');
             Route::put('/{tag}', [TagController::class, 'update'])->name('update');
@@ -261,31 +263,31 @@ Route::middleware([
     });
 
     // Dashboard AJAX routes
-    Route::prefix('dashboard')->name('admin.dashboard.')->group(function () {
+    Route::prefix('dashboard')->name('admin.dashboard.')->group(function (): void {
         Route::post('/refresh', [AdminDashboardController::class, 'refresh'])->name('refresh');
         Route::get('/chart-data', [AdminDashboardController::class, 'getChartData'])->name('chart-data');
         Route::get('/stats', [AdminDashboardController::class, 'getStats'])->name('stats');
     });
 
     // Settings routes
-    Route::prefix('settings')->name('admin.settings.')->group(function () {
+    Route::prefix('settings')->name('admin.settings.')->group(function (): void {
         Route::get('/', [SettingsController::class, 'index'])->name('index');
         Route::put('/', [SettingsController::class, 'update'])->name('update');
     });
 
     // Footer settings routes
-    Route::prefix('footer-settings')->name('admin.footer-settings.')->group(function () {
+    Route::prefix('footer-settings')->name('admin.footer-settings.')->group(function (): void {
         Route::get('/', [FooterSettingsController::class, 'edit'])->name('edit');
         Route::put('/', [FooterSettingsController::class, 'update'])->name('update');
     });
 
     // Maintenance settings routes
-    Route::prefix('maintenance-settings')->name('admin.maintenance-settings.')->group(function () {
+    Route::prefix('maintenance-settings')->name('admin.maintenance-settings.')->group(function (): void {
         Route::get('/', [MaintenanceSettingsController::class, 'edit'])->name('edit');
         Route::put('/', [MaintenanceSettingsController::class, 'update'])->name('update');
         Route::get('/preview', [MaintenanceSettingsController::class, 'preview'])->name('preview');
     });
-    Route::prefix('homepage')->name('admin.homepage.')->group(function () {
+    Route::prefix('homepage')->name('admin.homepage.')->group(function (): void {
         Route::get('sections', [HomepageSectionController::class, 'index'])->name('sections.index');
         Route::post('sections', [HomepageSectionController::class, 'updateBulk'])->name('sections.update');
         Route::get('slides', [HomepageSlideController::class, 'index'])->name('slides.index');
@@ -299,18 +301,18 @@ Route::middleware([
     });
 
     // Cache management routes
-    Route::prefix('cache')->name('admin.cache.')->group(function () {
+    Route::prefix('cache')->name('admin.cache.')->group(function (): void {
         Route::post('/clear', [AdminDashboardController::class, 'clearCache'])->name('clear');
     });
 
     // System management routes
-    Route::prefix('system')->name('admin.')->group(function () {
+    Route::prefix('system')->name('admin.')->group(function (): void {
         Route::post('/logs/clear', [AdminDashboardController::class, 'clearLogs'])->name('logs.clear');
         Route::post('/optimize', [AdminDashboardController::class, 'optimize'])->name('optimize');
     });
 
     // Language routes additions
-    Route::prefix('languages')->name('admin.languages.')->group(function () {
+    Route::prefix('languages')->name('admin.languages.')->group(function (): void {
         Route::post('/refresh-cache', [AdminLanguageController::class, 'refreshCache'])->name('refresh-cache');
         Route::post('/bulk-activate', [AdminLanguageController::class, 'bulkActivate'])->name('bulk-activate');
         Route::post('/bulk-deactivate', [AdminLanguageController::class, 'bulkDeactivate'])->name('bulk-deactivate');
@@ -318,7 +320,7 @@ Route::middleware([
     });
 
     // User routes additions
-    Route::prefix('users')->name('admin.users.')->group(function () {
+    Route::prefix('users')->name('admin.users.')->group(function (): void {
         Route::post('/bulk-approve', [UserController::class, 'bulkApprove'])->name('bulk-approve');
         Route::delete('/bulk-delete', [UserController::class, 'bulkDelete'])->name('bulk-delete');
     });
@@ -333,7 +335,7 @@ Route::middleware([
         ->name('admin.payment-gateways.test-webhook');
 
     // Advanced Payment Gateway Management
-    Route::prefix('payment-gateways-management')->name('admin.payment-gateways-management.')->group(function () {
+    Route::prefix('payment-gateways-management')->name('admin.payment-gateways-management.')->group(function (): void {
         Route::get('dashboard', [PaymentGatewayManagementController::class, 'dashboard'])->name('dashboard');
         Route::post('{paymentGateway}/test-connection', [PaymentGatewayManagementController::class, 'testConnection'])
             ->name('test-connection');
@@ -351,7 +353,7 @@ Route::middleware([
     });
 
     // Coupons management (moved here so path is /admin/coupons)
-    Route::prefix('coupons')->name('admin.coupons.')->group(function () {
+    Route::prefix('coupons')->name('admin.coupons.')->group(function (): void {
         Route::get('/', [CouponController::class, 'index'])->name('index');
         Route::get('/create', [CouponController::class, 'create'])->name('create');
         Route::post('/', [CouponController::class, 'store'])->name('store');
@@ -363,7 +365,7 @@ Route::middleware([
     // Shipping Zones (new system)
     Route::resource('shipping-zones', ShippingZoneController::class)->names('admin.shipping-zones');
     // Vendor withdrawals management
-    Route::prefix('vendor-withdrawals')->name('admin.vendor.withdrawals.')->group(function () {
+    Route::prefix('vendor-withdrawals')->name('admin.vendor.withdrawals.')->group(function (): void {
         Route::get('/', [VendorWithdrawalController::class, 'index'])->name('index');
         Route::get('/{withdrawal}', [VendorWithdrawalController::class, 'show'])->name('show');
         Route::post('/{withdrawal}/approve', [VendorWithdrawalController::class, 'approve'])->name('approve');
@@ -377,7 +379,7 @@ Route::middleware([
     Route::get('payouts/{payout}', [VendorWithdrawalController::class, 'payoutsShow'])
         ->name('admin.vendor.payouts.show');
     // Vendor exports admin
-    Route::prefix('vendor-exports')->name('admin.vendor_exports.')->group(function () {
+    Route::prefix('vendor-exports')->name('admin.vendor_exports.')->group(function (): void {
         Route::get('/', [VendorExportController::class, 'index'])->name('index');
         Route::get('/{export}/download', [VendorExportController::class, 'download'])
             ->name('download');
@@ -408,7 +410,7 @@ Route::post('/admin/logout', function () {
 Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
     ->prefix('products')
     ->name('admin.')
-    ->group(function () {
+    ->group(function (): void {
         Route::resource('product-categories', ProductCategoryController::class);
         // AI assist endpoint for product categories (generate description + SEO)
         Route::match(['get', 'post', 'put'], 'product-categories/ai/suggest', [ProductCategoryController::class, 'aiSuggest'])
@@ -494,7 +496,7 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
             ->name('returns.update');
 
         // Enhanced User Balance Routes
-        Route::prefix('users/{user}')->group(function () {
+        Route::prefix('users/{user}')->group(function (): void {
             Route::get('balance/stats', [UserController::class, 'getBalanceStats'])->name('users.balance.stats');
             Route::get('balance/history', [UserController::class, 'getBalanceHistory'])->name('users.balance.history');
             Route::post('balance/refresh', [UserController::class, 'refreshBalance'])->name('users.balance.refresh');
@@ -502,7 +504,7 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
         });
 
         // Enhanced Notification Routes
-        Route::prefix('notifications')->group(function () {
+        Route::prefix('notifications')->group(function (): void {
             Route::get('stats', [NotificationController::class, 'getStats'])->name('notifications.stats');
             Route::post('mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
             Route::delete('{id}', [NotificationController::class, 'delete'])->name('notifications.delete');
@@ -510,7 +512,7 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
         });
 
         // Form Validation Routes
-        Route::prefix('forms')->group(function () {
+        Route::prefix('forms')->group(function (): void {
             Route::post('validate', [FormController::class, 'validateForm'])->name('forms.validate');
             Route::post('auto-save', [FormController::class, 'autoSave'])->name('forms.autoSave');
         });

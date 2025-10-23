@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Coupon;
@@ -137,7 +139,7 @@ class CheckoutViewBuilder
                 }
             } catch (\Throwable $e) {
             }
-            $it['image'] = $img ?: asset('images/placeholder.svg');
+            $it['image'] = $img ? $img : asset('images/placeholder.svg');
         }
 
         // JS config

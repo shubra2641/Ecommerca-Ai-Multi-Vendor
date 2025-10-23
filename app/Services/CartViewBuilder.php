@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 class CartViewBuilder
@@ -53,7 +55,7 @@ class CartViewBuilder
                 }
             }
             $onSale = ($p->sale_price ?? null) && ($p->sale_price < ($p->price ?? 0));
-            $salePercent = $onSale && $p->price ? (int) round((($p->price - $p->sale_price) / $p->price) * 100) : null;
+            $salePercent = $onSale && $p->price ? (int) round(($p->price - $p->sale_price) / $p->price * 100) : null;
             $items[] = [
                 'product' => $p,
                 'price' => $it['price'],

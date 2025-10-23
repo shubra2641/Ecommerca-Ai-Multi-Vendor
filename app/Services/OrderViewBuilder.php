@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Order;
@@ -21,7 +23,7 @@ class OrderViewBuilder
         });
         $subtotal = $items->sum('line_total');
         $shipping = $order->shipping_price;
-        $total = $order->total ?? ($subtotal + ($shipping ?? 0));
+        $total = $order->total ?? $subtotal + ($shipping ?? 0);
 
         // Attachments from payments
         $attachments = collect();

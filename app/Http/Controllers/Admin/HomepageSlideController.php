@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -13,22 +15,6 @@ use Illuminate\View\View;
 
 class HomepageSlideController extends Controller
 {
-    private function activeLanguages()
-    {
-        return Cache::remember('active_languages_full', 3600, function () {
-            try {
-                return \DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
-            } catch (\Throwable $e) {
-                return collect([
-                    (object) [
-                        'code' => config('app.locale', 'en'),
-                        'is_default' => 1,
-                        'name' => strtoupper(config('app.locale', 'en')),
-                    ],
-                ]);
-            }
-        });
-    }
 
     public function index(): View
     {
@@ -99,8 +85,8 @@ class HomepageSlideController extends Controller
         }
         $data['enabled'] = (bool) ($data['enabled'] ?? false);
         $merge = function ($existing, $incoming) {
-            $existing = $existing ?: [];
-            foreach (($incoming ?: []) as $k => $v) {
+            $existing = $existing ? $existing : [];
+            foreach (($incoming ? $incoming : []) as $k => $v) {
                 if ($v === '') {
                     unset($existing[$k]);
 
@@ -157,5 +143,21 @@ class HomepageSlideController extends Controller
         Cache::forget('homepage_slides_enabled');
 
         return back()->with('success', __('Slide deleted.'));
+    }
+    private function activeLanguages()
+    {
+        return Cache::remember('active_languages_full', 3600, function () {
+            try {
+                return \DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
+            } catch (\Throwable $e) {
+                return collect([
+                    (object) [
+                        'code' => config('app.locale', 'en'),
+                        'is_default' => 1,
+                        'name' => strtoupper(config('app.locale', 'en')),
+                    ],
+                ]);
+            }
+        });
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -61,7 +63,7 @@ class SocialLinkController extends Controller
         if (isset($data['url']) && is_string($data['url'])) {
             $data['url'] = $sanitizer->clean($data['url']);
         }
-        $data['order'] = $data['order'] ?? (SocialLink::max('order') + 1);
+        $data['order'] = $data['order'] ?? SocialLink::max('order') + 1;
         SocialLink::create($data);
 
         return redirect()->route('admin.social.index')->with('success', __('Social link created.'));

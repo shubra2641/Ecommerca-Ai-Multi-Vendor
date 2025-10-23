@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\Admin\LocationController as AdminLocationController;
 use App\Http\Controllers\Ajax\CurrencyController;
 use App\Http\Controllers\Api\NewShippingController;
@@ -41,8 +43,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/csp-report', CspReportController::class)->name('csp.report');
 
 // Public routes wrapped in maintenance middleware. Admin routes and admin login are defined later
-Route::middleware(\App\Http\Middleware\CheckMaintenanceMode::class)->group(function () {
-
+Route::middleware(\App\Http\Middleware\CheckMaintenanceMode::class)->group(function (): void {
     Route::post('/language', [LanguageController::class, 'switchLang'])->name('language.switch');
     Route::post('/notify/product', [NotifyController::class, 'store'])->name('notify.product');
     Route::get('/notify/check', [NotifyController::class, 'check'])->name('notify.check');
@@ -152,7 +153,7 @@ Route::middleware(\App\Http\Middleware\CheckMaintenanceMode::class)->group(funct
     Route::post('/currency/switch', [CurrencyController::class, 'switch'])->name('currency.switch');
 });
 
-Route::middleware('guest')->group(function () {
+Route::middleware('guest')->group(function (): void {
     Route::get('admin/login', [AdminAuthenticatedSessionController::class, 'create'])
         ->name('admin.login');
 
@@ -160,7 +161,7 @@ Route::middleware('guest')->group(function () {
         ->name('admin.login.store');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/dashboard', function () {
         if (Gate::allows('access-admin')) {
             return redirect()->route('admin.dashboard');
@@ -174,7 +175,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // User account area
-Route::middleware('auth')->prefix('account')->name('user.')->group(function () {
+Route::middleware('auth')->prefix('account')->name('user.')->group(function (): void {
     Route::get('/', [UserDashboardController::class, 'index'])->name('dashboard');
     Route::get('/orders', [OrdersController::class, 'index'])->name('orders');
     Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('orders.show');
@@ -192,7 +193,7 @@ Route::middleware('auth')->prefix('account')->name('user.')->group(function () {
     Route::get('/orders/{order}/invoice.pdf', InvoicePdfController::class)->name('orders.invoice.pdf');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function (): void {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -206,14 +207,14 @@ Route::middleware('auth')->get('/order/{order}', [OrderViewController::class, 's
 // Public enabled payment gateways list (for checkout UI)
 Route::get('/api/payment-gateways', [PaymentGatewaysController::class, 'index']);
 
-Route::middleware(['auth', 'can:access-user'])->prefix('user')->name('user.')->group(function () {
+Route::middleware(['auth', 'can:access-user'])->prefix('user')->name('user.')->group(function (): void {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 });
 
 require __DIR__ . '/auth.php';
 
 // Admin routes
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->group(function (): void {
     require __DIR__ . '/admin.php';
 });
 
@@ -223,7 +224,7 @@ require __DIR__ . '/install.php';
 // Append admin test webhook route to admin routes file by editing admin.php
 
 // Vendor routes
-Route::prefix('vendor')->name('vendor.')->group(function () {
+Route::prefix('vendor')->name('vendor.')->group(function (): void {
     require __DIR__ . '/vendor.php';
 });
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,6 +10,19 @@ use Illuminate\Database\Eloquent\Model;
 class ProductInterest extends Model
 {
     use HasFactory;
+
+    // Types & statuses
+    public const TYPE_STOCK = 'stock'; // generic stock alert
+
+    public const TYPE_BACK_IN_STOCK = 'back_in_stock'; // specifically when returning from zero
+
+    public const TYPE_PRICE_DROP = 'price_drop';
+
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_NOTIFIED = 'notified';
+
+    public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
         'product_id',
@@ -51,19 +66,6 @@ class ProductInterest extends Model
         return $q->where('type', $type);
     }
 
-    // Types & statuses
-    public const TYPE_STOCK = 'stock'; // generic stock alert
-
-    public const TYPE_BACK_IN_STOCK = 'back_in_stock'; // specifically when returning from zero
-
-    public const TYPE_PRICE_DROP = 'price_drop';
-
-    public const STATUS_PENDING = 'pending';
-
-    public const STATUS_NOTIFIED = 'notified';
-
-    public const STATUS_CANCELLED = 'cancelled';
-
     public static function allowedTypes(): array
     {
         return [
@@ -91,14 +93,14 @@ class ProductInterest extends Model
     {
         $ttl = config('interest.cache_ttl', 600);
 
-        return cache()->remember("interest_count:$productId", $ttl, function () use ($productId) {
+        return cache()->remember("interest_count:{$productId}", $ttl, function () use ($productId) {
             return static::where('product_id', $productId)->active()->count();
         });
     }
 
     protected static function booted(): void
     {
-        $invalidate = function ($model) {
+        $invalidate = function ($model): void {
             cache()->forget("interest_count:{$model->product_id}");
         };
         static::created($invalidate);

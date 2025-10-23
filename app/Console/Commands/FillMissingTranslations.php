@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -41,7 +43,7 @@ class FillMissingTranslations extends Command
         foreach ($models as $class) {
             $instance = new $class();
             if (! property_exists($instance, 'translatable')) {
-                $this->line("Skipping $class (no translatable property)");
+                $this->line("Skipping {$class} (no translatable property)");
 
                 continue;
             }
@@ -66,7 +68,7 @@ class FillMissingTranslations extends Command
 
                 continue;
             }
-            $class::chunkById(200, function ($chunk) use (&$updated, $targetLocales, $fallback, $bar, $translatable) {
+            $class::chunkById(200, function ($chunk) use (&$updated, $targetLocales, $fallback, $bar, $translatable): void {
                 foreach ($chunk as $model) {
                     $dirty = false;
                     foreach ($translatable as $field) {
@@ -98,7 +100,7 @@ class FillMissingTranslations extends Command
             });
             $bar->finish();
             $this->newLine();
-            $this->info(class_basename($class) . ": updated $updated records");
+            $this->info(class_basename($class) . ": updated {$updated} records");
         }
 
         $this->info('Done.');

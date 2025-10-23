@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -78,8 +80,7 @@ class RegisteredUserController extends Controller
                 return redirect()->route('login')
                     ->with(
                         'status',
-                        'Your vendor account is pending approval by an administrator. ' .
-                            'You will be notified once approved.'
+                        'Your vendor account is pending approval by an administrator. You will be notified once approved.'
                     )
                     ->with('refresh_admin_notifications', true);
             }

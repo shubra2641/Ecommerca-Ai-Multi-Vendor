@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -22,7 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var list<string>
      */
-    protected $fillable = [
+    protected array $fillable = [
         'name',
         'email',
         'password',
@@ -39,7 +41,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var list<string>
      */
-    protected $hidden = [
+    protected array $hidden = [
         'password',
         'remember_token',
     ];
@@ -50,21 +52,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'approved_at' => 'datetime',
         'email_verified_at' => 'datetime',
     ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'balance' => 'decimal:2',
-            'transfer_details' => 'array',
-        ];
-    }
 
     // Relationships
 
@@ -173,7 +160,7 @@ class User extends Authenticatable implements MustVerifyEmail
             $filled += 25;
         }
 
-        return max(5, min(100, (int) round(($filled / $fields) * 100)));
+        return max(5, min(100, (int) round($filled / $fields * 100)));
     }
 
     // Helper methods
@@ -204,5 +191,20 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->update(['approved_at' => null]);
 
         return $this;
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'balance' => 'decimal:2',
+            'transfer_details' => 'array',
+        ];
     }
 }

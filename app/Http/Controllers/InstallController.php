@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -81,7 +83,8 @@ class InstallController extends Controller
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
-        ]]);
+        ],
+        ]);
 
         try {
             DB::connection('install_test')->getPdo();
@@ -95,12 +98,12 @@ class InstallController extends Controller
                     $conn = DB::connection('install_test');
                     // create table
                     $conn->statement(
-                        "CREATE TABLE $tname (id INT PRIMARY KEY AUTO_INCREMENT, created_at TIMESTAMP NULL);"
+                        "CREATE TABLE {$tname} (id INT PRIMARY KEY AUTO_INCREMENT, created_at TIMESTAMP NULL);"
                     );
                     // insert
-                    $conn->statement("INSERT INTO $tname (created_at) VALUES (NOW());");
+                    $conn->statement("INSERT INTO {$tname} (created_at) VALUES (NOW());");
                     // drop
-                    $conn->statement("DROP TABLE $tname;");
+                    $conn->statement("DROP TABLE {$tname};");
                 } catch (\Throwable $we) {
                     return response()->json([
                         'success' => false,
@@ -160,40 +163,6 @@ class InstallController extends Controller
         }
     }
 
-    protected function writeEnv(array $vars)
-    {
-        $envPath = base_path('.env');
-        if (! file_exists($envPath)) {
-            // copy from .env.example if available
-            if (file_exists(base_path('.env.example'))) {
-                copy(base_path('.env.example'), $envPath);
-            } else {
-                file_put_contents($envPath, "\n");
-            }
-        }
-
-        $env = file_get_contents($envPath);
-        foreach ($vars as $key => $value) {
-            $escaped = preg_quote('=' . $this->envValue($key, $env), '/');
-            if (Str::contains($env, $key . '=')) {
-                $env = preg_replace('/^' . $key . '=.*/m', $key . '="' . addslashes($value) . '"', $env);
-            } else {
-                $env .= "\n$key=\"" . addslashes($value) . '\"';
-            }
-        }
-
-        file_put_contents($envPath, $env);
-    }
-
-    protected function envValue($key, $envContent)
-    {
-        if (preg_match('/^' . preg_quote($key) . '=(.*)$/m', $envContent, $m)) {
-            return trim($m[1]);
-        }
-
-        return '';
-    }
-
     public function createAdmin(Request $request)
     {
         $data = $request->validate([
@@ -244,5 +213,39 @@ class InstallController extends Controller
     public function complete()
     {
         return view('install.complete');
+    }
+
+    protected function writeEnv(array $vars): void
+    {
+        $envPath = base_path('.env');
+        if (! file_exists($envPath)) {
+            // copy from .env.example if available
+            if (file_exists(base_path('.env.example'))) {
+                copy(base_path('.env.example'), $envPath);
+            } else {
+                file_put_contents($envPath, "\n");
+            }
+        }
+
+        $env = file_get_contents($envPath);
+        foreach ($vars as $key => $value) {
+            $escaped = preg_quote('=' . $this->envValue($key, $env), '/');
+            if (Str::contains($env, $key . '=')) {
+                $env = preg_replace('/^' . $key . '=.*/m', $key . '="' . addslashes($value) . '"', $env);
+            } else {
+                $env .= "\n{$key}=\"" . addslashes($value) . '\"';
+            }
+        }
+
+        file_put_contents($envPath, $env);
+    }
+
+    protected function envValue($key, $envContent)
+    {
+        if (preg_match('/^' . preg_quote($key) . '=(.*)$/m', $envContent, $m)) {
+            return trim($m[1]);
+        }
+
+        return '';
     }
 }

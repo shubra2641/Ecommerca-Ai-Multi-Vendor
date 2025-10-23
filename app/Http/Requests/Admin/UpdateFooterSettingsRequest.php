@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -47,14 +49,14 @@ class UpdateFooterSettingsRequest extends FormRequest
         ];
 
         foreach ($langs as $code) {
-            $rules["rights_i18n.$code"] = ['nullable', 'string', 'max:255'];
-            $rules["footer_support_heading.$code"] = ['nullable', 'string', 'max:120'];
-            $rules["footer_support_subheading.$code"] = ['nullable', 'string', 'max:180'];
-            $rules["footer_labels.help_center.$code"] = ['nullable', 'string', 'max:120'];
-            $rules["footer_labels.email_support.$code"] = ['nullable', 'string', 'max:120'];
-            $rules["footer_labels.phone_support.$code"] = ['nullable', 'string', 'max:120'];
-            $rules["footer_labels.apps_heading.$code"] = ['nullable', 'string', 'max:120'];
-            $rules["footer_labels.social_heading.$code"] = ['nullable', 'string', 'max:120'];
+            $rules["rights_i18n.{$code}"] = ['nullable', 'string', 'max:255'];
+            $rules["footer_support_heading.{$code}"] = ['nullable', 'string', 'max:120'];
+            $rules["footer_support_subheading.{$code}"] = ['nullable', 'string', 'max:180'];
+            $rules["footer_labels.help_center.{$code}"] = ['nullable', 'string', 'max:120'];
+            $rules["footer_labels.email_support.{$code}"] = ['nullable', 'string', 'max:120'];
+            $rules["footer_labels.phone_support.{$code}"] = ['nullable', 'string', 'max:120'];
+            $rules["footer_labels.apps_heading.{$code}"] = ['nullable', 'string', 'max:120'];
+            $rules["footer_labels.social_heading.{$code}"] = ['nullable', 'string', 'max:120'];
         }
 
         return $rules;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -106,6 +108,174 @@ class DashboardController extends Controller
             'systemHealth',
             'period'
         ));
+    }
+
+    public function reports()
+    {
+        $totalUsers = User::count();
+        $totalVendors = User::where('role', 'vendor')->count();
+        $pendingUsers = User::whereNull('approved_at')->count();
+        $totalBalance = User::sum('balance');
+
+        // Registration trends
+        $registrationsToday = User::whereDate('created_at', today())->count();
+        $registrationsWeek = User::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
+        $registrationsMonth = User::whereMonth('created_at', now()->month)->count();
+
+        return view('admin.reports', compact(
+            'totalUsers',
+            'totalVendors',
+            'pendingUsers',
+            'totalBalance',
+            'registrationsToday',
+            'registrationsWeek',
+            'registrationsMonth'
+        ));
+    }
+
+    public function usersReport()
+    {
+        return response()->json(['message' => 'Users report feature coming soon']);
+    }
+
+    public function vendorsReport()
+    {
+        return response()->json(['message' => 'Vendors report feature coming soon']);
+    }
+
+    public function financialReport()
+    {
+        return response()->json(['message' => 'Financial report feature coming soon']);
+    }
+
+    public function systemReport()
+    {
+        return response()->json(['message' => 'System report feature coming soon']);
+    }
+
+    public function generateReport()
+    {
+        // Generate Excel report
+        $filename = 'admin-report-' . date('Y-m-d') . '.xlsx';
+
+        return response()->json(['message' => 'Report generated successfully', 'filename' => $filename]);
+    }
+
+    public function clearCache()
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('cache:clear');
+            \Illuminate\Support\Facades\Artisan::call('config:clear');
+            \Illuminate\Support\Facades\Artisan::call('route:clear');
+            \Illuminate\Support\Facades\Artisan::call('view:clear');
+
+            return redirect()->back()->with('success', __('Cache cleared successfully'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', __('Failed to clear cache: ') . $e->getMessage());
+        }
+    }
+
+    public function clearLogs()
+    {
+        try {
+            $logPath = storage_path('logs/laravel.log');
+            if (file_exists($logPath)) {
+                file_put_contents($logPath, '');
+            }
+
+            return redirect()->back()->with('success', __('Logs cleared successfully'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', __('Failed to clear logs: ') . $e->getMessage());
+        }
+    }
+
+    public function optimize()
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('optimize');
+            \Illuminate\Support\Facades\Artisan::call('config:cache');
+            \Illuminate\Support\Facades\Artisan::call('route:cache');
+
+            return redirect()->back()->with('success', __('System optimized successfully'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', __('Failed to optimize system: ') . $e->getMessage());
+        }
+    }
+
+    /**
+     * Refresh dashboard data (AJAX endpoint)
+     */
+    public function refresh()
+    {
+        try {
+            // Clear dashboard cache
+            Cache::forget('dashboard_stats');
+
+            // Build fresh payload so frontend can update without a full page reload
+            $stats = $this->buildFreshStats();
+            $chartData = $this->getRegistrationChartData();
+            $salesChartData = $this->getSalesChartData();
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Dashboard refreshed successfully'),
+                'data' => [
+                    'stats' => $stats,
+                    'charts' => $chartData,
+                    'salesChart' => $salesChartData,
+                    'activities' => $activities,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Failed to refresh dashboard'),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get chart data for different periods (AJAX endpoint)
+     */
+    public function getChartData(Request $request)
+    {
+        $period = $request->get('period', '6m');
+
+        try {
+            $chartData = $this->getChartDataByPeriod($period);
+
+            return response()->json([
+                'success' => true,
+                'chartData' => $chartData,
+                'timestamp' => now()->toISOString(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Failed to get chart data'),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get system statistics (AJAX endpoint)
+     */
+    public function getStats()
+    {
+        try {
+            $stats = $this->buildFreshStats();
+
+            return response()->json([
+                'success' => true,
+                'stats' => $stats,
+                'timestamp' => now()->toISOString(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Failed to get statistics'),
+            ], 500);
+        }
     }
 
     /**
@@ -389,11 +559,11 @@ class DashboardController extends Controller
         $thisMonth = User::whereMonth('created_at', now()->month)->count();
         $lastMonth = User::whereMonth('created_at', now()->subMonth()->month)->count();
 
-        if ($lastMonth == 0) {
+        if ($lastMonth === 0) {
             return 100;
         }
 
-        return round((($thisMonth - $lastMonth) / $lastMonth) * 100, 1);
+        return round(($thisMonth - $lastMonth) / $lastMonth * 100, 1);
     }
 
     /**
@@ -404,158 +574,11 @@ class DashboardController extends Controller
         $totalUsers = User::count();
         $approvedUsers = User::whereNotNull('approved_at')->count();
 
-        if ($totalUsers == 0) {
+        if ($totalUsers === 0) {
             return 0;
         }
 
-        return round(($approvedUsers / $totalUsers) * 100, 1);
-    }
-
-    public function reports()
-    {
-        $totalUsers = User::count();
-        $totalVendors = User::where('role', 'vendor')->count();
-        $pendingUsers = User::whereNull('approved_at')->count();
-        $totalBalance = User::sum('balance');
-
-        // Registration trends
-        $registrationsToday = User::whereDate('created_at', today())->count();
-        $registrationsWeek = User::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
-        $registrationsMonth = User::whereMonth('created_at', now()->month)->count();
-
-        return view('admin.reports', compact(
-            'totalUsers',
-            'totalVendors',
-            'pendingUsers',
-            'totalBalance',
-            'registrationsToday',
-            'registrationsWeek',
-            'registrationsMonth'
-        ));
-    }
-
-    public function usersReport()
-    {
-        return response()->json(['message' => 'Users report feature coming soon']);
-    }
-
-    public function vendorsReport()
-    {
-        return response()->json(['message' => 'Vendors report feature coming soon']);
-    }
-
-    public function financialReport()
-    {
-        return response()->json(['message' => 'Financial report feature coming soon']);
-    }
-
-    public function systemReport()
-    {
-        return response()->json(['message' => 'System report feature coming soon']);
-    }
-
-    public function generateReport()
-    {
-        // Generate Excel report
-        $filename = 'admin-report-' . date('Y-m-d') . '.xlsx';
-
-        return response()->json(['message' => 'Report generated successfully', 'filename' => $filename]);
-    }
-
-    public function clearCache()
-    {
-        try {
-            \Illuminate\Support\Facades\Artisan::call('cache:clear');
-            \Illuminate\Support\Facades\Artisan::call('config:clear');
-            \Illuminate\Support\Facades\Artisan::call('route:clear');
-            \Illuminate\Support\Facades\Artisan::call('view:clear');
-
-            return redirect()->back()->with('success', __('Cache cleared successfully'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Failed to clear cache: ') . $e->getMessage());
-        }
-    }
-
-    public function clearLogs()
-    {
-        try {
-            $logPath = storage_path('logs/laravel.log');
-            if (file_exists($logPath)) {
-                file_put_contents($logPath, '');
-            }
-
-            return redirect()->back()->with('success', __('Logs cleared successfully'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Failed to clear logs: ') . $e->getMessage());
-        }
-    }
-
-    public function optimize()
-    {
-        try {
-            \Illuminate\Support\Facades\Artisan::call('optimize');
-            \Illuminate\Support\Facades\Artisan::call('config:cache');
-            \Illuminate\Support\Facades\Artisan::call('route:cache');
-
-            return redirect()->back()->with('success', __('System optimized successfully'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Failed to optimize system: ') . $e->getMessage());
-        }
-    }
-
-    /**
-     * Refresh dashboard data (AJAX endpoint)
-     */
-    public function refresh()
-    {
-        try {
-            // Clear dashboard cache
-            Cache::forget('dashboard_stats');
-
-            // Build fresh payload so frontend can update without a full page reload
-            $stats = $this->buildFreshStats();
-            $chartData = $this->getRegistrationChartData();
-            $salesChartData = $this->getSalesChartData();
-
-            return response()->json([
-                'success' => true,
-                'message' => __('Dashboard refreshed successfully'),
-                'data' => [
-                    'stats' => $stats,
-                    'charts' => $chartData,
-                    'salesChart' => $salesChartData,
-                    'activities' => $activities,
-                ],
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __('Failed to refresh dashboard'),
-            ], 500);
-        }
-    }
-
-    /**
-     * Get chart data for different periods (AJAX endpoint)
-     */
-    public function getChartData(Request $request)
-    {
-        $period = $request->get('period', '6m');
-
-        try {
-            $chartData = $this->getChartDataByPeriod($period);
-
-            return response()->json([
-                'success' => true,
-                'chartData' => $chartData,
-                'timestamp' => now()->toISOString(),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __('Failed to get chart data'),
-            ], 500);
-        }
+        return round($approvedUsers / $totalUsers * 100, 1);
     }
 
     /**
@@ -613,27 +636,6 @@ class DashboardController extends Controller
             'vendor' => (clone $baseQuery)->where('role', 'vendor')->count(),
             'admin' => (clone $baseQuery)->where('role', 'admin')->count(),
         ];
-    }
-
-    /**
-     * Get system statistics (AJAX endpoint)
-     */
-    public function getStats()
-    {
-        try {
-            $stats = $this->buildFreshStats();
-
-            return response()->json([
-                'success' => true,
-                'stats' => $stats,
-                'timestamp' => now()->toISOString(),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __('Failed to get statistics'),
-            ], 500);
-        }
     }
 
     /**

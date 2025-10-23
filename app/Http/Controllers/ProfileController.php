@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Services\HtmlSanitizer;
@@ -223,7 +225,7 @@ class ProfileController extends Controller
      */
     private function deleteUser($user): void
     {
-        DB::transaction(function () use ($user) {
+        DB::transaction(function () use ($user): void {
             $user->delete();
         });
 

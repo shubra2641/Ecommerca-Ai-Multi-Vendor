@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -68,9 +70,9 @@ class UpdateSettingsRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
+    public function withValidator($validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function ($validator): void {
             // Validate font family against allowed list
             $value = $this->input('font_family');
             if ($value && ! in_array($value, self::ALLOWED_FONTS, true)) {

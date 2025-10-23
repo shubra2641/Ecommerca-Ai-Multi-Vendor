@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -26,11 +28,13 @@ class ShippingZoneController extends Controller
 
     public function create(Request $request)
     {
-        $countries = Country::where('active', 1)->with(['governorates' => function ($query) {
-            $query->where('active', 1)->with(['cities' => function ($q) {
+        $countries = Country::where('active', 1)->with(['governorates' => function ($query): void {
+            $query->where('active', 1)->with(['cities' => function ($q): void {
                 $q->where('active', 1);
-            }]);
-        }])->get();
+            },
+            ]);
+        },
+        ])->get();
 
         return view('admin.shipping_zones.create', [
             'countries' => $countries,
@@ -70,11 +74,13 @@ class ShippingZoneController extends Controller
 
     public function edit(ShippingZone $shipping_zone, Request $request)
     {
-        $countries = Country::where('active', 1)->with(['governorates' => function ($query) {
-            $query->where('active', 1)->with(['cities' => function ($q) {
+        $countries = Country::where('active', 1)->with(['governorates' => function ($query): void {
+            $query->where('active', 1)->with(['cities' => function ($q): void {
                 $q->where('active', 1);
-            }]);
-        }])->get();
+            },
+            ]);
+        },
+        ])->get();
         $rules = $shipping_zone->rules()->get();
 
         // Handle rule removal
@@ -136,7 +142,7 @@ class ShippingZoneController extends Controller
         return redirect()->route('admin.shipping-zones.index')->with('success', __('Deleted'));
     }
 
-    private function persistRules(ShippingZone $zone, array $rules)
+    private function persistRules(ShippingZone $zone, array $rules): void
     {
         foreach ($rules as $r) {
             $clean = $this->cleanRule($r);
@@ -161,7 +167,7 @@ class ShippingZoneController extends Controller
         }
         if (
             $city && ! City::where('id', $city)
-                ->whereHas('governorate', function ($q) use ($gov, $country) {
+                ->whereHas('governorate', function ($q) use ($gov, $country): void {
                     $q->where('id', $gov)
                         ->where('country_id', $country);
                 })->exists()

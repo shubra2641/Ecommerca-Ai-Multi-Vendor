@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -148,10 +150,10 @@ class ProductCategoryController extends Controller
             'Content-Disposition' => "attachment; filename={$fileName}",
         ];
         $columns = ['id', 'name', 'slug', 'parent_id', 'position', 'active', 'created_at'];
-        $callback = function () use ($columns) {
+        $callback = function () use ($columns): void {
             $out = fopen('php://output', 'w');
             fputcsv($out, $columns);
-            \App\Models\ProductCategory::chunk(200, function ($items) use ($out) {
+            \App\Models\ProductCategory::chunk(200, function ($items) use ($out): void {
                 foreach ($items as $c) {
                     $row = [
                         $c->id,

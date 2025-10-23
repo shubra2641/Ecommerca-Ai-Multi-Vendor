@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Cart\AddToCartRequest;
@@ -23,15 +25,6 @@ use Throwable;
  */
 class CartController extends Controller
 {
-    protected function getCart(): array
-    {
-        return session()->get('cart', []);
-    }
-
-    protected function putCart(array $cart): void
-    {
-        session(['cart' => $cart]);
-    }
 
     public function index()
     {
@@ -90,8 +83,8 @@ class CartController extends Controller
 
             // On sale & percent (moved from Blade)
             $onSale = ($product->sale_price ?? null) && ($product->sale_price < ($product->price ?? 0));
-            $salePercent = ($onSale && $product->price) ?
-                (int) round((($product->price - $product->sale_price) / $product->price) * 100) :
+            $salePercent = $onSale && $product->price ?
+                (int) round(($product->price - $product->sale_price) / $product->price * 100) :
                 null;
 
             $items[] = [
@@ -107,10 +100,10 @@ class CartController extends Controller
                 'sale_percent' => $salePercent,
                 'original_price' => $product->price,
                 'stock_display' => ($product->stock_qty ?? null) !== null ?
-                    ((($product->stock_qty ?? 0) > 0) ?
-                        (($product->stock_qty) . ' in stock') : 'Out of stock') :
+                    (($product->stock_qty ?? 0) > 0 ?
+                        $product->stock_qty . ' in stock' : 'Out of stock') :
                     null,
-                'seller_name' => (method_exists($product, 'seller') && $product->seller) ?
+                'seller_name' => method_exists($product, 'seller') && $product->seller ?
                     $product->seller->name : null,
                 'short_desc' => $product->short_description ? \Str::limit($product->short_description, 120) : null,
             ];
@@ -358,7 +351,7 @@ class CartController extends Controller
         $total = 0;
 
         foreach ($cart as $pid => $row) {
-            $total += ($row['price'] * $row['qty']);
+            $total += $row['price'] * $row['qty'];
         }
 
         // Recalculate the displayed total on the server using Currency::convertTo so we do not trust client input.
@@ -447,7 +440,7 @@ class CartController extends Controller
         $cart = $this->getCart();
         $total = 0;
         foreach ($cart as $pid => $row) {
-            $total += ($row['price'] * $row['qty']);
+            $total += $row['price'] * $row['qty'];
         }
         $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
         $defaultCurrency = Currency::getDefault();
@@ -508,5 +501,14 @@ class CartController extends Controller
         }
 
         return back()->with('success', __('Moved to wishlist'));
+    }
+    protected function getCart(): array
+    {
+        return session()->get('cart', []);
+    }
+
+    protected function putCart(array $cart): void
+    {
+        session(['cart' => $cart]);
     }
 }

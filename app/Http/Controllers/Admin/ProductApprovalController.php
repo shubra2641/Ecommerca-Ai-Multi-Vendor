@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -24,7 +26,7 @@ class ProductApprovalController extends Controller
         }
         // Search by name / id / rejection_reason
         if ($search = trim($request->input('q', ''))) {
-            $query->where(function ($q) use ($search) {
+            $query->where(function ($q) use ($search): void {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('id', $search)
                     ->orWhere('rejection_reason', 'like', "%{$search}%");

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Concerns;
 
 /**
@@ -56,7 +58,7 @@ trait Translatable
             return $this->getAttribute($field);
         }
         $translations = parent::getAttribute($field . '_translations');
-        $locale = $locale ?: app()->getLocale();
+        $locale = $locale ? $locale : app()->getLocale();
         $fallback = config('app.fallback_locale');
         if (is_array($translations)) {
             if (isset($translations[$locale]) && $translations[$locale] !== '') {

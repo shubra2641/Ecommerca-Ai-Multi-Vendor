@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\View\Composers;
 
 use App\Models\Language;
@@ -79,12 +81,12 @@ class AdminProductFormComposer
             $code = $lang->code;
             $isDefault = (bool) $lang->is_default;
             $pfLangMeta[$code] = [
-                'name_val' => old("name.$code", $model?->translate('name', $code) ?? ''),
-                'short_val' => old("short_description.$code", $model?->translate('short_description', $code) ?? ''),
-                'desc_val' => old("description.$code", $model?->translate('description', $code) ?? ''),
-                'seo_title' => old("seo_title.$code", $model?->translate('seo_title', $code) ?? ''),
-                'seo_keywords' => old("seo_keywords.$code", $model?->translate('seo_keywords', $code) ?? ''),
-                'seo_description' => old("seo_description.$code", $model?->translate('seo_description', $code) ?? ''),
+                'name_val' => old("name.{$code}", $model?->translate('name', $code) ?? ''),
+                'short_val' => old("short_description.{$code}", $model?->translate('short_description', $code) ?? ''),
+                'desc_val' => old("description.{$code}", $model?->translate('description', $code) ?? ''),
+                'seo_title' => old("seo_title.{$code}", $model?->translate('seo_title', $code) ?? ''),
+                'seo_keywords' => old("seo_keywords.{$code}", $model?->translate('seo_keywords', $code) ?? ''),
+                'seo_description' => old("seo_description.{$code}", $model?->translate('seo_description', $code) ?? ''),
                 // placeholders (basic heuristics)
                 'ph_name' => $isDefault ? __('Main name') : __('Name') . ' (' . $code . ')',
                 'ph_short' => $isDefault ? __('Short description') : __('Short') . ' (' . $code . ')',

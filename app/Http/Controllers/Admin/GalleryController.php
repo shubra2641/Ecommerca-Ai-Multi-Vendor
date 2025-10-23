@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -22,15 +24,15 @@ class GalleryController extends Controller
         $tag = trim($request->get('tag', ''));
         $query = GalleryImage::query();
         if ($q !== '') {
-            $query->where(function ($qq) use ($q) {
-                $qq->where('title', 'like', "%$q%")
-                    ->orWhere('description', 'like', "%$q%")
-                    ->orWhere('alt', 'like', "%$q%")
-                    ->orWhere('tags', 'like', "%$q%");
+            $query->where(function ($qq) use ($q): void {
+                $qq->where('title', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%")
+                    ->orWhere('alt', 'like', "%{$q}%")
+                    ->orWhere('tags', 'like', "%{$q}%");
             });
         }
         if ($tag !== '') {
-            $query->where('tags', 'like', "%$tag%");
+            $query->where('tags', 'like', "%{$tag}%");
         }
         $images = $query->latest()->paginate(30)->appends(['q' => $q, 'tag' => $tag]);
         $distinctTags = GalleryImage::select('tags')->whereNotNull('tags')->pluck('tags')->flatMap(function ($row) {
@@ -276,7 +278,7 @@ class GalleryController extends Controller
             $webpPath = $webpRelative;
 
             $thumbClone = $imageObj->clone();
-            $thumbClone->scale(320, 320, function ($constraint) {
+            $thumbClone->scale(320, 320, function ($constraint): void {
                 $constraint->aspectRatio();
                 $constraint->upsize();
             });
@@ -307,7 +309,7 @@ class GalleryController extends Controller
 
         $url = $path ? asset('storage/' . ltrim($path, '/')) : null;
         $thumbPath = $image->thumbnail_path ? asset('storage/' . ltrim($image->thumbnail_path, '/')) : null;
-        $thumb = $thumbPath ?: $url;
+        $thumb = $thumbPath ? $thumbPath : $url;
 
         return [
             'id' => $image->id,

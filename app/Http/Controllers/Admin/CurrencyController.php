@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -35,7 +37,7 @@ class CurrencyController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        DB::transaction(function () use ($request, $sanitizer) {
+        DB::transaction(function () use ($request, $sanitizer): void {
             // If setting as default, remove default from others
             if ($request->is_default) {
                 Currency::where('is_default', true)->update(['is_default' => false]);
@@ -80,7 +82,7 @@ class CurrencyController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        DB::transaction(function () use ($request, $currency, $sanitizer) {
+        DB::transaction(function () use ($request, $currency, $sanitizer): void {
             // If setting as default, remove default from others
             if ($request->is_default && ! $currency->is_default) {
                 Currency::where('is_default', true)->update(['is_default' => false]);
@@ -119,7 +121,7 @@ class CurrencyController extends Controller
 
     public function setDefault(Currency $currency)
     {
-        DB::transaction(function () use ($currency) {
+        DB::transaction(function () use ($currency): void {
             Currency::where('is_default', true)->update(['is_default' => false]);
             $currency->update(['is_default' => true]);
         });

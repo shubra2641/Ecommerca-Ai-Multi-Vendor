@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
@@ -40,7 +42,6 @@ class HomeController extends Controller
      */
     public function index(): View
     {
-
         // Cache site settings for better performance
         $setting = Cache::remember('site_settings', 3600, function () {
             return Setting::first();
@@ -64,9 +65,9 @@ class HomeController extends Controller
             $fallbackCta = $ctaArr ? (array_values($ctaArr)[0] ?? null) : null;
             $computedTitle = $titlesArr[$locale] ??
                 ($titlesArr[$defaultLocale] ??
-                    ($fallbackTitle ?: ucfirst(str_replace('_', ' ', $sec->key))));
-            $computedSub = $subArr[$locale] ?? ($subArr[$defaultLocale] ?? ($fallbackSub ?: ''));
-            $computedCta = $ctaArr[$locale] ?? ($ctaArr[$defaultLocale] ?? ($fallbackCta ?: null));
+                    ($fallbackTitle ? $fallbackTitle : ucfirst(str_replace('_', ' ', $sec->key))));
+            $computedSub = $subArr[$locale] ?? ($subArr[$defaultLocale] ?? ($fallbackSub ? $fallbackSub : ''));
+            $computedCta = $ctaArr[$locale] ?? ($ctaArr[$defaultLocale] ?? ($fallbackCta ? $fallbackCta : null));
             $sectionTitles[$sec->key] = ['title' => $computedTitle, 'subtitle' => $computedSub];
             $sectionMeta[$sec->key] = [
                 'cta_enabled' => $sec->cta_enabled,
@@ -135,10 +136,10 @@ class HomeController extends Controller
             return Product::active()
                 ->whereNotNull('sale_price')
                 ->whereColumn('sale_price', '<', 'price')
-                ->where(function ($q) use ($now) {
+                ->where(function ($q) use ($now): void {
                     $q->whereNull('sale_start')->orWhere('sale_start', '<=', $now);
                 })
-                ->where(function ($q) use ($now) {
+                ->where(function ($q) use ($now): void {
                     $q->whereNull('sale_end')->orWhere('sale_end', '>=', $now);
                 })
                 ->with('category')

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\Api\PaymentApiController;
 use App\Http\Controllers\Api\SystemController as ApiSystemController;
 use App\Http\Controllers\Api\Vendor\AuthController as ApiVendorAuthController;
@@ -17,13 +19,13 @@ use App\Http\Controllers\Api\Vendor\WithdrawalsController as ApiVendorWithdrawal
 use Illuminate\Support\Facades\Route;
 
 // Vendor API routes (loaded through RouteServiceProvider api group -> '/api' prefix)
-Route::prefix('vendor')->group(function () {
+Route::prefix('vendor')->group(function (): void {
     Route::post('/login', [ApiVendorAuthController::class, 'login']);
     Route::post('/logout', [ApiVendorAuthController::class, 'logout'])->middleware('auth:sanctum');
     Route::get('/profile', [ApiVendorAuthController::class, 'profile'])->middleware('auth:sanctum');
     Route::put('/profile', [ApiVendorAuthController::class, 'updateProfile'])->middleware('auth:sanctum');
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('/dashboard', [ApiVendorDashboardController::class, 'index']);
 
         Route::get('/orders', [ApiVendorOrdersController::class, 'index']);
@@ -71,13 +73,13 @@ Route::prefix('vendor')->group(function () {
 });
 
 // Payment API routes
-Route::prefix('payments')->group(function () {
+Route::prefix('payments')->group(function (): void {
     // Public routes
     Route::get('/gateways', [PaymentApiController::class, 'getGateways']);
     Route::any('/webhook', [PaymentApiController::class, 'webhook'])->name('payment.webhook');
 
     // Protected routes (require authentication)
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('/initialize', [PaymentApiController::class, 'initializePayment']);
         Route::get('/{paymentId}/status', [PaymentApiController::class, 'getPaymentStatus']);
         Route::post('/{paymentId}/verify', [PaymentApiController::class, 'verifyPayment']);

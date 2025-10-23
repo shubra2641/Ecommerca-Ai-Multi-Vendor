@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Checkout;
 
 use App\Models\Order;
@@ -246,7 +248,8 @@ class CheckoutProcessor
                     'unit_amount' => (int) round(($order->total ?? 0) * 100),
                 ],
                 'quantity' => 1,
-            ]],
+            ],
+            ],
             'success_url' => url('/checkout/success?order=' . $order->id),
             'cancel_url' => url('/checkout/cancel?order=' . $order->id),
             'metadata' => ['order_id' => $order->id],

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -12,7 +14,7 @@ class Setting extends Model
      *
      * @var array<string>
      */
-    protected $fillable = [
+    protected array $fillable = [
         'site_name',
         'logo',
         'seo_description',
@@ -53,7 +55,7 @@ class Setting extends Model
      *
      * @var array<string, string>
      */
-    protected $casts = [
+    protected array $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'maintenance_enabled' => 'boolean',
@@ -210,20 +212,6 @@ class Setting extends Model
         );
     }
 
-    /**
-     * Validate and sanitize URL fields.
-     */
-    private function sanitizeUrl(?string $value): ?string
-    {
-        if (! $value) {
-            return null;
-        }
-
-        $sanitized = filter_var($value, FILTER_SANITIZE_URL);
-
-        return filter_var($sanitized, FILTER_VALIDATE_URL) ? $sanitized : null;
-    }
-
     // Removed legacy social media attribute mutators (now handled by SocialLink model)
 
     /**
@@ -268,5 +256,19 @@ class Setting extends Model
             get: fn ($value) => isset($this->attributes['enable_external_payment_redirect']) ? (bool) $value : false,
             set: fn ($value) => (bool) $value
         );
+    }
+
+    /**
+     * Validate and sanitize URL fields.
+     */
+    private function sanitizeUrl(?string $value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        $sanitized = filter_var($value, FILTER_SANITIZE_URL);
+
+        return filter_var($sanitized, FILTER_VALIDATE_URL) ? $sanitized : null;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\View\Composers;
 
 use Illuminate\Support\Str;
@@ -22,7 +24,7 @@ class ProductCardComposer
         $onSale = $sale !== null;
         $discountPercent = null;
         if ($onSale && $price) {
-            $discountPercent = (int) round((($price - $sale) / $price) * 100);
+            $discountPercent = (int) round(($price - $sale) / $price * 100);
         }
 
         // Availability (prefer precomputed list_available set upstream)
@@ -34,7 +36,7 @@ class ProductCardComposer
         // Rating aggregates (preloaded or 0)
         $rating = $product->reviews_avg_rating ?? 0.0;
         $reviewsCount = $product->reviews_count ?? 0;
-        $fullStars = (int) floor($rating ?: 0);
+        $fullStars = (int) floor($rating ? $rating : 0);
 
         // Truncated description
         $plainDesc = trim(strip_tags($product->short_description ?? $product->description ?? ''));

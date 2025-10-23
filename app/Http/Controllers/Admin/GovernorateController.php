@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -10,6 +12,11 @@ use Illuminate\Http\Request;
 
 class GovernorateController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('can:access-admin');
+    }
     public function index(Request $request)
     {
         $countryId = $request->query('country');
@@ -21,11 +28,6 @@ class GovernorateController extends Controller
         $countries = Country::orderBy('name')->get();
 
         return view('admin.locations.governorates.index', compact('governorates', 'countries', 'countryId'));
-    }
-
-    public function __construct()
-    {
-        $this->middleware('can:access-admin');
     }
 
     public function create()

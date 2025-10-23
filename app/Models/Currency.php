@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -43,23 +45,6 @@ class Currency extends Model
     public function scopeCode($query, string $code)
     {
         return $query->where('code', strtoupper($code));
-    }
-
-    /* =============================
-     |  Accessors / Mutators
-     |============================= */
-    protected function code(): Attribute
-    {
-        return Attribute::make(
-            set: fn ($value) => strtoupper(trim($value))
-        );
-    }
-
-    protected function symbol(): Attribute
-    {
-        return Attribute::make(
-            set: fn ($value) => trim($value)
-        );
     }
 
     public function formattedRate(int $precision = 4): string
@@ -142,22 +127,39 @@ class Currency extends Model
     }
 
     /* =============================
+     |  Accessors / Mutators
+     |============================= */
+    protected function code(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => strtoupper(trim($value))
+        );
+    }
+
+    protected function symbol(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => trim($value)
+        );
+    }
+
+    /* =============================
      |  Model Events
      |============================= */
     protected static function booted(): void
     {
-        static::saving(function (self $model) {
+        static::saving(function (self $model): void {
             if ($model->is_default) {
                 // Ensure no duplicate defaults in same request before commit
                 static::where('id', '!=', $model->id)->where('is_default', true)->update(['is_default' => false]);
             }
         });
 
-        static::saved(function () {
+        static::saved(function (): void {
             static::clearCache();
         });
 
-        static::deleted(function () {
+        static::deleted(function (): void {
             static::clearCache();
         });
     }

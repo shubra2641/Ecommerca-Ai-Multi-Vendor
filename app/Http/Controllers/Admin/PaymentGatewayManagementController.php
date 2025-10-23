@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -13,9 +15,10 @@ class PaymentGatewayManagementController extends Controller
 
     public function dashboard()
     {
-        $gateways = PaymentGateway::with(['payments' => function ($q) {
+        $gateways = PaymentGateway::with(['payments' => function ($q): void {
             $q->where('created_at', '>=', now()->subDays(30));
-        }])->get();
+        },
+        ])->get();
         $stats = $this->getGatewayStats();
         $recentTransactions = $this->getRecentTransactions();
 

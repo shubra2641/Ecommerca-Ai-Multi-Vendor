@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Mail\ProductBackInStockNotification;
@@ -49,7 +51,7 @@ class NotifyBackInStockJob implements ShouldQueue
             ->whereIn('type', [ProductInterest::TYPE_BACK_IN_STOCK, ProductInterest::TYPE_STOCK])
             ->where('status', ProductInterest::STATUS_PENDING)
             ->orderBy('id')
-            ->chunk($chunkSize, function ($chunk) use (&$delaySeconds, &$sentThisMinute, $perMinute, $nowMinuteKey) {
+            ->chunk($chunkSize, function ($chunk) use (&$delaySeconds, &$sentThisMinute, $perMinute, $nowMinuteKey): void {
                 /** @var \App\Models\ProductInterest $interest */
                 foreach ($chunk as $interest) {
                     if ($sentThisMinute >= $perMinute) {

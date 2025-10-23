@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 use App\Models\Payment;
@@ -103,6 +105,22 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
     }
 
     /**
+     * Determine if the notification should be sent.
+     */
+    public function shouldSend(object $notifiable): bool
+    {
+        // Don't send duplicate notifications
+        $existingNotification = $notifiable->notifications()
+            ->where('type', self::class)
+            ->where('data->payment_id', $this->payment->payment_id)
+            ->where('data->status', $this->status)
+            ->where('created_at', '>', now()->subMinutes(5))
+            ->exists();
+
+        return ! $existingNotification;
+    }
+
+    /**
      * Get email subject based on status.
      */
     private function getEmailSubject(): string
@@ -146,8 +164,7 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
             case 'success':
                 return 'Your payment has been successfully processed and your order is confirmed.';
             case 'failed':
-                return 'Unfortunately, your payment could not be processed. '
-                    . 'Please try again or use a different payment method.';
+                return 'Unfortunately, your payment could not be processed. Please try again or use a different payment method.';
             case 'cancelled':
                 return 'Your payment has been cancelled. You can try again if you wish to complete your order.';
             case 'refunded':
@@ -184,21 +201,5 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
             default:
                 return url('/orders/' . $order->id);
         }
-    }
-
-    /**
-     * Determine if the notification should be sent.
-     */
-    public function shouldSend(object $notifiable): bool
-    {
-        // Don't send duplicate notifications
-        $existingNotification = $notifiable->notifications()
-            ->where('type', self::class)
-            ->where('data->payment_id', $this->payment->payment_id)
-            ->where('data->status', $this->status)
-            ->where('created_at', '>', now()->subMinutes(5))
-            ->exists();
-
-        return ! $existingNotification;
     }
 }

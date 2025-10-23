@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,13 +39,6 @@ class Vendor extends Model
         'balance' => 'decimal:2',
     ];
 
-    protected static function booted()
-    {
-        static::addGlobalScope('vendor', function ($builder) {
-            $builder->where('role', 'vendor');
-        });
-    }
-
     public function getIsActiveAttribute()
     {
         return ! is_null($this->approved_at);
@@ -72,5 +67,12 @@ class Vendor extends Model
     public function getTotalBalanceAttribute()
     {
         return $this->balance ?? 0;
+    }
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('vendor', function ($builder): void {
+            $builder->where('role', 'vendor');
+        });
     }
 }

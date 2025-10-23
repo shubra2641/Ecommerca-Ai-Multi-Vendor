@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -111,11 +113,11 @@ class ProductController extends Controller
         $fileName = 'products_' . date('Ymd_His') . '.csv';
         $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$fileName}"];
 
-        $callback = function () {
+        $callback = function (): void {
             $out = fopen('php://output', 'w');
             fputcsv($out, ['ID', 'Name', 'SKU', 'Price', 'Stock', 'Category', 'Status']);
 
-            Product::with('category')->chunk(200, function ($products) use ($out) {
+            Product::with('category')->chunk(200, function ($products) use ($out): void {
                 foreach ($products as $product) {
                     fputcsv($out, [
                         $product->id,
@@ -139,11 +141,11 @@ class ProductController extends Controller
         $fileName = 'variations_' . date('Ymd_His') . '.csv';
         $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$fileName}"];
 
-        $callback = function () {
+        $callback = function (): void {
             $out = fopen('php://output', 'w');
             fputcsv($out, ['Product ID', 'Product Name', 'Variation ID', 'SKU', 'Price', 'Stock']);
 
-            ProductVariation::with('product')->chunk(200, function ($variations) use ($out) {
+            ProductVariation::with('product')->chunk(200, function ($variations) use ($out): void {
                 foreach ($variations as $variation) {
                     fputcsv($out, [
                         $variation->product_id,
@@ -187,10 +189,10 @@ class ProductController extends Controller
         return back()->with('success', __('AI generated successfully'))->withInput($merge);
     }
 
-    protected function applyFilters($query, Request $request)
+    protected function applyFilters($query, Request $request): void
     {
         if ($search = $request->input('q')) {
-            $query->where(function ($q) use ($search) {
+            $query->where(function ($q) use ($search): void {
                 $q->where('name', 'like', "%{$search}%")->orWhere('sku', 'like', "%{$search}%");
             });
         }
@@ -281,7 +283,7 @@ class ProductController extends Controller
         ];
     }
 
-    protected function syncProductRelations(Product $product, ProductRequest $request)
+    protected function syncProductRelations(Product $product, ProductRequest $request): void
     {
         $this->syncTags($product, $request->input('tags', []));
         $this->syncVariations($product, $request);
@@ -293,13 +295,13 @@ class ProductController extends Controller
         $this->syncSerials($product, $serials);
     }
 
-    protected function syncTags(Product $product, array $tags)
+    protected function syncTags(Product $product, array $tags): void
     {
         $tagIds = ProductTag::whereIn('name', $tags)->pluck('id');
         $product->tags()->sync($tagIds);
     }
 
-    protected function syncVariations(Product $product, ProductRequest $request)
+    protected function syncVariations(Product $product, ProductRequest $request): void
     {
         $variations = $request->input('variations', []);
         $variationIds = [];
@@ -382,7 +384,7 @@ class ProductController extends Controller
         ];
     }
 
-    protected function syncSerials(Product $product, array $serials)
+    protected function syncSerials(Product $product, array $serials): void
     {
         if (! is_array($serials)) {
             return;
@@ -412,7 +414,7 @@ class ProductController extends Controller
             $base = $this->extractPrimaryTextFromArray($normalized);
             $translations = array_filter($normalized, fn ($val) => $val !== '');
 
-            return [$base, $translations ?: null];
+            return [$base, $translations ? $translations : null];
         }
 
         if ($value === null) {
@@ -482,7 +484,7 @@ class ProductController extends Controller
             $slugs[$locale] = Str::slug((string) $value);
         }
 
-        return $slugs ?: null;
+        return $slugs ? $slugs : null;
     }
 
     protected function normalizeVariationAttributes($attributes): array
@@ -536,13 +538,13 @@ class ProductController extends Controller
         return array_values(array_filter(array_map('trim', $gallery), fn ($v) => ! empty($v)));
     }
 
-    protected function applyStockFilter($query, string $stock)
+    protected function applyStockFilter($query, string $stock): void
     {
         $low = config('catalog.stock_low_threshold', 5);
         $soon = config('catalog.stock_soon_threshold', 10);
 
         match ($stock) {
-            'na' => $query->where(function ($q) {
+            'na' => $query->where(function ($q): void {
                 $q->where('manage_stock', 0)->orWhereNull('manage_stock');
             }),
             'low' => $query->where('manage_stock', 1)->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low]),
@@ -551,7 +553,7 @@ class ProductController extends Controller
         };
     }
 
-    protected function sanitizeData(array &$data, HtmlSanitizer $sanitizer)
+    protected function sanitizeData(array &$data, HtmlSanitizer $sanitizer): void
     {
         $fields = ['name', 'description', 'short_description', 'seo_title', 'seo_description'];
         foreach ($fields as $field) {
@@ -561,7 +563,7 @@ class ProductController extends Controller
         }
     }
 
-    protected function handleNotifications(Product $product, ?bool $oldActive = null)
+    protected function handleNotifications(Product $product, ?bool $oldActive = null): void
     {
         if ($product->manage_stock) {
             $available = (int) $product->stock_qty - (int) ($product->reserved_qty ?? 0);

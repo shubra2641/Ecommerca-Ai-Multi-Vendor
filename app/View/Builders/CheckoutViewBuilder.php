@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\View\Builders;
 
 class CheckoutViewBuilder
@@ -18,7 +20,7 @@ class CheckoutViewBuilder
                     $img = null;
                 }
             }
-            $img = $img ?: asset('images/placeholder.svg');
+            $img = $img ? $img : asset('images/placeholder.svg');
 
             $variantLabel = self::variantLabel($it);
 
@@ -59,7 +61,7 @@ class CheckoutViewBuilder
             $variantLabel = is_array($it['attributes']) ? implode(', ', $it['attributes']) : $it['attributes'];
         }
 
-        return $variantLabel ?: null;
+        return $variantLabel ? $variantLabel : null;
     }
 
     public static function buildCheckoutConfig(array $base): array

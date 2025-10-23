@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\AI;
 
 use App\Models\Setting;
@@ -55,10 +57,10 @@ class SimpleAIService
     private function getPrompt(string $title, string $type): string
     {
         return match ($type) {
-            'product' => "Create detailed content for product '$title'. Return JSON with: description (max 500 chars), short_description (max 200 chars), seo_description (max 160 chars), seo_tags (comma separated keywords). Make it professional and appealing.",
-            'category' => "Create content for product category '$title'. Return JSON with: description (max 300 chars), seo_description (max 160 chars), seo_tags (comma separated keywords). Make it informative and SEO-friendly.",
-            'blog' => "Create blog content about '$title'. Return JSON with: content (max 1000 chars), seo_description (max 160 chars), seo_tags (comma separated keywords). Make it engaging and informative.",
-            default => "Create content for '$title'. Return JSON with: description, seo_description, seo_tags. Make it professional."
+            'product' => "Create detailed content for product '{$title}'. Return JSON with: description (max 500 chars), short_description (max 200 chars), seo_description (max 160 chars), seo_tags (comma separated keywords). Make it professional and appealing.",
+            'category' => "Create content for product category '{$title}'. Return JSON with: description (max 300 chars), seo_description (max 160 chars), seo_tags (comma separated keywords). Make it informative and SEO-friendly.",
+            'blog' => "Create blog content about '{$title}'. Return JSON with: content (max 1000 chars), seo_description (max 160 chars), seo_tags (comma separated keywords). Make it engaging and informative.",
+            default => "Create content for '{$title}'. Return JSON with: description, seo_description, seo_tags. Make it professional."
         };
     }
 
@@ -66,19 +68,19 @@ class SimpleAIService
     {
         return match ($type) {
             'product' => [
-                'description' => "High-quality $title",
-                'short_description' => "Premium $title",
-                'seo_description' => "Buy $title online",
+                'description' => "High-quality {$title}",
+                'short_description' => "Premium {$title}",
+                'seo_description' => "Buy {$title} online",
                 'seo_tags' => strtolower($title),
             ],
             'category' => [
-                'description' => "Browse our $title collection",
-                'seo_description' => "$title products",
+                'description' => "Browse our {$title} collection",
+                'seo_description' => "{$title} products",
                 'seo_tags' => strtolower($title),
             ],
             'blog' => [
-                'content' => "Learn about $title",
-                'seo_description' => "$title guide",
+                'content' => "Learn about {$title}",
+                'seo_description' => "{$title} guide",
                 'seo_tags' => strtolower($title),
             ],
             default => [

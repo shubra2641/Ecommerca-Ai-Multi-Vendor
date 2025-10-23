@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\InstallController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('install')->name('install.')->group(function () {
+Route::prefix('install')->name('install.')->group(function (): void {
     Route::get('/', [InstallController::class, 'welcome'])->name('welcome');
     Route::get('/requirements', [InstallController::class, 'requirements'])->name('requirements');
     Route::get('/database', [InstallController::class, 'databaseForm'])->name('database');

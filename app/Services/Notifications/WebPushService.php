@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Notifications;
 
 use App\Models\PushSubscription;
@@ -25,7 +27,7 @@ class WebPushService
     public function sendToAll(array $payload): int
     {
         $count = 0;
-        PushSubscription::query()->chunk(500, function ($subs) use (&$count, $payload) {
+        PushSubscription::query()->chunk(500, function ($subs) use (&$count, $payload): void {
             foreach ($subs as $sub) {
                 $report = $this->webPush->sendOneNotification(new Subscription(
                     $sub->endpoint,

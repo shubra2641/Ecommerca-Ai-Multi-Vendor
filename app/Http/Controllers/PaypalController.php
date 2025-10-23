@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
@@ -248,7 +250,7 @@ class PaypalController extends Controller
             ->with('error_message', $errorMessage);
     }
 
-    private function restoreCartFromSnapshot(Payment $payment)
+    private function restoreCartFromSnapshot(Payment $payment): void
     {
         $snap = $payment->payload['checkout_snapshot'] ?? null;
         if ($snap && ! empty($snap['items'])) {

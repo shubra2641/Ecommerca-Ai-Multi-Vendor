@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -11,91 +13,6 @@ use Illuminate\View\View;
 
 class FooterSettingsController extends Controller
 {
-    /**
-     * Fetch active languages (cached) falling back to English only if table missing.
-     */
-    protected function activeLanguages()
-    {
-        return Cache::remember('active_languages_full', 3600, function () {
-            try {
-                return \DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
-            } catch (\Throwable $e) {
-                return collect([(object) ['code' => 'en', 'is_default' => 1]]);
-            }
-        });
-    }
-
-    /**
-     * Merge i18n arrays allowing deletion via empty string.
-     */
-    protected function mergeLang(?array $existing, ?array $incoming): array
-    {
-        $existing = $existing ?? [];
-        foreach (($incoming ?? []) as $lang => $val) {
-            if ($val === null) {
-                continue;
-            } // ignore nulls
-            if ($val === '') {
-                unset($existing[$lang]);
-
-                continue;
-            }
-            $existing[$lang] = $val; // overwrite
-        }
-
-        return $existing;
-    }
-
-    /**
-     * Normalize incoming app links structure & handle image uploads.
-     */
-    protected function normalizeAppLinks(array $incoming, Setting $setting, UpdateFooterSettingsRequest $request): array
-    {
-        $defaultAppLinks = [
-            'apple' => ['enabled' => true, 'url' => null, 'image' => null, 'order' => 1],
-            'google' => ['enabled' => true, 'url' => null, 'image' => null, 'order' => 2],
-            'huawei' => ['enabled' => false, 'url' => null, 'image' => null, 'order' => 3],
-        ];
-        $result = array_replace_recursive($defaultAppLinks, $incoming);
-        foreach ($result as $key => &$link) {
-            if ($request->hasFile("app_links.$key.image")) {
-                $file = $request->file("app_links.$key.image");
-                $filename = 'app_badge_' . $key . '_' . time() . '_' .
-                    uniqid() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('uploads/footer', $filename, 'public');
-                $link['image'] = $path;
-            } else {
-                $link['image'] = $link['existing_image'] ??
-                    ($setting->footer_app_links[$key]['image'] ?? null);
-            }
-            $link['enabled'] = (bool) ($link['enabled'] ?? false);
-            $link['order'] = $link['order'] ?? 0;
-            unset($link['existing_image']);
-        }
-        unset($link);
-
-        return $result;
-    }
-
-    /**
-     * Determine which shallow keys changed (arrays compared via JSON encoding).
-     */
-    protected function detectChangedKeys(array $original, Setting $setting): array
-    {
-        $changed = [];
-        foreach ($original as $k => $before) {
-            $after = $setting->{$k};
-            if (is_array($before) || is_array($after)) {
-                if (json_encode($before, JSON_UNESCAPED_UNICODE) !== json_encode($after, JSON_UNESCAPED_UNICODE)) {
-                    $changed[] = $k;
-                }
-            } elseif ($before !== $after) {
-                $changed[] = $k;
-            }
-        }
-
-        return $changed;
-    }
 
     public function edit(): View
     {
@@ -212,5 +129,90 @@ class FooterSettingsController extends Controller
         Cache::forget('site_settings');
 
         return back()->with('success', __('Footer settings updated.'));
+    }
+    /**
+     * Fetch active languages (cached) falling back to English only if table missing.
+     */
+    protected function activeLanguages()
+    {
+        return Cache::remember('active_languages_full', 3600, function () {
+            try {
+                return \DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
+            } catch (\Throwable $e) {
+                return collect([(object) ['code' => 'en', 'is_default' => 1]]);
+            }
+        });
+    }
+
+    /**
+     * Merge i18n arrays allowing deletion via empty string.
+     */
+    protected function mergeLang(?array $existing, ?array $incoming): array
+    {
+        $existing = $existing ?? [];
+        foreach (($incoming ?? []) as $lang => $val) {
+            if ($val === null) {
+                continue;
+            } // ignore nulls
+            if ($val === '') {
+                unset($existing[$lang]);
+
+                continue;
+            }
+            $existing[$lang] = $val; // overwrite
+        }
+
+        return $existing;
+    }
+
+    /**
+     * Normalize incoming app links structure & handle image uploads.
+     */
+    protected function normalizeAppLinks(array $incoming, Setting $setting, UpdateFooterSettingsRequest $request): array
+    {
+        $defaultAppLinks = [
+            'apple' => ['enabled' => true, 'url' => null, 'image' => null, 'order' => 1],
+            'google' => ['enabled' => true, 'url' => null, 'image' => null, 'order' => 2],
+            'huawei' => ['enabled' => false, 'url' => null, 'image' => null, 'order' => 3],
+        ];
+        $result = array_replace_recursive($defaultAppLinks, $incoming);
+        foreach ($result as $key => &$link) {
+            if ($request->hasFile("app_links.{$key}.image")) {
+                $file = $request->file("app_links.{$key}.image");
+                $filename = 'app_badge_' . $key . '_' . time() . '_' .
+                    uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('uploads/footer', $filename, 'public');
+                $link['image'] = $path;
+            } else {
+                $link['image'] = $link['existing_image'] ??
+                    ($setting->footer_app_links[$key]['image'] ?? null);
+            }
+            $link['enabled'] = (bool) ($link['enabled'] ?? false);
+            $link['order'] = $link['order'] ?? 0;
+            unset($link['existing_image']);
+        }
+        unset($link);
+
+        return $result;
+    }
+
+    /**
+     * Determine which shallow keys changed (arrays compared via JSON encoding).
+     */
+    protected function detectChangedKeys(array $original, Setting $setting): array
+    {
+        $changed = [];
+        foreach ($original as $k => $before) {
+            $after = $setting->{$k};
+            if (is_array($before) || is_array($after)) {
+                if (json_encode($before, JSON_UNESCAPED_UNICODE) !== json_encode($after, JSON_UNESCAPED_UNICODE)) {
+                    $changed[] = $k;
+                }
+            } elseif ($before !== $after) {
+                $changed[] = $k;
+            }
+        }
+
+        return $changed;
     }
 }

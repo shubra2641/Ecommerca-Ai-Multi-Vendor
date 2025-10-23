@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\PaymentGateway;
@@ -57,12 +59,12 @@ class PaymentGatewayManager
             // Prepare POST fields as form-encoded according to Stripe API
             $post = [];
             foreach ($line_items as $i => $li) {
-                $prefix = "line_items[$i]";
+                $prefix = "line_items[{$i}]";
                 // price_data
-                $post["$prefix[price_data][currency]"] = $li['price_data']['currency'];
-                $post["$prefix[price_data][product_data][name]"] = $li['price_data']['product_data']['name'];
-                $post["$prefix[price_data][unit_amount]"] = $li['price_data']['unit_amount'];
-                $post["$prefix[quantity]"] = $li['quantity'];
+                $post["{$prefix['price_data']}[currency]"] = $li['price_data']['currency'];
+                $post["{$prefix['price_data']}[product_data][name]"] = $li['price_data']['product_data']['name'];
+                $post["{$prefix['price_data']}[unit_amount]"] = $li['price_data']['unit_amount'];
+                $post["{$prefix['quantity']}"] = $li['quantity'];
             }
             $post['mode'] = 'payment';
             $post['success_url'] = $success . '?session_id={CHECKOUT_SESSION_ID}';

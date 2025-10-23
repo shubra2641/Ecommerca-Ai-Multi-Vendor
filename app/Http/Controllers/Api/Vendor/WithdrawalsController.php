@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\Vendor;
 
 use App\Http\Controllers\Controller;
@@ -164,11 +166,12 @@ class WithdrawalsController extends Controller
         $data = $r->validate([
             'amount' => ['required', 'numeric', 'min:'.$min],
             'currency' => 'required|string',
-            'payment_method' => ['required', 'string', function ($attribute, $value, $fail) use ($gatewaySlugs) {
+            'payment_method' => ['required', 'string', function ($attribute, $value, $fail) use ($gatewaySlugs): void {
                 if (! in_array($value, $gatewaySlugs)) {
                     $fail('Invalid payment method');
                 }
-            }],
+            },
+            ],
             'notes' => 'nullable|string|max:500',
             'transfer' => 'nullable|array',
         ]);
@@ -187,7 +190,7 @@ class WithdrawalsController extends Controller
         $commissionEnabled = (bool) ($setting->withdrawal_commission_enabled ?? false);
         $commissionRate = (float) ($setting->withdrawal_commission_rate ?? 0);
         $gross = (float) $data['amount'];
-        $commissionExact = $commissionEnabled && $commissionRate > 0 ? ($gross * ($commissionRate / 100)) : 0.0;
+        $commissionExact = $commissionEnabled && $commissionRate > 0 ? $gross * $commissionRate / 100 : 0.0;
         $commissionAmount = $commissionEnabled && $commissionRate > 0 ? round($commissionExact, 2) : 0.0;
         $netAmount = max(0, $gross - $commissionAmount);
 

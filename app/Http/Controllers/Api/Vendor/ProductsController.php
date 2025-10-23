@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\Vendor;
 
 use App\Http\Controllers\Controller;
@@ -25,7 +27,7 @@ class ProductsController extends Controller
     {
         $data = $r->validated();
         // attempt to reuse merge logic from web controller
-        $controller = new \App\Http\Controllers\Vendor\ProductController;
+        $controller = new \App\Http\Controllers\Vendor\ProductController();
         $controller->mergeVendorTranslations($r, $data);
         $data = $controller->collapsePrimaryTextFields($data);
 
@@ -68,7 +70,7 @@ class ProductsController extends Controller
     {
         $product = Product::where('id', $id)->where('vendor_id', $r->user()->id)->firstOrFail();
         $data = $r->validated();
-        $controller = new \App\Http\Controllers\Vendor\ProductController;
+        $controller = new \App\Http\Controllers\Vendor\ProductController();
         $controller->mergeVendorTranslations($r, $data, $product);
         $data = $controller->collapsePrimaryTextFields($data, $product);
 

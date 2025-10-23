@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\Vendor;
 
 use App\Http\Controllers\Controller;
@@ -9,35 +11,6 @@ use Illuminate\Http\Request;
 
 class ProductVariationsController extends Controller
 {
-    protected function findOwnedProduct($user, $productId): Product
-    {
-        return Product::where('id', $productId)->where('vendor_id', $user->id)->firstOrFail();
-    }
-
-    protected function variationDataFrom(Request $r): array
-    {
-        $attrRaw = $r->input('attributes', []);
-        if (is_string($attrRaw)) {
-            $decoded = json_decode($attrRaw, true);
-            $attrRaw = json_last_error() === JSON_ERROR_NONE ? $decoded : [];
-        }
-
-        return [
-            'name' => $r->input('name'),
-            'sku' => $r->input('sku'),
-            'price' => $r->input('price'),
-            'sale_price' => $r->input('sale_price'),
-            'sale_start' => $r->input('sale_start'),
-            'sale_end' => $r->input('sale_end'),
-            'manage_stock' => $r->boolean('manage_stock'),
-            'stock_qty' => $r->input('stock_qty', 0),
-            'reserved_qty' => $r->input('reserved_qty', 0),
-            'backorder' => $r->boolean('backorder'),
-            'image' => $r->input('image'),
-            'attribute_data' => $attrRaw,
-            'active' => $r->boolean('active', true),
-        ];
-    }
 
     public function update(Request $r, $productId, $variationId)
     {
@@ -109,5 +82,34 @@ class ProductVariationsController extends Controller
                 'stock_qty' => $variation->stock_qty,
             ],
         ], 201);
+    }
+    protected function findOwnedProduct($user, $productId): Product
+    {
+        return Product::where('id', $productId)->where('vendor_id', $user->id)->firstOrFail();
+    }
+
+    protected function variationDataFrom(Request $r): array
+    {
+        $attrRaw = $r->input('attributes', []);
+        if (is_string($attrRaw)) {
+            $decoded = json_decode($attrRaw, true);
+            $attrRaw = json_last_error() === JSON_ERROR_NONE ? $decoded : [];
+        }
+
+        return [
+            'name' => $r->input('name'),
+            'sku' => $r->input('sku'),
+            'price' => $r->input('price'),
+            'sale_price' => $r->input('sale_price'),
+            'sale_start' => $r->input('sale_start'),
+            'sale_end' => $r->input('sale_end'),
+            'manage_stock' => $r->boolean('manage_stock'),
+            'stock_qty' => $r->input('stock_qty', 0),
+            'reserved_qty' => $r->input('reserved_qty', 0),
+            'backorder' => $r->boolean('backorder'),
+            'image' => $r->input('image'),
+            'attribute_data' => $attrRaw,
+            'active' => $r->boolean('active', true),
+        ];
     }
 }

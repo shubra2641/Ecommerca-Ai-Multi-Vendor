@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
@@ -11,176 +13,6 @@ use Illuminate\Support\Facades\Cache;
 
 class ProductCatalogController extends Controller
 {
-    /**
-     * Base query for products
-     */
-    protected function baseQuery()
-    {
-        $select = [
-            'id',
-            'name',
-            'slug',
-            'price',
-            'sale_price',
-            'product_category_id',
-            'manage_stock',
-            'stock_qty',
-            'reserved_qty',
-            'type',
-            'main_image',
-            'is_featured',
-            'active',
-            'vendor_id',
-        ];
-
-        return Product::query()
-            ->select($select)
-            ->with(['category', 'brand'])
-            ->active();
-    }
-
-    /**
-     * Apply filters to query
-     */
-    protected function applyFilters($query, Request $request)
-    {
-        // Search
-        if ($search = $request->get('q')) {
-            $query->where('name', 'like', '%' . $search . '%');
-        }
-
-        // Filters
-        if ($request->boolean('featured')) {
-            $query->featured();
-        }
-        if ($request->boolean('best')) {
-            $query->bestSeller();
-        }
-        if ($request->boolean('sale')) {
-            $query->onSale();
-        }
-        if ($type = $request->get('type')) {
-            $query->where('type', $type);
-        }
-
-        // Price range
-        if ($min = $request->get('min_price')) {
-            if (is_numeric($min)) {
-                $query->where('price', '>=', $min);
-            }
-        }
-        if ($max = $request->get('max_price')) {
-            if (is_numeric($max)) {
-                $query->where('price', '<=', $max);
-            }
-        }
-
-        // Brand filter
-        if ($brands = $request->get('brand')) {
-            $brandsArr = array_filter(is_array($brands) ? $brands : explode(',', $brands));
-            if ($brandsArr) {
-                $query->whereHas('brand', function ($b) use ($brandsArr) {
-                    $b->whereIn('slug', array_map('Str::slug', $brandsArr));
-                });
-            }
-        }
-
-        // Sorting
-        switch ($request->get('sort')) {
-            case 'price_asc':
-                $query->orderBy('price');
-                break;
-            case 'price_desc':
-                $query->orderByDesc('price');
-                break;
-            default:
-                $query->latest();
-        }
-
-        return $query;
-    }
-
-    /**
-     * Process products for display
-     */
-    protected function processProducts($products)
-    {
-        // Add availability
-        foreach ($products as $p) {
-            $p->list_available = $p->manage_stock ? max(0, ($p->stock_qty ?? 0) - ($p->reserved_qty ?? 0)) : null;
-        }
-
-        // Convert prices
-        $this->convertPrices($products);
-
-        return $products;
-    }
-
-    /**
-     * Convert product prices for display
-     */
-    protected function convertPrices($products)
-    {
-        try {
-            $sessionCurrencyId = session('currency_id');
-            if ($sessionCurrencyId) {
-                $target = \App\Models\Currency::find($sessionCurrencyId);
-                $default = \App\Models\Currency::getDefault();
-                if ($target && $default && $target->id !== $default->id) {
-                    foreach ($products as $p) {
-                        $p->display_price = $default->convertTo($p->price, $target, 2);
-                    }
-                } else {
-                    foreach ($products as $p) {
-                        $p->display_price = $p->price;
-                    }
-                }
-            } else {
-                foreach ($products as $p) {
-                    $p->display_price = $p->price;
-                }
-            }
-        } catch (\Throwable $e) {
-            foreach ($products as $p) {
-                $p->display_price = $p->price;
-            }
-        }
-    }
-
-    /**
-     * Get common data for views
-     */
-    protected function getCommonData(Request $request)
-    {
-        $categories = Cache::remember('product_category_tree', 600, function () {
-            return ProductCategory::with('children.children')->whereNull('parent_id')->get();
-        });
-
-        $brandList = Cache::remember('product_brands_list', 600, function () {
-            return Brand::active()->withCount('products')->orderByDesc('products_count')->take(30)->get();
-        });
-
-        $wishlistIds = [];
-        if ($request->user()?->id) {
-            $wishlistIds = (array) Cache::remember(
-                'wishlist_ids_' . $request->user()->id,
-                60,
-                function () use ($request) {
-                    return \App\Models\WishlistItem::where('user_id', $request->user()->id)
-                        ->pluck('product_id')
-                        ->all();
-                }
-            );
-        } else {
-            $wishlistSession = session('wishlist');
-            $wishlistIds = is_array($wishlistSession) && $wishlistSession ? $wishlistSession : [];
-        }
-
-        $compareIds = session('compare', []);
-        $currentCurrency = $this->resolveCurrentCurrency();
-
-        return compact('categories', 'brandList', 'wishlistIds', 'compareIds', 'currentCurrency');
-    }
 
     /**
      * Main catalog index
@@ -203,7 +35,7 @@ class ProductCatalogController extends Controller
                     600,
                     fn () => ProductCategory::where('parent_id', $id)->pluck('id')->all()
                 );
-                $query->where(function ($qq) use ($id, $childIds) {
+                $query->where(function ($qq) use ($id, $childIds): void {
                     $qq->where('product_category_id', $id)
                         ->orWhereIn('product_category_id', $childIds);
                 });
@@ -234,7 +66,7 @@ class ProductCatalogController extends Controller
             return $category->children()->pluck('id')->all();
         });
 
-        $query = $this->baseQuery()->where(function ($qq) use ($category, $childIds) {
+        $query = $this->baseQuery()->where(function ($qq) use ($category, $childIds): void {
             $qq->where('product_category_id', $category->id)->orWhereIn('product_category_id', $childIds);
         });
 
@@ -252,7 +84,7 @@ class ProductCatalogController extends Controller
     public function tag($slug, Request $request)
     {
         $tag = ProductTag::where('slug', $slug)->firstOrFail();
-        $query = $this->baseQuery()->whereHas('tags', function ($t) use ($tag) {
+        $query = $this->baseQuery()->whereHas('tags', function ($t) use ($tag): void {
             $t->where('product_tags.id', $tag->id);
         });
 
@@ -271,12 +103,12 @@ class ProductCatalogController extends Controller
     {
         $product = Product::with(['category', 'tags', 'variations', 'vendor'])
             ->withCount([
-                'reviews as approved_reviews_count' => function ($q) {
+                'reviews as approved_reviews_count' => function ($q): void {
                     $q->where('approved', true);
                 },
             ])
             ->withAvg([
-                'reviews as approved_reviews_avg' => function ($q) {
+                'reviews as approved_reviews_avg' => function ($q): void {
                     $q->where('approved', true);
                 },
             ], 'rating')
@@ -354,8 +186,8 @@ class ProductCatalogController extends Controller
         $onSale = $product->isOnSale();
         $basePrice = $product->display_price ?? $product->effectivePrice();
         $origPrice = $product->display_price ?? $product->price;
-        $discountPercent = ($onSale && $origPrice && $origPrice > 0)
-            ? (int) round((($origPrice - $basePrice) / $origPrice) * 100)
+        $discountPercent = $onSale && $origPrice && $origPrice > 0
+            ? (int) round(($origPrice - $basePrice) / $origPrice * 100)
             : null;
 
         // Stock
@@ -517,7 +349,7 @@ class ProductCatalogController extends Controller
                 if (method_exists($user, 'orders')) {
                     $purchased = $user->orders()
                         ->whereIn('status', ['completed', 'paid', 'delivered'])
-                        ->whereHas('items', function ($q) use ($product) {
+                        ->whereHas('items', function ($q) use ($product): void {
                             $q->where('product_id', $product->id);
                         })
                         ->exists();
@@ -579,6 +411,176 @@ class ProductCatalogController extends Controller
             'inCart',
             'activeVars'
         ));
+    }
+    /**
+     * Base query for products
+     */
+    protected function baseQuery()
+    {
+        $select = [
+            'id',
+            'name',
+            'slug',
+            'price',
+            'sale_price',
+            'product_category_id',
+            'manage_stock',
+            'stock_qty',
+            'reserved_qty',
+            'type',
+            'main_image',
+            'is_featured',
+            'active',
+            'vendor_id',
+        ];
+
+        return Product::query()
+            ->select($select)
+            ->with(['category', 'brand'])
+            ->active();
+    }
+
+    /**
+     * Apply filters to query
+     */
+    protected function applyFilters($query, Request $request)
+    {
+        // Search
+        if ($search = $request->get('q')) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        // Filters
+        if ($request->boolean('featured')) {
+            $query->featured();
+        }
+        if ($request->boolean('best')) {
+            $query->bestSeller();
+        }
+        if ($request->boolean('sale')) {
+            $query->onSale();
+        }
+        if ($type = $request->get('type')) {
+            $query->where('type', $type);
+        }
+
+        // Price range
+        if ($min = $request->get('min_price')) {
+            if (is_numeric($min)) {
+                $query->where('price', '>=', $min);
+            }
+        }
+        if ($max = $request->get('max_price')) {
+            if (is_numeric($max)) {
+                $query->where('price', '<=', $max);
+            }
+        }
+
+        // Brand filter
+        if ($brands = $request->get('brand')) {
+            $brandsArr = array_filter(is_array($brands) ? $brands : explode(',', $brands));
+            if ($brandsArr) {
+                $query->whereHas('brand', function ($b) use ($brandsArr): void {
+                    $b->whereIn('slug', array_map('Str::slug', $brandsArr));
+                });
+            }
+        }
+
+        // Sorting
+        switch ($request->get('sort')) {
+            case 'price_asc':
+                $query->orderBy('price');
+                break;
+            case 'price_desc':
+                $query->orderByDesc('price');
+                break;
+            default:
+                $query->latest();
+        }
+
+        return $query;
+    }
+
+    /**
+     * Process products for display
+     */
+    protected function processProducts($products)
+    {
+        // Add availability
+        foreach ($products as $p) {
+            $p->list_available = $p->manage_stock ? max(0, ($p->stock_qty ?? 0) - ($p->reserved_qty ?? 0)) : null;
+        }
+
+        // Convert prices
+        $this->convertPrices($products);
+
+        return $products;
+    }
+
+    /**
+     * Convert product prices for display
+     */
+    protected function convertPrices($products): void
+    {
+        try {
+            $sessionCurrencyId = session('currency_id');
+            if ($sessionCurrencyId) {
+                $target = \App\Models\Currency::find($sessionCurrencyId);
+                $default = \App\Models\Currency::getDefault();
+                if ($target && $default && $target->id !== $default->id) {
+                    foreach ($products as $p) {
+                        $p->display_price = $default->convertTo($p->price, $target, 2);
+                    }
+                } else {
+                    foreach ($products as $p) {
+                        $p->display_price = $p->price;
+                    }
+                }
+            } else {
+                foreach ($products as $p) {
+                    $p->display_price = $p->price;
+                }
+            }
+        } catch (\Throwable $e) {
+            foreach ($products as $p) {
+                $p->display_price = $p->price;
+            }
+        }
+    }
+
+    /**
+     * Get common data for views
+     */
+    protected function getCommonData(Request $request)
+    {
+        $categories = Cache::remember('product_category_tree', 600, function () {
+            return ProductCategory::with('children.children')->whereNull('parent_id')->get();
+        });
+
+        $brandList = Cache::remember('product_brands_list', 600, function () {
+            return Brand::active()->withCount('products')->orderByDesc('products_count')->take(30)->get();
+        });
+
+        $wishlistIds = [];
+        if ($request->user()?->id) {
+            $wishlistIds = (array) Cache::remember(
+                'wishlist_ids_' . $request->user()->id,
+                60,
+                function () use ($request) {
+                    return \App\Models\WishlistItem::where('user_id', $request->user()->id)
+                        ->pluck('product_id')
+                        ->all();
+                }
+            );
+        } else {
+            $wishlistSession = session('wishlist');
+            $wishlistIds = is_array($wishlistSession) && $wishlistSession ? $wishlistSession : [];
+        }
+
+        $compareIds = session('compare', []);
+        $currentCurrency = $this->resolveCurrentCurrency();
+
+        return compact('categories', 'brandList', 'wishlistIds', 'compareIds', 'currentCurrency');
     }
 
     /**

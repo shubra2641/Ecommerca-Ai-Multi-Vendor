@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -73,9 +75,9 @@ class ProductRequest extends FormRequest
         return $rules;
     }
 
-    public function withValidator($validator)
+    public function withValidator($validator): void
     {
-        $validator->after(function ($v) {
+        $validator->after(function ($v): void {
             // Ensure default language name not empty
             try {
                 $defaultLang = \App\Models\Language::where('is_active', 1)->where('is_default', 1)->first();
@@ -85,7 +87,7 @@ class ProductRequest extends FormRequest
                     if (is_array($names)) {
                         $val = trim((string) ($names[$code] ?? ''));
                         if ($val === '') {
-                            $v->errors()->add("name.$code", __('Name in default language is required'));
+                            $v->errors()->add("name.{$code}", __('Name in default language is required'));
                         }
                     } else { // simple string case
                         $val = trim((string) $names);

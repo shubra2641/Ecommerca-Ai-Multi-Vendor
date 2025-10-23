@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -139,8 +141,8 @@ class HomepageSectionController extends Controller
                 $section->cta_url = $secData['cta_url'] ?: null;
             }
             $merge = function ($existing, $incoming) {
-                $existing = $existing ?: [];
-                foreach (($incoming ?: []) as $lang => $val) {
+                $existing = $existing ? $existing : [];
+                foreach (($incoming ? $incoming : []) as $lang => $val) {
                     if ($val === null) {
                         continue;
                     } if ($val === '') {

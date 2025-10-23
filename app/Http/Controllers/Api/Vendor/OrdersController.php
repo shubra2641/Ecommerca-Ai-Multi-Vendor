@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\Vendor;
 
 use App\Http\Controllers\Controller;
@@ -71,7 +73,8 @@ class OrdersController extends Controller
                 'price' => $item->price,
                 'total' => $item->qty * $item->price,
                 'product' => $item->product,
-            ]],
+            ],
+            ],
             'order' => $item->order,
             'product' => $item->product,
             'user' => $item->order->user,

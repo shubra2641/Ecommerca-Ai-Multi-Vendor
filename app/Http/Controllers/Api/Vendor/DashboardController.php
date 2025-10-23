@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\Vendor;
 
 use App\Http\Controllers\Controller;
@@ -10,7 +12,6 @@ use App\Models\User;
 use App\Models\VendorWithdrawal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -91,103 +92,6 @@ class DashboardController extends Controller
             'orders_growth' => (float) $ordersGrowth,
             'sales_growth' => (float) $salesGrowth,
         ]);
-    }
-
-    /**
-     * Generate sales chart data for the last 12 months
-     */
-    private function generateSalesChartData($vendorId)
-    {
-        $chartData = [];
-
-        for ($i = 11; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $monthKey = $date->format('M Y');
-
-            $monthlySales = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-                ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->sum(DB::raw('(price * COALESCE(qty, 1))'));
-
-            $chartData[$monthKey] = (float) $monthlySales;
-        }
-
-        return $chartData;
-    }
-
-    /**
-     * Generate orders chart data for the last 12 months
-     */
-    private function generateOrdersChartData($vendorId)
-    {
-        $chartData = [];
-
-        for ($i = 11; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $monthKey = $date->format('M Y');
-
-            $monthlyOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-                ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->distinct('order_id')
-                ->count('order_id');
-
-            $chartData[$monthKey] = (int) $monthlyOrders;
-        }
-
-        return $chartData;
-    }
-
-    /**
-     * Calculate sales growth percentage compared to previous month
-     */
-    private function calculateSalesGrowth($vendorId)
-    {
-        $currentMonth = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->sum(DB::raw('(price * COALESCE(qty, 1))'));
-
-        $previousMonth = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
-            ->whereYear('created_at', now()->subMonth()->year)
-            ->whereMonth('created_at', now()->subMonth()->month)
-            ->sum(DB::raw('(price * COALESCE(qty, 1))'));
-
-        if ($previousMonth == 0) {
-            return $currentMonth > 0 ? 100.0 : 0.0;
-        }
-
-        return (($currentMonth - $previousMonth) / $previousMonth) * 100;
-    }
-
-    /**
-     * Calculate orders growth percentage compared to previous month
-     */
-    private function calculateOrdersGrowth($vendorId)
-    {
-        $currentMonthOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->distinct('order_id')
-            ->count('order_id');
-
-        $previousMonthOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
-            ->whereYear('created_at', now()->subMonth()->year)
-            ->whereMonth('created_at', now()->subMonth()->month)
-            ->distinct('order_id')
-            ->count('order_id');
-
-        if ($previousMonthOrders == 0) {
-            return $currentMonthOrders > 0 ? 100.0 : 0.0;
-        }
-
-        return (($currentMonthOrders - $previousMonthOrders) / $previousMonthOrders) * 100;
     }
 
     public function balance(Request $r)
@@ -321,5 +225,102 @@ class DashboardController extends Controller
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Generate sales chart data for the last 12 months
+     */
+    private function generateSalesChartData($vendorId)
+    {
+        $chartData = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $monthKey = $date->format('M Y');
+
+            $monthlySales = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+                ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->sum(DB::raw('(price * COALESCE(qty, 1))'));
+
+            $chartData[$monthKey] = (float) $monthlySales;
+        }
+
+        return $chartData;
+    }
+
+    /**
+     * Generate orders chart data for the last 12 months
+     */
+    private function generateOrdersChartData($vendorId)
+    {
+        $chartData = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $monthKey = $date->format('M Y');
+
+            $monthlyOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+                ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->distinct('order_id')
+                ->count('order_id');
+
+            $chartData[$monthKey] = (int) $monthlyOrders;
+        }
+
+        return $chartData;
+    }
+
+    /**
+     * Calculate sales growth percentage compared to previous month
+     */
+    private function calculateSalesGrowth($vendorId)
+    {
+        $currentMonth = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->sum(DB::raw('(price * COALESCE(qty, 1))'));
+
+        $previousMonth = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+            ->whereYear('created_at', now()->subMonth()->year)
+            ->whereMonth('created_at', now()->subMonth()->month)
+            ->sum(DB::raw('(price * COALESCE(qty, 1))'));
+
+        if ($previousMonth === 0) {
+            return $currentMonth > 0 ? 100.0 : 0.0;
+        }
+
+        return ($currentMonth - $previousMonth) / $previousMonth * 100;
+    }
+
+    /**
+     * Calculate orders growth percentage compared to previous month
+     */
+    private function calculateOrdersGrowth($vendorId)
+    {
+        $currentMonthOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->distinct('order_id')
+            ->count('order_id');
+
+        $previousMonthOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+            ->whereYear('created_at', now()->subMonth()->year)
+            ->whereMonth('created_at', now()->subMonth()->month)
+            ->distinct('order_id')
+            ->count('order_id');
+
+        if ($previousMonthOrders === 0) {
+            return $currentMonthOrders > 0 ? 100.0 : 0.0;
+        }
+
+        return ($currentMonthOrders - $previousMonthOrders) / $previousMonthOrders * 100;
     }
 }

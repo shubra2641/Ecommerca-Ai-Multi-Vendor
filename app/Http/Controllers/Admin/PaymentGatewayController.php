@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PaymentGatewayRequest;
 use App\Models\PaymentGateway;
 use App\Services\HtmlSanitizer;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class PaymentGatewayController extends Controller

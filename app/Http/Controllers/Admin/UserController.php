@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\UsersBalanceExport;
@@ -245,7 +247,7 @@ class UserController extends BaseAdminController
 
         if ($request->has('search') && $request->search) {
             $searchTerm = $request->search;
-            $query->where(function ($q) use ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm): void {
                 $q->where('name', 'like', "%{$searchTerm}%")
                     ->orWhere('email', 'like', "%{$searchTerm}%")
                     ->orWhere('phone', 'like', "%{$searchTerm}%");
@@ -317,7 +319,7 @@ class UserController extends BaseAdminController
         return $data;
     }
 
-    protected function sanitizeUserData(array &$data, HtmlSanitizer $sanitizer)
+    protected function sanitizeUserData(array &$data, HtmlSanitizer $sanitizer): void
     {
         if (isset($data['name']) && is_string($data['name'])) {
             $data['name'] = $sanitizer->clean($data['name']);

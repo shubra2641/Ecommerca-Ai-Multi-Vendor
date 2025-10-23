@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use App\Models\Currency;
@@ -23,7 +25,9 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void {}
+    public function register(): void
+    {
+    }
 
     /**
      * Bootstrap any application services.
@@ -52,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
         // Shared active languages (for switchers in multiple layouts)
         View::composer(
             ['components.language-switcher', 'vendor.partials.vendor-top', 'layouts.guest'],
-            function ($view) {
+            function ($view): void {
                 $languages = \Illuminate\Support\Facades\Cache::remember(
                     'languages_all',
                     3600,
@@ -105,7 +109,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('admin.orders.index', \App\View\Composers\AdminOrdersIndexComposer::class);
         View::composer('admin.gallery.index', \App\View\Composers\AdminGalleryIndexComposer::class);
         // Theme tokens (available to all admin + front views for future theming / docs examples)
-        View::composer(['front.*', 'admin.*'], function ($view) {
+        View::composer(['front.*', 'admin.*'], function ($view): void {
             static $theme = null;
             if ($theme === null) {
                 $theme = config('theme');
@@ -123,7 +127,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Vendor area composers (products index specific)
         View::composer('vendor.layout', \App\View\Composers\SiteBrandingComposer::class);
-        View::composer('vendor.partials.vendor-top', function ($view) {
+        View::composer('vendor.partials.vendor-top', function ($view): void {
             $flash = [
                 'success' => session('success'),
                 'error' => session('error'),
@@ -148,7 +152,7 @@ class AppServiceProvider extends ServiceProvider
         );
 
         // Provide site setting & selected font globally for front views (remove inline @php in layout)
-        View::composer(['front.*'], function ($view) {
+        View::composer(['front.*'], function ($view): void {
             static $cached = null;
             if ($cached === null) {
                 try {
@@ -156,7 +160,7 @@ class AppServiceProvider extends ServiceProvider
                         'setting' => \Illuminate\Support\Facades\Cache::remember(
                             'site_settings',
                             3600,
-                            fn() => \App\Models\Setting::first()
+                            fn () => \App\Models\Setting::first()
                         ),
                     ];
                 } catch (\Throwable $e) {
@@ -178,14 +182,14 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Provide selected font for guest layout
-        View::composer(['layouts.guest'], function ($view) {
+        View::composer(['layouts.guest'], function ($view): void {
             static $cached = null;
             if ($cached === null) {
                 try {
                     $setting = \Illuminate\Support\Facades\Cache::remember(
                         'site_settings',
                         3600,
-                        fn() => \App\Models\Setting::first()
+                        fn () => \App\Models\Setting::first()
                     );
                     $font = cache()->get(
                         'settings.font_family',
@@ -201,7 +205,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Share default/current currency lightweight for all views.
         // HeaderComposer may override currentCurrency/currency_symbol.
-        View::composer('*', function ($view) {
+        View::composer('*', function ($view): void {
             static $cache = null;
             if ($cache === null) {
                 $cache = ['default' => null, 'symbol' => '$'];
@@ -238,7 +242,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Provide pending returns count to admin navigation via view composer
-        View::composer('layouts.navigation', function ($view) {
+        View::composer('layouts.navigation', function ($view): void {
             $pending = \Illuminate\Support\Facades\Cache::remember(
                 'pending_returns_count',
                 300,
@@ -285,7 +289,7 @@ class AppServiceProvider extends ServiceProvider
         // Usage: @clean($html) — will echo sanitized HTML string.
         Blade::directive('clean', function ($expression) {
             // expression is the variable to clean
-            return "<?php echo app('App\\\\Services\\\\HtmlSanitizer')->clean($expression); ?>";
+            return "<?php echo app('App\\\\Services\\\\HtmlSanitizer')->clean({$expression}); ?>";
         });
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,11 +13,26 @@ class BalanceHistory extends Model
     use HasFactory;
 
     /**
+     * Transaction types
+     */
+    public const TYPE_CREDIT = 'credit';
+
+    public const TYPE_DEBIT = 'debit';
+
+    public const TYPE_ADJUSTMENT = 'adjustment';
+
+    public const TYPE_REFUND = 'refund';
+
+    public const TYPE_BONUS = 'bonus';
+
+    public const TYPE_PENALTY = 'penalty';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = [
+    protected array $fillable = [
         'user_id',
         'admin_id',
         'type',
@@ -32,28 +49,13 @@ class BalanceHistory extends Model
      *
      * @var array<string, string>
      */
-    protected $casts = [
+    protected array $casts = [
         'amount' => 'decimal:2',
         'previous_balance' => 'decimal:2',
         'new_balance' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
-    /**
-     * Transaction types
-     */
-    public const TYPE_CREDIT = 'credit';
-
-    public const TYPE_DEBIT = 'debit';
-
-    public const TYPE_ADJUSTMENT = 'adjustment';
-
-    public const TYPE_REFUND = 'refund';
-
-    public const TYPE_BONUS = 'bonus';
-
-    public const TYPE_PENALTY = 'penalty';
 
     /**
      * Get the user that owns the balance history.
@@ -216,7 +218,7 @@ class BalanceHistory extends Model
             'new_balance' => $newBalance,
             'note' => $note,
             'reference_id' => $reference?->id,
-            'reference_type' => $reference ? get_class($reference) : null,
+            'reference_type' => $reference ? $reference::class : null,
         ]);
     }
 }

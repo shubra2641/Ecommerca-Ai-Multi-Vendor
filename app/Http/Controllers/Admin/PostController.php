@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -18,8 +20,8 @@ class PostController extends Controller
         $query = Post::with('category', 'author');
 
         if ($q = $request->get('q')) {
-            $query->where(function ($w) use ($q) {
-                $w->where('title', 'like', "%$q%")->orWhere('slug', 'like', "%$q%");
+            $query->where(function ($w) use ($q): void {
+                $w->where('title', 'like', "%{$q}%")->orWhere('slug', 'like', "%{$q}%");
             });
         }
 
@@ -175,7 +177,7 @@ class PostController extends Controller
         $slugTranslations = $data['slug'] ?? [];
         foreach ($data['title'] as $locale => $title) {
             if (! isset($slugTranslations[$locale]) || $slugTranslations[$locale] === '') {
-                $slugTranslations[$locale] = Str::slug($title ?: $defaultTitle);
+                $slugTranslations[$locale] = Str::slug($title ? $title : $defaultTitle);
             }
         }
 
@@ -202,7 +204,7 @@ class PostController extends Controller
         // Clear pagination cache
         foreach ($locales as $locale) {
             foreach (range(1, 5) as $page) {
-                cache()->forget("blog.index.$locale.$page");
+                cache()->forget("blog.index.{$locale}.{$page}");
             }
         }
 
@@ -212,21 +214,21 @@ class PostController extends Controller
 
         // Clear post-specific cache
         foreach ($locales as $locale) {
-            cache()->forget("blog.post.$locale." . $post->slug);
-            cache()->forget("blog.post.$locale." . $post->slug . '.related');
+            cache()->forget("blog.post.{$locale}." . $post->slug);
+            cache()->forget("blog.post.{$locale}." . $post->slug . '.related');
         }
 
         // Clear category cache
         if ($post->category_id) {
             foreach ($locales as $locale) {
-                cache()->forget("blog.cat.$locale." . optional($post->category)->slug);
+                cache()->forget("blog.cat.{$locale}." . optional($post->category)->slug);
             }
         }
 
         // Clear tag cache
         foreach ($post->tags as $tag) {
             foreach ($locales as $locale) {
-                cache()->forget("blog.tag.$locale.$tag->slug");
+                cache()->forget("blog.tag.{$locale}.{$tag->slug}");
             }
         }
     }

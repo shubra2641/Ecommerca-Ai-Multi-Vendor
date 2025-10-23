@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -54,7 +56,7 @@ class Coupon extends Model
     public function applyTo($total)
     {
         if ($this->type === 'percent') {
-            return max(0, $total - ($total * ($this->value / 100)));
+            return max(0, $total - ($total * $this->value / 100));
         }
 
         return max(0, $total - $this->value);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -78,7 +80,7 @@ class SettingsController extends Controller
     public function index(Request $request): View
     {
         // Handle refresh parameter
-        if ($request->has('refresh') && $request->get('refresh') == '1') {
+        if ($request->has('refresh') && $request->get('refresh') === '1') {
             // Clear any cached settings data
             cache()->forget('settings.font_family');
             cache()->forget('settings.maintenance_enabled');
@@ -201,10 +203,8 @@ class SettingsController extends Controller
 
     /**
      * Validate custom CSS/JS code for potential security issues.
-     *
-     * @param  \Illuminate\Validation\Validator  $validator
      */
-    private function validateCustomCode($validator, ?string $code, string $field): void
+    private function validateCustomCode(\Illuminate\Validation\Validator $validator, ?string $code, string $field): void
     {
         if ($code === null || $code === '') {
             return;
@@ -268,10 +268,8 @@ class SettingsController extends Controller
 
     /**
      * Handle logo upload with security checks.
-     *
-     * @param  \Illuminate\Http\UploadedFile  $file
      */
-    private function handleLogoUpload($file, ?string $oldLogo): ?string
+    private function handleLogoUpload(\Illuminate\Http\UploadedFile $file, ?string $oldLogo): ?string
     {
         try {
             // Additional security checks
@@ -316,7 +314,7 @@ class SettingsController extends Controller
             }
             // Flatten any nested arrays, trim strings
             $flat = [];
-            array_walk_recursive($value, function ($item) use (&$flat) {
+            array_walk_recursive($value, function ($item) use (&$flat): void {
                 if (is_string($item)) {
                     $item = trim($item);
                     if ($item !== '') {
@@ -325,9 +323,7 @@ class SettingsController extends Controller
                 }
             });
             // De-duplicate preserving order
-            $flat = array_values(array_unique($flat));
-
-            return $flat;
+            return array_values(array_unique($flat));
         }
 
         if (is_string($value)) {

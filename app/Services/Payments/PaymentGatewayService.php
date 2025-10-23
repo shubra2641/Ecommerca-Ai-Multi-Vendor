@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Payments;
 
 use App\Models\Order;
@@ -163,7 +165,8 @@ class PaymentGatewayService
                         'currency_code' => strtoupper($currency),
                         'value' => number_format($amount, 2, '.', ''),
                     ],
-                ]],
+                ],
+                ],
                 'application_context' => [
                     'return_url' => route('paypal.return', ['payment' => $payment->id]),
                     'cancel_url' => route('paypal.cancel', ['payment' => $payment->id]),

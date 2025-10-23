@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Exports;
 
 use Illuminate\Support\Collection;
@@ -16,10 +18,7 @@ class UsersBalanceExport implements FromCollection, WithHeadings, WithMapping
         $this->users = $users;
     }
 
-    /**
-     * @return \Illuminate\Support\Collection
-     */
-    public function collection()
+    public function collection(): \Illuminate\Support\Collection
     {
         return $this->users;
     }

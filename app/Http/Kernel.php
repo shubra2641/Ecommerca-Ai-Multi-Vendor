@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
-    /** @var array */
-    protected $middleware = [
+    protected array $middleware = [
         \App\Http\Middleware\CheckInstalled::class,
         // Global HTTP middleware stack
         \App\Http\Middleware\CheckMaintenanceMode::class,

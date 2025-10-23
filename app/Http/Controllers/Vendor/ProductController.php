@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
@@ -259,17 +261,15 @@ class ProductController extends Controller
                 $arr = $candidate;
             }
         }
-        $arr = array_values(
+        return array_values(
             array_filter(
                 array_map(fn ($v) => is_string($v) ? trim($v) : '', $arr),
                 fn ($v) => $v !== ''
             )
         );
-
-        return $arr;
     }
 
-    public function syncVariations($product, Request $r)
+    public function syncVariations($product, Request $r): void
     {
         $payload = $r->input('variations', []);
         $ids = [];
@@ -337,7 +337,7 @@ class ProductController extends Controller
         $product->variations()->whereNotIn('id', $ids)->delete();
     }
 
-    protected function syncSerials(Product $product, array $serials)
+    protected function syncSerials(Product $product, array $serials): void
     {
         foreach ($serials as $s) {
             $s = trim($s);

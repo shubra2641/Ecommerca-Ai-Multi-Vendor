@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -18,7 +20,7 @@ class InterestReportController extends Controller
         ]);
 
         $limit = (int) ($request->get('limit', 20));
-        $cacheKey = "interest_top_products:$limit";
+        $cacheKey = "interest_top_products:{$limit}";
         $rows = cache()->remember($cacheKey, 300, function () use ($limit) {
             return ProductInterest::select('product_id', DB::raw('COUNT(*) as total'))
                 ->whereNull('unsubscribed_at')
@@ -63,8 +65,8 @@ class InterestReportController extends Controller
         $first = $changes->first();
         $last = $changes->last();
         $netChange = $first && $last ? $last->new_price - $first->old_price : 0;
-        $netPercent = ($first && $last && $first->old_price > 0) ?
-            (($last->new_price - $first->old_price) / $first->old_price) * 100 : 0;
+        $netPercent = $first && $last && $first->old_price > 0 ?
+            ($last->new_price - $first->old_price) / $first->old_price * 100 : 0;
         $biggestDrop = $changes->sortBy('percent')->first(); // most negative percent
         $maxIncrease = $changes->sortByDesc('percent')->first();
         // Interest overlay: active interest counts evolution (approx by grouping creation times)
@@ -115,8 +117,7 @@ class InterestReportController extends Controller
         // Threshold selection
         $threshold = (float) ($submitted ?
             $request->get('thr', config('interest.price_drop_min_percent', 5)) :
-            ($saved['thr'] ?? config('interest.price_drop_min_percent', 5))
-        );
+            ($saved['thr'] ?? config('interest.price_drop_min_percent', 5)));
         if ($threshold < 1) {
             $threshold = 1;
         } if ($threshold > 90) {
@@ -130,7 +131,8 @@ class InterestReportController extends Controller
             'show_sma' => $showSma,
             'show_ema' => $showEma,
             'thr' => $threshold,
-        ]]);
+        ],
+        ]);
 
         return view('admin.notify.price-chart', compact(
             'product',
