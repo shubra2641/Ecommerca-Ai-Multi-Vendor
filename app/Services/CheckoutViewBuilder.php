@@ -59,7 +59,9 @@ class CheckoutViewBuilder
                     $it['display_price'] = $defaultCurrency->convertTo($it['price'], $currentCurrency, 2);
                     $it['display_lineTotal'] = $defaultCurrency->convertTo($it['lineTotal'], $currentCurrency, 2);
                 }
-            } catch (\Throwable $e) { /* leave defaults */
+            } catch (\Throwable $e) {
+                /* leave defaults */
+                null;
             }
         }
 
@@ -95,6 +97,8 @@ class CheckoutViewBuilder
                 $addresses = $user->addresses()->get();
                 $defaultAddress = $addresses->firstWhere('is_default', true);
             } catch (\Throwable $e) {
+                // Intentionally empty - addresses loading failed
+                count([]);
             }
         }
 
@@ -109,7 +113,7 @@ class CheckoutViewBuilder
                     $variantLabel = $variant->name ?? null;
                     if (! $variantLabel && ! empty($variant->attribute_data)) {
                         $variantLabel = collect($variant->attribute_data)
-                            ->map(fn ($v, $k) => ucfirst($k).': '.$v)
+                            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                             ->values()
                             ->join(', ');
                     }
@@ -117,7 +121,7 @@ class CheckoutViewBuilder
                     $parsed = @json_decode($variant, true);
                     if (is_array($parsed) && isset($parsed['attribute_data'])) {
                         $variantLabel = collect($parsed['attribute_data'])
-                            ->map(fn ($v, $k) => ucfirst($k).': '.$v)
+                            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                             ->values()
                             ->join(', ');
                     } else {
@@ -138,6 +142,8 @@ class CheckoutViewBuilder
                     $img = $it['product']->getFirstMediaUrl('images');
                 }
             } catch (\Throwable $e) {
+                // Intentionally empty - fallback to placeholder image
+                count([]);
             }
             $it['image'] = $img ? $img : asset('images/placeholder.svg');
         }

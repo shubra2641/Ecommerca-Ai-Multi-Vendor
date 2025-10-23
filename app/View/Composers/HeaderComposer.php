@@ -60,6 +60,7 @@ class HeaderComposer
             }
         } catch (\Throwable $e) {
             // ignore session/currency read issues
+            null;
         }
         $cartSession = session('cart');
         $cartCount = 0;

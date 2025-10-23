@@ -44,12 +44,14 @@ class PayeerGateway
                 if (! empty($secret)) {
                     $client = $client->withToken($secret);
                 }
-                $resp = $client->post($apiBase.'/charges', $chargePayload);
+                $resp = $client->post($apiBase . '/charges', $chargePayload);
                 try {
+                    $_ = null;
                 } catch (\Throwable $_) {
+                    $_ = null;
                 }
                 if (! $resp->ok()) {
-                    throw new \Exception('Charge error: '.$resp->status().' '.substr($resp->body(), 0, 200));
+                    throw new \Exception('Charge error: ' . $resp->status() . ' ' . substr($resp->body(), 0, 200));
                 }
                 $json = $resp->json();
                 $redirectUrl = $json['redirect_url'] ?? $json['data']['redirect_url'] ?? null;

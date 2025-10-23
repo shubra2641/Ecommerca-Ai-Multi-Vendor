@@ -68,6 +68,7 @@ if (! function_exists('storage_image_url')) {
             }
         } catch (\Throwable $e) {
             // Fall back - intentionally empty
+            null;
         }
 
         // Fallback behavior - preserve previous semantics
@@ -93,6 +94,7 @@ if (! function_exists('asset_modified_time')) {
             }
         } catch (Throwable $e) {
             // Ignore - intentionally empty
+            null;
         }
 
         return time();

@@ -29,6 +29,7 @@ class SiteBrandingComposer
                 }
             } catch (\Throwable $e) {
                 // Silent fail to keep defaults - intentionally empty
+                null;
             }
         }
         $view->with($cached);

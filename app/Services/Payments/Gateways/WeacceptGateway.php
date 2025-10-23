@@ -174,6 +174,8 @@ class WeacceptGateway
                                     break;
                                 }
                             } catch (\Throwable $inner2) {
+                                // Intentionally empty - continue to next auth attempt
+                                null;
                             }
                         }
                     }

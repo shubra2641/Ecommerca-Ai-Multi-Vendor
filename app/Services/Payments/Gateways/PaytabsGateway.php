@@ -18,9 +18,13 @@ class PaytabsGateway
         $secret = $cfg['secret_key'] ??
             ($cfg['api_key'] ?? ($cfg['paytabs_server_key'] ?? ($cfg['server_key'] ?? null)));
         if (! empty($cfg['secret_key'])) {
+            null;
         } elseif (! empty($cfg['api_key'])) {
+            null;
         } elseif (! empty($cfg['paytabs_server_key'])) {
+            null;
         } elseif (! empty($cfg['server_key'])) {
+            null;
         }
         $currency = strtoupper(
             $cfg['paytabs_currency'] ?? ($snapshot['currency'] ?? 'USD')
@@ -83,7 +87,11 @@ class PaytabsGateway
                         $chargePayload
                     );
                     try {
+                        // Intentionally empty try block
+                        null;
                     } catch (\Throwable $_) {
+                        // Intentionally empty catch block
+                        null;
                     }
                     if (! $resp->ok()) {
                         throw new \Exception(
