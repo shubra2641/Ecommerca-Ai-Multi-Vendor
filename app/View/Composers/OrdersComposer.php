@@ -62,9 +62,16 @@ final class OrdersComposer
     private function getOrderFirstItemSummary($order): string
     {
         $firstItem = $order->items->first();
-        $firstName = $firstItem?->name;
 
-        if ($firstItem && is_array($firstItem->meta ?? null) && ! empty($firstItem->meta['variant_name'])) {
+        // If no first item, return default
+        if (! $firstItem) {
+            return __('Order');
+        }
+
+        $firstName = $firstItem->name;
+
+        // If item has variant name in meta, append it
+        if (isset($firstItem->meta) && is_array($firstItem->meta) && ! empty($firstItem->meta['variant_name'])) {
             $firstName .= ' - ' . $firstItem->meta['variant_name'];
         }
 

@@ -7,7 +7,7 @@ namespace App\View\Composers;
 use App\View\Builders\OrderViewBuilder;
 use Illuminate\View\View;
 
-class AdminOrderComposer
+final class AdminOrderComposer
 {
     public function compose(View $view): void
     {
@@ -15,54 +15,83 @@ class AdminOrderComposer
         if (! isset($data['order'])) {
             return;
         }
+
         $order = $data['order'];
-
-        // Address text (shipping preferred then billing)
         $addressText = OrderViewBuilder::buildAddressText($order);
-
-        // Variant labels per item
-        $variantLabels = [];
-        foreach ($order->items as $it) {
-            $variantLabels[$it->id] = OrderViewBuilder::variantLabel($it);
-        }
-
-        // First payment note extraction & offline detection map
-        $firstPaymentNote = '';
-        $offlinePayments = [];
-        foreach ($order->payments as $payment) {
-            $payload = $payment->payload;
-            $note = '';
-            try {
-                if (is_array($payload)) {
-                    $note = $payload['note'] ?? '';
-                } elseif (is_object($payload)) {
-                    $note = $payload->note ?? '';
-                } elseif (is_string($payload) && $payload !== '') {
-                    $decoded = json_decode($payload, true);
-                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                        $note = $decoded['note'] ?? '';
-                    }
-                }
-            } catch (\Throwable $e) {
-                $note = '';
-            }
-            if ($firstPaymentNote === '' && $note !== '') {
-                $firstPaymentNote = $note;
-            }
-
-            $method = strtolower($payment->method ?? '');
-            $gateway = strtolower($payment->payload['gateway'] ?? ($payment->payload['provider'] ?? ''));
-            $offline = str_contains($method, 'offline') || $method === 'offline' || $gateway === 'offline';
-            if ($offline) {
-                $offlinePayments[$payment->id] = true;
-            }
-        }
+        $variantLabels = $this->buildVariantLabels($order);
+        $paymentData = $this->extractPaymentData($order);
 
         $view->with([
             'aovAddressText' => $addressText,
             'aovVariantLabels' => $variantLabels,
-            'aovFirstPaymentNote' => $firstPaymentNote,
-            'aovOfflinePayments' => $offlinePayments,
+            'aovFirstPaymentNote' => $paymentData['firstNote'],
+            'aovOfflinePayments' => $paymentData['offlinePayments'],
         ]);
+    }
+
+    private function buildVariantLabels($order): array
+    {
+        $variantLabels = [];
+        foreach ($order->items as $item) {
+            $variantLabels[$item->id] = OrderViewBuilder::variantLabel($item);
+        }
+
+        return $variantLabels;
+    }
+
+    private function extractPaymentData($order): array
+    {
+        $firstPaymentNote = '';
+        $offlinePayments = [];
+
+        foreach ($order->payments as $payment) {
+            $note = $this->extractPaymentNote($payment);
+            if ($firstPaymentNote === '' && $note !== '') {
+                $firstPaymentNote = $note;
+            }
+
+            if ($this->isOfflinePayment($payment)) {
+                $offlinePayments[$payment->id] = true;
+            }
+        }
+
+        return [
+            'firstNote' => $firstPaymentNote,
+            'offlinePayments' => $offlinePayments,
+        ];
+    }
+
+    private function extractPaymentNote($payment): string
+    {
+        $payload = $payment->payload;
+
+        try {
+            if (is_array($payload)) {
+                return $payload['note'] ?? '';
+            }
+
+            if (is_object($payload)) {
+                return $payload->note ?? '';
+            }
+
+            if (is_string($payload) && $payload !== '') {
+                $decoded = json_decode($payload, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    return $decoded['note'] ?? '';
+                }
+            }
+        } catch (\Throwable $e) {
+            // Ignore errors
+        }
+
+        return '';
+    }
+
+    private function isOfflinePayment($payment): bool
+    {
+        $method = strtolower($payment->method ?? '');
+        $gateway = strtolower($payment->payload['gateway'] ?? ($payment->payload['provider'] ?? ''));
+
+        return str_contains($method, 'offline') || $method === 'offline' || $gateway === 'offline';
     }
 }

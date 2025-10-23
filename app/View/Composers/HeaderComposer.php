@@ -152,19 +152,38 @@ final class HeaderComposer
 
     private function getWishlistCount(): int
     {
-        try {
-            if (Auth::check() && Schema::hasTable('wishlist_items')) {
-                return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
-            }
-
-            $wishlistSession = session('wishlist', []);
-
-            return is_array($wishlistSession) ? count($wishlistSession) : 0;
-        } catch (\Throwable $e) {
-            $wishlistSession = session('wishlist', []);
-
-            return is_array($wishlistSession) ? count($wishlistSession) : 0;
+        // Try to get authenticated user's wishlist count
+        if ($this->isAuthenticatedUserWithWishlistTable()) {
+            return $this->getAuthenticatedUserWishlistCount();
         }
+
+        // Fallback to session-based wishlist
+        return $this->getSessionWishlistCount();
+    }
+
+    private function isAuthenticatedUserWithWishlistTable(): bool
+    {
+        try {
+            return Auth::check() && Schema::hasTable('wishlist_items');
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    private function getAuthenticatedUserWishlistCount(): int
+    {
+        try {
+            return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
+        } catch (\Throwable $e) {
+            return $this->getSessionWishlistCount();
+        }
+    }
+
+    private function getSessionWishlistCount(): int
+    {
+        $wishlistSession = session('wishlist', []);
+
+        return is_array($wishlistSession) ? count($wishlistSession) : 0;
     }
 
     private function getLanguages()

@@ -45,15 +45,20 @@ final class VendorProductsIndexComposer
 
     private function getStockInfo($product): array
     {
+        $available = 0;
+
+        // Try to get available stock, fallback to 0 on error
         try {
             $available = (int) $product->availableStock();
         } catch (\Throwable $e) {
             $available = 0;
         }
 
+        $stockQty = (int) ($product->stock_qty ?? 0);
+
         return [
             'available' => $available,
-            'stock_qty' => (int) ($product->stock_qty ?? 0),
+            'stock_qty' => $stockQty,
         ];
     }
 }

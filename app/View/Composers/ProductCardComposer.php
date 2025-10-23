@@ -61,10 +61,21 @@ final class ProductCardComposer
 
     private function getAvailableStock($product): ?int
     {
-        return $product->list_available ??
-            ($product->manage_stock
-                ? max(0, ($product->stock_qty ?? 0) - ($product->reserved_qty ?? 0))
-                : null);
+        // If list_available is set, use it directly
+        if (isset($product->list_available)) {
+            return $product->list_available;
+        }
+
+        // If stock management is disabled, return null
+        if (! $product->manage_stock) {
+            return null;
+        }
+
+        // Calculate available stock
+        $stockQty = $product->stock_qty ?? 0;
+        $reservedQty = $product->reserved_qty ?? 0;
+
+        return max(0, $stockQty - $reservedQty);
     }
 
     private function isInWishlist($product, array $data): bool
@@ -98,15 +109,36 @@ final class ProductCardComposer
 
     private function getDisplayPrice($product): mixed
     {
-        return $product->display_price ?? ($product->price ?? ($product->effectivePrice() ?? 0));
+        // Return display_price if available
+        if (isset($product->display_price)) {
+            return $product->display_price;
+        }
+
+        // Return price if available
+        if (isset($product->price)) {
+            return $product->price;
+        }
+
+        // Return effective price or default to 0
+        return $product->effectivePrice() ?? 0;
     }
 
     private function getDisplaySalePrice($product): mixed
     {
-        $price = $product->price ?? null;
-        $sale = ($product->sale_price ?? null) && $product->sale_price < $price ? $product->sale_price : null;
+        // Return display_sale_price if available
+        if (isset($product->display_sale_price)) {
+            return $product->display_sale_price;
+        }
 
-        return $product->display_sale_price ?? $sale;
+        $price = $product->price ?? null;
+        $salePrice = $product->sale_price ?? null;
+
+        // Check if sale price is valid and lower than regular price
+        if ($salePrice !== null && $price !== null && $salePrice < $price) {
+            return $salePrice;
+        }
+
+        return null;
     }
 
     private function getImageUrl($product): string
