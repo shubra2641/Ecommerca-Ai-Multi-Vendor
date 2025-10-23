@@ -54,7 +54,7 @@ class DistributeOrderProceedsListener
 
                     // Determine if any items for this vendor in this order are still within refund window
                     $vendorItems = $order->items->filter(
-                        fn ($it) => ($it->product?->vendor_id ?? null) == $vendorId
+                        fn($it) => ($it->product?->vendor_id ?? null) == $vendorId
                     );
                     $hasHeld = false;
                     foreach ($vendorItems as $vi) {
