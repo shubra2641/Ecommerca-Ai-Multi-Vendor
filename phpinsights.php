@@ -40,7 +40,8 @@ return [
         'storage',
         'vendor',
         'node_modules',
-        'public',
+        'public/vendor',
+        'public/storage',
         'database/migrations',
         'database/seeders',
         'database/factories',
@@ -74,10 +75,10 @@ return [
     |
     */
     'requirements' => [
-        'min-quality' => 80,
-        'min-complexity' => 80,
-        'min-architecture' => 80,
-        'min-style' => 80,
+        'min-quality' => 90,
+        'min-complexity' => 90,
+        'min-architecture' => 90,
+        'min-style' => 90,
         'disable-security-check' => false,
     ],
 
