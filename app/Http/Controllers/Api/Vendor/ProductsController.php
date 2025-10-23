@@ -36,7 +36,7 @@ class ProductsController extends Controller
         $base = $slug;
         $i = 1;
         while (Product::where('slug', $slug)->exists()) {
-            $slug = $base.'-'.$i++;
+            $slug = $base . '-' . $i++;
         }
         $data['slug'] = $slug;
         if (isset($data['gallery'])) {
@@ -79,7 +79,7 @@ class ProductsController extends Controller
         $base = $slug;
         $i = 1;
         while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
-            $slug = $base.'-'.$i++;
+            $slug = $base . '-' . $i++;
         }
         $data['slug'] = $slug;
         if (isset($data['gallery'])) {
