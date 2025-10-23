@@ -256,18 +256,31 @@ class Product extends Model
             return $this->getAttribute($field);
         }
         $translations = parent::getAttribute($field . '_translations');
-        $locale = $locale ? $locale : app()->getLocale();
+        if (! is_array($translations)) {
+            return $this->getAttribute($field);
+        }
+        $locale = $locale ?: app()->getLocale();
         $fallback = config('app.fallback_locale');
-        if (is_array($translations)) {
-            if (isset($translations[$locale]) && $translations[$locale] !== '') {
-                return $translations[$locale];
-            }
-            if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
-                return $translations[$fallback];
+        $translated = $this->getTranslatedValue($translations, $locale, $fallback);
+        if ($translated !== null) {
+            return $translated;
+        }
+        return parent::getAttribute($field);
+    }
+
+    private function getTranslatedValue(array $translations, string $locale, ?string $fallback): ?string
+    {
+        $translated = $translations[$locale] ?? null;
+        if ($translated && $translated !== '') {
+            return $translated;
+        }
+        if ($fallback) {
+            $fallbackValue = $translations[$fallback] ?? null;
+            if ($fallbackValue && $fallbackValue !== '') {
+                return $fallbackValue;
             }
         }
-
-        return parent::getAttribute($field);
+        return null;
     }
 
     protected static function boot(): void
