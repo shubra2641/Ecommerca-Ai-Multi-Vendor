@@ -34,7 +34,7 @@ final class ProductCardComposer
             'cardCmpActive' => in_array($product->id, $compareIds, true),
             'cardRating' => $product->reviews_avg_rating ?? 0.0,
             'cardReviewsCount' => $product->reviews_count ?? 0,
-            'cardFullStars' => (int) floor($product->reviews_avg_rating ?? 0.0),
+            'cardFullStars' => (int) floor((float) ($product->reviews_avg_rating ?? 0.0)),
             'cardSnippet' => $this->getCardSnippet($product),
             'cardDisplayPrice' => $product->display_price ?? ($this->getEffectivePrice($product)),
             'cardDisplaySalePrice' => $this->getDisplaySalePrice($product),
@@ -62,25 +62,25 @@ final class ProductCardComposer
     private function getAvailableStock($product): ?int
     {
         if (isset($product->list_available)) {
-            return $product->list_available;
+            return (int) $product->list_available;
         }
         if (! $product->manage_stock) {
             return null;
         }
-        return max(0, ($product->stock_qty ?? 0) - ($product->reserved_qty ?? 0));
+        return max(0, (int) ($product->stock_qty ?? 0) - (int) ($product->reserved_qty ?? 0));
     }
 
     private function getDisplaySalePrice($product): ?float
     {
         $salePrice = $product->sale_price ?? null;
         $price = $product->price ?? null;
-        return $salePrice && $price && $salePrice < $price ? $salePrice : null;
+        return $salePrice && $price && $salePrice < $price ? (float) $salePrice : null;
     }
 
     private function getEffectivePrice($product): float
     {
         $price = $product->price ?? 0;
-        return $price > 0 ? $price : ($product->effectivePrice() ?? 0);
+        return (float) ($price > 0 ? $price : ($product->effectivePrice() ?? 0));
     }
 
     private function getCardSnippet($product): string

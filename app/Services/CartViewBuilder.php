@@ -56,7 +56,7 @@ class CartViewBuilder
             }
             if (! empty($variant->attribute_data)) {
                 return collect($variant->attribute_data)
-                    ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                    ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                     ->values()
                     ->join(', ');
             }
@@ -77,7 +77,7 @@ class CartViewBuilder
         }
 
         return collect($parsed['attribute_data'])
-            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
             ->values()
             ->join(', ');
     }

@@ -65,12 +65,44 @@ final class HeaderComposer
         return $current;
     }
 
-    private function isAuthenticatedForWishlist()
+    private function buildData($setting, $currencies, $currentCurrency)
     {
-        return Auth::check() && Schema::hasTable('wishlist_items');
+        $isAuthenticatedForWishlist = Auth::check() && Schema::hasTable('wishlist_items');
+
+        return [
+            'setting' => $setting,
+            'siteName' => $setting->site_name ?? config('app.name'),
+            'logoPath' => $setting->logo ?? null,
+            'userName' => Auth::check() ? explode(' ', Auth::user()->name)[0] : null,
+            'rootCats' => $this->getRootCategories(),
+            'currencies' => $currencies,
+            'currentCurrency' => $currentCurrency,
+            'cartCount' => $this->getCartCount(),
+            'compareCount' => $this->getCompareCount(),
+            'wishlistCount' => $this->getWishlistCount($isAuthenticatedForWishlist),
+            'activeLanguages' => $this->getActiveLanguages(),
+        ];
     }
 
-    private function getCartCount()
+    private function getRootCategories()
+    {
+        return Cache::remember('root_categories', 3600, function () {
+            if (Schema::hasTable('product_categories')) {
+                try {
+                    return ProductCategory::where('active', 1)
+                        ->whereNull('parent_id')
+                        ->orderBy('name')
+                        ->take(14)
+                        ->get();
+                } catch (Throwable $e) {
+                    return collect();
+                }
+            }
+            return collect();
+        });
+    }
+
+    private function getCartCount(): int
     {
         $session = session('cart');
         return match (true) {
@@ -80,7 +112,7 @@ final class HeaderComposer
         };
     }
 
-    private function getCompareCount()
+    private function getCompareCount(): int
     {
         $session = session('compare');
         return match (true) {
@@ -90,9 +122,9 @@ final class HeaderComposer
         };
     }
 
-    private function getWishlistCount()
+    private function getWishlistCount(bool $isAuthenticatedForWishlist): int
     {
-        if (! $this->isAuthenticatedForWishlist()) {
+        if (! $isAuthenticatedForWishlist) {
             $session = session('wishlist');
             return match (true) {
                 is_array($session) => count($session),
@@ -112,45 +144,20 @@ final class HeaderComposer
         }
     }
 
-    private function buildData($setting, $currencies, $currentCurrency)
+    private function getActiveLanguages()
     {
-        return [
-            'setting' => $setting,
-            'siteName' => $setting->site_name ?? config('app.name'),
-            'logoPath' => $setting->logo ?? null,
-            'userName' => Auth::check() ? explode(' ', Auth::user()->name)[0] : null,
-            'rootCats' => Cache::remember('root_categories', 3600, function () {
-                if (Schema::hasTable('product_categories')) {
-                    try {
-                        return ProductCategory::where('active', 1)
-                            ->whereNull('parent_id')
-                            ->orderBy('name')
-                            ->take(14)
-                            ->get();
-                    } catch (Throwable $e) {
-                        return collect();
-                    }
+        return Cache::remember('header_active_languages', 1800, function () {
+            if (Schema::hasTable('languages')) {
+                try {
+                    return \App\Models\Language::where('is_active', 1)
+                        ->orderByDesc('is_default')
+                        ->orderBy('name')
+                        ->get();
+                } catch (\Throwable $e) {
+                    return collect();
                 }
-                return collect();
-            }),
-            'currencies' => $currencies,
-            'currentCurrency' => $currentCurrency,
-            'cartCount' => $this->getCartCount(),
-            'compareCount' => $this->getCompareCount(),
-            'wishlistCount' => $this->getWishlistCount(),
-            'activeLanguages' => Cache::remember('header_active_languages', 1800, function () {
-                if (Schema::hasTable('languages')) {
-                    try {
-                        return \App\Models\Language::where('is_active', 1)
-                            ->orderByDesc('is_default')
-                            ->orderBy('name')
-                            ->get();
-                    } catch (\Throwable $e) {
-                        return collect();
-                    }
-                }
-                return collect();
-            }),
-        ];
+            }
+            return collect();
+        });
     }
 }
