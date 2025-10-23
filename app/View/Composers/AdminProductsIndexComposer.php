@@ -33,7 +33,7 @@ final class AdminProductsIndexComposer
     private function calculateProductStocks($products, int $low, int $soon): array
     {
         return collect($products)
-            ->filter(fn($p) => $p->manage_stock)
+            ->filter(fn ($p) => $p->manage_stock)
             ->mapWithKeys(function ($p) use ($low, $soon) {
                 $available = (int) $p->availableStock();
                 $status = match (true) {
@@ -48,7 +48,7 @@ final class AdminProductsIndexComposer
                         'class' => $status['class'],
                         'badge' => $status['badge'],
                         'backorder' => (bool) ($p->backorder ?? false),
-                    ]
+                    ],
                 ];
             })
             ->toArray();
@@ -57,11 +57,11 @@ final class AdminProductsIndexComposer
     private function calculateVariationStocks($products, int $low, int $soon): array
     {
         return collect($products)
-            ->filter(fn($p) => $p->type === 'variable')
+            ->filter(fn ($p) => $p->type === 'variable')
             ->flatMap(function ($p) use ($low, $soon) {
                 $variations = $p->relationLoaded('variations') ? $p->variations : $p->variations()->get();
                 return collect($variations)
-                    ->filter(fn($v) => $v->manage_stock)
+                    ->filter(fn ($v) => $v->manage_stock)
                     ->mapWithKeys(function ($v) use ($low, $soon) {
                         $available = (int) (($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0));
                         $status = match (true) {
@@ -75,7 +75,7 @@ final class AdminProductsIndexComposer
                                 'stock_qty' => (int) ($v->stock_qty ?? 0),
                                 'class' => $status['class'],
                                 'badge' => $status['badge'],
-                            ]
+                            ],
                         ];
                     });
             })

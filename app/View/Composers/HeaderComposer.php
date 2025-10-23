@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\View\Composers;
 
 use App\Models\Currency;
-use App\Models\ProductCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +13,6 @@ use Throwable;
 
 final class HeaderComposer
 {
-
     public function compose(View $view): void
     {
         $setting = $view->getData()['setting'] ??
@@ -69,8 +67,6 @@ final class HeaderComposer
     {
         $isAuthenticatedForWishlist = Auth::check() && Schema::hasTable('wishlist_items');
 
-        
-
         $activeLanguages = Cache::remember('header_active_languages', 1800, function () {
             if (Schema::hasTable('languages')) {
                 try {
@@ -110,10 +106,6 @@ final class HeaderComposer
         };
     }
 
-
-
-
-
     private function getWishlistCount(bool $isAuthenticatedForWishlist): int
     {
         if (! $isAuthenticatedForWishlist) {
@@ -125,6 +117,4 @@ final class HeaderComposer
             return $this->getSessionCount('wishlist');
         }
     }
-
-
 }

@@ -30,7 +30,7 @@ final class ProductCardComposer
         $salePrice = $product->sale_price ?? null;
         $cardOnSale = $salePrice && $salePrice < $price;
         $cardDiscountPercent = $cardOnSale ? (int) round(($price - $salePrice) / $price * 100) : null;
-        $cardAvailable = isset($product->list_available) ? (int) $product->list_available : (!$product->manage_stock ? null : max(0, (int) ($product->stock_qty ?? 0) - (int) ($product->reserved_qty ?? 0)));
+        $cardAvailable = isset($product->list_available) ? (int) $product->list_available : (! $product->manage_stock ? null : max(0, (int) ($product->stock_qty ?? 0) - (int) ($product->reserved_qty ?? 0)));
         $cardDisplaySalePrice = $cardOnSale ? (float) $salePrice : null;
         $effectivePrice = $price > 0 ? $price : ($product->effectivePrice() ?? 0);
         $cardDisplayPrice = $product->display_price ?? $effectivePrice;
