@@ -5,7 +5,6 @@ namespace App\Services\Payments\Gateways;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class PayeerGateway
 {
@@ -34,7 +33,7 @@ class PayeerGateway
                 'redirect' => ['url' => route('payeer.return', ['payment' => $payment->id])],
                 'customer' => [
                     'first_name' => $snapshot['customer_name'] ?? 'Customer',
-                    'email' => $snapshot['customer_email'] ?? 'customer@example.com'
+                    'email' => $snapshot['customer_email'] ?? 'customer@example.com',
                 ],
             ];
 
@@ -43,12 +42,12 @@ class PayeerGateway
                 if (! empty($secret)) {
                     $client = $client->withToken($secret);
                 }
-                $resp = $client->post($apiBase . '/charges', $chargePayload);
+                $resp = $client->post($apiBase.'/charges', $chargePayload);
                 try {
                 } catch (\Throwable $_) {
                 }
                 if (! $resp->ok()) {
-                    throw new \Exception('Charge error: ' . $resp->status() . ' ' . substr($resp->body(), 0, 200));
+                    throw new \Exception('Charge error: '.$resp->status().' '.substr($resp->body(), 0, 200));
                 }
                 $json = $resp->json();
                 $redirectUrl = $json['redirect_url'] ?? $json['data']['redirect_url'] ?? null;

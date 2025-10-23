@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Tag;
-use App\Services\HtmlSanitizer;
 use App\Services\AI\AIFormHelper;
+use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -43,7 +43,7 @@ class PostController extends Controller
     {
         return view('admin.blog.posts.create', [
             'categories' => PostCategory::orderBy('name')->get(),
-            'tags' => Tag::orderBy('name')->get()
+            'tags' => Tag::orderBy('name')->get(),
         ]);
     }
 
@@ -65,7 +65,7 @@ class PostController extends Controller
         return view('admin.blog.posts.edit', [
             'post' => $post,
             'categories' => PostCategory::orderBy('name')->get(),
-            'tags' => Tag::orderBy('name')->get()
+            'tags' => Tag::orderBy('name')->get(),
         ]);
     }
 
@@ -85,17 +85,19 @@ class PostController extends Controller
     {
         $post->delete();
         $this->flushBlogCache($post);
+
         return back()->with('success', __('Post deleted'));
     }
 
     public function publishToggle(Post $post)
     {
         $post->update([
-            'published' => !$post->published,
-            'published_at' => !$post->published ? null : now()
+            'published' => ! $post->published,
+            'published_at' => ! $post->published ? null : now(),
         ]);
 
         $this->flushBlogCache($post);
+
         return back()->with('success', __('Status updated'));
     }
 
@@ -131,7 +133,7 @@ class PostController extends Controller
     private function buildPostPayload(array $data, HtmlSanitizer $sanitizer, ?Post $post = null): array
     {
         $fallback = config('app.fallback_locale');
-        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn($v) => !empty($v)) ?? '';
+        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn ($v) => ! empty($v)) ?? '';
 
         $payload = [
             'title' => $defaultTitle,
@@ -144,7 +146,7 @@ class PostController extends Controller
         // Handle slug
         if ($post && $defaultTitle !== $post->getRawOriginal('title')) {
             $payload['slug'] = $this->generateUniqueSlug($defaultTitle, $post->id);
-        } elseif (!$post) {
+        } elseif (! $post) {
             $payload['slug'] = $this->generateUniqueSlug($defaultTitle);
         }
 
@@ -155,13 +157,13 @@ class PostController extends Controller
                 foreach ($translations as $locale => $value) {
                     $translations[$locale] = $sanitizer->clean($value);
                 }
-                $payload[$field . '_translations'] = $translations;
-                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn($v) => !empty($v));
+                $payload[$field.'_translations'] = $translations;
+                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn ($v) => ! empty($v));
             }
         }
 
         // Handle featured image
-        if (!empty($data['featured_image_path'])) {
+        if (! empty($data['featured_image_path'])) {
             $payload['featured_image'] = trim(str_replace(asset('storage/'), '', $data['featured_image_path']), ' /');
         }
 
@@ -172,10 +174,11 @@ class PostController extends Controller
     {
         $slugTranslations = $data['slug'] ?? [];
         foreach ($data['title'] as $locale => $title) {
-            if (!isset($slugTranslations[$locale]) || $slugTranslations[$locale] === '') {
+            if (! isset($slugTranslations[$locale]) || $slugTranslations[$locale] === '') {
                 $slugTranslations[$locale] = Str::slug($title ?: $defaultTitle);
             }
         }
+
         return array_filter($slugTranslations);
     }
 
@@ -185,8 +188,8 @@ class PostController extends Controller
         $base = $slug;
         $i = 1;
 
-        while (Post::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
-            $slug = $base . '-' . $i++;
+        while (Post::where('slug', $slug)->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))->exists()) {
+            $slug = $base.'-'.$i++;
         }
 
         return $slug;
@@ -203,20 +206,20 @@ class PostController extends Controller
             }
         }
 
-        if (!$post) {
+        if (! $post) {
             return;
         }
 
         // Clear post-specific cache
         foreach ($locales as $locale) {
-            cache()->forget("blog.post.$locale." . $post->slug);
-            cache()->forget("blog.post.$locale." . $post->slug . '.related');
+            cache()->forget("blog.post.$locale.".$post->slug);
+            cache()->forget("blog.post.$locale.".$post->slug.'.related');
         }
 
         // Clear category cache
         if ($post->category_id) {
             foreach ($locales as $locale) {
-                cache()->forget("blog.cat.$locale." . optional($post->category)->slug);
+                cache()->forget("blog.cat.$locale.".optional($post->category)->slug);
             }
         }
 

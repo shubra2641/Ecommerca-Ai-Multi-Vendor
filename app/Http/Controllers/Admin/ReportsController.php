@@ -35,21 +35,20 @@ class ReportsController extends Controller
                 'usersToday' => User::whereDate('created_at', today())->count(),
                 'usersThisWeek' => User::whereBetween('created_at', [
                     now()->startOfWeek(),
-                    now()->endOfWeek()
+                    now()->endOfWeek(),
                 ])->count(),
                 'usersThisMonth' => User::whereMonth('created_at', now()->month)->count(),
                 'usersThisYear' => User::whereYear('created_at', now()->year)->count(),
                 'activeToday' => User::whereDate('created_at', today())->count(),
                 'activeThisWeek' => User::whereBetween('created_at', [
                     now()->startOfWeek(),
-                    now()->endOfWeek()
+                    now()->endOfWeek(),
                 ])->count(),
             ];
         });
 
         // Get chart data for user registrations
         $chartData = $this->getRegistrationChartData();
-
 
         // Get system health
         $systemHealth = $this->getSystemHealth();
@@ -169,15 +168,15 @@ class ReportsController extends Controller
             'manage_stock_count' => \App\Models\Product::where('manage_stock', 1)->count(),
             'out_of_stock' => \App\Models\Product::where('manage_stock', 1)
                 ->get()
-                ->filter(fn($x) => ($x->availableStock() ?? 0) <= 0)
+                ->filter(fn ($x) => ($x->availableStock() ?? 0) <= 0)
                 ->count(),
             'serials_low' => \App\Models\Product::where('has_serials', 1)
                 ->get()
-                ->filter(fn($x) => $x->serials()->whereNull('sold_at')->count() <= 5)
+                ->filter(fn ($x) => $x->serials()->whereNull('sold_at')->count() <= 5)
                 ->count(),
             'average_stock' => (int) round(\App\Models\Product::where('manage_stock', 1)
                 ->get()
-                ->map(fn($x) => $x->availableStock() ?? 0)
+                ->map(fn ($x) => $x->availableStock() ?? 0)
                 ->avg()),
         ];
 
@@ -220,7 +219,7 @@ class ReportsController extends Controller
         $report = $request->get('report', 'users'); // users, vendors, financial, system
 
         try {
-            $filename = 'admin-' . $report . '-report-' . date('Y-m-d-H-i-s');
+            $filename = 'admin-'.$report.'-report-'.date('Y-m-d-H-i-s');
 
             if ($type === 'pdf') {
                 return $this->exportToPdf($report, $filename);
@@ -230,7 +229,7 @@ class ReportsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => __('Failed to export data: ') . $e->getMessage(),
+                'message' => __('Failed to export data: ').$e->getMessage(),
             ], 500);
         }
     }
@@ -272,7 +271,6 @@ class ReportsController extends Controller
             'adminData' => $adminData,
         ];
     }
-
 
     /**
      * Get system health status
@@ -343,7 +341,6 @@ class ReportsController extends Controller
         return $trends;
     }
 
-
     /**
      * Get storage information
      */
@@ -368,7 +365,7 @@ class ReportsController extends Controller
             $tables = DB::select('SHOW TABLES');
             $dbSize = DB::select(
                 'SELECT SUM(data_length + index_length) / 1024 / 1024 AS "DB Size in MB" '
-                    . 'FROM information_schema.tables WHERE table_schema = DATABASE()'
+                    .'FROM information_schema.tables WHERE table_schema = DATABASE()'
             )[0];
 
             return [
@@ -395,7 +392,7 @@ class ReportsController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('Excel export feature will be implemented'),
-            'filename' => $filename . '.xlsx',
+            'filename' => $filename.'.xlsx',
         ]);
     }
 
@@ -408,7 +405,7 @@ class ReportsController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('PDF export feature will be implemented'),
-            'filename' => $filename . '.pdf',
+            'filename' => $filename.'.pdf',
         ]);
     }
 }

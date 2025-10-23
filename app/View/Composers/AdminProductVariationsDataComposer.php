@@ -60,7 +60,7 @@ class AdminProductVariationsDataComposer
             ->map(fn ($l) => [
                 'code' => $l->code,
                 'name' => $l->name,
-                'is_default' => $l->is_default
+                'is_default' => $l->is_default,
             ])
             ->values()
             ->all();

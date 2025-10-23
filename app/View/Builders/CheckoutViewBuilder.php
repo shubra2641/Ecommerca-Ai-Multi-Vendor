@@ -37,7 +37,7 @@ class CheckoutViewBuilder
                 $variantLabel = $it['variant']->name ?? null;
                 if (! $variantLabel && ! empty($it['variant']->attribute_data)) {
                     $variantLabel = collect($it['variant']->attribute_data)
-                        ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                        ->map(fn ($v, $k) => ucfirst($k).': '.$v)
                         ->values()
                         ->join(', ');
                 }
@@ -45,7 +45,7 @@ class CheckoutViewBuilder
                 if (is_string($it['variant']) && ($parsed = @json_decode($it['variant'], true))) {
                     if (is_array($parsed) && isset($parsed['attribute_data'])) {
                         $variantLabel = collect($parsed['attribute_data'])
-                            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                            ->map(fn ($v, $k) => ucfirst($k).': '.$v)
                             ->values()
                             ->join(', ');
                     } else {

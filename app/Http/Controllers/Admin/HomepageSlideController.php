@@ -23,8 +23,8 @@ class HomepageSlideController extends Controller
                     (object) [
                         'code' => config('app.locale', 'en'),
                         'is_default' => 1,
-                        'name' => strtoupper(config('app.locale', 'en'))
-                    ]
+                        'name' => strtoupper(config('app.locale', 'en')),
+                    ],
                 ]);
             }
         });

@@ -7,7 +7,6 @@ use App\Models\Payment;
 use App\Models\PaymentGateway;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class PaymentGatewayService
 {
@@ -48,26 +47,27 @@ class PaymentGatewayService
 
     public function verifyTapCharge(Payment $payment, PaymentGateway $gateway): array
     {
-        $gw = new \App\Services\Payments\Gateways\TapGateway();
+        $gw = new \App\Services\Payments\Gateways\TapGateway;
+
         return $gw->verifyCharge($payment, $gateway);
     }
 
     public function verifyGenericGatewayCharge(Payment $payment, PaymentGateway $gateway): array
     {
-        $chargeId = $payment->payload[$gateway->slug . '_charge_id'] ?? $payment->payload['charge_id'] ?? null;
+        $chargeId = $payment->payload[$gateway->slug.'_charge_id'] ?? $payment->payload['charge_id'] ?? null;
         $cfg = $gateway->config ?? [];
         $secret = $cfg['secret_key'] ?? ($cfg['api_key'] ?? null);
 
-        if (!$secret || !$chargeId) {
+        if (! $secret || ! $chargeId) {
             throw new \RuntimeException('Missing gateway secret or charge id for verify');
         }
 
-        $apiBase = rtrim($cfg['api_base'] ?? ('https://api.' . $gateway->slug . '.com'), '/');
+        $apiBase = rtrim($cfg['api_base'] ?? ('https://api.'.$gateway->slug.'.com'), '/');
 
         try {
-            $resp = Http::withToken($secret)->acceptJson()->get($apiBase . '/charges/' . $chargeId);
+            $resp = Http::withToken($secret)->acceptJson()->get($apiBase.'/charges/'.$chargeId);
 
-            if (!$resp->ok()) {
+            if (! $resp->ok()) {
                 return ['payment' => $gateway, 'status' => 'pending', 'charge' => null];
             }
 
@@ -84,13 +84,13 @@ class PaymentGatewayService
 
             $payment->status = $finalStatus;
             $payment->payload = array_merge($payment->payload ?? [], [
-                $gateway->slug . '_charge_status' => $finalStatus
+                $gateway->slug.'_charge_status' => $finalStatus,
             ]);
             $payment->save();
 
             if ($payment->status === 'paid') {
                 $order = $payment->order;
-                if (!$order) {
+                if (! $order) {
                     $order = $this->createOrderFromSnapshot($payment);
                 }
 
@@ -142,14 +142,14 @@ class PaymentGatewayService
                 ->asForm()
                 ->timeout(25)
                 ->retry(2, 400)
-                ->post($baseUrl . '/v1/oauth2/token', ['grant_type' => 'client_credentials']);
+                ->post($baseUrl.'/v1/oauth2/token', ['grant_type' => 'client_credentials']);
 
-            if (!$response->ok()) {
-                throw new \Exception('Token error: ' . $response->status());
+            if (! $response->ok()) {
+                throw new \Exception('Token error: '.$response->status());
             }
 
             $token = $response->json('access_token');
-            if (!$token) {
+            if (! $token) {
                 throw new \Exception('Token empty');
             }
 
@@ -165,10 +165,8 @@ class PaymentGatewayService
                     ],
                 ]],
                 'application_context' => [
-                    'return_url' =>
-                    route('paypal.return', ['payment' => $payment->id]),
-                    'cancel_url' =>
-                    route('paypal.cancel', ['payment' => $payment->id]),
+                    'return_url' => route('paypal.return', ['payment' => $payment->id]),
+                    'cancel_url' => route('paypal.cancel', ['payment' => $payment->id]),
                     'shipping_preference' => 'NO_SHIPPING',
                 ],
             ];
@@ -177,10 +175,10 @@ class PaymentGatewayService
                 ->acceptJson()
                 ->timeout(25)
                 ->retry(2, 500)
-                ->post($baseUrl . '/v2/checkout/orders', $payload);
+                ->post($baseUrl.'/v2/checkout/orders', $payload);
 
             if ($response->status() < 200 || $response->status() >= 300) {
-                throw new \Exception('Create error: ' . $response->status());
+                throw new \Exception('Create error: '.$response->status());
             }
 
             $data = $response->json();
@@ -192,7 +190,7 @@ class PaymentGatewayService
                 }
             }
 
-            if (!$approvalUrl) {
+            if (! $approvalUrl) {
                 throw new \Exception('Approval link missing');
             }
 
@@ -241,8 +239,8 @@ class PaymentGatewayService
                 'currency' => $currency,
                 'threeDSecure' => true,
                 'save_card' => false,
-                'description' => $order ? 'Order #' . $order->id : 'Checkout',
-                'statement_descriptor' => $order ? 'Order ' . $order->id : 'Checkout',
+                'description' => $order ? 'Order #'.$order->id : 'Checkout',
+                'statement_descriptor' => $order ? 'Order '.$order->id : 'Checkout',
                 'metadata' => ['order_id' => $order?->id, 'payment_id' => $payment->id],
                 'redirect' => ['url' => route('tap.return', ['payment' => $payment->id])],
                 'customer' => ['first_name' => $customerName, 'email' => $customerEmail],
@@ -253,8 +251,8 @@ class PaymentGatewayService
                 ->acceptJson()
                 ->post('https://api.tap.company/v2/charges', $payload);
 
-            if (!$response->ok()) {
-                throw new \Exception('Charge error: ' . $response->status());
+            if (! $response->ok()) {
+                throw new \Exception('Charge error: '.$response->status());
             }
 
             $data = $response->json();
@@ -270,8 +268,8 @@ class PaymentGatewayService
     private function initGenericGateway(array $snapshot, PaymentGateway $gateway, string $slug): array
     {
         $cfg = $gateway->config ?? [];
-        $currency = strtoupper($cfg[$slug . '_currency'] ?? ($snapshot['currency'] ?? 'USD'));
-        $apiBase = rtrim($cfg['api_base'] ?? ('https://api.' . $slug . '.com'), '/');
+        $currency = strtoupper($cfg[$slug.'_currency'] ?? ($snapshot['currency'] ?? 'USD'));
+        $apiBase = rtrim($cfg['api_base'] ?? ('https://api.'.$slug.'.com'), '/');
 
         return DB::transaction(function () use ($snapshot, $cfg, $currency, $apiBase, $slug) {
             $payment = Payment::create([
@@ -293,7 +291,7 @@ class PaymentGatewayService
                 'description' => 'Checkout',
                 'metadata' => ['order_id' => null, 'payment_id' => $payment->id],
                 'redirect' => [
-                    'url' => route($slug . '.return', ['payment' => $payment->id])
+                    'url' => route($slug.'.return', ['payment' => $payment->id]),
                 ],
                 'customer' => [
                     'first_name' => $snapshot['customer_name'] ?? 'Customer',
@@ -305,10 +303,10 @@ class PaymentGatewayService
                 $cfg['secret_key'] ?? ($cfg['api_key'] ?? null)
             )
                 ->acceptJson()
-                ->post($apiBase . '/charges', $payload);
+                ->post($apiBase.'/charges', $payload);
 
-            if (!$response->ok()) {
-                throw new \Exception('Charge error: ' . $response->status());
+            if (! $response->ok()) {
+                throw new \Exception('Charge error: '.$response->status());
             }
 
             $data = $response->json();
@@ -319,7 +317,7 @@ class PaymentGatewayService
             $chargeId = $data['id'] ?? $data['data']['id'] ?? null;
 
             $payment->payload = array_merge($payment->payload ?? [], [
-                $slug . '_charge_id' => $chargeId,
+                $slug.'_charge_id' => $chargeId,
             ]);
             $payment->save();
 
@@ -330,7 +328,7 @@ class PaymentGatewayService
     private function createOrderFromSnapshot(Payment $payment): ?Order
     {
         $snapshot = $payment->payload['checkout_snapshot'] ?? null;
-        if (!$snapshot) {
+        if (! $snapshot) {
             return null;
         }
 

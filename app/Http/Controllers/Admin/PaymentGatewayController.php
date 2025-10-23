@@ -20,7 +20,7 @@ class PaymentGatewayController extends Controller
 
     public function create()
     {
-        return view('admin.payment_gateways.form', ['gateway' => new PaymentGateway()]);
+        return view('admin.payment_gateways.form', ['gateway' => new PaymentGateway]);
     }
 
     public function store(PaymentGatewayRequest $request, HtmlSanitizer $sanitizer)
@@ -29,7 +29,7 @@ class PaymentGatewayController extends Controller
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
         }
-        $gateway = new PaymentGateway();
+        $gateway = new PaymentGateway;
         $this->fillGateway($gateway, $data);
 
         // Capture any dynamic driver-specific fields that are not part of the validated set
@@ -79,7 +79,7 @@ class PaymentGatewayController extends Controller
             return response()->json([
                 'success' => true,
                 'enabled' => $paymentGateway->enabled,
-                'message' => __('Gateway status updated')
+                'message' => __('Gateway status updated'),
             ]);
         }
 

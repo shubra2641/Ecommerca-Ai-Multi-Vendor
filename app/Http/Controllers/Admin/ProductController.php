@@ -45,6 +45,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         $product->load(['tags', 'variations', 'category']);
+
         return view('admin.products.products.show', compact('product'));
     }
 
@@ -59,6 +60,7 @@ class ProductController extends Controller
         $product = Product::create($data);
         $this->syncProductRelations($product, $request);
         $this->handleNotifications($product);
+
         return redirect()->route('admin.products.index')->with('success', __('Product created successfully.'));
     }
 
@@ -66,6 +68,7 @@ class ProductController extends Controller
     {
         $product->load(['tags', 'variations', 'serials']);
         $data = array_merge($this->getFormData(), compact('product'));
+
         return view('admin.products.products.edit', $data);
     }
 
@@ -76,32 +79,36 @@ class ProductController extends Controller
         $product->update($data);
         $this->syncProductRelations($product, $request);
         $this->handleNotifications($product, $oldActive);
+
         return redirect()->route('admin.products.index')->with('success', __('Product updated successfully.'));
     }
 
     public function destroy(Product $product)
     {
         $product->delete();
+
         return redirect()->route('admin.products.index')->with('success', __('Product deleted successfully.'));
     }
 
     public function toggleStatus(Product $product)
     {
-        $product->update(['active' => !$product->active]);
+        $product->update(['active' => ! $product->active]);
         $status = $product->active ? 'activated' : 'deactivated';
+
         return redirect()->back()->with('success', __("Product {$status} successfully."));
     }
 
     public function toggleFeatured(Product $product)
     {
-        $product->update(['is_featured' => !$product->is_featured]);
+        $product->update(['is_featured' => ! $product->is_featured]);
         $status = $product->is_featured ? 'featured' : 'unfeatured';
+
         return redirect()->back()->with('success', __("Product {$status} successfully."));
     }
 
     public function export(Request $request)
     {
-        $fileName = 'products_' . date('Ymd_His') . '.csv';
+        $fileName = 'products_'.date('Ymd_His').'.csv';
         $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$fileName}"];
 
         $callback = function () {
@@ -129,7 +136,7 @@ class ProductController extends Controller
 
     public function variationsExport(Request $request)
     {
-        $fileName = 'variations_' . date('Ymd_His') . '.csv';
+        $fileName = 'variations_'.date('Ymd_His').'.csv';
         $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$fileName}"];
 
         $callback = function () {
@@ -164,16 +171,16 @@ class ProductController extends Controller
         }
 
         $merge = [];
-        if (!empty($result['description'])) {
+        if (! empty($result['description'])) {
             $merge['description'] = $result['description'];
         }
-        if (!empty($result['short_description'])) {
+        if (! empty($result['short_description'])) {
             $merge['short_description'] = $result['short_description'];
         }
-        if (!empty($result['seo_description'])) {
+        if (! empty($result['seo_description'])) {
             $merge['seo_description'] = $result['seo_description'];
         }
-        if (!empty($result['seo_tags'])) {
+        if (! empty($result['seo_tags'])) {
             $merge['seo_keywords'] = $result['seo_tags'];
         }
 
@@ -212,9 +219,9 @@ class ProductController extends Controller
     protected function getFormData()
     {
         return [
-            'categories' => Cache::remember('product_categories_ordered', 3600, fn() => ProductCategory::orderBy('name')->get()),
-            'tags' => Cache::remember('product_tags_ordered', 3600, fn() => ProductTag::orderBy('name')->get()),
-            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn() => ProductAttribute::with('values')->orderBy('name')->get()),
+            'categories' => Cache::remember('product_categories_ordered', 3600, fn () => ProductCategory::orderBy('name')->get()),
+            'tags' => Cache::remember('product_tags_ordered', 3600, fn () => ProductTag::orderBy('name')->get()),
+            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn () => ProductAttribute::with('values')->orderBy('name')->get()),
         ];
     }
 
@@ -247,10 +254,10 @@ class ProductController extends Controller
             'sale_price' => $validated['sale_price'] ?? null,
             'sale_start' => $validated['sale_start'] ?? null,
             'sale_end' => $validated['sale_end'] ?? null,
-            'manage_stock' => !empty($validated['manage_stock']),
+            'manage_stock' => ! empty($validated['manage_stock']),
             'stock_qty' => $validated['stock_qty'] ?? 0,
             'reserved_qty' => $validated['reserved_qty'] ?? 0,
-            'backorder' => !empty($validated['backorder']),
+            'backorder' => ! empty($validated['backorder']),
             'weight' => $validated['weight'] ?? null,
             'length' => $validated['length'] ?? null,
             'width' => $validated['width'] ?? null,
@@ -260,9 +267,9 @@ class ProductController extends Controller
             'vendor_id' => $validated['vendor_id'] ?? null,
             'main_image' => $validated['main_image'] ?? null,
             'gallery' => $this->cleanGallery($validated['gallery'] ?? []),
-            'is_featured' => !empty($validated['is_featured']),
-            'is_best_seller' => !empty($validated['is_best_seller']),
-            'active' => !empty($validated['active']),
+            'is_featured' => ! empty($validated['is_featured']),
+            'is_best_seller' => ! empty($validated['is_best_seller']),
+            'active' => ! empty($validated['active']),
             'seo_title' => $seoTitle,
             'seo_title_translations' => $seoTitleTranslations,
             'seo_description' => $seoDescription,
@@ -340,7 +347,7 @@ class ProductController extends Controller
         // Only delete variations that:
         // 1. Were present in the form (had an ID)
         // 2. But are NOT in the updated list (meaning they were intentionally removed)
-        if (!empty($formVariationIds)) {
+        if (! empty($formVariationIds)) {
             $product->variations()
                 ->whereIn('id', $formVariationIds)
                 ->whereNotIn('id', $variationIds)
@@ -354,7 +361,7 @@ class ProductController extends Controller
 
         // Inherit manage_stock from parent product if not explicitly set for variation
         $manageStock = isset($data['manage_stock'])
-            ? !empty($data['manage_stock'])
+            ? ! empty($data['manage_stock'])
             : ($product ? $product->manage_stock : false);
 
         return [
@@ -367,11 +374,11 @@ class ProductController extends Controller
             'manage_stock' => $manageStock,
             'stock_qty' => $data['stock_qty'] ?? 0,
             'reserved_qty' => $data['reserved_qty'] ?? 0,
-            'backorder' => !empty($data['backorder']),
+            'backorder' => ! empty($data['backorder']),
             'image' => $data['image'] ?? null,
             'attribute_data' => $attributes,
             'attribute_hash' => $hash,
-            'active' => !empty($data['active']),
+            'active' => ! empty($data['active']),
         ];
     }
 
@@ -397,12 +404,13 @@ class ProductController extends Controller
             foreach ($value as $locale => $val) {
                 if ($val === null) {
                     $normalized[$locale] = '';
+
                     continue;
                 }
                 $normalized[$locale] = is_string($val) ? trim($val) : trim((string) $val);
             }
             $base = $this->extractPrimaryTextFromArray($normalized);
-            $translations = array_filter($normalized, fn($val) => $val !== '');
+            $translations = array_filter($normalized, fn ($val) => $val !== '');
 
             return [$base, $translations ?: null];
         }
@@ -524,7 +532,8 @@ class ProductController extends Controller
         if (is_string($gallery)) {
             $gallery = json_decode($gallery, true) ?: [];
         }
-        return array_values(array_filter(array_map('trim', $gallery), fn($v) => !empty($v)));
+
+        return array_values(array_filter(array_map('trim', $gallery), fn ($v) => ! empty($v)));
     }
 
     protected function applyStockFilter($query, string $stock)

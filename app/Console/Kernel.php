@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         // you may also require routes/console.php if present
         if (file_exists(base_path('routes/console.php'))) {

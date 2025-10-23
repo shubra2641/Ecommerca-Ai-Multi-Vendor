@@ -5,7 +5,6 @@ namespace App\Services\Payments\Gateways;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class WeacceptGateway
 {
@@ -111,24 +110,24 @@ class WeacceptGateway
             try {
                 // If mock mode is enabled, skip external requests and return a local redirect to the return route
                 if ($mock) {
-                    $mockToken = 'mock-' . $payment->id . '-' . time();
+                    $mockToken = 'mock-'.$payment->id.'-'.time();
                     $payment->payload = array_merge($payment->payload ?? [], [
-                        'weaccept_order_id' => 'mock-order-' . $payment->id,
+                        'weaccept_order_id' => 'mock-order-'.$payment->id,
                         'weaccept_payment_token' => $mockToken,
                         'weaccept_integration_id' => $integrationId,
                         'weaccept_mock' => true,
                     ]);
                     $payment->save();
-                    $redirectUrl = route('weaccept.return', ['payment' => $payment->id]) . '?mock=1';
+                    $redirectUrl = route('weaccept.return', ['payment' => $payment->id]).'?mock=1';
 
                     return ['payment' => $payment, 'redirect_url' => $redirectUrl, 'raw' => ['mock' => true]];
                 }
                 // build API-prefixed base (support user setting api_base with or without /api)
                 $apiPrefix = str_contains($apiBase, '/api') ? rtrim($apiBase, '/') :
-                    rtrim($apiBase, '/') . '/api';
+                    rtrim($apiBase, '/').'/api';
 
                 // 1) auth token
-                $authUrl = $apiPrefix . '/auth/tokens';
+                $authUrl = $apiPrefix.'/auth/tokens';
                 $details = [
                     'payment_id' => $payment->id,
                     'auth_url' => $authUrl,
@@ -225,7 +224,7 @@ class WeacceptGateway
                 if (! $authResp || ! $authResp->successful()) {
                     $status = $authResp ? $authResp->status() : 'no_response';
                     $bodyPreview = $lastBody ? substr($lastBody, 0, 1000) : null;
-                    throw new \Exception('Auth token error: ' . $status);
+                    throw new \Exception('Auth token error: '.$status);
                 }
                 $authJson = $authResp->json();
                 // Extract token if present. PayMob may return a `profile` object alongside a `token`
@@ -234,8 +233,8 @@ class WeacceptGateway
                 if (empty($authToken)) {
                     // If we received profile/user but no token, this is unexpected — raise a helpful error.
                     if (isset($authJson['profile']) || isset($authJson['user'])) {
-                        $errMsg = 'Unexpected auth response: profile/user present but token missing. ' .
-                            'auth_url: ' . $authUrl;
+                        $errMsg = 'Unexpected auth response: profile/user present but token missing. '.
+                            'auth_url: '.$authUrl;
                         throw new \Exception($errMsg);
                     }
                     throw new \Exception('Missing auth token from Paymob');
@@ -278,11 +277,11 @@ class WeacceptGateway
                     'items' => $pmItems,
                 ];
                 try {
-                    $orderResp = $client->post($apiPrefix . '/ecommerce/orders', $orderPayload);
+                    $orderResp = $client->post($apiPrefix.'/ecommerce/orders', $orderPayload);
                 } catch (\Throwable $e) {
                     if ($allowInsecure) {
                         $orderResp = $client->withOptions(['verify' => false])
-                            ->post($apiPrefix . '/ecommerce/orders', $orderPayload);
+                            ->post($apiPrefix.'/ecommerce/orders', $orderPayload);
                     } else {
                         throw $e;
                     }
@@ -291,10 +290,10 @@ class WeacceptGateway
                 $orderRespLog = [
                     'payment_id' => $payment->id,
                     'status' => $orderResp->status(),
-                    'body' => $orderBodyPreview
+                    'body' => $orderBodyPreview,
                 ];
                 if (! $orderResp->successful()) {
-                    throw new \Exception('Order creation error: ' . $orderResp->status());
+                    throw new \Exception('Order creation error: '.$orderResp->status());
                 }
                 $orderJson = $orderResp->json();
                 $orderId = $orderJson['id'] ?? ($orderJson['data']['id'] ?? null);
@@ -357,18 +356,18 @@ class WeacceptGateway
                 ];
 
                 try {
-                    $pkResp = $client->post($apiPrefix . '/acceptance/payment_keys', $paymentKeyPayload);
+                    $pkResp = $client->post($apiPrefix.'/acceptance/payment_keys', $paymentKeyPayload);
                 } catch (\Throwable $e) {
                     if ($allowInsecure) {
                         $pkResp = $client->withOptions(['verify' => false])
-                            ->post($apiPrefix . '/acceptance/payment_keys', $paymentKeyPayload);
+                            ->post($apiPrefix.'/acceptance/payment_keys', $paymentKeyPayload);
                     } else {
                         throw $e;
                     }
                 }
                 $pkBodyPreview = substr($pkResp->body(), 0, 500);
                 if (! $pkResp->successful()) {
-                    throw new \Exception('Payment key error: ' . $pkResp->status());
+                    throw new \Exception('Payment key error: '.$pkResp->status());
                 }
                 $pkJson = $pkResp->json();
                 $paymentToken = $pkJson['token'] ?? $pkJson['payment_token'] ?? null;
@@ -377,8 +376,8 @@ class WeacceptGateway
                 }
 
                 // build redirect URL using iframe
-                $iframeBase = $apiBase . '/api/acceptance/iframes/' . $iframeId;
-                $iframeUrl = $iframeBase . '?payment_token=' . $paymentToken;
+                $iframeBase = $apiBase.'/api/acceptance/iframes/'.$iframeId;
+                $iframeUrl = $iframeBase.'?payment_token='.$paymentToken;
 
                 // standalone order URL (full-page) as a safe fallback when iframe integration
                 // is not permitted

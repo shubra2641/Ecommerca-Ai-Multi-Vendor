@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,7 +15,7 @@ class PaymentSecurityMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         // Rate limiting for payment endpoints
-        $key = 'payment-attempts:' . $request->ip();
+        $key = 'payment-attempts:'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($key, 10)) {
             return response()->json([

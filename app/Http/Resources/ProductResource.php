@@ -35,7 +35,7 @@ class ProductResource extends JsonResource
             'sale_end' => $this->sale_end?->toIso8601String(),
             'effective_price' => method_exists($this, 'effectivePrice') ? $this->effectivePrice() : $this->price,
             'main_image' => $this->main_image ? storage_image_url($this->main_image) : null,
-            'gallery' => $this->gallery ? array_map(fn($img) => storage_image_url($img), $this->gallery) : [],
+            'gallery' => $this->gallery ? array_map(fn ($img) => storage_image_url($img), $this->gallery) : [],
             'manage_stock' => (bool) $this->manage_stock,
             'stock_qty' => $this->stock_qty,
             'reserved_qty' => $this->reserved_qty,
@@ -111,7 +111,7 @@ class ProductResource extends JsonResource
             'seo_description' => $this->seo_description,
             'seo_keywords' => $this->seo_keywords,
             // tag ids when loaded
-            'tag_ids' => $this->whenLoaded('tags', fn() => $this->tags->pluck('id')->values()),
+            'tag_ids' => $this->whenLoaded('tags', fn () => $this->tags->pluck('id')->values()),
             // include full translations maps (for client to render multilingual fields)
             'name_translations' => $this->name_translations ?? [],
             'short_description_translations' => $this->short_description_translations ?? [],

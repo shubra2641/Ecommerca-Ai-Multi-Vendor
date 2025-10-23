@@ -37,7 +37,7 @@ class AdminStockLowNotification extends Notification implements ShouldQueue
             'title' => __('Product stock low'),
             'message' => __(':product has :count items available', [
                 'product' => $this->product->name,
-                'count' => $this->available
+                'count' => $this->available,
             ]),
             'url' => route('admin.products.show', $this->product->id),
             'icon' => 'exclamation-triangle',

@@ -22,8 +22,8 @@ class HomepageBannerController extends Controller
                     (object) [
                         'code' => config('app.locale', 'en'),
                         'is_default' => 1,
-                        'name' => strtoupper(config('app.locale', 'en'))
-                    ]
+                        'name' => strtoupper(config('app.locale', 'en')),
+                    ],
                 ]);
             }
         });
@@ -45,7 +45,7 @@ class HomepageBannerController extends Controller
             'link_url' => ['nullable', 'url', 'max:255'],
             'sort_order' => ['nullable', 'integer', 'between:0,65535'],
             'enabled' => ['nullable', 'boolean'],
-            'alt_text_i18n' => ['nullable', 'array']
+            'alt_text_i18n' => ['nullable', 'array'],
         ]);
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('uploads/homepage/banners', 'public');
@@ -85,7 +85,7 @@ class HomepageBannerController extends Controller
             'link_url' => ['nullable', 'url', 'max:255'],
             'sort_order' => ['nullable', 'integer', 'between:0,65535'],
             'enabled' => ['nullable', 'boolean'],
-            'alt_text_i18n' => ['nullable', 'array']
+            'alt_text_i18n' => ['nullable', 'array'],
         ]);
         if ($request->hasFile('image')) {
             if ($banner->image && Storage::disk('public')->exists($banner->image)) {

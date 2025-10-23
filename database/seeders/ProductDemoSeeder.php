@@ -24,53 +24,53 @@ class ProductDemoSeeder extends Seeder
         $electronics = ProductCategory::firstOrCreate(['slug' => 'electronics'], [
             'name' => 'Electronics',
             'active' => 1,
-            'position' => 1
+            'position' => 1,
         ]);
         $smartphones = ProductCategory::firstOrCreate(['slug' => 'smartphones'], [
             'name' => 'Smartphones',
             'parent_id' => $electronics->id,
             'active' => 1,
-            'position' => 2
+            'position' => 2,
         ]);
         $laptops = ProductCategory::firstOrCreate(['slug' => 'laptops'], [
             'name' => 'Laptops',
             'parent_id' => $electronics->id,
             'active' => 1,
-            'position' => 3
+            'position' => 3,
         ]);
         $fashion = ProductCategory::firstOrCreate(['slug' => 'fashion'], [
             'name' => 'Fashion',
             'active' => 1,
-            'position' => 4
+            'position' => 4,
         ]);
         $men = ProductCategory::firstOrCreate(['slug' => 'men-fashion'], [
             'name' => 'Men',
             'parent_id' => $fashion->id,
             'active' => 1,
-            'position' => 5
+            'position' => 5,
         ]);
         $women = ProductCategory::firstOrCreate(['slug' => 'women-fashion'], [
             'name' => 'Women',
             'parent_id' => $fashion->id,
             'active' => 1,
-            'position' => 6
+            'position' => 6,
         ]);
 
         // Tags
         $tagFeatured = ProductTag::firstOrCreate(['slug' => 'featured'], [
-            'name' => 'Featured'
+            'name' => 'Featured',
         ]);
         $tagNew = ProductTag::firstOrCreate(['slug' => 'new'], [
-            'name' => 'New'
+            'name' => 'New',
         ]);
         $tagOffer = ProductTag::firstOrCreate(['slug' => 'offer'], [
-            'name' => 'Offer'
+            'name' => 'Offer',
         ]);
         $tagTech = ProductTag::firstOrCreate(['slug' => 'tech'], [
-            'name' => 'Tech'
+            'name' => 'Tech',
         ]);
         $tagWear = ProductTag::firstOrCreate(['slug' => 'wear'], [
-            'name' => 'Wear'
+            'name' => 'Wear',
         ]);
 
         // Attributes
@@ -133,11 +133,11 @@ class ProductDemoSeeder extends Seeder
             $storageOptions = [
                 ['64GB', 699],
                 ['128GB', 749],
-                ['256GB', 799]
+                ['256GB', 799],
             ];
             foreach ($storageOptions as [$stLabel, $price]) {
                 $p2->variations()->create([
-                    'sku' => 'QX-' . Str::slug($stLabel),
+                    'sku' => 'QX-'.Str::slug($stLabel),
                     'price' => $price,
                     'attribute_data' => ['storage' => $stLabel],
                     'manage_stock' => 1,
@@ -188,7 +188,7 @@ class ProductDemoSeeder extends Seeder
             foreach ($colors as $col) {
                 foreach ($sizes as $sz) {
                     $p4->variations()->create([
-                        'sku' => 'CT-' . Str::substr($col, 0, 1) . $sz,
+                        'sku' => 'CT-'.Str::substr($col, 0, 1).$sz,
                         'price' => 25.00,
                         'sale_price' => ($col === 'Black' && $sz === 'M')
                             ? 20.00

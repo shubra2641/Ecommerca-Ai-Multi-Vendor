@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
 {
@@ -150,7 +149,7 @@ class ProfileController extends Controller
             $user->whatsapp_number = $data['whatsapp_number'];
         }
 
-        if ($role === 'user' && !empty($data['password'])) {
+        if ($role === 'user' && ! empty($data['password'])) {
             $user->password = Hash::make($data['password']);
         }
 
@@ -198,7 +197,7 @@ class ProfileController extends Controller
      */
     private function saveSettings(Request $request, HtmlSanitizer $sanitizer): void
     {
-        $setting = \App\Models\Setting::first() ?? new \App\Models\Setting();
+        $setting = \App\Models\Setting::first() ?? new \App\Models\Setting;
 
         $setting->site_name = $sanitizer->clean($request->input('site_name'));
         $setting->site_description = $request->filled('site_description')

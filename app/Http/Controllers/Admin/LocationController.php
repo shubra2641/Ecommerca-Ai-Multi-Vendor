@@ -46,7 +46,7 @@ class LocationController extends Controller
         $governorate = $request->input('governorate');
         $city = $request->input('city');
 
-        if (!$country) {
+        if (! $country) {
             return response()->json(['data' => []]);
         }
 

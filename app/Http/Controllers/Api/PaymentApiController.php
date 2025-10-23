@@ -10,7 +10,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class PaymentApiController extends Controller
@@ -25,11 +24,11 @@ class PaymentApiController extends Controller
                 ->select(['id', 'name', 'slug', 'logo', 'description'])
                 ->orderBy('name')
                 ->get()
-                ->map(fn($g) => [
+                ->map(fn ($g) => [
                     'id' => $g->id,
                     'name' => $g->name,
                     'slug' => $g->slug,
-                    'logo' => $g->logo ? asset('storage/' . $g->logo) : null,
+                    'logo' => $g->logo ? asset('storage/'.$g->logo) : null,
                     'description' => $g->description,
                     'is_available' => (bool) $g->enabled,
                 ]);

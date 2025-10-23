@@ -50,7 +50,7 @@ class PaymentService
         $requiredFields = $this->getRequiredFields($gateway->driver);
 
         foreach ($requiredFields as $field) {
-            if (!$this->hasField($credentials, $field)) {
+            if (! $this->hasField($credentials, $field)) {
                 return false;
             }
         }
@@ -76,7 +76,7 @@ class PaymentService
 
         foreach ($credentials as $key => $value) {
             if (is_string($value) && strlen($value) > 4) {
-                $masked[$key] = substr($value, 0, 4) . '****';
+                $masked[$key] = substr($value, 0, 4).'****';
             } else {
                 $masked[$key] = $value;
             }
@@ -87,16 +87,18 @@ class PaymentService
 
     private function decryptConfig($config): ?array
     {
-        if (!is_string($config) || empty($config)) {
+        if (! is_string($config) || empty($config)) {
             return null;
         }
 
         try {
             $decrypted = Crypt::decryptString($config);
+
             return json_decode($decrypted, true);
         } catch (\Exception $e) {
             try {
                 $decrypted = Crypt::decrypt($config);
+
                 return json_decode($decrypted, true);
             } catch (\Exception $e) {
                 return json_decode($config, true);

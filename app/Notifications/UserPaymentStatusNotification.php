@@ -38,8 +38,8 @@ class UserPaymentStatusNotification extends Notification implements ShouldQueue
         $locale = app()->getLocale();
         $view = $locale === 'ar' ? 'emails.payments.payment_status_ar' : 'emails.payments.payment_status_en';
 
-        return (new MailMessage())
-            ->subject(__('Payment update') . ' #' . ($order?->id ?? ''))
+        return (new MailMessage)
+            ->subject(__('Payment update').' #'.($order?->id ?? ''))
             ->view($view, ['order' => $order, 'payment' => $this->payment, 'status' => $this->status]);
     }
 
@@ -49,11 +49,11 @@ class UserPaymentStatusNotification extends Notification implements ShouldQueue
 
         return [
             'type' => 'payment_status',
-            'title' => __('Payment') . ' #' . ($this->payment->id ?? ''),
+            'title' => __('Payment').' #'.($this->payment->id ?? ''),
             'message' => __('Payment :id for order :order is :status', [
                 'id' => $this->payment->id,
                 'order' => $order?->id ?? '-',
-                'status' => $this->status
+                'status' => $this->status,
             ]),
             'url' => $order ? route('orders.show', $order->id) : null,
             'icon' => 'credit-card',

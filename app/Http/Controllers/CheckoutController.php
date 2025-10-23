@@ -28,7 +28,7 @@ class CheckoutController extends Controller
             auth()->user()
         );
 
-        if (!$vm['coupon'] && session()->has('applied_coupon_id')) {
+        if (! $vm['coupon'] && session()->has('applied_coupon_id')) {
             session()->forget('applied_coupon_id');
         }
 
@@ -49,7 +49,7 @@ class CheckoutController extends Controller
         $subtotal = 0;
         foreach ($cart as $pid => $row) {
             $product = \App\Models\Product::find($pid);
-            if (!$product) {
+            if (! $product) {
                 continue;
             }
             $subtotal += $row['price'] * $row['qty'];
@@ -92,13 +92,15 @@ class CheckoutController extends Controller
                     return response()->json([
                         'success' => true,
                         'redirect_url' => $paymentResult['redirect_url'],
-                        'payment_id' => $paymentResult['payment']?->id ?? null
+                        'payment_id' => $paymentResult['payment']?->id ?? null,
                     ]);
                 }
+
                 return redirect()->away($paymentResult['redirect_url']);
 
             case 'offline':
                 session()->forget('cart');
+
                 return redirect($paymentResult['redirect_url'])
                     ->with('success', __('Order created. Follow the payment instructions.'))
                     ->with('refresh_admin_notifications', true);
@@ -107,6 +109,7 @@ class CheckoutController extends Controller
                 session()->put('stripe_pending_cart', session('cart'));
                 session()->forget('cart');
                 session()->flash('refresh_admin_notifications', true);
+
                 return redirect()->away($paymentResult['redirect_url']);
 
             default:
@@ -134,7 +137,7 @@ class CheckoutController extends Controller
                 'product' => $product,
                 'qty' => $qty,
                 'price' => $price,
-                'variant' => $it['variant_id'] ?? null
+                'variant' => $it['variant_id'] ?? null,
             ];
         }
 
@@ -212,12 +215,12 @@ class CheckoutController extends Controller
         $orderId = $data['order_id'] ?? $request->query('order_id');
         $status = $data['status'] ?? 'failed';
 
-        if (!$orderId) {
+        if (! $orderId) {
             return response()->json(['error' => 'order_id required'], 400);
         }
 
         $order = Order::find($orderId);
-        if (!$order) {
+        if (! $order) {
             return response()->json(['error' => 'order not found'], 404);
         }
 
@@ -257,12 +260,12 @@ class CheckoutController extends Controller
         $data = $request->validated();
 
         $gatewayQuery = PaymentGateway::query()->where('enabled', true);
-        if (!empty($data['gateway'])) {
+        if (! empty($data['gateway'])) {
             $gatewayQuery->where('slug', $data['gateway']);
         }
         $gateway = $gatewayQuery->first();
 
-        if (!$gateway) {
+        if (! $gateway) {
             return response()->json(['error' => 'no_enabled_gateway'], 422);
         }
 
@@ -289,12 +292,12 @@ class CheckoutController extends Controller
             $secret = $stripeCfg['secret_key'] ?? null;
             $publishable = $stripeCfg['publishable_key'] ?? null;
 
-            if (!$secret || !$publishable) {
+            if (! $secret || ! $publishable) {
                 return response()->json(['error' => 'stripe_not_configured'], 422);
             }
 
             try {
-                if (!class_exists(\Stripe\Stripe::class)) {
+                if (! class_exists(\Stripe\Stripe::class)) {
                     return response()->json(['error' => 'stripe_library_missing'], 500);
                 }
 
@@ -307,13 +310,13 @@ class CheckoutController extends Controller
                     'line_items' => [[
                         'price_data' => [
                             'currency' => $currency,
-                            'product_data' => ['name' => 'Order #' . $order->id],
+                            'product_data' => ['name' => 'Order #'.$order->id],
                             'unit_amount' => (int) round(($order->total ?? 0) * 100),
                         ],
                         'quantity' => 1,
                     ]],
-                    'success_url' => url('/checkout/success?order=' . $order->id),
-                    'cancel_url' => url('/checkout/cancel?order=' . $order->id),
+                    'success_url' => url('/checkout/success?order='.$order->id),
+                    'cancel_url' => url('/checkout/cancel?order='.$order->id),
                     'metadata' => ['order_id' => $order->id],
                 ]);
 
@@ -322,7 +325,7 @@ class CheckoutController extends Controller
                     ->where('status', 'pending')
                     ->first();
 
-                if (!$payment) {
+                if (! $payment) {
                     $payment = Payment::create([
                         'order_id' => $order->id,
                         'user_id' => $order->user_id,
@@ -361,7 +364,7 @@ class CheckoutController extends Controller
         $payload = $request->getContent();
         $event = json_decode($payload, true);
 
-        if (!$event) {
+        if (! $event) {
             return response()->json(['error' => 'invalid_payload'], 400);
         }
 
@@ -417,11 +420,12 @@ class CheckoutController extends Controller
         $orderId = $request->query('order');
         $order = $orderId ? Order::find($orderId) : null;
 
-        if (!$order) {
+        if (! $order) {
             if (session()->has('stripe_pending_cart')) {
                 session()->put('cart', session('stripe_pending_cart'));
                 session()->forget('stripe_pending_cart');
             }
+
             return view('payments.failure')
                 ->with('order', null)
                 ->with('payment', null)
@@ -454,7 +458,7 @@ class CheckoutController extends Controller
             if ($order->payment_status !== 'paid') {
                 $order->payment_status = 'cancelled';
             }
-            if (!in_array($order->status, ['completed', 'refunded'])) {
+            if (! in_array($order->status, ['completed', 'refunded'])) {
                 $order->status = 'cancelled';
             }
             $order->save();
@@ -466,6 +470,7 @@ class CheckoutController extends Controller
         }
 
         $errorMessage = __('Payment was canceled. Your cart has been restored.');
+
         return view('payments.failure')
             ->with('order', $order)
             ->with('payment', null)

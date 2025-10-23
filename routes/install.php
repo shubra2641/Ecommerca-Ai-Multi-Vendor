@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InstallController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('install')->name('install.')->group(function () {
     Route::get('/', [InstallController::class, 'welcome'])->name('welcome');

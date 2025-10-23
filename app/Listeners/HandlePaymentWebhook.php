@@ -25,7 +25,6 @@ class HandlePaymentWebhook implements ShouldQueue
             $gateway = $event->gateway;
             $webhookData = $event->webhookData ?? [];
 
-
             // Validate webhook data
             if (empty($webhookData['transaction_id']) || empty($status) || $status === 'unknown') {
                 return;
@@ -38,7 +37,6 @@ class HandlePaymentWebhook implements ShouldQueue
             ) {
                 return;
             }
-
 
             // Update payment status and set timestamps where appropriate
             $payment->status = $status;
@@ -77,6 +75,7 @@ class HandlePaymentWebhook implements ShouldQueue
         if (! $order) {
             if (! app()->environment('testing')) {
             }
+
             return;
         }
 

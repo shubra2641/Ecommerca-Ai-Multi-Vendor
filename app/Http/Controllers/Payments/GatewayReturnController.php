@@ -9,7 +9,6 @@ use App\Models\Payment;
 use App\Models\PaymentGateway;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class GatewayReturnController extends Controller
 {
@@ -55,12 +54,12 @@ class GatewayReturnController extends Controller
         $redirect = $payload['weaccept_iframe_url'] ?? null;
         $fallback = $payload['weaccept_order_url'] ?? null;
 
-        if (!$redirect && !empty($payload['weaccept_payment_token'])) {
+        if (! $redirect && ! empty($payload['weaccept_payment_token'])) {
             $base = rtrim($payload['weaccept_api_base'] ?? 'https://accept.paymob.com', '/');
             $iframeId = $payload['weaccept_iframe_id'] ?? ($payload['weaccept_integration_id'] ?? null);
             if ($iframeId) {
-                $redirect = $base . '/api/acceptance/iframes/' . $iframeId .
-                    '?payment_token=' . $payload['weaccept_payment_token'];
+                $redirect = $base.'/api/acceptance/iframes/'.$iframeId.
+                    '?payment_token='.$payload['weaccept_payment_token'];
             }
         }
 
@@ -71,8 +70,8 @@ class GatewayReturnController extends Controller
     {
         $gateway = $this->getEnabledGateway($gatewaySlug);
 
-        if (!$gateway) {
-            return $this->redirectWithError($payment, $gatewaySlug . ' gateway disabled');
+        if (! $gateway) {
+            return $this->redirectWithError($payment, $gatewaySlug.' gateway disabled');
         }
 
         try {
@@ -149,6 +148,7 @@ class GatewayReturnController extends Controller
         if ($explicitResult['success'] === false) {
             $payment->status = 'failed';
             $payment->save();
+
             return redirect()->route('checkout.cancel')
                 ->with('error', __('Payment failed or cancelled'));
         }
@@ -156,6 +156,7 @@ class GatewayReturnController extends Controller
         if ($explicitResult['pending'] === true) {
             $payment->status = 'processing';
             $payment->save();
+
             return redirect()->route('checkout.cancel')
                 ->with('info', __('Payment pending confirmation'));
         }
@@ -165,7 +166,7 @@ class GatewayReturnController extends Controller
 
     private function handleSuccessfulPayment(Payment $payment)
     {
-        if (!$payment->order_id) {
+        if (! $payment->order_id) {
             $snapshot = $payment->payload['checkout_snapshot'] ?? null;
             if ($snapshot) {
                 $order = $this->createOrderFromSnapshot($snapshot, $payment);
@@ -192,11 +193,13 @@ class GatewayReturnController extends Controller
     {
         if ($status === 'paid') {
             $this->clearCart();
+
             return redirect()->route('checkout.success', ['order' => $payment->order_id])
                 ->with('success', $message);
         }
 
         $level = $status === 'failed' ? 'error' : ($status === 'paid' ? 'success' : 'info');
+
         return redirect()->route('orders.show', $payment->order_id)
             ->with($level, $message);
     }
@@ -206,6 +209,7 @@ class GatewayReturnController extends Controller
         $this->restoreCartFromSnapshot($payment, $gatewaySlug);
 
         $level = $status === 'failed' ? 'error' : ($status === 'paid' ? 'success' : 'info');
+
         return redirect()->route('checkout.cancel')->with($level, $message);
     }
 
@@ -213,7 +217,7 @@ class GatewayReturnController extends Controller
     {
         if ($payment->order_id) {
             return redirect()->route('orders.show', $payment->order_id)
-                ->with('error', __(ucfirst($gatewaySlug) . ' verification error'));
+                ->with('error', __(ucfirst($gatewaySlug).' verification error'));
         }
 
         $this->restoreCartFromSnapshot($payment, $gatewaySlug);
@@ -221,7 +225,7 @@ class GatewayReturnController extends Controller
         return view('payments.failure')
             ->with('order', null)
             ->with('payment', $payment)
-            ->with('error_message', __(ucfirst($gatewaySlug) . ' verification error'));
+            ->with('error_message', __(ucfirst($gatewaySlug).' verification error'));
     }
 
     private function getEnabledGateway(string $slug): ?PaymentGateway
@@ -241,7 +245,7 @@ class GatewayReturnController extends Controller
 
     private function isMockReturn(Payment $payment): bool
     {
-        return request()->boolean('mock') || !empty($payment->payload['weaccept_mock']);
+        return request()->boolean('mock') || ! empty($payment->payload['weaccept_mock']);
     }
 
     private function getExplicitResult(): ?array
@@ -255,7 +259,7 @@ class GatewayReturnController extends Controller
 
         return [
             'success' => filter_var($successParam, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
-            'pending' => filter_var($pendingParam, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
+            'pending' => filter_var($pendingParam, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
         ];
     }
 
@@ -308,7 +312,7 @@ class GatewayReturnController extends Controller
     {
         $snapshot = $payment->payload['checkout_snapshot'] ?? null;
 
-        if (!$snapshot || empty($snapshot['items'])) {
+        if (! $snapshot || empty($snapshot['items'])) {
             return;
         }
 
@@ -319,11 +323,11 @@ class GatewayReturnController extends Controller
             }
             $cart[$item['product_id']] = [
                 'qty' => $item['qty'] ?? 1,
-                'price' => $item['price'] ?? 0
+                'price' => $item['price'] ?? 0,
             ];
         }
 
-        if (!empty($cart)) {
+        if (! empty($cart)) {
             session(["{$gatewaySlug}_pending_cart" => $cart]);
         }
     }

@@ -27,18 +27,19 @@ class UserController extends BaseAdminController
     {
         return view('admin.users.index', [
             'users' => $this->getUsers($request),
-            'userStats' => $this->getUserStats()
+            'userStats' => $this->getUserStats(),
         ]);
     }
 
     public function create()
     {
-        return view('admin.users.form', ['user' => new User()]);
+        return view('admin.users.form', ['user' => new User]);
     }
 
     public function store(\App\Http\Requests\Admin\StoreUserRequest $request, HtmlSanitizer $sanitizer)
     {
         User::create($this->prepareUserData($request->validated(), $sanitizer));
+
         return redirect()->route('admin.users.index')->with('success', __('User created successfully.'));
     }
 
@@ -55,6 +56,7 @@ class UserController extends BaseAdminController
     public function update(\App\Http\Requests\Admin\UpdateUserRequest $request, User $user, HtmlSanitizer $sanitizer)
     {
         $user->update($this->prepareUserData($request->validated(), $sanitizer, $user));
+
         return redirect()->route('admin.users.index')->with('success', __('User updated successfully.'));
     }
 
@@ -64,19 +66,21 @@ class UserController extends BaseAdminController
             return redirect()->route('admin.users.index')->with('error', __('You cannot delete your own account.'));
         }
         $user->delete();
+
         return redirect()->route('admin.users.index')->with('success', __('User deleted successfully.'));
     }
 
     public function approve(User $user)
     {
         $user->update(['approved_at' => now()]);
+
         return redirect()->back()->with('success', __('User approved successfully.'));
     }
 
     public function pending()
     {
         return view('admin.users.pending', [
-            'users' => User::whereNull('approved_at')->latest()->paginate(15)
+            'users' => User::whereNull('approved_at')->latest()->paginate(15),
         ]);
     }
 
@@ -84,14 +88,14 @@ class UserController extends BaseAdminController
     {
         return view('admin.users.index', [
             'users' => $this->getUsersByStatus($status, $role),
-            'title' => ucfirst($status) . ($role ? ' ' . ucfirst($role) . 's' : ' Users')
+            'title' => ucfirst($status).($role ? ' '.ucfirst($role).'s' : ' Users'),
         ]);
     }
 
     public function balances()
     {
         return view('admin.balances.index', [
-            'users' => User::select('name', 'email', 'role', 'balance')->paginate(20)
+            'users' => User::select('name', 'email', 'role', 'balance')->paginate(20),
         ]);
     }
 
@@ -112,12 +116,14 @@ class UserController extends BaseAdminController
         User::whereIn('id', $request->input('ids', []))
             ->whereNull('approved_at')
             ->update(['approved_at' => now()]);
+
         return redirect()->back()->with('success', __('Users approved successfully'));
     }
 
     public function bulkDelete(Request $request)
     {
         User::whereIn('id', $request->input('ids', []))->delete();
+
         return redirect()->back()->with('success', __('Users deleted successfully'));
     }
 
@@ -125,7 +131,7 @@ class UserController extends BaseAdminController
     {
         return view('admin.users.balance', [
             'user' => $user,
-            'defaultCurrency' => \App\Models\Currency::getDefault()
+            'defaultCurrency' => \App\Models\Currency::getDefault(),
         ]);
     }
 
@@ -154,7 +160,7 @@ class UserController extends BaseAdminController
             Auth::id()
         );
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return $this->errorResponse($result['message'], null, 422);
         }
 
@@ -168,6 +174,7 @@ class UserController extends BaseAdminController
     public function refreshBalance(User $user)
     {
         $user->refresh();
+
         return response()->json([
             'success' => true,
             'message' => __('Balance refreshed successfully'),
@@ -199,7 +206,7 @@ class UserController extends BaseAdminController
                     'last_page' => $balanceHistories->lastPage(),
                     'per_page' => $balanceHistories->perPage(),
                     'total' => $balanceHistories->total(),
-                ]
+                ],
             ]);
         }
 
@@ -213,7 +220,7 @@ class UserController extends BaseAdminController
             'user_ids.*' => 'exists:users,id',
             'operation' => 'required|in:add,deduct',
             'amount' => 'required|numeric|min:0.01',
-            'note' => 'nullable|string|max:255'
+            'note' => 'nullable|string|max:255',
         ]);
 
         $result = $this->balanceService->handleBulkOperation(
@@ -303,7 +310,7 @@ class UserController extends BaseAdminController
             'approved_at' => isset($validated['approved']) ? now() : null,
         ];
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $data['password'] = Hash::make($validated['password']);
         }
 

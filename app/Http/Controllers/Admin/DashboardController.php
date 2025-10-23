@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Order;
-use App\Models\Product;
 use App\Models\Payment;
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -36,7 +35,7 @@ class DashboardController extends Controller
             try {
                 $tables = DB::select('SHOW TABLES');
                 $dbSizeRow = DB::select(
-                    'SELECT SUM(data_length + index_length) / 1024 / 1024 AS db_size_mb ' .
+                    'SELECT SUM(data_length + index_length) / 1024 / 1024 AS db_size_mb '.
                         'FROM information_schema.tables WHERE table_schema = DATABASE()'
                 );
                 $dbSize = isset($dbSizeRow[0]->db_size_mb) ? (float) $dbSizeRow[0]->db_size_mb : 0.0;
@@ -47,7 +46,7 @@ class DashboardController extends Controller
                     'connection' => 'active',
                 ];
             } catch (\Exception $e) {
-                logger()->error('Failed retrieving database info for admin dashboard: ' . $e->getMessage());
+                logger()->error('Failed retrieving database info for admin dashboard: '.$e->getMessage());
                 $dbInfo = [
                     'tables_count' => 0,
                     'size_mb' => 0,
@@ -64,7 +63,7 @@ class DashboardController extends Controller
                 'newUsersToday' => User::whereDate('created_at', today())->count(),
                 'newUsersThisWeek' => User::whereBetween('created_at', [
                     now()->startOfWeek(),
-                    now()->endOfWeek()
+                    now()->endOfWeek(),
                 ])->count(),
                 'newUsersThisMonth' => User::whereMonth('created_at', now()->month)->count(),
                 'totalAdmins' => User::where('role', 'admin')->count(),
@@ -78,7 +77,6 @@ class DashboardController extends Controller
 
             return array_merge($dbInfo, $base, $ordersAgg);
         });
-
 
         // Get chart data for user registrations based on period
         $chartData = $this->getRegistrationChartDataByPeriod($period);
@@ -109,7 +107,6 @@ class DashboardController extends Controller
             'period'
         ));
     }
-
 
     /**
      * Get registration chart data for the last 6 months
@@ -252,10 +249,10 @@ class DashboardController extends Controller
             $productQ = Product::query();
             $totalProducts = $productQ->count();
             $lowStock = $productQ->where('manage_stock', 1)->get()
-                ->filter(fn($p) => ($p->availableStock() ?? 0) > 0 &&
+                ->filter(fn ($p) => ($p->availableStock() ?? 0) > 0 &&
                     ($p->availableStock() ?? 0) <= 5)->count();
             $outOfStock = $productQ->where('manage_stock', 1)->get()
-                ->filter(fn($p) => ($p->availableStock() ?? 0) <= 0)->count();
+                ->filter(fn ($p) => ($p->availableStock() ?? 0) <= 0)->count();
             $onSale = Product::whereNotNull('sale_price')->whereColumn('sale_price', '<', 'price')->count();
 
             // Payment metrics
@@ -295,7 +292,7 @@ class DashboardController extends Controller
     {
         $from = now()->subDays(29)->startOfDay();
         $raw = Order::selectRaw(
-            'DATE(created_at) as day, COUNT(*) as orders, ' .
+            'DATE(created_at) as day, COUNT(*) as orders, '.
                 'SUM(CASE WHEN payment_status = "paid" THEN total ELSE 0 END) as revenue'
         )
             ->where('created_at', '>=', $from)
@@ -340,7 +337,7 @@ class DashboardController extends Controller
                 'shipped' => '#28a745',
                 'delivered' => '#6f42c1',
                 'cancelled' => '#dc3545',
-                'refunded' => '#fd7e14'
+                'refunded' => '#fd7e14',
             ];
 
             foreach ($orderStatuses as $status => $count) {
@@ -351,13 +348,13 @@ class DashboardController extends Controller
             return [
                 'labels' => $labels,
                 'data' => $data,
-                'colors' => array_values($colors)
+                'colors' => array_values($colors),
             ];
         } catch (\Exception $e) {
             return [
                 'labels' => [],
                 'data' => [],
-                'colors' => []
+                'colors' => [],
             ];
         }
     }
@@ -414,14 +411,12 @@ class DashboardController extends Controller
         return round(($approvedUsers / $totalUsers) * 100, 1);
     }
 
-
     public function reports()
     {
         $totalUsers = User::count();
         $totalVendors = User::where('role', 'vendor')->count();
         $pendingUsers = User::whereNull('approved_at')->count();
         $totalBalance = User::sum('balance');
-
 
         // Registration trends
         $registrationsToday = User::whereDate('created_at', today())->count();
@@ -462,11 +457,10 @@ class DashboardController extends Controller
     public function generateReport()
     {
         // Generate Excel report
-        $filename = 'admin-report-' . date('Y-m-d') . '.xlsx';
+        $filename = 'admin-report-'.date('Y-m-d').'.xlsx';
 
         return response()->json(['message' => 'Report generated successfully', 'filename' => $filename]);
     }
-
 
     public function clearCache()
     {
@@ -478,7 +472,7 @@ class DashboardController extends Controller
 
             return redirect()->back()->with('success', __('Cache cleared successfully'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Failed to clear cache: ') . $e->getMessage());
+            return redirect()->back()->with('error', __('Failed to clear cache: ').$e->getMessage());
         }
     }
 
@@ -492,7 +486,7 @@ class DashboardController extends Controller
 
             return redirect()->back()->with('success', __('Logs cleared successfully'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Failed to clear logs: ') . $e->getMessage());
+            return redirect()->back()->with('error', __('Failed to clear logs: ').$e->getMessage());
         }
     }
 
@@ -505,7 +499,7 @@ class DashboardController extends Controller
 
             return redirect()->back()->with('success', __('System optimized successfully'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Failed to optimize system: ') . $e->getMessage());
+            return redirect()->back()->with('error', __('Failed to optimize system: ').$e->getMessage());
         }
     }
 

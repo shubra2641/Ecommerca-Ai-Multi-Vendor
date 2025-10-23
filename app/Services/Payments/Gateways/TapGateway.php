@@ -6,7 +6,6 @@ use App\Models\Payment;
 use App\Models\PaymentGateway;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class TapGateway
 {
@@ -51,7 +50,7 @@ class TapGateway
                 ->acceptJson()
                 ->post('https://api.tap.company/v2/charges', $chargePayload);
             if (! $resp->ok()) {
-                throw new \Exception('Charge error: ' . $resp->status() . ' ' . substr($resp->body(), 0, 200));
+                throw new \Exception('Charge error: '.$resp->status().' '.substr($resp->body(), 0, 200));
             }
             $json = $resp->json();
             $redirectUrl = $json['transaction']['url'] ?? null;
@@ -81,7 +80,7 @@ class TapGateway
         if (! $secret || ! $chargeId) {
             throw new \RuntimeException('Missing Tap secret or charge id');
         }
-        $resp = Http::withToken($secret)->acceptJson()->get('https://api.tap.company/v2/charges/' . $chargeId);
+        $resp = Http::withToken($secret)->acceptJson()->get('https://api.tap.company/v2/charges/'.$chargeId);
         if (! $resp->ok()) {
             return ['payment' => $payment, 'status' => 'pending', 'charge' => null];
         }
@@ -141,7 +140,7 @@ class TapGateway
             try {
                 session()->forget('cart');
             } catch (\Throwable $e) {
-                logger()->warning('Failed to clear session after payment: ' . $e->getMessage());
+                logger()->warning('Failed to clear session after payment: '.$e->getMessage());
             }
         }
 

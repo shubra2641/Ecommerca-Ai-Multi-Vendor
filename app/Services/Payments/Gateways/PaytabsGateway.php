@@ -31,7 +31,7 @@ class PaytabsGateway
         );
 
         return \Illuminate\Support\Facades\DB::transaction(
-            function () use ($snapshot, $apiBase, $secret, $currency, $cfg, $usedSecretKey, $gateway) {
+            function () use ($snapshot, $apiBase, $secret, $currency, $cfg, $gateway) {
                 $payment = Payment::create([
                     'order_id' => null,
                     'user_id' => $snapshot['user_id'] ?? null,
@@ -83,7 +83,7 @@ class PaytabsGateway
                         }
                     }
                     $resp = $client->post(
-                        $apiBase . '/charges',
+                        $apiBase.'/charges',
                         $chargePayload
                     );
                     try {
@@ -91,7 +91,7 @@ class PaytabsGateway
                     }
                     if (! $resp->ok()) {
                         throw new \Exception(
-                            'Charge error: ' . $resp->status() . ' ' . substr($resp->body(), 0, 200)
+                            'Charge error: '.$resp->status().' '.substr($resp->body(), 0, 200)
                         );
                     }
                     $json = $resp->json();

@@ -13,6 +13,7 @@ class NotificationController extends BaseAdminController
     {
         $this->notificationService = $notificationService;
     }
+
     public function latest(Request $request)
     {
         $user = $this->getCurrentUser($request);
@@ -30,8 +31,9 @@ class NotificationController extends BaseAdminController
     public function unreadCount(Request $request)
     {
         $user = $this->getCurrentUser($request);
+
         return $this->successResponse(__('Unread count retrieved'), [
-            'unread' => $this->notificationService->getUnreadCount($user)
+            'unread' => $this->notificationService->getUnreadCount($user),
         ]);
     }
 
@@ -59,7 +61,7 @@ class NotificationController extends BaseAdminController
         $count = $this->notificationService->markAllAsRead($user);
 
         return $this->successResponse(__('All notifications marked as read'), [
-            'marked_count' => $count
+            'marked_count' => $count,
         ]);
     }
 
@@ -82,12 +84,12 @@ class NotificationController extends BaseAdminController
         $user = $this->getCurrentUser($request);
         $success = $this->notificationService->markAsRead($user, $id);
 
-        if (!$success) {
+        if (! $success) {
             return $this->errorResponse(__('Notification not found'), null, 404);
         }
 
         return $this->successResponse(__('Notification marked as read'), [
-            'unread_count' => $this->notificationService->getUnreadCount($user)
+            'unread_count' => $this->notificationService->getUnreadCount($user),
         ]);
     }
 
@@ -104,7 +106,7 @@ class NotificationController extends BaseAdminController
         }
 
         return $this->successResponse(__('All notifications marked as read'), [
-            'marked_count' => $count
+            'marked_count' => $count,
         ]);
     }
 
@@ -116,7 +118,7 @@ class NotificationController extends BaseAdminController
         $user = $this->getCurrentUser($request);
         $success = $this->notificationService->delete($user, $id);
 
-        if (!$success) {
+        if (! $success) {
             return $this->errorResponse(__('Notification not found'), null, 404);
         }
 
@@ -132,7 +134,7 @@ class NotificationController extends BaseAdminController
         $count = $this->notificationService->clearAll($user);
 
         return $this->successResponse(__('All notifications cleared'), [
-            'cleared_count' => $count
+            'cleared_count' => $count,
         ]);
     }
 }

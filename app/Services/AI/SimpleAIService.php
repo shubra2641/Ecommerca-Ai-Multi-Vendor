@@ -11,7 +11,7 @@ class SimpleAIService
     public function generate(string $title, string $type): array
     {
         $setting = Setting::first();
-        if (!$setting?->ai_enabled || !$setting?->ai_openai_api_key) {
+        if (! $setting?->ai_enabled || ! $setting?->ai_openai_api_key) {
             return ['error' => 'AI disabled'];
         }
 
@@ -24,27 +24,30 @@ class SimpleAIService
                     'max_tokens' => 1000,
                     'messages' => [
                         ['role' => 'system', 'content' => 'You are a professional content writer. Always return valid JSON format only.'],
-                        ['role' => 'user', 'content' => $this->getPrompt($title, $type)]
-                    ]
+                        ['role' => 'user', 'content' => $this->getPrompt($title, $type)],
+                    ],
                 ]);
 
-            if (!$response->successful()) {
-                $error = $response->json('error.message') ?: 'HTTP ' . $response->status();
-                Log::error('AI Service Error: ' . $error, ['response' => $response->json()]);
-                return ['error' => 'AI service error: ' . $error];
+            if (! $response->successful()) {
+                $error = $response->json('error.message') ?: 'HTTP '.$response->status();
+                Log::error('AI Service Error: '.$error, ['response' => $response->json()]);
+
+                return ['error' => 'AI service error: '.$error];
             }
 
             $content = $response->json('choices.0.message.content');
             $result = json_decode($content, true);
 
-            if (json_last_error() !== JSON_ERROR_NONE || !is_array($result)) {
+            if (json_last_error() !== JSON_ERROR_NONE || ! is_array($result)) {
                 Log::warning('AI returned invalid JSON', ['content' => $content]);
+
                 return $this->getFallback($title, $type);
             }
 
             return $result;
         } catch (\Exception $e) {
-            Log::error('AI Service Exception: ' . $e->getMessage());
+            Log::error('AI Service Exception: '.$e->getMessage());
+
             return ['error' => $e->getMessage()];
         }
     }
@@ -66,22 +69,22 @@ class SimpleAIService
                 'description' => "High-quality $title",
                 'short_description' => "Premium $title",
                 'seo_description' => "Buy $title online",
-                'seo_tags' => strtolower($title)
+                'seo_tags' => strtolower($title),
             ],
             'category' => [
                 'description' => "Browse our $title collection",
                 'seo_description' => "$title products",
-                'seo_tags' => strtolower($title)
+                'seo_tags' => strtolower($title),
             ],
             'blog' => [
                 'content' => "Learn about $title",
                 'seo_description' => "$title guide",
-                'seo_tags' => strtolower($title)
+                'seo_tags' => strtolower($title),
             ],
             default => [
                 'description' => $title,
                 'seo_description' => $title,
-                'seo_tags' => strtolower($title)
+                'seo_tags' => strtolower($title),
             ]
         };
     }

@@ -71,7 +71,7 @@ class CartController extends Controller
                 if (! $variantLabel && ! empty($variation->attribute_data)) {
                     try {
                         $variantLabel = collect($variation->attribute_data)
-                            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                            ->map(fn ($v, $k) => ucfirst($k).': '.$v)
                             ->values()
                             ->join(', ');
                     } catch (\Throwable $e) {
@@ -108,7 +108,7 @@ class CartController extends Controller
                 'original_price' => $product->price,
                 'stock_display' => ($product->stock_qty ?? null) !== null ?
                     ((($product->stock_qty ?? 0) > 0) ?
-                        (($product->stock_qty) . ' in stock') : 'Out of stock') :
+                        (($product->stock_qty).' in stock') : 'Out of stock') :
                     null,
                 'seller_name' => (method_exists($product, 'seller') && $product->seller) ?
                     $product->seller->name : null,
@@ -203,7 +203,7 @@ class CartController extends Controller
                             return response()->json([
                                 'success' => false,
                                 'message' => __('Requested quantity exceeds available stock'),
-                                'cart_count' => count($this->getCart())
+                                'cart_count' => count($this->getCart()),
                             ], 400);
                         }
 
@@ -222,7 +222,7 @@ class CartController extends Controller
                         return response()->json([
                             'success' => false,
                             'message' => __('Requested quantity exceeds available stock'),
-                            'cart_count' => count($this->getCart())
+                            'cart_count' => count($this->getCart()),
                         ], 400);
                     }
 
@@ -237,7 +237,7 @@ class CartController extends Controller
         if (! empty($data['variation_id'])) {
             $variation = ProductVariation::find($data['variation_id']);
             if ($variation && $variation->product_id === $product->id) {
-                $key .= ':' . $variation->id;
+                $key .= ':'.$variation->id;
             } else {
                 $variation = null;
             }

@@ -118,7 +118,7 @@ class BalanceHistory extends Model
     {
         $symbol = Currency::defaultSymbol();
 
-        return number_format((float) $this->amount, 2) . ' ' . $symbol;
+        return number_format((float) $this->amount, 2).' '.$symbol;
     }
 
     /**
@@ -128,7 +128,7 @@ class BalanceHistory extends Model
     {
         $symbol = Currency::defaultSymbol();
 
-        return number_format((float) $this->previous_balance, 2) . ' ' . $symbol;
+        return number_format((float) $this->previous_balance, 2).' '.$symbol;
     }
 
     /**
@@ -138,7 +138,7 @@ class BalanceHistory extends Model
     {
         $symbol = Currency::defaultSymbol();
 
-        return number_format((float) $this->new_balance, 2) . ' ' . $symbol;
+        return number_format((float) $this->new_balance, 2).' '.$symbol;
     }
 
     /**

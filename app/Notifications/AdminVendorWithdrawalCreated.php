@@ -30,7 +30,7 @@ class AdminVendorWithdrawalCreated extends Notification
             'message' => __('Vendor :name requested a withdrawal of :amount :currency', [
                 'name' => $this->withdrawal->user?->name ?? 'User',
                 'amount' => $this->withdrawal->amount,
-                'currency' => $this->withdrawal->currency
+                'currency' => $this->withdrawal->currency,
             ]),
             'url' => route('admin.vendor.withdrawals.show', $this->withdrawal->id),
             'withdrawal_id' => $this->withdrawal->id,

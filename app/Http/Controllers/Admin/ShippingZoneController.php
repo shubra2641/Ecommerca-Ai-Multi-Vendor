@@ -33,7 +33,7 @@ class ShippingZoneController extends Controller
         }])->get();
 
         return view('admin.shipping_zones.create', [
-            'countries' => $countries
+            'countries' => $countries,
         ]);
     }
 
@@ -84,6 +84,7 @@ class ShippingZoneController extends Controller
             if (isset($rulesArray[$ruleIndex])) {
                 $ruleToDelete = $rulesArray[$ruleIndex];
                 $shipping_zone->rules()->where('id', $ruleToDelete['id'])->delete();
+
                 return redirect()->route('admin.shipping-zones.edit', $shipping_zone)
                     ->with('success', __('Rule removed successfully'));
             }
@@ -92,7 +93,7 @@ class ShippingZoneController extends Controller
         return view('admin.shipping_zones.edit', [
             'zone' => $shipping_zone,
             'countries' => $countries,
-            'rules' => $rules
+            'rules' => $rules,
         ]);
     }
 

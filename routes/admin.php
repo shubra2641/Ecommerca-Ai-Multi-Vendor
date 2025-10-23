@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CurrencyController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\FooterSettingsController;
+use App\Http\Controllers\Admin\FormController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\GovernorateController;
 use App\Http\Controllers\Admin\HomepageBannerController;
@@ -30,7 +31,6 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\ProductSerialController;
 use App\Http\Controllers\Admin\ProductTagController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\ReturnsController;
 use App\Http\Controllers\Admin\SendNotificationController;
@@ -41,7 +41,7 @@ use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VendorExportController;
 use App\Http\Controllers\Admin\VendorWithdrawalController;
-use App\Http\Controllers\Admin\FormController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -59,7 +59,7 @@ Route::middleware([
     'auth',
     'role:admin',
     'can:access-admin',
-    \App\Http\Middleware\EnsureEmailActivated::class
+    \App\Http\Middleware\EnsureEmailActivated::class,
 ])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
@@ -214,7 +214,6 @@ Route::middleware([
             ->name('use-as-logo');
     });
 
-
     // Blog management routes
     Route::prefix('blog')->name('admin.blog.')->group(function () {
         // Posts
@@ -260,8 +259,6 @@ Route::middleware([
             Route::delete('/{tag}', [TagController::class, 'destroy'])->name('destroy');
         });
     });
-
-
 
     // Dashboard AJAX routes
     Route::prefix('dashboard')->name('admin.dashboard.')->group(function () {

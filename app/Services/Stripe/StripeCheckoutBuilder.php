@@ -62,8 +62,8 @@ class StripeCheckoutBuilder
             'mode' => 'payment',
             'payment_method_types' => ['card'],
             'line_items' => $lineItems,
-            'success_url' => url('/checkout/success?order=' . $this->order->id),
-            'cancel_url' => url('/checkout/cancel?order=' . $this->order->id),
+            'success_url' => url('/checkout/success?order='.$this->order->id),
+            'cancel_url' => url('/checkout/cancel?order='.$this->order->id),
             'metadata' => $metadata,
         ];
     }

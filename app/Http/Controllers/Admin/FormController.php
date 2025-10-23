@@ -24,7 +24,7 @@ class FormController extends BaseAdminController
 
         $result = $this->validationService->validateForm($data, $formType);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return $this->validationErrorResponse($result['errors']);
         }
 
@@ -41,14 +41,14 @@ class FormController extends BaseAdminController
 
         $result = $this->validationService->validateForAutoSave($data, $formType);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return $this->errorResponse(__('Auto-save failed: Invalid data'), $result['errors'], 422);
         }
 
         // Here you would implement the actual auto-save logic
         // For now, we'll just return success
         return $this->successResponse(__('Changes saved automatically'), [
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->toISOString(),
         ]);
     }
 }

@@ -20,7 +20,7 @@ class HomepageSectionController extends Controller
             'item_limit' => 8,
             'sort_order' => 10,
             'cta_url' => '/products?filter=on-sale',
-            'cta_label' => 'View All Deals'
+            'cta_label' => 'View All Deals',
         ],
         [
             'key' => 'categories',
@@ -29,7 +29,7 @@ class HomepageSectionController extends Controller
             'item_limit' => 12,
             'sort_order' => 20,
             'cta_url' => '/products',
-            'cta_label' => 'View All Products'
+            'cta_label' => 'View All Products',
         ],
         [
             'key' => 'latest_products',
@@ -38,7 +38,7 @@ class HomepageSectionController extends Controller
             'item_limit' => 8,
             'sort_order' => 30,
             'cta_url' => '/products?sort=newest',
-            'cta_label' => 'View All New Arrivals'
+            'cta_label' => 'View All New Arrivals',
         ],
         [
             'key' => 'blog_posts',
@@ -47,7 +47,7 @@ class HomepageSectionController extends Controller
             'item_limit' => 3,
             'sort_order' => 40,
             'cta_url' => '/blog',
-            'cta_label' => 'View All Posts'
+            'cta_label' => 'View All Posts',
         ],
         // Footer showcase mini sections (cta disabled by default)
         [
@@ -55,35 +55,35 @@ class HomepageSectionController extends Controller
             'title' => 'Latest Products',
             'subtitle' => '',
             'item_limit' => 4,
-            'sort_order' => 900
+            'sort_order' => 900,
         ],
         [
             'key' => 'showcase_best_selling',
             'title' => 'Best Selling',
             'subtitle' => '',
             'item_limit' => 4,
-            'sort_order' => 901
+            'sort_order' => 901,
         ],
         [
             'key' => 'showcase_discount',
             'title' => 'Discount',
             'subtitle' => '',
             'item_limit' => 4,
-            'sort_order' => 902
+            'sort_order' => 902,
         ],
         [
             'key' => 'showcase_most_rated',
             'title' => 'Most Rated',
             'subtitle' => '',
             'item_limit' => 4,
-            'sort_order' => 903
+            'sort_order' => 903,
         ],
         [
             'key' => 'showcase_brands',
             'title' => 'Brands',
             'subtitle' => '',
             'item_limit' => 8,
-            'sort_order' => 904
+            'sort_order' => 904,
         ],
     ];
 
@@ -99,8 +99,8 @@ class HomepageSectionController extends Controller
                     (object) [
                         'code' => config('app.locale', 'en'),
                         'is_default' => 1,
-                        'name' => strtoupper(config('app.locale', 'en'))
-                    ]
+                        'name' => strtoupper(config('app.locale', 'en')),
+                    ],
                 ]);
             }
         });

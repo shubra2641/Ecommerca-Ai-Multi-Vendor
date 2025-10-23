@@ -31,7 +31,7 @@ class CompareController extends Controller
                     return response()->json([
                         'status' => 'error',
                         'message' => __('Maximum items reached'),
-                        'count' => count($list)
+                        'count' => count($list),
                     ], 422);
                 }
 

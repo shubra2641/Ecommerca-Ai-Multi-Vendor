@@ -51,14 +51,14 @@ class ProductCategoryController extends Controller
             foreach ($nameTranslations as $lc => $v) {
                 $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
             }
-            $data['name_translations'] = array_filter($clean, fn($v) => $v !== null && $v !== '');
+            $data['name_translations'] = array_filter($clean, fn ($v) => $v !== null && $v !== '');
         }
         if (! empty($descTranslations)) {
             $clean = [];
             foreach ($descTranslations as $lc => $v) {
                 $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
             }
-            $data['description_translations'] = array_filter($clean, fn($v) => $v !== null && $v !== '');
+            $data['description_translations'] = array_filter($clean, fn ($v) => $v !== null && $v !== '');
         }
         if (isset($data['name_translations'][$defaultLocale])) {
             $data['name'] = $data['name_translations'][$defaultLocale];
@@ -88,7 +88,7 @@ class ProductCategoryController extends Controller
         $data = $r->validate([
             'parent_id' => 'nullable|exists:product_categories,id',
             'name' => 'required',
-            'slug' => 'nullable|unique:product_categories,slug,' . $productCategory->id,
+            'slug' => 'nullable|unique:product_categories,slug,'.$productCategory->id,
             'description' => 'nullable',
             'image' => 'nullable|string',
             'seo_title' => 'nullable',
@@ -110,14 +110,14 @@ class ProductCategoryController extends Controller
             foreach ($nameTranslations as $lc => $v) {
                 $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
             }
-            $data['name_translations'] = array_filter($clean, fn($v) => $v !== null && $v !== '');
+            $data['name_translations'] = array_filter($clean, fn ($v) => $v !== null && $v !== '');
         }
         if (! empty($descTranslations)) {
             $clean = [];
             foreach ($descTranslations as $lc => $v) {
                 $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
             }
-            $data['description_translations'] = array_filter($clean, fn($v) => $v !== null && $v !== '');
+            $data['description_translations'] = array_filter($clean, fn ($v) => $v !== null && $v !== '');
         }
         if (isset($data['name_translations'][$defaultLocale])) {
             $data['name'] = $data['name_translations'][$defaultLocale];
@@ -142,7 +142,7 @@ class ProductCategoryController extends Controller
 
     public function export(Request $r)
     {
-        $fileName = 'categories_export_' . date('Ymd_His') . '.csv';
+        $fileName = 'categories_export_'.date('Ymd_His').'.csv';
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename={$fileName}",
@@ -181,13 +181,13 @@ class ProductCategoryController extends Controller
         }
 
         $merge = [];
-        if (!empty($result['description'])) {
+        if (! empty($result['description'])) {
             $merge['description'] = $result['description'];
         }
-        if (!empty($result['seo_description'])) {
+        if (! empty($result['seo_description'])) {
             $merge['seo_description'] = $result['seo_description'];
         }
-        if (!empty($result['seo_tags'])) {
+        if (! empty($result['seo_tags'])) {
             $merge['seo_keywords'] = $result['seo_tags'];
         }
 

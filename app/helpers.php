@@ -25,7 +25,7 @@ if (! function_exists('format_price')) {
         // Use number_format for a simple, safe formatting
         $formatted = number_format((float) $amount, $decimals, '.', ',');
 
-        return $symbol . ' ' . $formatted;
+        return $symbol.' '.$formatted;
     }
 }
 
@@ -73,11 +73,9 @@ if (! function_exists('storage_image_url')) {
             return asset($path);
         }
 
-        return asset('storage/' . ltrim($path, '/'));
+        return asset('storage/'.ltrim($path, '/'));
     }
 }
-
-
 
 if (! function_exists('asset_modified_time')) {
     /**

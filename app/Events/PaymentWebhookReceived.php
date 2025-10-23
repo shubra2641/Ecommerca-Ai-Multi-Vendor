@@ -40,8 +40,8 @@ class PaymentWebhookReceived
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('payment.' . $this->payment->id),
-            new PrivateChannel('order.' . $this->payment->order_id),
+            new PrivateChannel('payment.'.$this->payment->id),
+            new PrivateChannel('order.'.$this->payment->order_id),
         ];
     }
 

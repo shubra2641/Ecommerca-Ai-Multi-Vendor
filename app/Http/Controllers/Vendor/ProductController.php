@@ -62,7 +62,7 @@ class ProductController extends Controller
         $base = $slug;
         $i = 1;
         while (Product::where('slug', $slug)->exists()) {
-            $slug = $base . '-' . $i++;
+            $slug = $base.'-'.$i++;
         }
         $data['slug'] = $slug;
         if (isset($data['gallery'])) {
@@ -71,7 +71,7 @@ class ProductController extends Controller
 
         $product = Product::create($data + [
             'vendor_id' => auth()->id(),
-            'active' => false
+            'active' => false,
         ]);
         // tags
         $product->tags()->sync($request->input('tag_ids', []));
@@ -87,13 +87,12 @@ class ProductController extends Controller
                 try {
                     $admin->notify(new \App\Notifications\AdminProductPendingReviewNotification($product));
                 } catch (\Throwable $e) {
-                    logger()->warning('Failed to send product notification: ' . $e->getMessage());
+                    logger()->warning('Failed to send product notification: '.$e->getMessage());
                 }
             }
         } catch (\Exception $e) {
-            logger()->warning('Failed to send product review emails: ' . $e->getMessage());
+            logger()->warning('Failed to send product review emails: '.$e->getMessage());
         }
-
 
         return redirect()->route('vendor.products.index')->with('success', __('Product submitted for review.'));
     }
@@ -133,7 +132,7 @@ class ProductController extends Controller
         $base = $slug;
         $i = 1;
         while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
-            $slug = $base . '-' . $i++;
+            $slug = $base.'-'.$i++;
         }
         $data['slug'] = $slug;
         if (isset($data['gallery'])) {
@@ -154,9 +153,8 @@ class ProductController extends Controller
                 Mail::to($admin->email)->queue(new ProductPendingForReview($product));
             }
         } catch (\Exception $e) {
-            logger()->warning('Failed to send product update emails: ' . $e->getMessage());
+            logger()->warning('Failed to send product update emails: '.$e->getMessage());
         }
-
 
         return redirect()->route('vendor.products.index')
             ->with('success', __('Product updated and resubmitted for review.'));
@@ -166,7 +164,6 @@ class ProductController extends Controller
     {
         $this->authorize('delete', $product);
         $product->delete();
-
 
         return back()->with('success', __('Product deleted.'));
     }
@@ -187,15 +184,14 @@ class ProductController extends Controller
             $defaultLang = $languages->firstWhere('is_default', 1) ?? $languages->first();
             $defaultCode = $defaultLang->code;
             foreach (
-                ['name', 'short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords']
-                as $field
+                ['name', 'short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords'] as $field
             ) {
                 if ($r->has($field) && is_array($r->input($field))) {
                     $incoming = $r->input($field);
                     // pick default value
                     $defaultVal = $incoming[$defaultCode] ??
                         collect($incoming)->first(
-                            fn($v) => trim((string) $v) !== ''
+                            fn ($v) => trim((string) $v) !== ''
                         );
                     if ($defaultVal === null) {
                         $defaultVal = $existing?->$field; // fallback
@@ -207,7 +203,7 @@ class ProductController extends Controller
                             $incoming[$code] = $defaultVal;
                         }
                     }
-                    $data[$field . '_translations'] = $incoming;
+                    $data[$field.'_translations'] = $incoming;
                     // base column will be set later by collapsePrimaryTextFields
                 }
             }
@@ -220,7 +216,7 @@ class ProductController extends Controller
                 $data['slug_translations'] = $slugTranslations;
             }
         } catch (\Throwable $e) {
-            logger()->warning('Failed to merge vendor translations: ' . $e->getMessage());
+            logger()->warning('Failed to merge vendor translations: '.$e->getMessage());
         }
     }
 
@@ -231,8 +227,7 @@ class ProductController extends Controller
     public function collapsePrimaryTextFields(array $data, ?Product $existing = null): array
     {
         foreach (
-            ['name', 'short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords']
-            as $field
+            ['name', 'short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords'] as $field
         ) {
             if (isset($data[$field]) && is_array($data[$field])) {
                 // choose first non-empty value
@@ -266,8 +261,8 @@ class ProductController extends Controller
         }
         $arr = array_values(
             array_filter(
-                array_map(fn($v) => is_string($v) ? trim($v) : '', $arr),
-                fn($v) => $v !== ''
+                array_map(fn ($v) => is_string($v) ? trim($v) : '', $arr),
+                fn ($v) => $v !== ''
             )
         );
 
@@ -312,7 +307,7 @@ class ProductController extends Controller
                         $translations = $v['name'];
                         $defaultVal = $translations[$default] ??
                             collect($translations)->first(
-                                fn($val) => trim((string) $val) !== ''
+                                fn ($val) => trim((string) $val) !== ''
                             );
                         foreach ($languages as $lang) {
                             $code = $lang->code;
@@ -324,7 +319,7 @@ class ProductController extends Controller
                         $data['name'] = $defaultVal;
                     }
                 } catch (\Throwable $e) {
-                    logger()->warning('Failed to process variation translations: ' . $e->getMessage());
+                    logger()->warning('Failed to process variation translations: '.$e->getMessage());
                 }
             }
             if ($id) {

@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\PaymentGateway;
 use App\Services\PaymentService;
-use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
     public function __construct(
         private PaymentService $paymentService
-    ) {
-    }
+    ) {}
 
     public function getGatewayCredentials(PaymentGateway $gateway): array
     {

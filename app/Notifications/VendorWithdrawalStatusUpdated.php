@@ -32,7 +32,7 @@ class VendorWithdrawalStatusUpdated extends Notification
             'title' => __('Withdrawal :status', ['status' => $this->status]),
             'message' => __('Your withdrawal request #:id status changed to :status', [
                 'id' => $this->withdrawal->id,
-                'status' => $this->status
+                'status' => $this->status,
             ]),
             'url' => route('vendor.withdrawals.index'),
             'withdrawal_id' => $this->withdrawal->id,
@@ -40,7 +40,7 @@ class VendorWithdrawalStatusUpdated extends Notification
         ];
 
         if (! empty($this->withdrawal->proof_path)) {
-            $payload['proof_url'] = asset('storage/' . $this->withdrawal->proof_path);
+            $payload['proof_url'] = asset('storage/'.$this->withdrawal->proof_path);
         }
 
         return $payload;

@@ -48,7 +48,7 @@ class UserReturnStatusUpdated extends Notification implements ShouldQueue
             $url = url('/returns');
         }
 
-        return (new MailMessage())
+        return (new MailMessage)
             ->subject(__('returns.user_status_subject'))
             ->view($view, [
                 'product' => $this->item->name,
@@ -75,7 +75,7 @@ class UserReturnStatusUpdated extends Notification implements ShouldQueue
             'title' => __('Return status updated'),
             'message' => __('Return for :product is now :status', [
                 'product' => $this->item->name,
-                'status' => $this->status
+                'status' => $this->status,
             ]),
             'url' => $url,
             'icon' => 'undo',

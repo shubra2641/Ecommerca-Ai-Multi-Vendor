@@ -5,11 +5,10 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\WithdrawalRequest;
 use App\Models\BalanceHistory;
-use App\Models\VendorWithdrawal;
 use App\Models\Setting;
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use App\Models\VendorWithdrawal;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class WithdrawalController extends Controller
 {
@@ -19,7 +18,7 @@ class WithdrawalController extends Controller
         $heldOnly = request('held') === '1';
 
         $withdrawals = VendorWithdrawal::where('user_id', $user->id)
-            ->when($heldOnly, fn($q) => $q->whereNotNull('held_at'))
+            ->when($heldOnly, fn ($q) => $q->whereNotNull('held_at'))
             ->latest()
             ->paginate(20)
             ->appends(['held' => $heldOnly ? '1' : null]);
@@ -86,9 +85,11 @@ class WithdrawalController extends Controller
             }
 
             DB::commit();
+
             return redirect()->route('vendor.withdrawals.index')->with('success', __('Withdrawal request submitted successfully.'));
         } catch (\Exception $e) {
             DB::rollback();
+
             return redirect()->back()->with('error', __('An error occurred. Please try again.'));
         }
     }
@@ -120,6 +121,7 @@ class WithdrawalController extends Controller
         if (is_string($gateways)) {
             $gateways = json_decode($gateways, true) ?? [$gateways];
         }
+
         return $gateways;
     }
 
@@ -141,7 +143,7 @@ class WithdrawalController extends Controller
                 $withdrawal
             );
         } catch (\Throwable $e) {
-            logger()->warning('Failed logging withdrawal hold: ' . $e->getMessage());
+            logger()->warning('Failed logging withdrawal hold: '.$e->getMessage());
         }
     }
 }

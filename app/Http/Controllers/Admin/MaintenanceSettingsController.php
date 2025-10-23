@@ -32,7 +32,7 @@ class MaintenanceSettingsController extends Controller
                     return $rows;
                 }
             } catch (\Throwable $e) {
-                logger()->warning('Failed to fetch active languages: ' . $e->getMessage());
+                logger()->warning('Failed to fetch active languages: '.$e->getMessage());
             }
             $configured = config('app.locales') ??
                 [config('app.locale', 'en')];
@@ -41,7 +41,7 @@ class MaintenanceSettingsController extends Controller
                 return (object) [
                     'code' => $code,
                     'name' => strtoupper($code),
-                    'is_default' => $code === config('app.locale')
+                    'is_default' => $code === config('app.locale'),
                 ];
             }, $configured));
         });
@@ -62,7 +62,7 @@ class MaintenanceSettingsController extends Controller
             'maintenance_message.*' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $setting = Setting::first() ?? new Setting();
+        $setting = Setting::first() ?? new Setting;
 
         $setting->maintenance_enabled = (bool) ($data['maintenance_enabled'] ?? false);
         $setting->maintenance_reopen_at = $data['maintenance_reopen_at'] ?? null;

@@ -26,6 +26,7 @@ return new class extends Migration
         if ($driver === 'sqlite') {
             // SQLite: nothing to revert (up was a no-op), but ensure any test fixtures won't rely on NULLs.
             DB::statement('UPDATE `payments` SET `order_id` = 0 WHERE `order_id` IS NULL');
+
             return;
         }
 

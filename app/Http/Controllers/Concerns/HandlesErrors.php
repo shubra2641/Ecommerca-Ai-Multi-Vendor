@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Concerns;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Reusable helpers for consistent API error responses & logging.

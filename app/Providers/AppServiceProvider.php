@@ -159,7 +159,7 @@ class AppServiceProvider extends ServiceProvider
                         'setting' => \Illuminate\Support\Facades\Cache::remember(
                             'site_settings',
                             3600,
-                            fn() => \App\Models\Setting::first()
+                            fn () => \App\Models\Setting::first()
                         ),
                     ];
                 } catch (\Throwable $e) {
@@ -188,7 +188,7 @@ class AppServiceProvider extends ServiceProvider
                     $setting = \Illuminate\Support\Facades\Cache::remember(
                         'site_settings',
                         3600,
-                        fn() => \App\Models\Setting::first()
+                        fn () => \App\Models\Setting::first()
                     );
                     $font = cache()->get(
                         'settings.font_family',
@@ -211,12 +211,12 @@ class AppServiceProvider extends ServiceProvider
                 try {
                     $cache['default'] = Currency::getDefault();
                 } catch (\Throwable $e) {
-                    logger()->warning('Failed to get default currency: ' . $e->getMessage());
+                    logger()->warning('Failed to get default currency: '.$e->getMessage());
                 }
                 try {
                     $cache['symbol'] = Currency::defaultSymbol() ?? $cache['symbol'];
                 } catch (\Throwable $e) {
-                    logger()->warning('Failed to get currency symbol: ' . $e->getMessage());
+                    logger()->warning('Failed to get currency symbol: '.$e->getMessage());
                 }
             }
             $symbol = $cache['symbol'];

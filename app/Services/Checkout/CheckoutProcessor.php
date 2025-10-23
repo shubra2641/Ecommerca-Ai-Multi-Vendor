@@ -15,7 +15,7 @@ class CheckoutProcessor
     {
         // Get gateway
         $gateway = PaymentGateway::where('slug', $validatedData['gateway'])->where('enabled', true)->first();
-        if (!$gateway) {
+        if (! $gateway) {
             throw new \Exception(__('Selected payment method is not available'));
         }
 
@@ -24,7 +24,7 @@ class CheckoutProcessor
         $items = [];
         foreach ($cart as $pid => $row) {
             $product = \App\Models\Product::find($pid);
-            if (!$product) {
+            if (! $product) {
                 continue;
             }
 
@@ -36,7 +36,7 @@ class CheckoutProcessor
                 'product' => $product,
                 'qty' => $qty,
                 'price' => $price,
-                'variant' => $row['variant'] ?? null
+                'variant' => $row['variant'] ?? null,
             ];
         }
 
@@ -69,7 +69,7 @@ class CheckoutProcessor
             'shipping_estimated_days' => $validatedData['shipping_estimated_days'] ?? null,
             'shipping_address' => $shippingAddress,
             'selected_address_id' => $validatedData['selected_address_id'] ?? null,
-            'user' => $request->user()
+            'user' => $request->user(),
         ];
     }
 
@@ -95,7 +95,7 @@ class CheckoutProcessor
         ];
 
         // If caller provided a selected address id (from saved addresses), attach it
-        if (!empty($checkoutData['selected_address_id'])) {
+        if (! empty($checkoutData['selected_address_id'])) {
             $payload['shipping_address_id'] = $checkoutData['selected_address_id'];
         }
 
@@ -124,7 +124,7 @@ class CheckoutProcessor
                 }
             } catch (\Throwable $e) {
                 // swallow address creation errors but log
-                logger()->warning('Failed to persist shipping address for order ' . $order->id . ': ' . $e->getMessage());
+                logger()->warning('Failed to persist shipping address for order '.$order->id.': '.$e->getMessage());
             }
         }
 
@@ -150,7 +150,7 @@ class CheckoutProcessor
 
             $name = $item['product']->name;
             if ($variant) {
-                $name .= ' - ' . $variant->name;
+                $name .= ' - '.$variant->name;
             }
 
             $orderItem = \App\Models\OrderItem::create([
@@ -230,7 +230,7 @@ class CheckoutProcessor
         $stripeCfg = method_exists($gateway, 'getStripeConfig') ? $gateway->getStripeConfig() : [];
         $secret = $stripeCfg['secret_key'] ?? null;
 
-        if (!$secret || !class_exists(\Stripe\Stripe::class)) {
+        if (! $secret || ! class_exists(\Stripe\Stripe::class)) {
             throw new \Exception(__('Stripe not configured'));
         }
 
@@ -242,13 +242,13 @@ class CheckoutProcessor
             'line_items' => [[
                 'price_data' => [
                     'currency' => strtolower($order->currency ?? 'usd'),
-                    'product_data' => ['name' => 'Order #' . $order->id],
+                    'product_data' => ['name' => 'Order #'.$order->id],
                     'unit_amount' => (int) round(($order->total ?? 0) * 100),
                 ],
                 'quantity' => 1,
             ]],
-            'success_url' => url('/checkout/success?order=' . $order->id),
-            'cancel_url' => url('/checkout/cancel?order=' . $order->id),
+            'success_url' => url('/checkout/success?order='.$order->id),
+            'cancel_url' => url('/checkout/cancel?order='.$order->id),
             'metadata' => ['order_id' => $order->id],
         ]);
 

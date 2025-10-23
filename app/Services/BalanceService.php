@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Models\BalanceHistory;
+use App\Models\User;
 
 class BalanceService
 {
@@ -29,18 +29,18 @@ class BalanceService
             'transaction_count' => $transactionCount,
             'last_transaction' => $lastTransaction ? $lastTransaction->created_at->format('Y-m-d H:i:s') : null,
             'formatted' => [
-                'balance' => number_format($user->balance, 2) . ' ' . $symbol,
-                'total_added' => number_format($totalAdded, 2) . ' ' . $symbol,
-                'total_deducted' => number_format($totalDeducted, 2) . ' ' . $symbol,
-                'net_change' => number_format($totalAdded - $totalDeducted, 2) . ' ' . $symbol,
-            ]
+                'balance' => number_format($user->balance, 2).' '.$symbol,
+                'total_added' => number_format($totalAdded, 2).' '.$symbol,
+                'total_deducted' => number_format($totalDeducted, 2).' '.$symbol,
+                'net_change' => number_format($totalAdded - $totalDeducted, 2).' '.$symbol,
+            ],
         ];
     }
 
     /**
      * Add balance to user
      */
-    public function addBalance(User $user, float $amount, string $note = null, int $adminId = null): array
+    public function addBalance(User $user, float $amount, ?string $note = null, ?int $adminId = null): array
     {
         $oldBalance = (float) $user->balance;
         $user->increment('balance', $amount);
@@ -73,7 +73,7 @@ class BalanceService
     /**
      * Deduct balance from user
      */
-    public function deductBalance(User $user, float $amount, string $note = null, int $adminId = null): array
+    public function deductBalance(User $user, float $amount, ?string $note = null, ?int $adminId = null): array
     {
         if ($amount > (float) $user->balance) {
             return [
@@ -124,7 +124,7 @@ class BalanceService
     /**
      * Handle bulk balance operations
      */
-    public function handleBulkOperation(array $userIds, string $operation, float $amount, string $note = null, int $adminId = null): array
+    public function handleBulkOperation(array $userIds, string $operation, float $amount, ?string $note = null, ?int $adminId = null): array
     {
         $successCount = 0;
         $errorCount = 0;
@@ -136,8 +136,9 @@ class BalanceService
                     $this->addBalance($user, $amount, $note, $adminId);
                 } else {
                     $result = $this->deductBalance($user, $amount, $note, $adminId);
-                    if (!$result['success']) {
+                    if (! $result['success']) {
                         $errorCount++;
+
                         continue;
                     }
                 }
@@ -152,8 +153,8 @@ class BalanceService
             'summary' => [
                 'total' => count($userIds),
                 'success' => $successCount,
-                'errors' => $errorCount
-            ]
+                'errors' => $errorCount,
+            ],
         ];
     }
 }

@@ -64,7 +64,7 @@ class WithdrawalsController extends Controller
                 if ($pg) {
                     $gateways[] = [
                         'slug' => $pg->slug ?? \Illuminate\Support\Str::slug($pg->name ?? (string) $pg->id),
-                        'label' => $pg->name ?? $pg->slug
+                        'label' => $pg->name ?? $pg->slug,
                     ];
 
                     continue;
@@ -162,7 +162,7 @@ class WithdrawalsController extends Controller
 
         // Validate request
         $data = $r->validate([
-            'amount' => ['required', 'numeric', 'min:' . $min],
+            'amount' => ['required', 'numeric', 'min:'.$min],
             'currency' => 'required|string',
             'payment_method' => ['required', 'string', function ($attribute, $value, $fail) use ($gatewaySlugs) {
                 if (! in_array($value, $gatewaySlugs)) {
@@ -233,9 +233,8 @@ class WithdrawalsController extends Controller
                     $w
                 );
             } catch (\Throwable $e) {
-                logger()->warning('Failed logging withdrawal hold: ' . $e->getMessage());
+                logger()->warning('Failed logging withdrawal hold: '.$e->getMessage());
             }
-
 
             DB::commit();
 
@@ -246,7 +245,7 @@ class WithdrawalsController extends Controller
                     $admin->notify(new \App\Notifications\AdminVendorWithdrawalCreated($w));
                 }
             } catch (\Throwable $e) {
-                logger()->warning('Admin withdrawal notification failed: ' . $e->getMessage());
+                logger()->warning('Admin withdrawal notification failed: '.$e->getMessage());
             }
 
             return response()->json([
@@ -259,7 +258,7 @@ class WithdrawalsController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create withdrawal: ' . $e->getMessage(),
+                'message' => 'Failed to create withdrawal: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -306,7 +305,7 @@ class WithdrawalsController extends Controller
                     $withdrawal
                 );
             } catch (\Throwable $e) {
-                logger()->warning('Failed logging withdrawal cancellation: ' . $e->getMessage());
+                logger()->warning('Failed logging withdrawal cancellation: '.$e->getMessage());
             }
 
             DB::commit();
@@ -321,7 +320,7 @@ class WithdrawalsController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to cancel withdrawal: ' . $e->getMessage(),
+                'message' => 'Failed to cancel withdrawal: '.$e->getMessage(),
             ], 500);
         }
     }

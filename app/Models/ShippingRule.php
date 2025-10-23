@@ -23,10 +23,10 @@ class ShippingRule extends Model
 
     public function scopeMatchLocation($query, $country = null, $governorate = null, $city = null)
     {
-        return $query->when($city, fn($q) => $q->where('city_id', $city))
-            ->when(! $city && $governorate, fn($q) => $q->where('governorate_id', $governorate)
+        return $query->when($city, fn ($q) => $q->where('city_id', $city))
+            ->when(! $city && $governorate, fn ($q) => $q->where('governorate_id', $governorate)
                 ->whereNull('city_id'))
-            ->when(! $city && ! $governorate && $country, fn($q) => $q->where('country_id', $country)
+            ->when(! $city && ! $governorate && $country, fn ($q) => $q->where('country_id', $country)
                 ->whereNull('governorate_id')
                 ->whereNull('city_id'));
     }

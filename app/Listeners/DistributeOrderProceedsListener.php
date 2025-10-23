@@ -7,7 +7,6 @@ use App\Models\BalanceHistory;
 use App\Models\OrderItem;
 use App\Services\CommissionService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class DistributeOrderProceedsListener
 {
@@ -55,7 +54,7 @@ class DistributeOrderProceedsListener
 
                     // Determine if any items for this vendor in this order are still within refund window
                     $vendorItems = $order->items->filter(
-                        fn($it) => ($it->product?->vendor_id ?? null) == $vendorId
+                        fn ($it) => ($it->product?->vendor_id ?? null) == $vendorId
                     );
                     $hasHeld = false;
                     foreach ($vendorItems as $vi) {
@@ -72,7 +71,7 @@ class DistributeOrderProceedsListener
                             $amount,
                             (float) $vendor->balance,
                             (float) $vendor->balance,
-                            'Held credit for Order #' . $order->id .
+                            'Held credit for Order #'.$order->id.
                                 ' (refund window active)',
                             null,
                             $order
@@ -88,7 +87,7 @@ class DistributeOrderProceedsListener
                             $amount,
                             $previous,
                             (float) $vendor->balance,
-                            'Order #' . $order->id,
+                            'Order #'.$order->id,
                             null,
                             $order
                         );
@@ -127,7 +126,7 @@ class DistributeOrderProceedsListener
                             $platformShare,
                             $prevAdmin,
                             (float) $admin->balance,
-                            'Platform share for Order #' . $order->id,
+                            'Platform share for Order #'.$order->id,
                             null,
                             $order
                         );

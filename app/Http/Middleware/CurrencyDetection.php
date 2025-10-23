@@ -15,11 +15,11 @@ class CurrencyDetection
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!session()->has('currency_id')) {
+        if (! session()->has('currency_id')) {
             $header = $request->server('HTTP_ACCEPT_LANGUAGE');
             if ($header) {
                 $locales = collect(explode(',', $header))
-                    ->map(fn($p) => trim(explode(';', $p)[0]))
+                    ->map(fn ($p) => trim(explode(';', $p)[0]))
                     ->filter()
                     ->unique()
                     ->values();

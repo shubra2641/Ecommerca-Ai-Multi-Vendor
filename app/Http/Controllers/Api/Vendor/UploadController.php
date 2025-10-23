@@ -16,8 +16,8 @@ class UploadController extends Controller
         ]);
         $file = $r->file('file');
         $path = $file->storeAs(
-            'uploads/vendor/' . date('Y/m'),
-            Str::random(20) . '.' . $file->getClientOriginalExtension(),
+            'uploads/vendor/'.date('Y/m'),
+            Str::random(20).'.'.$file->getClientOriginalExtension(),
             'public'
         );
         $url = Storage::disk('public')->url($path);

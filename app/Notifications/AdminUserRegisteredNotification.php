@@ -34,7 +34,7 @@ class AdminUserRegisteredNotification extends Notification implements ShouldQueu
         return [
             'type' => 'user_registered',
             'title' => __('New user registered'),
-            'message' => $this->user->name . ' (' . ($this->user->email ?? '') . ') ' . __('registered'),
+            'message' => $this->user->name.' ('.($this->user->email ?? '').') '.__('registered'),
             'url' => route('admin.users.show', $this->user->id),
             'icon' => 'user-plus',
         ];

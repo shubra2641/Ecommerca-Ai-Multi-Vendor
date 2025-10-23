@@ -49,25 +49,25 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
         $subject = $this->getEmailSubject();
         $greeting = $this->getEmailGreeting($notifiable);
 
-        $mail = (new MailMessage())
+        $mail = (new MailMessage)
             ->subject($subject)
             ->greeting($greeting)
             ->line($this->getStatusMessage())
             ->line('Payment Details:')
-            ->line('Payment ID: ' . $this->payment->payment_id)
-            ->line('Amount: ' . $this->payment->amount . ' ' . $this->payment->currency)
-            ->line('Gateway: ' . ucfirst($this->payment->gateway))
-            ->line('Status: ' . ucfirst($this->status));
+            ->line('Payment ID: '.$this->payment->payment_id)
+            ->line('Amount: '.$this->payment->amount.' '.$this->payment->currency)
+            ->line('Gateway: '.ucfirst($this->payment->gateway))
+            ->line('Status: '.ucfirst($this->status));
 
         if ($order) {
-            $mail->line('Order ID: ' . $order->id);
+            $mail->line('Order ID: '.$order->id);
         }
 
         // Add action button based on status
         if (in_array($this->status, ['completed', 'paid', 'success'])) {
-            $mail->action('View Order', url('/orders/' . $order->id));
+            $mail->action('View Order', url('/orders/'.$order->id));
         } elseif (in_array($this->status, ['failed', 'cancelled'])) {
-            $mail->action('Try Again', url('/checkout/' . $order->id));
+            $mail->action('Try Again', url('/checkout/'.$order->id));
         }
 
         $mail->line('Thank you for using our service!');
@@ -147,11 +147,11 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
                 return 'Your payment has been successfully processed and your order is confirmed.';
             case 'failed':
                 return 'Unfortunately, your payment could not be processed. '
-                    . 'Please try again or use a different payment method.';
+                    .'Please try again or use a different payment method.';
             case 'cancelled':
                 return 'Your payment has been cancelled. You can try again if you wish to complete your order.';
             case 'refunded':
-                return 'Your payment has been refunded. The amount will be credited back to your ' .
+                return 'Your payment has been refunded. The amount will be credited back to your '.
                     'original payment method.';
             case 'pending':
                 return 'Your payment is being processed. We will notify you once the payment is confirmed.';
@@ -177,13 +177,13 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
             case 'completed':
             case 'paid':
             case 'success':
-                return url('/orders/' . $order->id);
+                return url('/orders/'.$order->id);
             case 'failed':
             case 'cancelled':
             case 'expired':
-                return url('/checkout/' . $order->id);
+                return url('/checkout/'.$order->id);
             default:
-                return url('/orders/' . $order->id);
+                return url('/orders/'.$order->id);
         }
     }
 

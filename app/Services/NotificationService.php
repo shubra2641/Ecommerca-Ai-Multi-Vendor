@@ -45,7 +45,7 @@ class NotificationService
     {
         $notification = $user->notifications()->where('id', $id)->first();
 
-        if (!$notification) {
+        if (! $notification) {
             return false;
         }
 
@@ -54,6 +54,7 @@ class NotificationService
         }
 
         $notification->markAsRead();
+
         return true;
     }
 
@@ -72,11 +73,12 @@ class NotificationService
     {
         $notification = $user->notifications()->where('id', $id)->first();
 
-        if (!$notification) {
+        if (! $notification) {
             return false;
         }
 
         $notification->delete();
+
         return true;
     }
 
@@ -87,6 +89,7 @@ class NotificationService
     {
         $count = $user->notifications()->count();
         $user->notifications()->delete();
+
         return $count;
     }
 

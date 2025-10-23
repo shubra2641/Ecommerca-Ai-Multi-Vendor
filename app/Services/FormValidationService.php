@@ -17,18 +17,18 @@ class FormValidationService
                 'email' => 'required|email|max:255',
                 'phone' => 'nullable|string|max:20',
                 'role' => 'required|in:admin,vendor,user',
-                'balance' => 'nullable|numeric|min:0'
+                'balance' => 'nullable|numeric|min:0',
             ],
             'product_form' => [
                 'name' => 'required|string|max:255',
                 'price' => 'required|numeric|min:0',
                 'description' => 'nullable|string',
-                'category_id' => 'required|exists:product_categories,id'
+                'category_id' => 'required|exists:product_categories,id',
             ],
             'settings_form' => [
                 'site_name' => 'required|string|max:255',
                 'site_email' => 'required|email|max:255',
-                'currency' => 'required|string|max:3'
+                'currency' => 'required|string|max:3',
             ],
             default => []
         };
@@ -45,18 +45,18 @@ class FormValidationService
                 'email' => 'nullable|email|max:255',
                 'phone' => 'nullable|string|max:20',
                 'role' => 'nullable|in:admin,vendor,user',
-                'balance' => 'nullable|numeric|min:0'
+                'balance' => 'nullable|numeric|min:0',
             ],
             'product_form' => [
                 'name' => 'nullable|string|max:255',
                 'price' => 'nullable|numeric|min:0',
                 'description' => 'nullable|string',
-                'category_id' => 'nullable|exists:product_categories,id'
+                'category_id' => 'nullable|exists:product_categories,id',
             ],
             'settings_form' => [
                 'site_name' => 'nullable|string|max:255',
                 'site_email' => 'nullable|email|max:255',
-                'currency' => 'nullable|string|max:3'
+                'currency' => 'nullable|string|max:3',
             ],
             default => []
         };
@@ -89,13 +89,13 @@ class FormValidationService
         if ($validator->fails()) {
             return [
                 'success' => false,
-                'errors' => $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray(),
             ];
         }
 
         return [
             'success' => true,
-            'data' => $data
+            'data' => $data,
         ];
     }
 
@@ -112,13 +112,13 @@ class FormValidationService
         if ($validator->fails()) {
             return [
                 'success' => false,
-                'errors' => $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray(),
             ];
         }
 
         return [
             'success' => true,
-            'data' => $data
+            'data' => $data,
         ];
     }
 }

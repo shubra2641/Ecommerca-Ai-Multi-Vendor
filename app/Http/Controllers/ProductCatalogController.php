@@ -30,8 +30,9 @@ class ProductCatalogController extends Controller
             'main_image',
             'is_featured',
             'active',
-            'vendor_id'
+            'vendor_id',
         ];
+
         return Product::query()
             ->select($select)
             ->with(['category', 'brand'])
@@ -45,7 +46,7 @@ class ProductCatalogController extends Controller
     {
         // Search
         if ($search = $request->get('q')) {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where('name', 'like', '%'.$search.'%');
         }
 
         // Filters
@@ -162,7 +163,7 @@ class ProductCatalogController extends Controller
         $wishlistIds = [];
         if ($request->user()?->id) {
             $wishlistIds = (array) Cache::remember(
-                'wishlist_ids_' . $request->user()->id,
+                'wishlist_ids_'.$request->user()->id,
                 60,
                 function () use ($request) {
                     return \App\Models\WishlistItem::where('user_id', $request->user()->id)
@@ -193,14 +194,14 @@ class ProductCatalogController extends Controller
             $slugMap = Cache::remember(
                 'product_category_slug_id_map',
                 600,
-                fn() => ProductCategory::pluck('id', 'slug')->all()
+                fn () => ProductCategory::pluck('id', 'slug')->all()
             );
             $id = $slugMap[$cat] ?? null;
             if ($id) {
                 $childIds = Cache::remember(
-                    'category_children_ids_' . $id,
+                    'category_children_ids_'.$id,
                     600,
-                    fn() => ProductCategory::where('parent_id', $id)->pluck('id')->all()
+                    fn () => ProductCategory::where('parent_id', $id)->pluck('id')->all()
                 );
                 $query->where(function ($qq) use ($id, $childIds) {
                     $qq->where('product_category_id', $id)
@@ -211,7 +212,7 @@ class ProductCatalogController extends Controller
 
         // Tag filter
         if ($tag = $request->get('tag')) {
-            $query->whereHas('tags', fn($t) => $t->where('slug', $tag));
+            $query->whereHas('tags', fn ($t) => $t->where('slug', $tag));
         }
 
         $query = $this->applyFilters($query, $request);
@@ -229,7 +230,7 @@ class ProductCatalogController extends Controller
     public function category($slug, Request $request)
     {
         $category = ProductCategory::where('slug', $slug)->firstOrFail();
-        $childIds = Cache::remember('category_children_ids_' . $category->id, 600, function () use ($category) {
+        $childIds = Cache::remember('category_children_ids_'.$category->id, 600, function () use ($category) {
             return $category->children()->pluck('id')->all();
         });
 
@@ -272,12 +273,12 @@ class ProductCatalogController extends Controller
             ->withCount([
                 'reviews as approved_reviews_count' => function ($q) {
                     $q->where('approved', true);
-                }
+                },
             ])
             ->withAvg([
                 'reviews as approved_reviews_avg' => function ($q) {
                     $q->where('approved', true);
-                }
+                },
             ], 'rating')
             ->where('slug', $slug)
             ->firstOrFail();
@@ -286,12 +287,12 @@ class ProductCatalogController extends Controller
         $attributeMap = [];
         if ($product->type === 'variable') {
             foreach ($product->variations as $v) {
-                if (!$v->active) {
+                if (! $v->active) {
                     continue;
                 }
                 foreach (($v->attribute_data ?? []) as $attr => $val) {
                     $attributeMap[$attr] = $attributeMap[$attr] ?? [];
-                    if (!in_array($val, $attributeMap[$attr])) {
+                    if (! in_array($val, $attributeMap[$attr])) {
                         $attributeMap[$attr][] = $val;
                     }
                 }
@@ -300,7 +301,7 @@ class ProductCatalogController extends Controller
 
         // Related products
         $related = Cache::remember(
-            'product_related_' . $product->id,
+            'product_related_'.$product->id,
             300,
             function () use ($product) {
                 return Product::active()
@@ -325,10 +326,10 @@ class ProductCatalogController extends Controller
 
         // Gallery images
         $images = collect();
-        if (!empty($product->main_image)) {
+        if (! empty($product->main_image)) {
             $images->push($product->main_image);
         }
-        if (!empty($product->gallery) && is_array($product->gallery)) {
+        if (! empty($product->gallery) && is_array($product->gallery)) {
             foreach ($product->gallery as $img) {
                 if ($img) {
                     $images->push($img);
@@ -337,7 +338,7 @@ class ProductCatalogController extends Controller
         }
         if ($product->type === 'variable' && $product->variations->count()) {
             foreach ($product->variations->where('active', true) as $v) {
-                if (!empty($v->image) && !$images->contains($v->image)) {
+                if (! empty($v->image) && ! $images->contains($v->image)) {
                     $images->push($v->image);
                 }
             }
@@ -346,7 +347,7 @@ class ProductCatalogController extends Controller
             $images->push('front/images/default-product.png');
         }
 
-        $gallery = $images->map(fn($p) => ['raw' => $p, 'url' => asset($p)]);
+        $gallery = $images->map(fn ($p) => ['raw' => $p, 'url' => asset($p)]);
         $mainImage = $gallery->first();
 
         // Pricing
@@ -362,7 +363,7 @@ class ProductCatalogController extends Controller
         $stockClass = 'high-stock';
         if ($available === 0) {
             $stockClass = 'out-stock';
-        } elseif (!is_null($available)) {
+        } elseif (! is_null($available)) {
             if ($available <= 5) {
                 $stockClass = 'low-stock';
             } elseif ($available <= 20) {
@@ -375,11 +376,11 @@ class ProductCatalogController extends Controller
             $levelLabel = __('Out of stock');
         } elseif (is_numeric($available)) {
             if ($available <= 5) {
-                $levelLabel = __('In stock') . " ({$available}) • Low stock";
+                $levelLabel = __('In stock')." ({$available}) • Low stock";
             } elseif ($available <= 20) {
-                $levelLabel = __('In stock') . " ({$available}) • Mid stock";
+                $levelLabel = __('In stock')." ({$available}) • Mid stock";
             } else {
-                $levelLabel = __('In stock') . " ({$available}) • High stock";
+                $levelLabel = __('In stock')." ({$available}) • High stock";
             }
         } else {
             $levelLabel = __('In stock');
@@ -397,7 +398,7 @@ class ProductCatalogController extends Controller
         $activeVars = collect();
         if ($product->type === 'variable') {
             $activeVars = $product->variations->where('active', true);
-            $prices = $activeVars->map(fn($v) => $v->effectivePrice())->filter();
+            $prices = $activeVars->map(fn ($v) => $v->effectivePrice())->filter();
             if ($prices->count()) {
                 $minP = $prices->min();
                 $maxP = $prices->max();
@@ -407,6 +408,7 @@ class ProductCatalogController extends Controller
                 $v->stock_qty = $v->stock_qty ?? 0;
                 $v->reserved_qty = $v->reserved_qty ?? 0;
                 $v->manage_stock = $v->manage_stock ?? false;
+
                 return $v;
             });
         }
@@ -415,7 +417,7 @@ class ProductCatalogController extends Controller
         $usedAttrs = is_array($product->used_attributes) ? $product->used_attributes : array_keys($attributeMap);
         $variationAttributes = [];
         foreach ($attributeMap as $attrName => $values) {
-            if (!in_array($attrName, $usedAttrs)) {
+            if (! in_array($attrName, $usedAttrs)) {
                 continue;
             }
 
@@ -475,11 +477,14 @@ class ProductCatalogController extends Controller
         // For variable products, check if ANY variation has stock
         if ($product->type === 'variable' && $activeVars->isNotEmpty()) {
             $hasAnyStock = $activeVars->filter(function ($v) {
-                if (!$v->manage_stock) return true; // Unlimited stock
+                if (! $v->manage_stock) {
+                    return true;
+                } // Unlimited stock
                 $availableStock = ($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0);
+
                 return $availableStock > 0;
             })->isNotEmpty();
-            $isOut = !$hasAnyStock;
+            $isOut = ! $hasAnyStock;
         } else {
             $isOut = ($available === 0);
         }
@@ -487,7 +492,7 @@ class ProductCatalogController extends Controller
         $brandName = $product->brand->name ?? null;
 
         // Reviews
-        $formattedReviewsCount = $reviewsCount >= 1000 ? round($reviewsCount / 1000, 1) . 'k' : $reviewsCount;
+        $formattedReviewsCount = $reviewsCount >= 1000 ? round($reviewsCount / 1000, 1).'k' : $reviewsCount;
 
         try {
             $reviewsPayload = app(\App\Services\ReviewsPresenter::class)->build($product);
@@ -500,7 +505,7 @@ class ProductCatalogController extends Controller
                 'average' => 0,
                 'distribution' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0],
                 'distribution_percent' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0],
-                'helpful_total' => 0
+                'helpful_total' => 0,
             ];
         }
 
@@ -637,7 +642,7 @@ class ProductCatalogController extends Controller
 
         $map = [];
         foreach ($values as $raw) {
-            if (!is_string($raw)) {
+            if (! is_string($raw)) {
                 continue;
             }
 
@@ -652,12 +657,14 @@ class ProductCatalogController extends Controller
             // Check if it's already a hex color
             if (preg_match('/^#([0-9a-f]{3}|[0-9a-f]{6})$/i', $value)) {
                 $map[$key] = $value;
+
                 continue;
             }
 
             // Check direct preset match
             if (isset($presets[$normalized])) {
                 $map[$key] = $presets[$normalized];
+
                 continue;
             }
 
@@ -665,6 +672,7 @@ class ProductCatalogController extends Controller
             $fallback = str_replace(' ', '', $normalized);
             if (isset($presets[$fallback])) {
                 $map[$key] = $presets[$fallback];
+
                 continue;
             }
 

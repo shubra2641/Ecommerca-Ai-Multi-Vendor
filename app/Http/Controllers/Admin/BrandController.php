@@ -34,8 +34,6 @@ class BrandController extends Controller
     /**
      * Store a newly created brand in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Services\HtmlSanitizer  $sanitizer
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request, HtmlSanitizer $sanitizer)
@@ -64,7 +62,6 @@ class BrandController extends Controller
     /**
      * Show the form for editing the specified brand.
      *
-     * @param  \App\Models\Brand  $brand
      * @return \Illuminate\View\View
      */
     public function edit(Brand $brand)
@@ -75,9 +72,6 @@ class BrandController extends Controller
     /**
      * Update the specified brand in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Brand  $brand
-     * @param  \App\Services\HtmlSanitizer  $sanitizer
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Brand $brand, HtmlSanitizer $sanitizer)
@@ -112,7 +106,6 @@ class BrandController extends Controller
     /**
      * Remove the specified brand from storage.
      *
-     * @param  \App\Models\Brand  $brand
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Brand $brand)

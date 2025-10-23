@@ -37,9 +37,9 @@ class AdminNewReturnRequest extends Notification implements ShouldQueue
             ? 'emails.returns.admin_new_request_ar_html'
             : 'emails.returns.admin_new_request_en_html';
 
-        return (new MailMessage())
+        return (new MailMessage)
             ->subject(__('returns.admin_new_request_subject', [
-                'order' => $this->item->order_id
+                'order' => $this->item->order_id,
             ]))
             ->view($view, [
                 'product' => $this->item->name,
@@ -55,7 +55,7 @@ class AdminNewReturnRequest extends Notification implements ShouldQueue
             'title' => __('Return request'),
             'message' => __('Return requested for :product (order :order)', [
                 'product' => $this->item->name,
-                'order' => $this->item->order_id
+                'order' => $this->item->order_id,
             ]),
             'url' => route('admin.returns.show', $this->item->id),
             'icon' => 'undo',

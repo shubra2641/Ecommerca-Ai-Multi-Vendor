@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
@@ -34,7 +33,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'phone_number' => ['required', 'string', 'max:20'],
             'whatsapp_number' => ['nullable', 'string', 'max:20'],
             'role' => ['required', 'in:user,vendor'],
@@ -79,7 +78,7 @@ class RegisteredUserController extends Controller
                 return redirect()->route('login')
                     ->with(
                         'status',
-                        'Your vendor account is pending approval by an administrator. ' .
+                        'Your vendor account is pending approval by an administrator. '.
                             'You will be notified once approved.'
                     )
                     ->with('refresh_admin_notifications', true);

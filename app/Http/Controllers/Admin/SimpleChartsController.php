@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
 class SimpleChartsController extends Controller
 {
@@ -25,7 +24,7 @@ class SimpleChartsController extends Controller
             'labels' => ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
             'values' => [120, 190, 300, 500, 200, 300],
             'title' => 'المبيعات الشهرية',
-            'color' => '#007bff'
+            'color' => '#007bff',
         ];
 
         return response()->json($data);
@@ -40,7 +39,7 @@ class SimpleChartsController extends Controller
         $data = [
             'labels' => ['نشط', 'معلق', 'معطل'],
             'values' => [65, 25, 10],
-            'colors' => ['#28a745', '#ffc107', '#dc3545']
+            'colors' => ['#28a745', '#ffc107', '#dc3545'],
         ];
 
         return response()->json($data);
@@ -55,7 +54,7 @@ class SimpleChartsController extends Controller
         $data = [
             'labels' => ['مكتمل', 'قيد المراجعة', 'ملغي', 'معلق'],
             'values' => [45, 30, 15, 10],
-            'colors' => ['#28a745', '#007bff', '#dc3545', '#ffc107']
+            'colors' => ['#28a745', '#007bff', '#dc3545', '#ffc107'],
         ];
 
         return response()->json($data);
