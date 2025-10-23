@@ -42,11 +42,7 @@ final class AdminProductsIndexComposer
             })
             ->mapWithKeys(function ($p) use ($low, $soon) {
                 $available = (int) $p->availableStock();
-                $status = match (true) {
-                    $available <= $low => ['class' => 'text-danger', 'badge' => 'low'],
-                    $available <= $soon => ['class' => 'text-warning', 'badge' => 'soon'],
-                    default => ['class' => '', 'badge' => null],
-                };
+                $status = $this->getStockStatus($available, $low, $soon);
                 return [
                     $p->id => [
                         'available' => $available,
@@ -82,11 +78,7 @@ final class AdminProductsIndexComposer
                     })
                     ->mapWithKeys(function ($v) use ($low, $soon) {
                         $available = (int) (($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0));
-                        $status = match (true) {
-                            $available <= $low => ['class' => 'text-danger', 'badge' => 'low'],
-                            $available <= $soon => ['class' => 'text-warning', 'badge' => 'soon'],
-                            default => ['class' => '', 'badge' => null],
-                        };
+                        $status = $this->getStockStatus($available, $low, $soon);
                         return [
                             $v->id => [
                                 'available' => $available,
@@ -98,5 +90,18 @@ final class AdminProductsIndexComposer
                     });
             })
             ->toArray();
+    }
+
+    private function getStockStatus(int $available, int $low, int $soon): array
+    {
+        if ($available <= $low) {
+            return ['class' => 'text-danger', 'badge' => 'low'];
+        }
+
+        if ($available <= $soon) {
+            return ['class' => 'text-warning', 'badge' => 'soon'];
+        }
+
+        return ['class' => '', 'badge' => null];
     }
 }

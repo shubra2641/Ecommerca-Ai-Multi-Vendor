@@ -19,12 +19,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     use Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected array $fillable = [
+    protected $fillable = [
         'name',
         'email',
         'password',
@@ -36,12 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'transfer_details',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected array $hidden = [
+    protected $hidden = [
         'password',
         'remember_token',
     ];

@@ -34,14 +34,20 @@ final class HeaderComposer
         ];
 
         $view->with($data);
+        $view->with($this->getCurrencyData($currentCurrency));
+    }
 
+    private function getCurrencyData($currentCurrency): array
+    {
         try {
             $symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
-            $view->with('currency_symbol', $symbol ?? '$');
-            $view->with('defaultCurrency', Currency::getDefault());
-            $view->with('currentCurrency', $currentCurrency);
+            return [
+                'currency_symbol' => $symbol ?? '$',
+                'defaultCurrency' => Currency::getDefault(),
+                'currentCurrency' => $currentCurrency,
+            ];
         } catch (\Throwable $e) {
-            $view->with('currency_symbol', '$');
+            return ['currency_symbol' => '$'];
         }
     }
 
@@ -104,30 +110,51 @@ final class HeaderComposer
         });
     }
 
-    private function getCounts()
+    private function getCounts(): array
+    {
+        return [
+            'cartCount' => $this->getCartCount(),
+            'compareCount' => $this->getCompareCount(),
+            'wishlistCount' => $this->getWishlistCount(),
+        ];
+    }
+
+    private function getCartCount(): int
+    {
+        $cart = session('cart');
+
+        return match (true) {
+            is_array($cart) => count($cart),
+            $cart instanceof \Countable => count($cart),
+            default => 0,
+        };
+    }
+
+    private function getCompareCount(): int
+    {
+        $compare = session('compare');
+
+        return match (true) {
+            is_array($compare) => count($compare),
+            $compare instanceof \Countable => count($compare),
+            default => 0,
+        };
+    }
+
+    private function getWishlistCount(): int
     {
         $isAuthenticatedForWishlist = Auth::check() && Schema::hasTable('wishlist_items');
 
-        $cartCount = match (true) {
-            is_array(session('cart')) => count(session('cart')),
-            session('cart') instanceof \Countable => count(session('cart')),
-            default => 0,
-        };
-        $compareCount = match (true) {
-            is_array(session('compare')) => count(session('compare')),
-            session('compare') instanceof \Countable => count(session('compare')),
-            default => 0,
-        };
-        $wishlistCount = $isAuthenticatedForWishlist ? \App\Models\WishlistItem::where('user_id', Auth::id())->count() : match (true) {
-            is_array(session('wishlist')) => count(session('wishlist')),
-            session('wishlist') instanceof \Countable => count(session('wishlist')),
-            default => 0,
-        };
+        if ($isAuthenticatedForWishlist) {
+            return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
+        }
 
-        return [
-            'cartCount' => $cartCount,
-            'compareCount' => $compareCount,
-            'wishlistCount' => $wishlistCount,
-        ];
+        $wishlist = session('wishlist');
+
+        return match (true) {
+            is_array($wishlist) => count($wishlist),
+            $wishlist instanceof \Countable => count($wishlist),
+            default => 0,
+        };
     }
 }

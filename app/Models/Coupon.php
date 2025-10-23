@@ -6,7 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Coupon extends Model
+final class Coupon extends Model
 {
     protected $fillable = [
         'code',
@@ -26,43 +26,46 @@ class Coupon extends Model
         'active' => 'boolean',
     ];
 
-    public function isValidForTotal($total)
+    public function isValidForTotal(float $total): bool
     {
-        if (! $this->active) {
-            return false;
-        }
-
-        $now = now();
-        if ($this->starts_at && $now->lt($this->starts_at)) {
-            return false;
-        }
-
-        if ($this->ends_at && $now->gt($this->ends_at)) {
-            return false;
-        }
-
-        if ($this->uses_total !== null && $this->used_count >= $this->uses_total) {
-            return false;
-        }
-
-        if ($this->min_order_total !== null && $total < $this->min_order_total) {
-            return false;
-        }
-
-        return true;
+        return $this->isActive() &&
+            $this->isWithinDateRange() &&
+            $this->hasUsesLeft() &&
+            $this->meetsMinTotal($total);
     }
 
-    public function isValid($total)
+    private function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    private function isWithinDateRange(): bool
+    {
+        $now = now();
+
+        return (!$this->starts_at || $now->gte($this->starts_at)) &&
+            (!$this->ends_at || $now->lte($this->ends_at));
+    }
+
+    private function hasUsesLeft(): bool
+    {
+        return $this->uses_total === null || $this->used_count < $this->uses_total;
+    }
+
+    private function meetsMinTotal(float $total): bool
+    {
+        return $this->min_order_total === null || $total >= $this->min_order_total;
+    }
+
+    public function isValid(float $total): bool
     {
         return $this->isValidForTotal($total);
     }
 
-    public function applyTo($total)
+    public function applyTo(float $total): float
     {
-        if ($this->type === 'percent') {
-            return max(0, $total - ($total * $this->value / 100));
-        }
+        $discount = $this->type === 'percent' ? $total * $this->value / 100 : $this->value;
 
-        return max(0, $total - $this->value);
+        return max(0, $total - $discount);
     }
 }
