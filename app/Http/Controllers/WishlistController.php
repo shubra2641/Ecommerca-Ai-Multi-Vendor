@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 
 class WishlistController extends Controller
 {
-
     public function index(Request $request)
     {
         $user = $request->user();
@@ -58,6 +57,7 @@ class WishlistController extends Controller
 
         return back()->with('success', __('Wishlist updated'));
     }
+
     protected function getSessionList(): array
     {
         return session('wishlist', []);

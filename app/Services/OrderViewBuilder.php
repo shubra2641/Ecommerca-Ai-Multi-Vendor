@@ -38,7 +38,7 @@ class OrderViewBuilder
                 }
             }
         } catch (\Throwable $e) {
-            logger()->warning('Failed to process payment attachments: ' . $e->getMessage());
+            logger()->warning('Failed to process payment attachments: '.$e->getMessage());
         }
 
         return [

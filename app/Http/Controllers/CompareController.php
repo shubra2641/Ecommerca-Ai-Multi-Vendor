@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 
 class CompareController extends Controller
 {
-
     public function toggle(ProductIdRequest $r)
     {
         $data = $r->validated();
@@ -57,6 +56,7 @@ class CompareController extends Controller
             'currency_symbol' => $currency_symbol,
         ]);
     }
+
     protected function getList(): array
     {
         return session('compare', []);

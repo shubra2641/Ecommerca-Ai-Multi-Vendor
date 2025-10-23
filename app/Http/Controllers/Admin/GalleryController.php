@@ -205,7 +205,7 @@ class GalleryController extends Controller
     {
         $setting = \App\Models\Setting::first();
         if (! $setting) {
-            $setting = new \App\Models\Setting();
+            $setting = new \App\Models\Setting;
         }
         // delete old logo file if exists and different
         if (
@@ -269,11 +269,11 @@ class GalleryController extends Controller
         $thumbPath = null;
 
         try {
-            $manager = new ImageManager(new Driver());
+            $manager = new ImageManager(new Driver);
             $imageObj = $manager->read($file->getRealPath());
 
-            $webpFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '.webp';
-            $webpRelative = 'gallery/webp/' . $webpFileName;
+            $webpFileName = pathinfo($file->hashName(), PATHINFO_FILENAME).'.webp';
+            $webpRelative = 'gallery/webp/'.$webpFileName;
             $imageObj->toWebp(85)->save(Storage::disk('public')->path($webpRelative));
             $webpPath = $webpRelative;
 
@@ -282,8 +282,8 @@ class GalleryController extends Controller
                 $constraint->aspectRatio();
                 $constraint->upsize();
             });
-            $thumbFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '_thumb.jpg';
-            $thumbRelative = 'gallery/thumbs/' . $thumbFileName;
+            $thumbFileName = pathinfo($file->hashName(), PATHINFO_FILENAME).'_thumb.jpg';
+            $thumbRelative = 'gallery/thumbs/'.$thumbFileName;
             $thumbClone->toJpeg(75)->save(Storage::disk('public')->path($thumbRelative));
             $thumbPath = $thumbRelative;
         } catch (\Throwable $e) {
@@ -307,8 +307,8 @@ class GalleryController extends Controller
     {
         $path = $image->webp_path ?: $image->original_path;
 
-        $url = $path ? asset('storage/' . ltrim($path, '/')) : null;
-        $thumbPath = $image->thumbnail_path ? asset('storage/' . ltrim($image->thumbnail_path, '/')) : null;
+        $url = $path ? asset('storage/'.ltrim($path, '/')) : null;
+        $thumbPath = $image->thumbnail_path ? asset('storage/'.ltrim($image->thumbnail_path, '/')) : null;
         $thumb = $thumbPath ? $thumbPath : $url;
 
         return [

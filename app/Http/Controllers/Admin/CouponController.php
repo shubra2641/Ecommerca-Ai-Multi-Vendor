@@ -53,7 +53,7 @@ class CouponController extends Controller
     public function update(Request $request, Coupon $coupon, HtmlSanitizer $sanitizer)
     {
         $data = $request->validate([
-            'code' => 'required|string|unique:coupons,code,' . $coupon->id,
+            'code' => 'required|string|unique:coupons,code,'.$coupon->id,
             'type' => 'required|in:fixed,percent',
             'value' => 'required|numeric|min:0',
             'uses_total' => 'nullable|integer|min:1',

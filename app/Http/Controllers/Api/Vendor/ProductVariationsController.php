@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 
 class ProductVariationsController extends Controller
 {
-
     public function update(Request $r, $productId, $variationId)
     {
         $product = $this->findOwnedProduct($r->user(), $productId);
@@ -83,6 +82,7 @@ class ProductVariationsController extends Controller
             ],
         ], 201);
     }
+
     protected function findOwnedProduct($user, $productId): Product
     {
         return Product::where('id', $productId)->where('vendor_id', $user->id)->firstOrFail();

@@ -53,8 +53,8 @@ class PaymentGatewayManager
                 ];
             }
 
-            $success = url('/admin/orders/' . $order->id); // admin redirect after success (can be changed)
-            $cancel = url('/order/' . $order->id);
+            $success = url('/admin/orders/'.$order->id); // admin redirect after success (can be changed)
+            $cancel = url('/order/'.$order->id);
 
             // Prepare POST fields as form-encoded according to Stripe API
             $post = [];
@@ -67,7 +67,7 @@ class PaymentGatewayManager
                 $post["{$prefix['quantity']}"] = $li['quantity'];
             }
             $post['mode'] = 'payment';
-            $post['success_url'] = $success . '?session_id={CHECKOUT_SESSION_ID}';
+            $post['success_url'] = $success.'?session_id={CHECKOUT_SESSION_ID}';
             $post['cancel_url'] = $cancel;
             $post['payment_method_types[]'] = 'card';
             // metadata
@@ -78,7 +78,7 @@ class PaymentGatewayManager
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Authorization: Bearer ' . $secret,
+                'Authorization: Bearer '.$secret,
             ]);
             $resp = curl_exec($ch);
             $err = curl_error($ch);

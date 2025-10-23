@@ -11,11 +11,11 @@ use Illuminate\Http\Request;
 
 class CountryController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('can:access-admin');
     }
+
     public function index()
     {
         $countries = Country::orderBy('name')->paginate(50);

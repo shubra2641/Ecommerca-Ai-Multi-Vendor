@@ -28,7 +28,7 @@ class UpdateOrderStatusRequest extends FormRequest
         $allowed = ['pending', 'processing', 'completed', 'cancelled', 'on-hold', 'refunded'];
 
         return [
-            'status' => ['required', 'string', 'max:50', 'in:' . implode(',', $allowed)],
+            'status' => ['required', 'string', 'max:50', 'in:'.implode(',', $allowed)],
             'note' => ['nullable', 'string', 'max:1000'],
             'tracking_number' => ['nullable', 'string', 'max:255'],
             'tracking_url' => ['nullable', 'url', 'max:1000'],

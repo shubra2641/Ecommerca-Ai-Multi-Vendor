@@ -29,7 +29,7 @@ trait Translatable
     {
         // if key is explicitly requested translations array, return normal behavior
         if (isset($this->translatable) && in_array($key, $this->translatable, true)) {
-            $translationsKey = $key . '_translations';
+            $translationsKey = $key.'_translations';
             $raw = parent::getAttribute($key); // base stored value
             $translations = parent::getAttribute($translationsKey);
             if (is_array($translations)) {
@@ -57,7 +57,7 @@ trait Translatable
         if (! isset($this->translatable) || ! in_array($field, $this->translatable, true)) {
             return $this->getAttribute($field);
         }
-        $translations = parent::getAttribute($field . '_translations');
+        $translations = parent::getAttribute($field.'_translations');
         $locale = $locale ? $locale : app()->getLocale();
         $fallback = config('app.fallback_locale');
         if (is_array($translations)) {

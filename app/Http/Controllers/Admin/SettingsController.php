@@ -93,7 +93,7 @@ class SettingsController extends Controller
         $setting = Setting::first();
         if (! $setting) {
             // provide an empty Setting instance to avoid null property access in views
-            $setting = new Setting();
+            $setting = new Setting;
         }
         // Auto-heal legacy double-encoded withdrawal_gateways like ["[\"Bank Transfer\",\"PayPal\"]"]
         if (! empty($setting->withdrawal_gateways)) {
@@ -135,7 +135,7 @@ class SettingsController extends Controller
 
         $setting = Setting::first();
         if (! $setting) {
-            $setting = new Setting();
+            $setting = new Setting;
         }
 
         // Handle logo upload with enhanced security
@@ -280,7 +280,7 @@ class SettingsController extends Controller
 
             // Generate secure filename
             $extension = $file->getClientOriginalExtension();
-            $filename = 'logo_' . time() . '_' . uniqid() . '.' . $extension;
+            $filename = 'logo_'.time().'_'.uniqid().'.'.$extension;
 
             // Store file
             $path = $file->storeAs('uploads', $filename, 'public');
@@ -322,6 +322,7 @@ class SettingsController extends Controller
                     }
                 }
             });
+
             // De-duplicate preserving order
             return array_values(array_unique($flat));
         }

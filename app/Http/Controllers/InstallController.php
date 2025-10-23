@@ -93,7 +93,7 @@ class InstallController extends Controller
             $doWrite = $request->input('write_test', true);
             if ($doWrite) {
                 $rand = substr(Str::uuid()->toString(), 0, 8);
-                $tname = 'temp_install_' . $rand;
+                $tname = 'temp_install_'.$rand;
                 try {
                     $conn = DB::connection('install_test');
                     // create table
@@ -107,7 +107,7 @@ class InstallController extends Controller
                 } catch (\Throwable $we) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Connection OK but write test failed: ' . $we->getMessage(),
+                        'message' => 'Connection OK but write test failed: '.$we->getMessage(),
                         'code' => $we->getCode(),
                     ]);
                 }
@@ -115,7 +115,7 @@ class InstallController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Connection successful' . ($doWrite ? ' (including write test)' : ''),
+                'message' => 'Connection successful'.($doWrite ? ' (including write test)' : ''),
             ]);
         } catch (\Throwable $e) {
             return response()->json([
@@ -154,7 +154,7 @@ class InstallController extends Controller
                 Artisan::call('config:cache');
                 $cacheNote = 'config:cache succeeded';
             } catch (\Throwable $ce) {
-                $cacheNote = 'config cache failed: ' . $ce->getMessage();
+                $cacheNote = 'config cache failed: '.$ce->getMessage();
             }
 
             return response()->json(['success' => true, 'message' => 'DB settings saved', 'note' => $cacheNote]);
@@ -175,7 +175,7 @@ class InstallController extends Controller
         try {
             Artisan::call('migrate', ['--force' => true]);
         } catch (\Throwable $e) {
-            return redirect()->back()->withErrors(['error' => 'Database migrations failed: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Database migrations failed: '.$e->getMessage()]);
         }
 
         $user = User::create([
@@ -204,7 +204,7 @@ class InstallController extends Controller
         try {
             Storage::put('installed', now()->toDateTimeString());
         } catch (\Throwable $e) {
-            return redirect()->back()->withErrors(['error' => 'Could not write installed marker: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Could not write installed marker: '.$e->getMessage()]);
         }
 
         return redirect()->route('install.complete');
@@ -229,11 +229,11 @@ class InstallController extends Controller
 
         $env = file_get_contents($envPath);
         foreach ($vars as $key => $value) {
-            $escaped = preg_quote('=' . $this->envValue($key, $env), '/');
-            if (Str::contains($env, $key . '=')) {
-                $env = preg_replace('/^' . $key . '=.*/m', $key . '="' . addslashes($value) . '"', $env);
+            $escaped = preg_quote('='.$this->envValue($key, $env), '/');
+            if (Str::contains($env, $key.'=')) {
+                $env = preg_replace('/^'.$key.'=.*/m', $key.'="'.addslashes($value).'"', $env);
             } else {
-                $env .= "\n{$key}=\"" . addslashes($value) . '\"';
+                $env .= "\n{$key}=\"".addslashes($value).'\"';
             }
         }
 
@@ -242,7 +242,7 @@ class InstallController extends Controller
 
     protected function envValue($key, $envContent)
     {
-        if (preg_match('/^' . preg_quote($key) . '=(.*)$/m', $envContent, $m)) {
+        if (preg_match('/^'.preg_quote($key).'=(.*)$/m', $envContent, $m)) {
             return trim($m[1]);
         }
 

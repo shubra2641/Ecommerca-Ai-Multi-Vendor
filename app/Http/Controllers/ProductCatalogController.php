@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Cache;
 
 class ProductCatalogController extends Controller
 {
-
     /**
      * Main catalog index
      */
@@ -31,7 +30,7 @@ class ProductCatalogController extends Controller
             $id = $slugMap[$cat] ?? null;
             if ($id) {
                 $childIds = Cache::remember(
-                    'category_children_ids_' . $id,
+                    'category_children_ids_'.$id,
                     600,
                     fn () => ProductCategory::where('parent_id', $id)->pluck('id')->all()
                 );
@@ -62,7 +61,7 @@ class ProductCatalogController extends Controller
     public function category($slug, Request $request)
     {
         $category = ProductCategory::where('slug', $slug)->firstOrFail();
-        $childIds = Cache::remember('category_children_ids_' . $category->id, 600, function () use ($category) {
+        $childIds = Cache::remember('category_children_ids_'.$category->id, 600, function () use ($category) {
             return $category->children()->pluck('id')->all();
         });
 
@@ -133,7 +132,7 @@ class ProductCatalogController extends Controller
 
         // Related products
         $related = Cache::remember(
-            'product_related_' . $product->id,
+            'product_related_'.$product->id,
             300,
             function () use ($product) {
                 return Product::active()
@@ -208,11 +207,11 @@ class ProductCatalogController extends Controller
             $levelLabel = __('Out of stock');
         } elseif (is_numeric($available)) {
             if ($available <= 5) {
-                $levelLabel = __('In stock') . " ({$available}) • Low stock";
+                $levelLabel = __('In stock')." ({$available}) • Low stock";
             } elseif ($available <= 20) {
-                $levelLabel = __('In stock') . " ({$available}) • Mid stock";
+                $levelLabel = __('In stock')." ({$available}) • Mid stock";
             } else {
-                $levelLabel = __('In stock') . " ({$available}) • High stock";
+                $levelLabel = __('In stock')." ({$available}) • High stock";
             }
         } else {
             $levelLabel = __('In stock');
@@ -324,7 +323,7 @@ class ProductCatalogController extends Controller
         $brandName = $product->brand->name ?? null;
 
         // Reviews
-        $formattedReviewsCount = $reviewsCount >= 1000 ? round($reviewsCount / 1000, 1) . 'k' : $reviewsCount;
+        $formattedReviewsCount = $reviewsCount >= 1000 ? round($reviewsCount / 1000, 1).'k' : $reviewsCount;
 
         try {
             $reviewsPayload = app(\App\Services\ReviewsPresenter::class)->build($product);
@@ -412,6 +411,7 @@ class ProductCatalogController extends Controller
             'activeVars'
         ));
     }
+
     /**
      * Base query for products
      */
@@ -447,7 +447,7 @@ class ProductCatalogController extends Controller
     {
         // Search
         if ($search = $request->get('q')) {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where('name', 'like', '%'.$search.'%');
         }
 
         // Filters
@@ -564,7 +564,7 @@ class ProductCatalogController extends Controller
         $wishlistIds = [];
         if ($request->user()?->id) {
             $wishlistIds = (array) Cache::remember(
-                'wishlist_ids_' . $request->user()->id,
+                'wishlist_ids_'.$request->user()->id,
                 60,
                 function () use ($request) {
                     return \App\Models\WishlistItem::where('user_id', $request->user()->id)

@@ -261,6 +261,7 @@ class ProductController extends Controller
                 $arr = $candidate;
             }
         }
+
         return array_values(
             array_filter(
                 array_map(fn ($v) => is_string($v) ? trim($v) : '', $arr),

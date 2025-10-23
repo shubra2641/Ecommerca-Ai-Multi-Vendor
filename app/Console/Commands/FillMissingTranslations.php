@@ -8,11 +8,9 @@ use Illuminate\Console\Command;
 
 class FillMissingTranslations extends Command
 {
-    protected $signature = 'translations:fill {--model=* : Specific model class names (e.g. Product)} '
-        . '{--locale=* : Target locales to ensure}';
+    protected $signature = 'translations:fill {--model=* : Specific model class names (e.g. Product)} {--locale=* : Target locales to ensure}';
 
-    protected $description = 'Fill missing translation entries for translatable models '
-        . 'using fallback or base attribute';
+    protected $description = 'Fill missing translation entries for translatable models using fallback or base attribute';
 
     protected array $modelClasses = [
         \App\Models\Product::class,
@@ -41,7 +39,7 @@ class FillMissingTranslations extends Command
             }));
 
         foreach ($models as $class) {
-            $instance = new $class();
+            $instance = new $class;
             if (! property_exists($instance, 'translatable')) {
                 $this->line("Skipping {$class} (no translatable property)");
 
@@ -64,7 +62,7 @@ class FillMissingTranslations extends Command
                 }
             }
             if (empty($translatable)) {
-                $this->line('No translatable fields defined on ' . class_basename($class));
+                $this->line('No translatable fields defined on '.class_basename($class));
 
                 continue;
             }
@@ -72,7 +70,7 @@ class FillMissingTranslations extends Command
                 foreach ($chunk as $model) {
                     $dirty = false;
                     foreach ($translatable as $field) {
-                        $translationsAttr = $field . '_translations';
+                        $translationsAttr = $field.'_translations';
                         $translations = $model->{$translationsAttr} ?? [];
                         if (! is_array($translations)) {
                             $translations = [];
@@ -100,7 +98,7 @@ class FillMissingTranslations extends Command
             });
             $bar->finish();
             $this->newLine();
-            $this->info(class_basename($class) . ": updated {$updated} records");
+            $this->info(class_basename($class).": updated {$updated} records");
         }
 
         $this->info('Done.');

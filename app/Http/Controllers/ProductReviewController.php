@@ -51,7 +51,7 @@ class ProductReviewController extends Controller
         try {
             session()->flash('refresh_admin_notifications', true);
         } catch (\Throwable $e) {
-            logger()->warning('Failed to flash admin notification refresh: ' . $e->getMessage());
+            logger()->warning('Failed to flash admin notification refresh: '.$e->getMessage());
         }
 
         return redirect()->back()->with('status', 'Review submitted and awaits moderation.');

@@ -15,7 +15,6 @@ use Illuminate\View\View;
 
 class HomepageSlideController extends Controller
 {
-
     public function index(): View
     {
         $slides = HomepageSlide::orderBy('sort_order')->get();
@@ -144,6 +143,7 @@ class HomepageSlideController extends Controller
 
         return back()->with('success', __('Slide deleted.'));
     }
+
     private function activeLanguages()
     {
         return Cache::remember('active_languages_full', 3600, function () {

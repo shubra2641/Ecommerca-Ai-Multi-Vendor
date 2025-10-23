@@ -12,9 +12,7 @@ class AdminProductPendingReviewNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(public Product $product)
-    {
-    }
+    public function __construct(public Product $product) {}
 
     public function via($notifiable): array
     {

@@ -25,7 +25,6 @@ use Throwable;
  */
 class CartController extends Controller
 {
-
     public function index()
     {
         $cart = $this->getCart();
@@ -64,7 +63,7 @@ class CartController extends Controller
                 if (! $variantLabel && ! empty($variation->attribute_data)) {
                     try {
                         $variantLabel = collect($variation->attribute_data)
-                            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                            ->map(fn ($v, $k) => ucfirst($k).': '.$v)
                             ->values()
                             ->join(', ');
                     } catch (\Throwable $e) {
@@ -101,7 +100,7 @@ class CartController extends Controller
                 'original_price' => $product->price,
                 'stock_display' => ($product->stock_qty ?? null) !== null ?
                     (($product->stock_qty ?? 0) > 0 ?
-                        $product->stock_qty . ' in stock' : 'Out of stock') :
+                        $product->stock_qty.' in stock' : 'Out of stock') :
                     null,
                 'seller_name' => method_exists($product, 'seller') && $product->seller ?
                     $product->seller->name : null,
@@ -230,7 +229,7 @@ class CartController extends Controller
         if (! empty($data['variation_id'])) {
             $variation = ProductVariation::find($data['variation_id']);
             if ($variation && $variation->product_id === $product->id) {
-                $key .= ':' . $variation->id;
+                $key .= ':'.$variation->id;
             } else {
                 $variation = null;
             }
@@ -502,6 +501,7 @@ class CartController extends Controller
 
         return back()->with('success', __('Moved to wishlist'));
     }
+
     protected function getCart(): array
     {
         return session()->get('cart', []);

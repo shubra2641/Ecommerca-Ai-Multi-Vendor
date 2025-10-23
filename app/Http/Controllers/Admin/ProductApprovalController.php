@@ -64,7 +64,7 @@ class ProductApprovalController extends Controller
         try {
             Mail::to($product->vendor->email)->queue(new \App\Mail\ProductApproved($product));
         } catch (\Throwable $e) {
-            logger()->warning('Failed to send product approval email: ' . $e->getMessage());
+            logger()->warning('Failed to send product approval email: '.$e->getMessage());
         }
         // Notify vendor via in-app notification
         try {
@@ -72,7 +72,7 @@ class ProductApprovalController extends Controller
                 $product->vendor->notify(new \App\Notifications\VendorProductStatusNotification($product, 'approved'));
             }
         } catch (\Throwable $e) {
-            logger()->warning('Vendor product approval notification failed: ' . $e->getMessage());
+            logger()->warning('Vendor product approval notification failed: '.$e->getMessage());
         }
 
         return back()->with('success', __('Product approved'));
@@ -111,7 +111,7 @@ class ProductApprovalController extends Controller
                     $vendor->notify($notification);
                 }
             } catch (\Throwable $e) {
-                logger()->warning('Failed to send vendor deletion notification: ' . $e->getMessage());
+                logger()->warning('Failed to send vendor deletion notification: '.$e->getMessage());
             }
 
             return back()->with('success', __('Product deleted'));
@@ -119,7 +119,7 @@ class ProductApprovalController extends Controller
         try {
             Mail::to($product->vendor->email)->queue(new ProductRejected($product, $reason));
         } catch (\Throwable $e) {
-            logger()->warning('Failed to send product rejection email: ' . $e->getMessage());
+            logger()->warning('Failed to send product rejection email: '.$e->getMessage());
         }
         // Notify vendor via in-app notification
         try {
@@ -131,7 +131,7 @@ class ProductApprovalController extends Controller
                 ));
             }
         } catch (\Throwable $e) {
-            logger()->warning('Vendor product rejection notification failed: ' . $e->getMessage());
+            logger()->warning('Vendor product rejection notification failed: '.$e->getMessage());
         }
 
         return back()->with('success', __('Product rejected'));

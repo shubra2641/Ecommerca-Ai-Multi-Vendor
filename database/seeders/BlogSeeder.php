@@ -95,7 +95,7 @@ class BlogSeeder extends Seeder
                 'user_id' => $author?->id,
                 'published' => true,
                 'published_at' => now(),
-                'featured_image' => 'uploads/blog/' . $pd['image'],
+                'featured_image' => 'uploads/blog/'.$pd['image'],
             ]);
             // attach 2 random tags
             $randTags = $tags->random(2)->pluck('id');

@@ -84,7 +84,7 @@ class PaytabsGateway
                         }
                     }
                     $resp = $client->post(
-                        $apiBase . '/charges',
+                        $apiBase.'/charges',
                         $chargePayload
                     );
                     try {
@@ -92,7 +92,7 @@ class PaytabsGateway
                     }
                     if (! $resp->ok()) {
                         throw new \Exception(
-                            'Charge error: ' . $resp->status() . ' ' . substr($resp->body(), 0, 200)
+                            'Charge error: '.$resp->status().' '.substr($resp->body(), 0, 200)
                         );
                     }
                     $json = $resp->json();

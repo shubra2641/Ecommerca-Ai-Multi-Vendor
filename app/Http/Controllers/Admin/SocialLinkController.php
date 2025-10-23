@@ -48,7 +48,7 @@ class SocialLinkController extends Controller
 
     public function create()
     {
-        $link = new SocialLink();
+        $link = new SocialLink;
 
         return view('admin.social.form', compact('link'));
     }
@@ -115,7 +115,7 @@ class SocialLinkController extends Controller
             'platform' => ['required', 'string', 'max:50'],
             'label' => ['nullable', 'string', 'max:100'],
             'url' => ['required', 'url', 'max:255'],
-            'icon' => ['required', 'string', 'in:' . implode(',', $this->allowedIcons)],
+            'icon' => ['required', 'string', 'in:'.implode(',', $this->allowedIcons)],
             'order' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'is_active' => ['sometimes', 'boolean'],
         ]);

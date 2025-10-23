@@ -23,7 +23,7 @@ class NotifyController extends Controller
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
             ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
             ->when($request->filled('product'), fn ($q) => $q->where('product_id', $request->product))
-            ->when($request->filled('email'), fn ($q) => $q->where('email', 'like', '%' . $request->email . '%'));
+            ->when($request->filled('email'), fn ($q) => $q->where('email', 'like', '%'.$request->email.'%'));
 
         $interests = $query->latest()->paginate(30)->withQueryString();
         // Breakdown summary (cached briefly to avoid heavy queries)

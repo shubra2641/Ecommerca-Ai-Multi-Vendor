@@ -12,11 +12,11 @@ use Illuminate\Http\Request;
 
 class GovernorateController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('can:access-admin');
     }
+
     public function index(Request $request)
     {
         $countryId = $request->query('country');

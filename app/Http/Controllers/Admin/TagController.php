@@ -43,7 +43,7 @@ class TagController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:120',
-            'slug' => 'required|string|max:120|unique:tags,slug,' . $tag->id,
+            'slug' => 'required|string|max:120|unique:tags,slug,'.$tag->id,
         ]);
         // Sanitize incoming string values
         foreach ($data as $k => $v) {

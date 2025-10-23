@@ -14,7 +14,6 @@ use Illuminate\View\View;
 
 class HomepageBannerController extends Controller
 {
-
     public function index(): View
     {
         $banners = HomepageBanner::orderBy('sort_order')->get();
@@ -121,6 +120,7 @@ class HomepageBannerController extends Controller
 
         return back()->with('success', __('Banner deleted.'));
     }
+
     private function activeLanguages()
     {
         return Cache::remember('active_languages_full', 3600, function () {

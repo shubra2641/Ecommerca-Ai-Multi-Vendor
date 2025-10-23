@@ -25,9 +25,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void
-    {
-    }
+    public function register(): void {}
 
     /**
      * Bootstrap any application services.
@@ -212,12 +210,12 @@ class AppServiceProvider extends ServiceProvider
                 try {
                     $cache['default'] = Currency::getDefault();
                 } catch (\Throwable $e) {
-                    logger()->warning('Failed to get default currency: ' . $e->getMessage());
+                    logger()->warning('Failed to get default currency: '.$e->getMessage());
                 }
                 try {
                     $cache['symbol'] = Currency::defaultSymbol() ?? $cache['symbol'];
                 } catch (\Throwable $e) {
-                    logger()->warning('Failed to get currency symbol: ' . $e->getMessage());
+                    logger()->warning('Failed to get currency symbol: '.$e->getMessage());
                 }
             }
             $symbol = $cache['symbol'];

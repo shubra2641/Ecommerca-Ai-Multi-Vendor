@@ -31,8 +31,8 @@ class VendorOrderStatusUpdated extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage())
-            ->subject(__('Order status updated') . ' #' . $this->order->id)
+        return (new MailMessage)
+            ->subject(__('Order status updated').' #'.$this->order->id)
             ->line(__('Order #:id status changed to :status', ['id' => $this->order->id, 'status' => $this->status]))
             ->action(__('View order items'), route('vendor.orders.index'));
     }

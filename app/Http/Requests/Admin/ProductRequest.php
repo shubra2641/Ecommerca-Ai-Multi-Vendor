@@ -25,7 +25,7 @@ class ProductRequest extends FormRequest
             'product_category_id' => 'required|exists:product_categories,id',
             'type' => 'required|in:simple,variable',
             'physical_type' => 'nullable|in:physical,digital',
-            'sku' => 'nullable|unique:products,sku' . ($id ? ',' . $id : ''),
+            'sku' => 'nullable|unique:products,sku'.($id ? ','.$id : ''),
             // Accept either string or array
             'name' => is_array($nameInput) ? 'required|array' : 'required|string',
             'name.*' => 'nullable|string',

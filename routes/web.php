@@ -211,21 +211,21 @@ Route::middleware(['auth', 'can:access-user'])->prefix('user')->name('user.')->g
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
 
 // Admin routes
 Route::prefix('admin')->group(function (): void {
-    require __DIR__ . '/admin.php';
+    require __DIR__.'/admin.php';
 });
 
 // Installer routes (one-time installer)
-require __DIR__ . '/install.php';
+require __DIR__.'/install.php';
 
 // Append admin test webhook route to admin routes file by editing admin.php
 
 // Vendor routes
 Route::prefix('vendor')->name('vendor.')->group(function (): void {
-    require __DIR__ . '/vendor.php';
+    require __DIR__.'/vendor.php';
 });
 
 // Note: routes/api.php is loaded by the RouteServiceProvider with the 'api' middleware

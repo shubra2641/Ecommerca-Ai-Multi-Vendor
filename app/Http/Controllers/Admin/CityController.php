@@ -13,11 +13,11 @@ use Illuminate\Http\Request;
 
 class CityController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('can:access-admin');
     }
+
     public function index(Request $request)
     {
         $govId = $request->query('governorate');

@@ -35,7 +35,7 @@ class UserController extends BaseAdminController
 
     public function create()
     {
-        return view('admin.users.form', ['user' => new User()]);
+        return view('admin.users.form', ['user' => new User]);
     }
 
     public function store(\App\Http\Requests\Admin\StoreUserRequest $request, HtmlSanitizer $sanitizer)
@@ -90,7 +90,7 @@ class UserController extends BaseAdminController
     {
         return view('admin.users.index', [
             'users' => $this->getUsersByStatus($status, $role),
-            'title' => ucfirst($status) . ($role ? ' ' . ucfirst($role) . 's' : ' Users'),
+            'title' => ucfirst($status).($role ? ' '.ucfirst($role).'s' : ' Users'),
         ]);
     }
 

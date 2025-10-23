@@ -70,7 +70,7 @@ class LanguageController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|size:2|unique:languages,code,' . $language->id,
+            'code' => 'required|string|size:2|unique:languages,code,'.$language->id,
             'flag' => 'nullable|string|max:10',
             'is_default' => 'boolean',
             'is_active' => 'boolean',
@@ -167,7 +167,7 @@ class LanguageController extends Controller
         $translations = $this->getTranslations($language->code);
         // Sanitize the added value
         $translations[$request->key] = is_string($request->value) ?
-            (new HtmlSanitizer())->clean($request->value) : $request->value;
+            (new HtmlSanitizer)->clean($request->value) : $request->value;
 
         $path = resource_path("lang/{$language->code}.json");
         File::put($path, json_encode($translations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));

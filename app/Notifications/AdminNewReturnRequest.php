@@ -39,7 +39,7 @@ class AdminNewReturnRequest extends Notification implements ShouldQueue
             ? 'emails.returns.admin_new_request_ar_html'
             : 'emails.returns.admin_new_request_en_html';
 
-        return (new MailMessage())
+        return (new MailMessage)
             ->subject(__('returns.admin_new_request_subject', [
                 'order' => $this->item->order_id,
             ]))

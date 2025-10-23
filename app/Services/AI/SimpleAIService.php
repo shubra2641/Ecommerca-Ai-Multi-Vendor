@@ -31,10 +31,10 @@ class SimpleAIService
                 ]);
 
             if (! $response->successful()) {
-                $error = $response->json('error.message') ?: 'HTTP ' . $response->status();
-                Log::error('AI Service Error: ' . $error, ['response' => $response->json()]);
+                $error = $response->json('error.message') ?: 'HTTP '.$response->status();
+                Log::error('AI Service Error: '.$error, ['response' => $response->json()]);
 
-                return ['error' => 'AI service error: ' . $error];
+                return ['error' => 'AI service error: '.$error];
             }
 
             $content = $response->json('choices.0.message.content');
@@ -48,7 +48,7 @@ class SimpleAIService
 
             return $result;
         } catch (\Exception $e) {
-            Log::error('AI Service Exception: ' . $e->getMessage());
+            Log::error('AI Service Exception: '.$e->getMessage());
 
             return ['error' => $e->getMessage()];
         }

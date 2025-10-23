@@ -19,7 +19,7 @@ class NewShippingController extends Controller
         $gov = $request->input('governorate');
         $city = $request->input('city');
         $zoneId = $request->input('zone'); // optional filter by zone
-        $resolver = new ShippingResolver();
+        $resolver = new ShippingResolver;
         $all = $request->input('all');
         if ($all) {
             $resolved = $resolver->resolveAll($country, $gov, $city, $zoneId);

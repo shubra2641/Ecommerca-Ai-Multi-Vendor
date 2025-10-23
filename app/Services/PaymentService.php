@@ -78,7 +78,7 @@ class PaymentService
 
         foreach ($credentials as $key => $value) {
             if (is_string($value) && strlen($value) > 4) {
-                $masked[$key] = substr($value, 0, 4) . '****';
+                $masked[$key] = substr($value, 0, 4).'****';
             } else {
                 $masked[$key] = $value;
             }

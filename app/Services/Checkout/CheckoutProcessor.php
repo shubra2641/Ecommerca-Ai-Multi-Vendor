@@ -126,7 +126,7 @@ class CheckoutProcessor
                 }
             } catch (\Throwable $e) {
                 // swallow address creation errors but log
-                logger()->warning('Failed to persist shipping address for order ' . $order->id . ': ' . $e->getMessage());
+                logger()->warning('Failed to persist shipping address for order '.$order->id.': '.$e->getMessage());
             }
         }
 
@@ -152,7 +152,7 @@ class CheckoutProcessor
 
             $name = $item['product']->name;
             if ($variant) {
-                $name .= ' - ' . $variant->name;
+                $name .= ' - '.$variant->name;
             }
 
             $orderItem = \App\Models\OrderItem::create([
@@ -244,14 +244,14 @@ class CheckoutProcessor
             'line_items' => [[
                 'price_data' => [
                     'currency' => strtolower($order->currency ?? 'usd'),
-                    'product_data' => ['name' => 'Order #' . $order->id],
+                    'product_data' => ['name' => 'Order #'.$order->id],
                     'unit_amount' => (int) round(($order->total ?? 0) * 100),
                 ],
                 'quantity' => 1,
             ],
             ],
-            'success_url' => url('/checkout/success?order=' . $order->id),
-            'cancel_url' => url('/checkout/cancel?order=' . $order->id),
+            'success_url' => url('/checkout/success?order='.$order->id),
+            'cancel_url' => url('/checkout/cancel?order='.$order->id),
             'metadata' => ['order_id' => $order->id],
         ]);
 
