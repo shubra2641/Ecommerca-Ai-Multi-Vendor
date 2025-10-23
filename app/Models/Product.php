@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use App\Traits\TranslatableTrait;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, TranslatableTrait;
 
     protected array $translatable = [
         'name',

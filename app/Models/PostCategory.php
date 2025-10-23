@@ -6,10 +6,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\TranslatableTrait;
 
 class PostCategory extends Model
 {
-    use HasFactory;
+    use HasFactory, TranslatableTrait;
 
     protected array $translatable = [
         'name',
