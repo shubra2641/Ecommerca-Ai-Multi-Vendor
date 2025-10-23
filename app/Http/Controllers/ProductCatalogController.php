@@ -11,7 +11,7 @@ use App\Models\ProductTag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
-class ProductCatalogController extends Controller
+final class ProductCatalogController extends Controller
 {
     /**
      * Main catalog index
@@ -26,14 +26,14 @@ class ProductCatalogController extends Controller
             $slugMap = Cache::remember(
                 'product_category_slug_id_map',
                 600,
-                fn () => ProductCategory::pluck('id', 'slug')->all()
+                fn() => ProductCategory::pluck('id', 'slug')->all()
             );
             $id = $slugMap[$cat] ?? null;
             if ($id) {
                 $childIds = Cache::remember(
                     'category_children_ids_' . $id,
                     600,
-                    fn () => ProductCategory::where('parent_id', $id)->pluck('id')->all()
+                    fn() => ProductCategory::where('parent_id', $id)->pluck('id')->all()
                 );
                 $query->where(function ($qq) use ($id, $childIds): void {
                     $qq->where('product_category_id', $id)
@@ -45,7 +45,7 @@ class ProductCatalogController extends Controller
         // Tag filter
         $tag = $request->get('tag');
         if ($tag) {
-            $query->whereHas('tags', fn ($t) => $t->where('slug', $tag));
+            $query->whereHas('tags', fn($t) => $t->where('slug', $tag));
         }
 
         $query = $this->applyFilters($query, $request);
@@ -117,20 +117,7 @@ class ProductCatalogController extends Controller
             ->firstOrFail();
 
         // Build attribute map for variations
-        $attributeMap = [];
-        if ($product->type === 'variable') {
-            foreach ($product->variations as $v) {
-                if (! $v->active) {
-                    continue;
-                }
-                foreach (($v->attribute_data ?? []) as $attr => $val) {
-                    $attributeMap[$attr] = $attributeMap[$attr] ?? [];
-                    if (! in_array($val, $attributeMap[$attr])) {
-                        $attributeMap[$attr][] = $val;
-                    }
-                }
-            }
-        }
+        $attributeMap = $this->buildAttributeMap($product);
 
         // Related products
         $related = Cache::remember(
@@ -158,30 +145,7 @@ class ProductCatalogController extends Controller
         $rating = $reviewsCount ? (float) ($product->approved_reviews_avg ?? 0) : 0;
 
         // Gallery images
-        $images = collect();
-        if (! empty($product->main_image)) {
-            $images->push($product->main_image);
-        }
-        if (! empty($product->gallery) && is_array($product->gallery)) {
-            foreach ($product->gallery as $img) {
-                if ($img) {
-                    $images->push($img);
-                }
-            }
-        }
-        if ($product->type === 'variable' && $product->variations->count()) {
-            foreach ($product->variations->where('active', true) as $v) {
-                if (! empty($v->image) && ! $images->contains($v->image)) {
-                    $images->push($v->image);
-                }
-            }
-        }
-        if ($images->isEmpty()) {
-            $images->push('front/images/default-product.png');
-        }
-
-        $gallery = $images->map(fn ($p) => ['raw' => $p, 'url' => asset($p)]);
-        $mainImage = $gallery->first();
+        ['gallery' => $gallery, 'mainImage' => $mainImage] = $this->buildGallery($product);
 
         // Pricing
         $onSale = $product->isOnSale();
@@ -193,31 +157,7 @@ class ProductCatalogController extends Controller
 
         // Stock
         $available = $product->availableStock();
-        $stockClass = 'high-stock';
-        if ($available === 0) {
-            $stockClass = 'out-stock';
-        } elseif (! is_null($available)) {
-            if ($available <= 5) {
-                $stockClass = 'low-stock';
-            } elseif ($available <= 20) {
-                $stockClass = 'mid-stock';
-            }
-        }
-
-        $levelLabel = '';
-        if ($available === 0) {
-            $levelLabel = __('Out of stock');
-        } elseif (is_numeric($available)) {
-            if ($available <= 5) {
-                $levelLabel = __('In stock') . " ({$available}) • Low stock";
-            } elseif ($available <= 20) {
-                $levelLabel = __('In stock') . " ({$available}) • Mid stock";
-            } else {
-                $levelLabel = __('In stock') . " ({$available}) • High stock";
-            }
-        } else {
-            $levelLabel = __('In stock');
-        }
+        ['stockClass' => $stockClass, 'levelLabel' => $levelLabel] = $this->buildStockData($product, $available);
 
         // Interest count
         try {
@@ -227,53 +167,11 @@ class ProductCatalogController extends Controller
         }
 
         // Variation price range
-        $minP = $maxP = null;
-        $activeVars = collect();
-        if ($product->type === 'variable') {
-            $activeVars = $product->variations->where('active', true);
-            $prices = $activeVars->map(fn ($v) => $v->effectivePrice())->filter();
-            if ($prices->count()) {
-                $minP = $prices->min();
-                $maxP = $prices->max();
-            }
-            $activeVars = $activeVars->map(function ($v) {
-                $v->effective_price = $v->effectivePrice();
-                $v->stock_qty = $v->stock_qty ?? 0;
-                $v->reserved_qty = $v->reserved_qty ?? 0;
-                $v->manage_stock = $v->manage_stock ?? false;
-
-                return $v;
-            });
-        }
+        ['minP' => $minP, 'maxP' => $maxP, 'activeVars' => $activeVars] = $this->buildVariationPrices($product);
 
         // Variation attributes
         $usedAttrs = is_array($product->used_attributes) ? $product->used_attributes : array_keys($attributeMap);
-        $variationAttributes = [];
-        foreach ($attributeMap as $attrName => $values) {
-            if (! in_array($attrName, $usedAttrs)) {
-                continue;
-            }
-
-            $lower = strtolower($attrName);
-            $icon = '⚙️';
-            if (in_array($lower, ['color', 'colour', 'color_name', 'colour_name'])) {
-                $icon = '🎨';
-            } elseif (in_array($lower, ['size', 'sizes'])) {
-                $icon = '📏';
-            } elseif (in_array($lower, ['material', 'fabric'])) {
-                $icon = '🧵';
-            }
-
-            $isColor = in_array($lower, ['color', 'colour', 'color_name', 'colour_name']);
-            $variationAttributes[] = [
-                'name' => $attrName,
-                'label' => str_replace('_', ' ', $attrName),
-                'icon' => $icon,
-                'is_color' => $isColor,
-                'values' => $values,
-                'swatch_map' => $isColor ? $this->buildSwatchMap($values) : [],
-            ];
-        }
+        $variationAttributes = $this->buildVariationAttributes($attributeMap, $usedAttrs);
 
         // Tags
         $tagsCount = $product->tags->count();
@@ -285,94 +183,24 @@ class ProductCatalogController extends Controller
         $hasDims = count($dims) > 0;
 
         // Spec count
-        $specCount = 0;
-        if ($product->sku) {
-            $specCount++;
-        }
-        if ($product->weight) {
-            $specCount++;
-        }
-        if ($product->length) {
-            $specCount++;
-        }
-        if ($product->width) {
-            $specCount++;
-        }
-        if ($product->height) {
-            $specCount++;
-        }
-        $specCount++;
-        if ($product->refund_days) {
-            $specCount++;
-        }
+        $specCount = $this->buildSpecCount($product);
 
         // Flags
         // For variable products, check if ANY variation has stock
-        if ($product->type === 'variable' && $activeVars->isNotEmpty()) {
-            $hasAnyStock = $activeVars->filter(function ($v) {
-                if (! $v->manage_stock) {
-                    return true;
-                } // Unlimited stock
-                $availableStock = ($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0);
-
-                return $availableStock > 0;
-            })->isNotEmpty();
-            $isOut = ! $hasAnyStock;
-        } else {
-            $isOut = ($available === 0);
-        }
-        $hasDiscount = $onSale;
-        $brandName = $product->brand->name ?? null;
+        ['isOut' => $isOut, 'hasDiscount' => $hasDiscount, 'brandName' => $brandName] = $this->buildFlags($product, $available, $onSale, $activeVars);
 
         // Reviews
         $formattedReviewsCount = $reviewsCount >= 1000 ? round($reviewsCount / 1000, 1) . 'k' : $reviewsCount;
-
-        try {
-            $reviewsPayload = app(\App\Services\ReviewsPresenter::class)->build($product);
-            $reviews = $reviewsPayload['reviews'];
-            $reviewStats = $reviewsPayload['stats'];
-        } catch (\Throwable $e) {
-            $reviews = collect();
-            $reviewStats = [
-                'total' => 0,
-                'average' => 0,
-                'distribution' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0],
-                'distribution_percent' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0],
-                'helpful_total' => 0,
-            ];
-        }
+        ['reviews' => $reviews, 'reviewStats' => $reviewStats] = $this->buildReviews($product);
 
         // Check if user purchased
-        $purchased = false;
-        if (auth()->check()) {
-            try {
-                $user = auth()->user();
-                if (method_exists($user, 'orders')) {
-                    $purchased = $user->orders()
-                        ->whereIn('status', ['completed', 'paid', 'delivered'])
-                        ->whereHas('items', function ($q) use ($product): void {
-                            $q->where('product_id', $product->id);
-                        })
-                        ->exists();
-                }
-            } catch (\Throwable $e) {
-                $purchased = false;
-            }
-        }
+        $purchased = $this->checkPurchased($product);
 
         // Stars
-        $fullRating = (int) floor($rating);
-        $stars = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $stars[] = ['index' => $i, 'filled' => $i <= $fullRating];
-        }
+        $stars = $this->buildStars($rating);
 
         // In cart
-        try {
-            $inCart = (bool) (session('cart') && isset(session('cart')[$product->id]));
-        } catch (\Throwable $e) {
-            $inCart = false;
-        }
+        $inCart = $this->checkInCart($product);
 
         return view('front.products.show', compact(
             'product',
@@ -710,5 +538,224 @@ class ProductCatalogController extends Controller
         }
 
         return $cached;
+    }
+
+    private function buildAttributeMap($product): array
+    {
+        $attributeMap = [];
+        if ($product->type === 'variable') {
+            foreach ($product->variations as $v) {
+                if (! $v->active) {
+                    continue;
+                }
+                foreach (($v->attribute_data ?? []) as $attr => $val) {
+                    $attributeMap[$attr] = $attributeMap[$attr] ?? [];
+                    if (! in_array($val, $attributeMap[$attr])) {
+                        $attributeMap[$attr][] = $val;
+                    }
+                }
+            }
+        }
+        return $attributeMap;
+    }
+
+    private function buildGallery($product): array
+    {
+        $images = collect();
+        if (!empty($product->main_image)) {
+            $images->push($product->main_image);
+        }
+        if (!empty($product->gallery) && is_array($product->gallery)) {
+            $images = $images->merge(collect($product->gallery)->filter());
+        }
+        if ($product->type === 'variable' && $product->variations->count()) {
+            $variationImages = $product->variations->where('active', true)->pluck('image')->filter()->unique();
+            $images = $images->merge($variationImages);
+        }
+        if ($images->isEmpty()) {
+            $images->push('front/images/default-product.png');
+        }
+
+        $gallery = $images->unique()->map(fn($p) => ['raw' => $p, 'url' => asset($p)]);
+        $mainImage = $gallery->first();
+
+        return compact('gallery', 'mainImage');
+    }
+
+    private function buildStockData($product, $available): array
+    {
+        $stockClass = match (true) {
+            $available === 0 => 'out-stock',
+            is_null($available) => 'high-stock',
+            $available <= 5 => 'low-stock',
+            $available <= 20 => 'mid-stock',
+            default => 'high-stock',
+        };
+
+        $levelLabel = match (true) {
+            $available === 0 => __('Out of stock'),
+            !is_numeric($available) => __('In stock'),
+            $available <= 5 => __('In stock') . " ({$available}) • Low stock",
+            $available <= 20 => __('In stock') . " ({$available}) • Mid stock",
+            default => __('In stock') . " ({$available}) • High stock",
+        };
+
+        return compact('stockClass', 'levelLabel');
+    }
+
+    private function buildVariationPrices($product): array
+    {
+        $minP = $maxP = null;
+        $activeVars = collect();
+        if ($product->type === 'variable') {
+            $activeVars = $product->variations->where('active', true);
+            $prices = $activeVars->map(fn($v) => $v->effectivePrice())->filter();
+            if ($prices->count()) {
+                $minP = $prices->min();
+                $maxP = $prices->max();
+            }
+            $activeVars = $activeVars->map(function ($v) {
+                $v->effective_price = $v->effectivePrice();
+                $v->stock_qty = $v->stock_qty ?? 0;
+                $v->reserved_qty = $v->reserved_qty ?? 0;
+                $v->manage_stock = $v->manage_stock ?? false;
+
+                return $v;
+            });
+        }
+
+        return compact('minP', 'maxP', 'activeVars');
+    }
+
+    private function buildVariationAttributes($attributeMap, $usedAttrs): array
+    {
+        $variationAttributes = [];
+        foreach ($attributeMap as $attrName => $values) {
+            if (! in_array($attrName, $usedAttrs)) {
+                continue;
+            }
+
+            $lower = strtolower($attrName);
+            $icon = match (true) {
+                in_array($lower, ['color', 'colour', 'color_name', 'colour_name']) => '🎨',
+                in_array($lower, ['size', 'sizes']) => '📏',
+                in_array($lower, ['material', 'fabric']) => '🧵',
+                default => '⚙️',
+            };
+
+            $isColor = in_array($lower, ['color', 'colour', 'color_name', 'colour_name']);
+            $variationAttributes[] = [
+                'name' => $attrName,
+                'label' => str_replace('_', ' ', $attrName),
+                'icon' => $icon,
+                'is_color' => $isColor,
+                'values' => $values,
+                'swatch_map' => $isColor ? $this->buildSwatchMap($values) : [],
+            ];
+        }
+
+        return $variationAttributes;
+    }
+
+    private function buildSpecCount($product): int
+    {
+        $specCount = 0;
+        if ($product->sku) {
+            $specCount++;
+        }
+        if ($product->weight) {
+            $specCount++;
+        }
+        if ($product->length) {
+            $specCount++;
+        }
+        if ($product->width) {
+            $specCount++;
+        }
+        if ($product->height) {
+            $specCount++;
+        }
+        $specCount++;
+        if ($product->refund_days) {
+            $specCount++;
+        }
+
+        return $specCount;
+    }
+
+    private function buildFlags($product, $available, $onSale, $activeVars): array
+    {
+        $hasAnyStock = $product->type !== 'variable' || $activeVars->isEmpty() || $activeVars->contains(function ($v) {
+            return !$v->manage_stock || (($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0) > 0);
+        });
+        $isOut = !$hasAnyStock;
+        $hasDiscount = $onSale;
+        $brandName = $product->brand->name ?? null;
+
+        return compact('isOut', 'hasDiscount', 'brandName');
+    }
+
+    private function buildStars($rating): array
+    {
+        $fullRating = (int) floor($rating);
+        $stars = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $stars[] = ['index' => $i, 'filled' => $i <= $fullRating];
+        }
+
+        return $stars;
+    }
+
+    private function buildReviews($product): array
+    {
+        try {
+            $reviewsPayload = app(\App\Services\ReviewsPresenter::class)->build($product);
+            $reviews = $reviewsPayload['reviews'];
+            $reviewStats = $reviewsPayload['stats'];
+        } catch (\Throwable $e) {
+            $reviews = collect();
+            $reviewStats = [
+                'total' => 0,
+                'average' => 0,
+                'distribution' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0],
+                'distribution_percent' => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0],
+                'helpful_total' => 0,
+            ];
+        }
+
+        return compact('reviews', 'reviewStats');
+    }
+
+    private function checkPurchased($product): bool
+    {
+        $purchased = false;
+        if (auth()->check()) {
+            try {
+                $user = auth()->user();
+                if (method_exists($user, 'orders')) {
+                    $purchased = $user->orders()
+                        ->whereIn('status', ['completed', 'paid', 'delivered'])
+                        ->whereHas('items', function ($q) use ($product): void {
+                            $q->where('product_id', $product->id);
+                        })
+                        ->exists();
+                }
+            } catch (\Throwable $e) {
+                $purchased = false;
+            }
+        }
+
+        return $purchased;
+    }
+
+    private function checkInCart($product): bool
+    {
+        try {
+            $inCart = (bool) (session('cart') && isset(session('cart')[$product->id]));
+        } catch (\Throwable $e) {
+            $inCart = false;
+        }
+
+        return $inCart;
     }
 }
