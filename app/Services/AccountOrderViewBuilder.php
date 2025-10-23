@@ -36,65 +36,40 @@ class AccountOrderViewBuilder
         }
 
         try {
-            $this->resolveAddressComponents($addrSource);
+            // Resolve country
+            $countryId = $addrSource['country_id'] ?? $addrSource['country'] ?? null;
+            if ($countryId && is_numeric($countryId)) {
+                $c = Country::find($countryId);
+                if ($c) {
+                    $addrSource['country'] = $c->name;
+                    $addrSource['country_id'] = $countryId;
+                }
+            }
+
+            // Resolve governorate
+            $govId = $addrSource['governorate_id'] ?? $addrSource['governorate'] ?? null;
+            if ($govId && is_numeric($govId)) {
+                $g = Governorate::find($govId);
+                if ($g) {
+                    $addrSource['governorate'] = $g->name;
+                    $addrSource['governorate_id'] = $govId;
+                }
+            }
+
+            // Resolve city
+            $cityId = $addrSource['city_id'] ?? $addrSource['city'] ?? null;
+            if ($cityId && is_numeric($cityId)) {
+                $ci = City::find($cityId);
+                if ($ci) {
+                    $addrSource['city'] = $ci->name;
+                    $addrSource['city_id'] = $cityId;
+                }
+            }
         } catch (\Throwable $e) {
             logger()->warning('Failed to resolve address components: ' . $e->getMessage());
         }
 
-        return $this->buildAddressTextFromArray($addrSource);
-    }
-
-    private function resolveAddressComponents(array &$addrSource): void
-    {
-        $this->resolveCountry($addrSource);
-        $this->resolveGovernorate($addrSource);
-        $this->resolveCity($addrSource);
-    }
-
-    private function resolveCountry(array &$addrSource): void
-    {
-        $countryId = $addrSource['country_id'] ?? $addrSource['country'] ?? null;
-        if (! $countryId || ! is_numeric($countryId)) {
-            return;
-        }
-
-        $c = Country::find($countryId);
-        if ($c) {
-            $addrSource['country'] = $c->name;
-            $addrSource['country_id'] = $countryId;
-        }
-    }
-
-    private function resolveGovernorate(array &$addrSource): void
-    {
-        $govId = $addrSource['governorate_id'] ?? $addrSource['governorate'] ?? null;
-        if (! $govId || ! is_numeric($govId)) {
-            return;
-        }
-
-        $g = Governorate::find($govId);
-        if ($g) {
-            $addrSource['governorate'] = $g->name;
-            $addrSource['governorate_id'] = $govId;
-        }
-    }
-
-    private function resolveCity(array &$addrSource): void
-    {
-        $cityId = $addrSource['city_id'] ?? $addrSource['city'] ?? null;
-        if (! $cityId || ! is_numeric($cityId)) {
-            return;
-        }
-
-        $ci = City::find($cityId);
-        if ($ci) {
-            $addrSource['city'] = $ci->name;
-            $addrSource['city_id'] = $cityId;
-        }
-    }
-
-    private function buildAddressTextFromArray(array $addrSource): string
-    {
+        // Build text from array
         $orderedKeys = [
             'name',
             'title',
