@@ -415,8 +415,6 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
         // AI assist endpoint for product categories (generate description + SEO)
         Route::match(['get', 'post', 'put'], 'product-categories/ai/suggest', [ProductCategoryController::class, 'aiSuggest'])
             ->name('product-categories.ai.suggest');
-        Route::get('product-categories/export', [ProductCategoryController::class, 'export'])
-            ->name('product-categories.export');
         Route::resource('product-tags', ProductTagController::class)->except(['show']);
         Route::resource('product-attributes', ProductAttributeController::class);
         Route::resource('brands', BrandController::class)->except(['show']);
@@ -435,10 +433,6 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
         Route::resource('products', ProductController::class);
         Route::match(['get', 'post'], 'ai/suggest', [ProductController::class, 'aiSuggest'])
             ->name('products.ai.suggest');
-        Route::get('products/export', [ProductController::class, 'export'])
-            ->name('products.export');
-        Route::get('products/variations-export', [ProductController::class, 'variationsExport'])
-            ->name('products.variations_export');
         // vendor product approvals (path: /admin/products/pending-review)
         Route::get('pending-review', [ProductApprovalController::class, 'pending'])->name('products.pending');
         Route::post('products/{product}/approve', [ProductApprovalController::class, 'approve'])
@@ -452,9 +446,6 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
 
         Route::post('products/{product}/serials/import', [ProductSerialController::class, 'import'])
             ->name('products.serials.import');
-
-        Route::get('products/{product}/serials/export', [ProductSerialController::class, 'export'])
-            ->name('products.serials.export');
 
         Route::post(
             'products/{product}/serials/{serial}/mark-sold',

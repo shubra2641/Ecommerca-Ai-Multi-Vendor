@@ -16,7 +16,7 @@ final class WithdrawalSettingsService
 
         $normalizedGateways = GatewayProcessor::normalizeGateways($rawGateways);
 
-        $gateways = collect($normalizedGateways)->map(fn($g) => GatewayProcessor::processGateway($g))->filter()->values()->toArray();
+        $gateways = collect($normalizedGateways)->map(fn ($g) => GatewayProcessor::processGateway($g))->filter()->values()->toArray();
 
         $commissionEnabled = (bool) ($setting->withdrawal_commission_enabled ?? false);
         $commissionRate = (float) ($setting->withdrawal_commission_rate ?? 0);
@@ -36,7 +36,7 @@ final class WithdrawalSettingsService
 
         $normalizedGateways = GatewayProcessor::normalizeGateways($rawGateways);
 
-        return collect($normalizedGateways)->map(fn($g) => GatewayProcessor::processGatewaySlug($g))->filter()->values()->toArray();
+        return collect($normalizedGateways)->map(fn ($g) => GatewayProcessor::processGatewaySlug($g))->filter()->values()->toArray();
     }
 
     public function getCommissionSettings(): array

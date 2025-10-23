@@ -108,61 +108,6 @@ class ProductController extends Controller
         return redirect()->back()->with('success', __("Product {$status} successfully."));
     }
 
-    public function export(Request $request)
-    {
-        $fileName = 'products_' . date('Ymd_His') . '.csv';
-        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$fileName}"];
-
-        $callback = function (): void {
-            $out = fopen('php://output', 'w');
-            fputcsv($out, ['ID', 'Name', 'SKU', 'Price', 'Stock', 'Category', 'Status']);
-
-            Product::with('category')->chunk(200, function ($products) use ($out): void {
-                foreach ($products as $product) {
-                    fputcsv($out, [
-                        $product->id,
-                        $product->name,
-                        $product->sku,
-                        $product->price,
-                        $product->stock_qty ?? 0,
-                        $product->category?->name,
-                        $product->active ? 'Active' : 'Inactive',
-                    ]);
-                }
-            });
-            fclose($out);
-        };
-
-        return response()->stream($callback, 200, $headers);
-    }
-
-    public function variationsExport(Request $request)
-    {
-        $fileName = 'variations_' . date('Ymd_His') . '.csv';
-        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$fileName}"];
-
-        $callback = function (): void {
-            $out = fopen('php://output', 'w');
-            fputcsv($out, ['Product ID', 'Product Name', 'Variation ID', 'SKU', 'Price', 'Stock']);
-
-            ProductVariation::with('product')->chunk(200, function ($variations) use ($out): void {
-                foreach ($variations as $variation) {
-                    fputcsv($out, [
-                        $variation->product_id,
-                        $variation->product?->name,
-                        $variation->id,
-                        $variation->sku,
-                        $variation->price,
-                        $variation->stock_qty ?? 0,
-                    ]);
-                }
-            });
-            fclose($out);
-        };
-
-        return response()->stream($callback, 200, $headers);
-    }
-
     public function aiSuggest(Request $request, SimpleAIService $ai)
     {
         // Get name from array or string

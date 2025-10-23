@@ -16,20 +16,7 @@ final class StockAdjustmentListener
     {
         $order = $event->order->loadMissing('items.product');
         foreach ($order->items as $item) {
-            if ($item->committed) {
-                continue;
-            }
-            $qty = (int) $item->qty;
-            $product = $item->product;
-            if (! $product) {
-                continue;
-            }
-            $variantId = $this->getVariantId($item);
-            if ($variantId) {
-                $this->commitVariation($item, $variantId, $qty, $order);
-            } else {
-                $this->commitProduct($item, $product, $qty, $order);
-            }
+            $this->processPaidItem($item, $order);
         }
     }
 
@@ -37,11 +24,7 @@ final class StockAdjustmentListener
     {
         $order = $event->order->loadMissing('items.product');
         foreach ($order->items as $item) {
-            if ($item->committed) {
-                $this->handleCommittedItem($item);
-            } else {
-                $this->handleUncommittedItem($item);
-            }
+            $this->processCancelledItem($item);
         }
     }
 
@@ -49,17 +32,49 @@ final class StockAdjustmentListener
     {
         $order = $event->order->loadMissing('items.product');
         foreach ($order->items as $item) {
-            if (! $item->committed || $item->restocked || ! $item->product) {
-                continue;
-            }
-            $qty = (int) $item->qty;
-            $product = $item->product;
-            $variantId = $this->getVariantId($item);
-            if ($variantId) {
-                $this->restockVariation($item, $variantId, $qty);
-            } else {
-                $this->restockProduct($item, $product, $qty);
-            }
+            $this->processRefundItem($item);
+        }
+    }
+
+    private function processPaidItem($item, $order): void
+    {
+        if ($item->committed) {
+            return;
+        }
+        $qty = (int) $item->qty;
+        $product = $item->product;
+        if (! $product) {
+            return;
+        }
+        $variantId = $this->getVariantId($item);
+        if ($variantId) {
+            $this->commitVariation($item, $variantId, $qty, $order);
+        } else {
+            $this->commitProduct($item, $product, $qty, $order);
+        }
+    }
+
+    private function processCancelledItem($item): void
+    {
+        if ($item->committed) {
+            $this->handleCommittedItem($item);
+        } else {
+            $this->handleUncommittedItem($item);
+        }
+    }
+
+    private function processRefundItem($item): void
+    {
+        if (! $item->committed || $item->restocked || ! $item->product) {
+            return;
+        }
+        $qty = (int) $item->qty;
+        $product = $item->product;
+        $variantId = $this->getVariantId($item);
+        if ($variantId) {
+            $this->restockVariation($item, $variantId, $qty);
+        } else {
+            $this->restockProduct($item, $product, $qty);
         }
     }
 

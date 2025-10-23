@@ -6,11 +6,21 @@ namespace App\View\Composers;
 
 use Illuminate\View\View;
 
-class AdminSocialFormComposer
+final class AdminSocialFormComposer
 {
     public function compose(View $view): void
     {
-        $icons = [
+        $data = $view->getData();
+        $link = $data['link'] ?? null;
+        $currentIcon = old('icon', $link->icon ?? 'fas fa-link');
+
+        $view->with('socialIcons', $this->getSocialIcons())
+            ->with('socialCurrentIcon', $currentIcon);
+    }
+
+    private function getSocialIcons(): array
+    {
+        return [
             'fab fa-facebook-f' => 'Facebook',
             'fab fa-x-twitter' => 'X / Twitter',
             'fab fa-twitter' => 'Twitter (legacy)',
@@ -33,9 +43,5 @@ class AdminSocialFormComposer
             'fas fa-globe' => 'Website',
             'fas fa-link' => 'Generic Link',
         ];
-        $data = $view->getData();
-        $link = $data['link'] ?? null;
-        $currentIcon = old('icon', $link->icon ?? 'fas fa-link');
-        $view->with('socialIcons', $icons)->with('socialCurrentIcon', $currentIcon);
     }
 }

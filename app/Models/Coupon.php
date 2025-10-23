@@ -34,29 +34,6 @@ final class Coupon extends Model
             $this->meetsMinTotal($total);
     }
 
-    private function isActive(): bool
-    {
-        return $this->active;
-    }
-
-    private function isWithinDateRange(): bool
-    {
-        $now = now();
-
-        return (!$this->starts_at || $now->gte($this->starts_at)) &&
-            (!$this->ends_at || $now->lte($this->ends_at));
-    }
-
-    private function hasUsesLeft(): bool
-    {
-        return $this->uses_total === null || $this->used_count < $this->uses_total;
-    }
-
-    private function meetsMinTotal(float $total): bool
-    {
-        return $this->min_order_total === null || $total >= $this->min_order_total;
-    }
-
     public function isValid(float $total): bool
     {
         return $this->isValidForTotal($total);
@@ -67,5 +44,28 @@ final class Coupon extends Model
         $discount = $this->type === 'percent' ? $total * $this->value / 100 : $this->value;
 
         return max(0, $total - $discount);
+    }
+
+    private function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    private function isWithinDateRange(): bool
+    {
+        $now = now();
+
+        return (! $this->starts_at || $now->gte($this->starts_at)) &&
+            (! $this->ends_at || $now->lte($this->ends_at));
+    }
+
+    private function hasUsesLeft(): bool
+    {
+        return $this->uses_total === null || $this->used_count < $this->uses_total;
+    }
+
+    private function meetsMinTotal(float $total): bool
+    {
+        return $this->min_order_total === null || $total >= $this->min_order_total;
     }
 }

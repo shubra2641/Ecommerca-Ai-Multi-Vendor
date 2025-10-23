@@ -27,15 +27,9 @@ final class ProductCardComposer
         $compareIds = $data['compareIds'] ?? [];
 
         $prices = $this->getCardPrices($product);
+        $cardAvailable = $this->calculateCardAvailable($product);
+        $cardSnippet = $this->generateCardSnippet($product);
 
-        $cardAvailable = match (true) {
-            isset($product->list_available) => (int) $product->list_available,
-            ! $product->manage_stock => null,
-            default => max(0, (int) ($product->stock_qty ?? 0) - (int) ($product->reserved_qty ?? 0)),
-        };
-
-        $desc = trim(strip_tags($product->short_description ?? $product->description ?? ''));
-        $cardSnippet = $desc ? Str::limit($desc, 50, '...') : '';
         return [
             'cardOnSale' => $prices['cardOnSale'],
             'cardDiscountPercent' => $prices['cardDiscountPercent'],
@@ -50,6 +44,25 @@ final class ProductCardComposer
             'cardDisplaySalePrice' => $prices['cardDisplaySalePrice'],
             'cardImageUrl' => $product->main_image ? asset($product->main_image) : asset('images/placeholder.png'),
         ];
+    }
+
+    private function calculateCardAvailable($product): ?int
+    {
+        if (isset($product->list_available)) {
+            return (int) $product->list_available;
+        }
+
+        if (! $product->manage_stock) {
+            return null;
+        }
+
+        return max(0, (int) ($product->stock_qty ?? 0) - (int) ($product->reserved_qty ?? 0));
+    }
+
+    private function generateCardSnippet($product): string
+    {
+        $desc = trim(strip_tags($product->short_description ?? $product->description ?? ''));
+        return $desc ? Str::limit($desc, 50, '...') : '';
     }
 
     private function getCardPrices($product): array

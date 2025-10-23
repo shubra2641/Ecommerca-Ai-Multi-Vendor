@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Vendor;
 
 use App\Http\Controllers\Controller;
-use App\Models\BalanceHistory;
 use App\Models\VendorWithdrawal;
 use App\Services\VendorWithdrawalService;
 use App\Services\WithdrawalSettingsService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 final class WithdrawalsController extends Controller
 {

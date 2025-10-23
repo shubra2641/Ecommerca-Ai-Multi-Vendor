@@ -19,10 +19,6 @@
                 </div>
             </div>
             <div class="header-actions">
-                <a href="{{ route('admin.products.export') }}" class="admin-btn admin-btn-secondary">
-                    <i class="fas fa-download"></i>
-                    {{ __('Export') }}
-                </a>
                 <a href="{{ route('admin.products.create') }}" class="admin-btn admin-btn-primary">
                     <i class="fas fa-plus"></i>
                     {{ __('Add Product') }}

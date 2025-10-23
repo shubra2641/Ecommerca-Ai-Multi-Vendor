@@ -46,13 +46,6 @@
                             </svg>
                             {{ __('Import') }}
                         </button>
-                        <a class="admin-btn admin-btn-secondary" href="{{ route('admin.products.serials.export',$product) }}">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 19.6642C20.0391 19.2893 19.5304 19 19 19H5C4.46957 19 3.96086 19.2893 3.58579 19.6642C3.21071 20.0391 3 20.5304 3 21V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            {{ __('Export CSV') }}
-                        </a>
                     </div>
                 </form>
             </div>

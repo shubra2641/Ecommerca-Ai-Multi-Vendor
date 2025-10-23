@@ -64,82 +64,74 @@ class HandlePaymentWebhook implements ShouldQueue
         }
     }
 
-    /**
-     * Update order status based on payment status.
-     */
     private function updateOrderStatus($payment, string $status): void
     {
         $order = $payment->order;
 
         if (! $order) {
-            if (! app()->environment('testing')) {
-                null;
-            }
-
             return;
         }
 
-        switch ($status) {
-            case 'completed':
-            case 'paid':
-            case 'success':
-                if ($order->status !== 'paid') {
-                    $order->status = 'paid';
-                    $order->save();
+        if (in_array($status, ['completed', 'paid', 'success'])) {
+            $this->handleSuccessfulOrderStatus($order);
+        } elseif (in_array($status, ['pending', 'processing'])) {
+            $this->handleProcessingOrderStatus($order);
+        }
+        // For failed/cancelled/expired, do not change order status
+    }
 
-                    if (! app()->environment('testing')) {
-                        null;
-                    }
-                }
-                break;
-
-            case 'failed':
-            case 'cancelled':
-            case 'expired':
-                // Do not change order status for failed/cancelled webhooks here.
-                // Tests expect the order to remain in its previous state (e.g., pending)
-                // and cancelling orders should be handled explicitly elsewhere.
-                break;
-
-            case 'pending':
-            case 'processing':
-                if ($order->status === 'pending_payment') {
-                    $order->status = 'processing_payment';
-                    $order->save();
-                }
-                break;
+    private function handleSuccessfulOrderStatus($order): void
+    {
+        if ($order->status !== 'paid') {
+            $order->status = 'paid';
+            $order->save();
         }
     }
 
-    /**
-     * Send notifications based on payment status.
-     */
+    private function handleProcessingOrderStatus($order): void
+    {
+        if ($order->status === 'pending_payment') {
+            $order->status = 'processing_payment';
+            $order->save();
+        }
+    }
+
     private function sendNotifications($payment, string $status): void
     {
-        // Skip actual notifications during automated tests to avoid external side-effects
         if (app()->environment('testing')) {
             return;
         }
 
+        $order = $payment->order;
+        $user = $payment->user ?? $order->user ?? null;
+
+        if (! $user) {
+            return;
+        }
+
+        $this->sendUserNotification($user, $payment, $status);
+
+        if (in_array($status, ['failed', 'cancelled', 'expired'])) {
+            $this->sendAdminNotification($payment, $status);
+        }
+    }
+
+    private function sendUserNotification($user, $payment, string $status): void
+    {
         try {
-            $order = $payment->order;
-            $user = $payment->user ?? $order->user ?? null;
-            if (! $user) {
-                return;
-            }
-
-            // Send notification to user
             $user->notify(new PaymentStatusUpdated($payment, $status));
-
-            // Send notification to admin for failed payments
-            if (in_array($status, ['failed', 'cancelled', 'expired'])) {
-                $adminUsers = \App\Models\User::where('role', 'admin')->get();
-                Notification::send($adminUsers, new PaymentStatusUpdated($payment, $status));
-            }
         } catch (\Exception $e) {
-            if (! app()->environment('testing')) {
-                null;
-            }
+            // Handle notification failure silently
+        }
+    }
+
+    private function sendAdminNotification($payment, string $status): void
+    {
+        try {
+            $adminUsers = \App\Models\User::where('role', 'admin')->get();
+            Notification::send($adminUsers, new PaymentStatusUpdated($payment, $status));
+        } catch (\Exception $e) {
+            // Handle notification failure silently
         }
     }
 
@@ -167,40 +159,35 @@ class HandlePaymentWebhook implements ShouldQueue
         }
     }
 
-    /**
-     * Handle successful payment actions.
-     */
     private function handleSuccessfulPayment($payment, array $webhookData = []): void
     {
         try {
-            $order = $payment->order;
-
-            // Update payment with gateway response details
-            if (! empty($webhookData['transaction_id'])) {
-                $payment->transaction_id = $webhookData['transaction_id'];
-            }
-            if (! empty($webhookData['gateway_reference'])) {
-                $payment->gateway_reference = $webhookData['gateway_reference'];
-            }
-            if (! empty($webhookData['gateway_fee'])) {
-                $payment->gateway_fee = $webhookData['gateway_fee'];
-            }
+            $this->updatePaymentWithWebhookData($payment, $webhookData);
             $payment->save();
 
-            if ($order) {
-                // Release reserved inventory
-                $this->releaseInventory($order);
-
-                // Generate invoice
-                $this->generateInvoice($order);
-
-                // Send order confirmation
-                $this->sendOrderConfirmation($order);
+            $order = $payment->order;
+            if (! $order) {
+                return;
             }
+
+            $this->releaseInventory($order);
+            $this->generateInvoice($order);
+            $this->sendOrderConfirmation($order);
         } catch (\Exception $e) {
-            if (! app()->environment('testing')) {
-                null;
-            }
+            // Handle exception silently in production
+        }
+    }
+
+    private function updatePaymentWithWebhookData($payment, array $webhookData): void
+    {
+        if (! empty($webhookData['transaction_id'])) {
+            $payment->transaction_id = $webhookData['transaction_id'];
+        }
+        if (! empty($webhookData['gateway_reference'])) {
+            $payment->gateway_reference = $webhookData['gateway_reference'];
+        }
+        if (! empty($webhookData['gateway_fee'])) {
+            $payment->gateway_fee = $webhookData['gateway_fee'];
         }
     }
 

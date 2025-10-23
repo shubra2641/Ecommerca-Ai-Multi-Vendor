@@ -19,22 +19,12 @@ final class AdminProductFormComposer
         $languages = $this->getLanguages();
         $categories = $this->getCategories();
         $pfAttrData = $this->getAttributeData();
-        $pfUsedAttributes = $model && is_array($model->used_attributes ?? null) ? $model->used_attributes : (is_array(old('used_attributes')) ? old('used_attributes') : []);
+        $pfUsedAttributes = $this->getUsedAttributes($model);
         $pfClientVariations = $this->getClientVariations($model);
-        $pfHasSerials = (bool) ($model->has_serials ?? old('has_serials', false));
+        $pfHasSerials = $this->getHasSerials($model);
         $pfLangMeta = $this->getLanguageMeta($languages, $model);
 
-        $isVendorForm = (bool) ($data['isVendorForm'] ?? false);
-        $pfShowActive = ! $isVendorForm;
-        $currentLocale = app()->getLocale();
-        $defaultLocale = $languages->firstWhere('is_default', 1)?->code ?? ($languages->first()?->code);
-        $formSettings = [
-            'm' => $model,
-            'pfShowActive' => $pfShowActive,
-            'isVendorForm' => $isVendorForm,
-            'currentLocale' => $currentLocale,
-            'defaultLocale' => $defaultLocale,
-        ];
+        $formSettings = $this->getFormSettings($data, $languages);
 
         $view->with(array_merge(compact(
             'languages',
@@ -45,6 +35,35 @@ final class AdminProductFormComposer
             'pfHasSerials',
             'pfLangMeta'
         ), $formSettings));
+    }
+
+    private function getUsedAttributes($model): array
+    {
+        if ($model && is_array($model->used_attributes ?? null)) {
+            return $model->used_attributes;
+        }
+
+        return is_array(old('used_attributes')) ? old('used_attributes') : [];
+    }
+
+    private function getHasSerials($model): bool
+    {
+        return (bool) ($model->has_serials ?? old('has_serials', false));
+    }
+
+    private function getFormSettings(array $data, $languages): array
+    {
+        $isVendorForm = (bool) ($data['isVendorForm'] ?? false);
+        $currentLocale = app()->getLocale();
+        $defaultLocale = $languages->firstWhere('is_default', 1)?->code ?? ($languages->first()?->code);
+
+        return [
+            'm' => $data['model'] ?? ($data['m'] ?? null),
+            'pfShowActive' => ! $isVendorForm,
+            'isVendorForm' => $isVendorForm,
+            'currentLocale' => $currentLocale,
+            'defaultLocale' => $defaultLocale,
+        ];
     }
 
     private function getLanguages()
@@ -125,41 +144,42 @@ final class AdminProductFormComposer
         return $languages->mapWithKeys(function ($lang) use ($model) {
             $code = $lang->code;
             $isDefault = (bool) $lang->is_default;
-            return [$code => [
-                'name_val' => old(
-                    "name.{$code}",
-                    $model?->translate('name', $code) ?? ''
-                ),
-                'short_val' => old(
-                    "short_description.{$code}",
-                    $model?->translate('short_description', $code) ?? ''
-                ),
-                'desc_val' => old(
-                    "description.{$code}",
-                    $model?->translate('description', $code) ?? ''
-                ),
-                'seo_title' => old(
-                    "seo_title.{$code}",
-                    $model?->translate('seo_title', $code) ?? ''
-                ),
-                'seo_keywords' => old(
-                    "seo_keywords.{$code}",
-                    $model?->translate('seo_keywords', $code) ?? ''
-                ),
-                'seo_description' => old(
-                    "seo_description.{$code}",
-                    $model?->translate('seo_description', $code) ?? ''
-                ),
-                'ph_name' => $isDefault ? __('Main name') :
-                    __('Name') . ' (' . $code . ')',
-                'ph_short' => $isDefault ? __('Short description') :
-                    __('Short') . ' (' . $code . ')',
-                'ph_desc' => $isDefault ? __('Full description') :
-                    __('Description') . ' (' . $code . ')',
-                'ph_seo_title' => __('SEO Title') . ' (' . $code . ')',
-                'ph_seo_keywords' => __('SEO Keywords') . ' (' . $code . ')',
-                'ph_seo_description' => __('SEO Description') . ' (' . $code . ')',
-            ],
+            return [
+                $code => [
+                    'name_val' => old(
+                        "name.{$code}",
+                        $model?->translate('name', $code) ?? ''
+                    ),
+                    'short_val' => old(
+                        "short_description.{$code}",
+                        $model?->translate('short_description', $code) ?? ''
+                    ),
+                    'desc_val' => old(
+                        "description.{$code}",
+                        $model?->translate('description', $code) ?? ''
+                    ),
+                    'seo_title' => old(
+                        "seo_title.{$code}",
+                        $model?->translate('seo_title', $code) ?? ''
+                    ),
+                    'seo_keywords' => old(
+                        "seo_keywords.{$code}",
+                        $model?->translate('seo_keywords', $code) ?? ''
+                    ),
+                    'seo_description' => old(
+                        "seo_description.{$code}",
+                        $model?->translate('seo_description', $code) ?? ''
+                    ),
+                    'ph_name' => $isDefault ? __('Main name') :
+                        __('Name') . ' (' . $code . ')',
+                    'ph_short' => $isDefault ? __('Short description') :
+                        __('Short') . ' (' . $code . ')',
+                    'ph_desc' => $isDefault ? __('Full description') :
+                        __('Description') . ' (' . $code . ')',
+                    'ph_seo_title' => __('SEO Title') . ' (' . $code . ')',
+                    'ph_seo_keywords' => __('SEO Keywords') . ' (' . $code . ')',
+                    'ph_seo_description' => __('SEO Description') . ' (' . $code . ')',
+                ],
             ];
         })->all();
     }

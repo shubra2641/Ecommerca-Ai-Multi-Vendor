@@ -50,25 +50,7 @@ class ProductSerialController extends Controller
             }
         }
 
-        return back()->with('success', __('Imported :count serials', ['count' => $created]));
-    }
-
-    public function export(Product $product)
-    {
-        $filename = 'product_' . $product->id . '_serials_' . date('Ymd_His') . '.csv';
-        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$filename}"];
-        $callback = function () use ($product): void {
-            $out = fopen('php://output', 'w');
-            fputcsv($out, ['id', 'serial', 'sold_at']);
-            $product->serials()->chunk(200, function ($rows) use ($out): void {
-                foreach ($rows as $r) {
-                    fputcsv($out, [$r->id, $r->serial, $r->sold_at]);
-                }
-            });
-            fclose($out);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return back()->with('success', __('Imported successfully'));
     }
 
     public function markSold(Product $product, ProductSerial $serial)

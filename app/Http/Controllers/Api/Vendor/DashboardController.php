@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Vendor;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Product;
 use App\Models\User;
 use App\Models\VendorWithdrawal;
 use App\Services\VendorChartService;
@@ -70,8 +68,8 @@ final class DashboardController extends Controller
         $availableBalance = (float) ($user->balance ?? 0);
 
         // Calculate total sales from completed orders only
-        $totalSales = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $totalSales = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->sum(DB::raw('(price * COALESCE(qty, 1))'));
 
         // Calculate total withdrawals

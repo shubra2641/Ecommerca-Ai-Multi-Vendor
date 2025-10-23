@@ -18,8 +18,8 @@ final class VendorChartService
             $date = now()->subMonths($i);
             $monthKey = $date->format('M Y');
 
-            $monthlySales = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-                ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+            $monthlySales = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+                ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
                 ->whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->sum(DB::raw('(price * COALESCE(qty, 1))'));
@@ -37,8 +37,8 @@ final class VendorChartService
             $date = now()->subMonths($i);
             $monthKey = $date->format('M Y');
 
-            $monthlyOrders = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-                ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+            $monthlyOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+                ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
                 ->whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->distinct('order_id')
@@ -53,14 +53,14 @@ final class VendorChartService
      */
     public function calculateSalesGrowth($vendorId): float
     {
-        $currentMonth = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $currentMonth = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
             ->sum(DB::raw('(price * COALESCE(qty, 1))'));
 
-        $previousMonth = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $previousMonth = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->whereYear('created_at', now()->subMonth()->year)
             ->whereMonth('created_at', now()->subMonth()->month)
             ->sum(DB::raw('(price * COALESCE(qty, 1))'));
@@ -77,15 +77,15 @@ final class VendorChartService
      */
     public function calculateOrdersGrowth($vendorId): float
     {
-        $currentMonthOrders = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $currentMonthOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
             ->distinct('order_id')
             ->count('order_id');
 
-        $previousMonthOrders = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $previousMonthOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->whereYear('created_at', now()->subMonth()->year)
             ->whereMonth('created_at', now()->subMonth()->month)
             ->distinct('order_id')

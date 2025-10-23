@@ -32,30 +32,17 @@ final class VendorProductsIndexComposer
             return [];
         }
 
-        $productsCollection = collect($data['products']);
-
-        return $productsCollection
-            ->filter(function ($product) {
-                try {
-                    return $product->manage_stock;
-                } catch (\Throwable $e) {
-                    return false;
-                }
-            })
+        return collect($data['products'])
+            ->filter(fn ($product) => $product->manage_stock ?? false)
             ->mapWithKeys(function ($product) {
-                $available = 0;
                 $stockQty = (int) ($product->stock_qty ?? 0);
+                $available = (int) $product->availableStock();
 
-                try {
-                    $available = (int) $product->availableStock();
-                } catch (\Throwable $e) {
-                    $available = 0;
-                }
-
-                return [$product->id => [
-                    'available' => $available,
-                    'stock_qty' => $stockQty,
-                ],
+                return [
+                    $product->id => [
+                        'available' => $available,
+                        'stock_qty' => $stockQty,
+                    ],
                 ];
             })
             ->toArray();

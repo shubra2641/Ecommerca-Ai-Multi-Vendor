@@ -10,7 +10,7 @@ use App\Services\AI\SimpleAIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class ProductCategoryController extends Controller
+final class ProductCategoryController extends Controller
 {
     public function index()
     {
@@ -43,34 +43,9 @@ class ProductCategoryController extends Controller
             'name_i18n' => 'array',
             'description_i18n' => 'array',
         ]);
-        $defaultLocale = cache()->remember('default_locale_code', 3600, function () {
-            return optional(\App\Models\Language::where('is_default', 1)->first())->code ?? 'en';
-        });
-        $nameTranslations = $r->input('name_i18n', []);
-        $descTranslations = $r->input('description_i18n', []);
-        if (! empty($nameTranslations)) {
-            $clean = [];
-            foreach ($nameTranslations as $lc => $v) {
-                $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-            }
-            $data['name_translations'] = array_filter($clean, fn ($v) => $v !== null && $v !== '');
-        }
-        if (! empty($descTranslations)) {
-            $clean = [];
-            foreach ($descTranslations as $lc => $v) {
-                $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-            }
-            $data['description_translations'] = array_filter($clean, fn ($v) => $v !== null && $v !== '');
-        }
-        if (isset($data['name_translations'][$defaultLocale])) {
-            $data['name'] = $data['name_translations'][$defaultLocale];
-        }
-        if (isset($data['description_translations'][$defaultLocale])) {
-            $data['description'] = $data['description_translations'][$defaultLocale];
-        }
-        if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['name']);
-        }
+
+        $this->processTranslationsAndSlug($data, $r, $sanitizer);
+
         ProductCategory::create($data);
 
         return redirect()
@@ -102,34 +77,9 @@ class ProductCategoryController extends Controller
             'name_i18n' => 'array',
             'description_i18n' => 'array',
         ]);
-        $defaultLocale = cache()->remember('default_locale_code', 3600, function () {
-            return optional(\App\Models\Language::where('is_default', 1)->first())->code ?? 'en';
-        });
-        $nameTranslations = $r->input('name_i18n', []);
-        $descTranslations = $r->input('description_i18n', []);
-        if (! empty($nameTranslations)) {
-            $clean = [];
-            foreach ($nameTranslations as $lc => $v) {
-                $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-            }
-            $data['name_translations'] = array_filter($clean, fn ($v) => $v !== null && $v !== '');
-        }
-        if (! empty($descTranslations)) {
-            $clean = [];
-            foreach ($descTranslations as $lc => $v) {
-                $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-            }
-            $data['description_translations'] = array_filter($clean, fn ($v) => $v !== null && $v !== '');
-        }
-        if (isset($data['name_translations'][$defaultLocale])) {
-            $data['name'] = $data['name_translations'][$defaultLocale];
-        }
-        if (isset($data['description_translations'][$defaultLocale])) {
-            $data['description'] = $data['description_translations'][$defaultLocale];
-        }
-        if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['name']);
-        }
+
+        $this->processTranslationsAndSlug($data, $r, $sanitizer);
+
         $productCategory->update($data);
 
         return redirect()->route('admin.product-categories.index')->with('success', __('Updated'));
@@ -142,41 +92,9 @@ class ProductCategoryController extends Controller
         return back()->with('success', __('Deleted'));
     }
 
-    public function export(Request $r)
-    {
-        $fileName = 'categories_export_' . date('Ymd_His') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename={$fileName}",
-        ];
-        $columns = ['id', 'name', 'slug', 'parent_id', 'position', 'active', 'created_at'];
-        $callback = function () use ($columns): void {
-            $out = fopen('php://output', 'w');
-            fputcsv($out, $columns);
-            \App\Models\ProductCategory::chunk(200, function ($items) use ($out): void {
-                foreach ($items as $c) {
-                    $row = [
-                        $c->id,
-                        $c->name,
-                        $c->slug,
-                        $c->parent_id,
-                        $c->position,
-                        $c->active ? 1 : 0,
-                        $c->created_at,
-                    ];
-                    fputcsv($out, $row);
-                }
-            });
-            fclose($out);
-        };
-
-        return response()->stream($callback, 200, $headers);
-    }
-
     public function aiSuggest(Request $request, SimpleAIService $ai)
     {
         $title = $request->input('name') ? $request->input('name') : $request->input('title');
-        $target = $request->input('target', 'all');
         $locale = $request->input('locale');
 
         // Validate title
@@ -190,32 +108,63 @@ class ProductCategoryController extends Controller
             return back()->with('error', $result['error'])->withInput();
         }
 
-        $merge = [];
-        if (! empty($result['description'])) {
-            $merge['description'] = $result['description'];
-        }
-        if (! empty($result['seo_description'])) {
-            $merge['seo_description'] = $result['seo_description'];
-        }
-        if (! empty($result['seo_tags'])) {
-            $merge['seo_keywords'] = $result['seo_tags'];
-        }
-        if (! empty($result['seo_title'])) {
-            $merge['seo_title'] = $result['seo_title'];
-        }
-
-        // Fill translations only for the requested language
-        if ($locale) {
-            if (! empty($result['description'])) {
-                $merge["name_i18n.{$locale}"] = $title;
-                $merge["description_i18n.{$locale}"] = $result['description'];
-            }
-        }
+        $merge = $this->buildMergeArray($result, $title, $locale);
 
         // Merge with existing form data to preserve user input
         $existingData = $request->except(['_token']);
         $mergedData = array_merge($existingData, $merge);
 
         return back()->with('success', __('AI generated successfully'))->withInput($mergedData);
+    }
+
+    private function buildMergeArray(array $result, string $title, ?string $locale): array
+    {
+        $merge = array_filter([
+            'description' => $result['description'] ?? null,
+            'seo_description' => $result['seo_description'] ?? null,
+            'seo_keywords' => $result['seo_tags'] ?? null,
+            'seo_title' => $result['seo_title'] ?? null,
+        ], fn ($v) => ! empty($v));
+
+        // Fill translations only for the requested language
+        if ($locale && ! empty($result['description'])) {
+            $merge["name_i18n.{$locale}"] = $title;
+            $merge["description_i18n.{$locale}"] = $result['description'];
+        }
+
+        return $merge;
+    }
+
+    private function cleanTranslations(array $translations, \App\Services\HtmlSanitizer $sanitizer): array
+    {
+        $clean = [];
+        foreach ($translations as $lc => $v) {
+            $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
+        }
+        return array_filter($clean, fn ($v) => $v !== null && $v !== '');
+    }
+
+    private function processTranslationsAndSlug(array &$data, Request $r, \App\Services\HtmlSanitizer $sanitizer): void
+    {
+        $defaultLocale = cache()->remember('default_locale_code', 3600, function () {
+            return optional(\App\Models\Language::where('is_default', 1)->first())->code ?? 'en';
+        });
+        $nameTranslations = $r->input('name_i18n', []);
+        $descTranslations = $r->input('description_i18n', []);
+        if (! empty($nameTranslations)) {
+            $data['name_translations'] = $this->cleanTranslations($nameTranslations, $sanitizer);
+        }
+        if (! empty($descTranslations)) {
+            $data['description_translations'] = $this->cleanTranslations($descTranslations, $sanitizer);
+        }
+        if (isset($data['name_translations'][$defaultLocale])) {
+            $data['name'] = $data['name_translations'][$defaultLocale];
+        }
+        if (isset($data['description_translations'][$defaultLocale])) {
+            $data['description'] = $data['description_translations'][$defaultLocale];
+        }
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']);
+        }
     }
 }

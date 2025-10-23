@@ -15,9 +15,7 @@ final class HeaderComposer
 {
     public function compose(View $view): void
     {
-        $setting = $view->getData()['setting'] ??
-            (Schema::hasTable('settings') ? \App\Models\Setting::first() : null);
-
+        $setting = $this->getSetting($view);
         $currencies = $this->getCurrencies();
         $currentCurrency = $this->resolveCurrentCurrency($currencies);
 
@@ -35,6 +33,12 @@ final class HeaderComposer
 
         $view->with($data);
         $view->with($this->getCurrencyData($currentCurrency));
+    }
+
+    private function getSetting(View $view)
+    {
+        return $view->getData()['setting'] ??
+            (Schema::hasTable('settings') ? \App\Models\Setting::first() : null);
     }
 
     private function getCurrencyData($currentCurrency): array
@@ -68,15 +72,18 @@ final class HeaderComposer
     private function resolveCurrentCurrency($currencies)
     {
         $current = $currencies->firstWhere('is_default', true) ?? $currencies->first();
-        $currentCurrency = $current;
         $sessionCurrencyId = session('currency_id');
-        if ($sessionCurrencyId) {
-            $sc = Currency::find($sessionCurrencyId);
-            if ($sc && $currencies->contains('id', $sc->id)) {
-                $currentCurrency = $sc;
-            }
+
+        if (! $sessionCurrencyId) {
+            return $current;
         }
-        return $currentCurrency;
+
+        $sc = Currency::find($sessionCurrencyId);
+        if (! $sc || ! $currencies->contains('id', $sc->id)) {
+            return $current;
+        }
+
+        return $sc;
     }
 
     private function getRootCategories()
@@ -143,9 +150,7 @@ final class HeaderComposer
 
     private function getWishlistCount(): int
     {
-        $isAuthenticatedForWishlist = Auth::check() && Schema::hasTable('wishlist_items');
-
-        if ($isAuthenticatedForWishlist) {
+        if (Auth::check() && Schema::hasTable('wishlist_items')) {
             return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
         }
 

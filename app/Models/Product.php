@@ -180,7 +180,7 @@ class Product extends Model
     public function effectivePrice(): float
     {
         if ($this->type === 'variable') {
-            return $this->variations->filter(fn($v) => $v->active)->map(fn($v) => $v->effectivePrice())->min() ?? (float) $this->price;
+            return $this->variations->filter(fn ($v) => $v->active)->map(fn ($v) => $v->effectivePrice())->min() ?? (float) $this->price;
         }
 
         return $this->isOnSale() ? (float) $this->sale_price : (float) $this->price;
