@@ -49,7 +49,16 @@ final class HeaderComposer
 
     private function getCategoriesAndCurrencies(): array
     {
-        $currencies = Cache::remember('active_currencies', 3600, function () {
+        return [
+            'rootCats' => $this->getCachedRootCategories(),
+            'currencies' => $this->getCachedCurrencies(),
+            'currentCurrency' => $this->resolveCurrentCurrency($this->getCachedCurrencies()),
+        ];
+    }
+
+    private function getCachedCurrencies()
+    {
+        return Cache::remember('active_currencies', 3600, function () {
             if (Schema::hasTable('currencies')) {
                 try {
                     return Currency::active()->take(4)->get();
@@ -60,26 +69,25 @@ final class HeaderComposer
 
             return collect();
         });
+    }
 
-        return [
-            'rootCats' => Cache::remember('root_categories', 3600, function () {
-                if (Schema::hasTable('product_categories')) {
-                    try {
-                        return ProductCategory::where('active', 1)
-                            ->whereNull('parent_id')
-                            ->orderBy('name')
-                            ->take(14)
-                            ->get();
-                    } catch (Throwable $e) {
-                        return collect();
-                    }
+    private function getCachedRootCategories()
+    {
+        return Cache::remember('root_categories', 3600, function () {
+            if (Schema::hasTable('product_categories')) {
+                try {
+                    return ProductCategory::where('active', 1)
+                        ->whereNull('parent_id')
+                        ->orderBy('name')
+                        ->take(14)
+                        ->get();
+                } catch (Throwable $e) {
+                    return collect();
                 }
+            }
 
-                return collect();
-            }),
-            'currencies' => $currencies,
-            'currentCurrency' => $this->resolveCurrentCurrency($currencies),
-        ];
+            return collect();
+        });
     }
 
     private function resolveCurrentCurrency($currencies)
@@ -160,18 +168,7 @@ final class HeaderComposer
     private function addCurrencyData(View $view): void
     {
         try {
-            $currencies = Cache::remember('active_currencies', 3600, function () {
-                if (Schema::hasTable('currencies')) {
-                    try {
-                        return Currency::active()->take(4)->get();
-                    } catch (Throwable $e) {
-                        return collect();
-                    }
-                }
-
-                return collect();
-            });
-
+            $currencies = $this->getCachedCurrencies();
             $currentCurrency = $this->resolveCurrentCurrency($currencies);
             $symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
             $view->with('currency_symbol', $symbol ?? '$');

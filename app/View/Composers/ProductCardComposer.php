@@ -25,26 +25,49 @@ final class ProductCardComposer
     {
         $wishlistIds = $data['wishlistIds'] ?? [];
         $compareIds = $data['compareIds'] ?? [];
-        $price = $product->display_price ?? ($product->price ?? ($product->effectivePrice() ?? 0));
-        $salePriceValue = $this->getDisplaySalePriceValue($product);
-        $productPrice = $product->price ?? 0;
-        $productSale = $product->sale_price ?? null;
-        $discountPercent = $productPrice && $productSale && $productSale < $productPrice ? (int) round(($productPrice - $productSale) / $productPrice * 100) : null;
 
         return [
-            'cardOnSale' => $productSale !== null && $productSale < $productPrice,
-            'cardDiscountPercent' => $discountPercent,
+            'cardOnSale' => $this->isOnSale($product),
+            'cardDiscountPercent' => $this->calculateDiscountPercent($product),
             'cardAvailable' => $this->getAvailableStock($product),
             'cardWishActive' => in_array($product->id, $wishlistIds, true),
             'cardCmpActive' => in_array($product->id, $compareIds, true),
             'cardRating' => $product->reviews_avg_rating ?? 0.0,
             'cardReviewsCount' => $product->reviews_count ?? 0,
-            'cardFullStars' => (int) floor((float) ($product->reviews_avg_rating ?? 0.0)),
+            'cardFullStars' => $this->calculateFullStars($product),
             'cardSnippet' => $this->getDescriptionSnippet($product),
-            'cardDisplayPrice' => $price,
-            'cardDisplaySalePrice' => $salePriceValue,
+            'cardDisplayPrice' => $this->getDisplayPrice($product),
+            'cardDisplaySalePrice' => $this->getDisplaySalePriceValue($product),
             'cardImageUrl' => $this->getImageUrl($product),
         ];
+    }
+
+    private function isOnSale($product): bool
+    {
+        $productPrice = $product->price ?? 0;
+        $productSale = $product->sale_price ?? null;
+
+        return $productSale !== null && $productSale < $productPrice;
+    }
+
+    private function calculateDiscountPercent($product): ?int
+    {
+        $productPrice = $product->price ?? 0;
+        $productSale = $product->sale_price ?? null;
+
+        return $productPrice && $productSale && $productSale < $productPrice
+            ? (int) round(($productPrice - $productSale) / $productPrice * 100)
+            : null;
+    }
+
+    private function calculateFullStars($product): int
+    {
+        return (int) floor((float) ($product->reviews_avg_rating ?? 0.0));
+    }
+
+    private function getDisplayPrice($product)
+    {
+        return $product->display_price ?? ($product->price ?? ($product->effectivePrice() ?? 0));
     }
 
     private function getDisplaySalePriceValue($product): mixed
