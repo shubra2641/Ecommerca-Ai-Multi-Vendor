@@ -14,7 +14,7 @@ class Setting extends Model
      *
      * @var array<string>
      */
-    protected array $fillable = [
+    protected $fillable = [
         'site_name',
         'logo',
         'seo_description',
@@ -55,7 +55,7 @@ class Setting extends Model
      *
      * @var array<string, string>
      */
-    protected array $casts = [
+    protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'maintenance_enabled' => 'boolean',
