@@ -28,19 +28,14 @@ final class VendorProductsIndexComposer
 
     private function calculateProductStocks(array $data): array
     {
-        $productStocks = [];
-
-        if (! isset($data['products'])) {
-            return $productStocks;
+        if (!isset($data['products'])) {
+            return [];
         }
 
-        foreach ($data['products'] as $product) {
-            if ($product->manage_stock) {
-                $productStocks[$product->id] = $this->calculateStockInfo($product);
-            }
-        }
-
-        return $productStocks;
+        return collect($data['products'])
+            ->filter(fn($product) => $product->manage_stock)
+            ->mapWithKeys(fn($product) => [$product->id => $this->calculateStockInfo($product)])
+            ->toArray();
     }
 
     private function calculateStockInfo($product): array

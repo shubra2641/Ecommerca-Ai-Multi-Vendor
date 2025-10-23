@@ -66,34 +66,16 @@ final class ProductCardComposer
         $price = $product->price ?? null;
         $sale = $product->sale_price ?? null;
 
-        if ($price && $sale && $sale < $price) {
-            return (int) round(($price - $sale) / $price * 100);
-        }
-
-        return null;
+        return $price && $sale && $sale < $price ? (int) round(($price - $sale) / $price * 100) : null;
     }
 
     private function getAvailableStock($product): ?int
     {
         return match (true) {
             isset($product->list_available) => $product->list_available,
-            ! $product->manage_stock => null,
+            !$product->manage_stock => null,
             default => max(0, ($product->stock_qty ?? 0) - ($product->reserved_qty ?? 0)),
         };
-    }
-
-    private function isInWishlist($product, array $data): bool
-    {
-        $wishlistIds = $data['wishlistIds'] ?? [];
-
-        return in_array($product->id, $wishlistIds, true);
-    }
-
-    private function isInCompare($product, array $data): bool
-    {
-        $compareIds = $data['compareIds'] ?? [];
-
-        return in_array($product->id, $compareIds, true);
     }
 
     private function calculateFullStars($product): int
@@ -105,10 +87,9 @@ final class ProductCardComposer
 
     private function getDescriptionSnippet($product): string
     {
-        $plainDesc = trim(strip_tags($product->short_description ?? $product->description ?? ''));
-        $snippet = Str::limit($plainDesc, 50, '...');
+        $desc = trim(strip_tags($product->short_description ?? $product->description ?? ''));
 
-        return $snippet === '...' ? '' : $snippet;
+        return $desc ? Str::limit($desc, 50, '...') : '';
     }
 
     private function getDisplayPrices($product): array
@@ -129,11 +110,7 @@ final class ProductCardComposer
         $price = $product->price ?? null;
         $salePrice = $product->sale_price ?? null;
 
-        if ($salePrice !== null && $price !== null && $salePrice < $price) {
-            return $salePrice;
-        }
-
-        return null;
+        return $salePrice && $price && $salePrice < $price ? $salePrice : null;
     }
 
     private function getImageUrl($product): string
