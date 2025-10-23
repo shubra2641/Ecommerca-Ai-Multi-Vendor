@@ -26,17 +26,18 @@
 
             trigger.addEventListener('click', (e) => {
                 e.preventDefault();
-                const open = wrapper.classList.toggle('open');
-                trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-                if (open) { closeAll(wrapper); panel.querySelector('button, a, input, [tabindex]')?.focus?.(); }
-            });
-
-            wrapper.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') { wrapper.classList.remove('open'); trigger.setAttribute('aria-expanded', 'false'); trigger.focus(); }
+                const isOpen = wrapper.classList.toggle('open');
+                trigger.setAttribute('aria-expanded', isOpen);
+                if (isOpen) {
+                    closeAll(wrapper);
+                    panel.querySelector('button, a, input, [tabindex]')?.focus?.();
+                }
             });
         });
 
-        doc.addEventListener('click', (e) => { if (!e.target.closest('[data-dropdown]')) closeAll(); });
+        doc.addEventListener('click', (e) => {
+            if (!e.target.closest('[data-dropdown]')) closeAll();
+        });
     }
 
     function initCurrencySwitch() {
