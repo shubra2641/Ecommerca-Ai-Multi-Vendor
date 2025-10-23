@@ -42,24 +42,15 @@ final class AdminOrdersIndexComposer
             return null;
         }
 
-        // Check for direct variant name
-        if (! empty($first->meta['variant_name'])) {
-            return $first->meta['variant_name'];
-        }
+        $meta = $first->meta;
 
-        // Check for attribute data
-        if (! empty($first->meta['attribute_data']) && is_array($first->meta['attribute_data'])) {
-            return $this->formatAttributeData($first->meta['attribute_data']);
-        }
-
-        return null;
-    }
-
-    private function formatAttributeData(array $attributeData): string
-    {
-        return collect($attributeData)
-            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
-            ->join(', ');
+        return match (true) {
+            ! empty($meta['variant_name']) => $meta['variant_name'],
+            ! empty($meta['attribute_data']) && is_array($meta['attribute_data']) => collect($meta['attribute_data'])
+                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                ->join(', '),
+            default => null,
+        };
     }
 
     private function getShippingText($order): string
@@ -93,12 +84,7 @@ final class AdminOrdersIndexComposer
     {
         $countryId = $ship['country_id'] ?? $ship['country'] ?? null;
 
-        if ($countryId && is_numeric($countryId)) {
-            $country = Country::find($countryId);
-            if ($country) {
-                $ship['country'] = $country->name;
-            }
-        }
+        $ship['country'] = ($countryId && is_numeric($countryId) && $country = Country::find($countryId)) ? $country->name : $ship['country'];
 
         return $ship;
     }
@@ -107,12 +93,7 @@ final class AdminOrdersIndexComposer
     {
         $govId = $ship['governorate_id'] ?? $ship['governorate'] ?? null;
 
-        if ($govId && is_numeric($govId)) {
-            $governorate = Governorate::find($govId);
-            if ($governorate) {
-                $ship['governorate'] = $governorate->name;
-            }
-        }
+        $ship['governorate'] = ($govId && is_numeric($govId) && $governorate = Governorate::find($govId)) ? $governorate->name : $ship['governorate'];
 
         return $ship;
     }
@@ -121,12 +102,7 @@ final class AdminOrdersIndexComposer
     {
         $cityId = $ship['city_id'] ?? $ship['city'] ?? null;
 
-        if ($cityId && is_numeric($cityId)) {
-            $city = City::find($cityId);
-            if ($city) {
-                $ship['city'] = $city->name;
-            }
-        }
+        $ship['city'] = ($cityId && is_numeric($cityId) && $city = City::find($cityId)) ? $city->name : $ship['city'];
 
         return $ship;
     }

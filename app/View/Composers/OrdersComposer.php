@@ -63,18 +63,22 @@ final class OrdersComposer
     {
         $firstItem = $order->items->first();
 
-        // If no first item, return default
         if (! $firstItem) {
             return __('Order');
         }
 
-        $firstName = $firstItem->name;
+        $itemName = $firstItem->name ?: __('Order');
+        $variantName = $this->getItemVariantName($firstItem);
 
-        // If item has variant name in meta, append it
-        if (isset($firstItem->meta) && is_array($firstItem->meta) && ! empty($firstItem->meta['variant_name'])) {
-            $firstName .= ' - ' . $firstItem->meta['variant_name'];
+        return $variantName ? $itemName . ' - ' . $variantName : $itemName;
+    }
+
+    private function getItemVariantName($item): ?string
+    {
+        if (! isset($item->meta) || ! is_array($item->meta)) {
+            return null;
         }
 
-        return $firstName ?: __('Order');
+        return $item->meta['variant_name'] ?? null;
     }
 }

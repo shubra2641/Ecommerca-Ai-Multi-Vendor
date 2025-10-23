@@ -23,36 +23,50 @@ final class ProductCardComposer
 
     private function buildCardData($product, array $data): array
     {
+        $wishlistAndCompare = $this->getWishlistAndCompareStatus($product, $data);
+        $prices = $this->getDisplayPrices($product);
+
         return [
             'cardOnSale' => $this->isOnSale($product),
             'cardDiscountPercent' => $this->calculateDiscountPercent($product),
             'cardAvailable' => $this->getAvailableStock($product),
-            'cardWishActive' => $this->isInWishlist($product, $data),
-            'cardCmpActive' => $this->isInCompare($product, $data),
+            'cardWishActive' => $wishlistAndCompare['wishlist'],
+            'cardCmpActive' => $wishlistAndCompare['compare'],
             'cardRating' => $product->reviews_avg_rating ?? 0.0,
             'cardReviewsCount' => $product->reviews_count ?? 0,
             'cardFullStars' => $this->calculateFullStars($product),
             'cardSnippet' => $this->getDescriptionSnippet($product),
-            'cardDisplayPrice' => $this->getDisplayPrice($product),
-            'cardDisplaySalePrice' => $this->getDisplaySalePrice($product),
+            'cardDisplayPrice' => $prices['price'],
+            'cardDisplaySalePrice' => $prices['sale_price'],
             'cardImageUrl' => $this->getImageUrl($product),
+        ];
+    }
+
+    private function getWishlistAndCompareStatus($product, array $data): array
+    {
+        $wishlistIds = $data['wishlistIds'] ?? [];
+        $compareIds = $data['compareIds'] ?? [];
+
+        return [
+            'wishlist' => in_array($product->id, $wishlistIds, true),
+            'compare' => in_array($product->id, $compareIds, true),
         ];
     }
 
     private function isOnSale($product): bool
     {
-        $price = $product->price ?? null;
-        $sale = ($product->sale_price ?? null) && $product->sale_price < $price ? $product->sale_price : null;
+        $price = $product->price ?? 0;
+        $sale = $product->sale_price ?? null;
 
-        return $sale !== null;
+        return $sale !== null && $sale < $price;
     }
 
     private function calculateDiscountPercent($product): ?int
     {
         $price = $product->price ?? null;
-        $sale = ($product->sale_price ?? null) && $product->sale_price < $price ? $product->sale_price : null;
+        $sale = $product->sale_price ?? null;
 
-        if ($sale !== null && $price) {
+        if ($price && $sale && $sale < $price) {
             return (int) round(($price - $sale) / $price * 100);
         }
 
@@ -61,21 +75,11 @@ final class ProductCardComposer
 
     private function getAvailableStock($product): ?int
     {
-        // If list_available is set, use it directly
-        if (isset($product->list_available)) {
-            return $product->list_available;
-        }
-
-        // If stock management is disabled, return null
-        if (! $product->manage_stock) {
-            return null;
-        }
-
-        // Calculate available stock
-        $stockQty = $product->stock_qty ?? 0;
-        $reservedQty = $product->reserved_qty ?? 0;
-
-        return max(0, $stockQty - $reservedQty);
+        return match (true) {
+            isset($product->list_available) => $product->list_available,
+            ! $product->manage_stock => null,
+            default => max(0, ($product->stock_qty ?? 0) - ($product->reserved_qty ?? 0)),
+        };
     }
 
     private function isInWishlist($product, array $data): bool
@@ -107,33 +111,24 @@ final class ProductCardComposer
         return $snippet === '...' ? '' : $snippet;
     }
 
-    private function getDisplayPrice($product): mixed
+    private function getDisplayPrices($product): array
     {
-        // Return display_price if available
-        if (isset($product->display_price)) {
-            return $product->display_price;
-        }
-
-        // Return price if available
-        if (isset($product->price)) {
-            return $product->price;
-        }
-
-        // Return effective price or default to 0
-        return $product->effectivePrice() ?? 0;
+        return [
+            'price' => $product->display_price ?? $this->getFallbackPrice($product),
+            'sale_price' => $product->display_sale_price ?? $this->getDisplaySalePriceValue($product),
+        ];
     }
 
-    private function getDisplaySalePrice($product): mixed
+    private function getFallbackPrice($product): mixed
     {
-        // Return display_sale_price if available
-        if (isset($product->display_sale_price)) {
-            return $product->display_sale_price;
-        }
+        return $product->price ?? ($product->effectivePrice() ?? 0);
+    }
 
+    private function getDisplaySalePriceValue($product): mixed
+    {
         $price = $product->price ?? null;
         $salePrice = $product->sale_price ?? null;
 
-        // Check if sale price is valid and lower than regular price
         if ($salePrice !== null && $price !== null && $salePrice < $price) {
             return $salePrice;
         }

@@ -17,29 +17,9 @@ final class AdminSystemReportComposer
 
         $usage = $data['systemData']['storage']['disk_usage'];
         $percentage = (int) ($usage['percentage'] ?? 0);
-        $class = $this->getDiskUsageClass($percentage);
+        $classes = ['w-0p', 'w-25p', 'w-50p', 'w-75p', 'w-100p'];
+        $class = $classes[min(4, (int) ($percentage / 25))];
 
         $view->with(['sysDiskPct' => $percentage, 'sysDiskClass' => $class]);
-    }
-
-    private function getDiskUsageClass(int $percentage): string
-    {
-        if ($percentage >= 100) {
-            return 'w-100p';
-        }
-
-        if ($percentage >= 75) {
-            return 'w-75p';
-        }
-
-        if ($percentage >= 50) {
-            return 'w-50p';
-        }
-
-        if ($percentage >= 25) {
-            return 'w-25p';
-        }
-
-        return 'w-0p';
     }
 }

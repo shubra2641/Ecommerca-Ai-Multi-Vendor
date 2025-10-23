@@ -7,33 +7,49 @@ namespace App\View\Composers;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
-class AccountSidebarComposer
+final class AccountSidebarComposer
 {
     public function compose(View $view): void
     {
         $user = auth()->user();
         $completion = $user ? ($user->profile_completion ?? 5) : 0;
-        // Precompute compare & wishlist counts
-        $compareCount = 0;
-        $wishlistCount = 0;
+
+        $compareCount = $this->getCompareCount();
+        $wishlistCount = $this->getWishlistCount();
+
+        $view->with(compact('user', 'completion', 'compareCount', 'wishlistCount'));
+    }
+
+    private function getCompareCount(): int
+    {
         try {
             $compare = session('compare');
-            $compareCount = is_array($compare) ? count($compare) : 0;
+            return is_array($compare) ? count($compare) : 0;
         } catch (\Throwable $e) {
-            logger()->warning('Failed to get compare count: '.$e->getMessage());
+            logger()->warning(
+                'Failed to get compare count: '.$e->getMessage()
+            );
+            return 0;
         }
+    }
+
+    private function getWishlistCount(): int
+    {
         try {
             if (auth()->check() && Schema::hasTable('wishlist_items')) {
-                $wishlistCount = \App\Models\WishlistItem::where('user_id', auth()->id())->count();
-            } else {
-                $wishlist = session('wishlist');
-                $wishlistCount = is_array($wishlist) ? count($wishlist) : 0;
+                return \App\Models\WishlistItem::where('user_id', auth()->id())
+                    ->count();
             }
-        } catch (\Throwable $e) {
-            logger()->warning('Failed to get wishlist count from database: '.$e->getMessage());
+
             $wishlist = session('wishlist');
-            $wishlistCount = is_array($wishlist) ? count($wishlist) : 0;
+            return is_array($wishlist) ? count($wishlist) : 0;
+        } catch (\Throwable $e) {
+            logger()->warning(
+                'Failed to get wishlist count from database: '.
+                $e->getMessage()
+            );
+            $wishlist = session('wishlist');
+            return is_array($wishlist) ? count($wishlist) : 0;
         }
-        $view->with(compact('user', 'completion', 'compareCount', 'wishlistCount'));
     }
 }

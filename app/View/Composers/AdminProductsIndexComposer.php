@@ -35,23 +35,31 @@ final class AdminProductsIndexComposer
         $productStocks = [];
 
         foreach ($products as $p) {
-            if (! $p->manage_stock) {
-                continue;
+            $stock = $this->processProductStock($p, $low, $soon);
+            if ($stock) {
+                $productStocks[$p->id] = $stock;
             }
-
-            $available = (int) $p->availableStock();
-            $status = $this->classAndBadge($available, $low, $soon);
-
-            $productStocks[$p->id] = [
-                'available' => $available,
-                'stock_qty' => (int) ($p->stock_qty ?? 0),
-                'class' => $status['class'],
-                'badge' => $status['badge'],
-                'backorder' => (bool) ($p->backorder ?? false),
-            ];
         }
 
         return $productStocks;
+    }
+
+    private function processProductStock($product, int $low, int $soon)
+    {
+        if (! $product->manage_stock) {
+            return null;
+        }
+
+        $available = (int) $product->availableStock();
+        $status = $this->classAndBadge($available, $low, $soon);
+
+        return [
+            'available' => $available,
+            'stock_qty' => (int) ($product->stock_qty ?? 0),
+            'class' => $status['class'],
+            'badge' => $status['badge'],
+            'backorder' => (bool) ($product->backorder ?? false),
+        ];
     }
 
     private function calculateVariationStocks($products, int $low, int $soon): array
@@ -66,23 +74,31 @@ final class AdminProductsIndexComposer
             $variations = $this->getProductVariations($p);
 
             foreach ($variations as $v) {
-                if (! $v->manage_stock) {
-                    continue;
+                $stock = $this->processVariation($v, $low, $soon);
+                if ($stock) {
+                    $variationStocks[$v->id] = $stock;
                 }
-
-                $available = (int) (($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0));
-                $status = $this->classAndBadge($available, $low, $soon);
-
-                $variationStocks[$v->id] = [
-                    'available' => $available,
-                    'stock_qty' => (int) ($v->stock_qty ?? 0),
-                    'class' => $status['class'],
-                    'badge' => $status['badge'],
-                ];
             }
         }
 
         return $variationStocks;
+    }
+
+    private function processVariation($variation, int $low, int $soon)
+    {
+        if (! $variation->manage_stock) {
+            return null;
+        }
+
+        $available = (int) (($variation->stock_qty ?? 0) - ($variation->reserved_qty ?? 0));
+        $status = $this->classAndBadge($available, $low, $soon);
+
+        return [
+            'available' => $available,
+            'stock_qty' => (int) ($variation->stock_qty ?? 0),
+            'class' => $status['class'],
+            'badge' => $status['badge'],
+        ];
     }
 
     private function getProductVariations($product)

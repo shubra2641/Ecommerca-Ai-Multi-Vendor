@@ -95,17 +95,12 @@ final class HeaderComposer
         $currencies = $this->getActiveCurrencies();
         $currentCurrency = $currencies->firstWhere('is_default', true) ?? $currencies->first();
 
-        try {
-            $sessionCurrencyId = session('currency_id');
-            if ($sessionCurrencyId) {
-                $sc = Currency::find($sessionCurrencyId);
-                if ($sc && $currencies->contains('id', $sc->id)) {
-                    $currentCurrency = $sc;
-                }
+        $sessionCurrencyId = session('currency_id');
+        if ($sessionCurrencyId) {
+            $sc = Currency::find($sessionCurrencyId);
+            if ($sc && $currencies->contains('id', $sc->id)) {
+                $currentCurrency = $sc;
             }
-        } catch (\Throwable $e) {
-            // ignore session/currency read issues
-            null;
         }
 
         return $currentCurrency;
@@ -122,29 +117,24 @@ final class HeaderComposer
 
     private function getCartCount(): int
     {
-        $cartSession = session('cart');
-
-        if (is_array($cartSession)) {
-            return count($cartSession);
-        }
-
-        if ($cartSession instanceof \Countable) {
-            return count($cartSession);
-        }
-
-        return 0;
+        return $this->getSessionCount('cart');
     }
 
     private function getCompareCount(): int
     {
-        $compareSession = session('compare');
+        return $this->getSessionCount('compare');
+    }
 
-        if (is_array($compareSession)) {
-            return count($compareSession);
+    private function getSessionCount(string $key): int
+    {
+        $session = session($key);
+
+        if (is_array($session)) {
+            return count($session);
         }
 
-        if ($compareSession instanceof \Countable) {
-            return count($compareSession);
+        if ($session instanceof \Countable) {
+            return count($session);
         }
 
         return 0;
@@ -181,9 +171,7 @@ final class HeaderComposer
 
     private function getSessionWishlistCount(): int
     {
-        $wishlistSession = session('wishlist', []);
-
-        return is_array($wishlistSession) ? count($wishlistSession) : 0;
+        return $this->getSessionCount('wishlist');
     }
 
     private function getLanguages()

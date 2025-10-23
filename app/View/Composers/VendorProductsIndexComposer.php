@@ -36,25 +36,23 @@ final class VendorProductsIndexComposer
 
         foreach ($data['products'] as $product) {
             if ($product->manage_stock) {
-                $productStocks[$product->id] = $this->getStockInfo($product);
+                $productStocks[$product->id] = $this->calculateStockInfo($product);
             }
         }
 
         return $productStocks;
     }
 
-    private function getStockInfo($product): array
+    private function calculateStockInfo($product): array
     {
         $available = 0;
+        $stockQty = (int) ($product->stock_qty ?? 0);
 
-        // Try to get available stock, fallback to 0 on error
         try {
             $available = (int) $product->availableStock();
         } catch (\Throwable $e) {
             $available = 0;
         }
-
-        $stockQty = (int) ($product->stock_qty ?? 0);
 
         return [
             'available' => $available,

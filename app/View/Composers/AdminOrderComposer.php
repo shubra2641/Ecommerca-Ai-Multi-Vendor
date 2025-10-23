@@ -65,23 +65,19 @@ final class AdminOrderComposer
     {
         $payload = $payment->payload;
 
-        try {
-            if (is_array($payload)) {
-                return $payload['note'] ?? '';
-            }
+        if (is_array($payload)) {
+            return $payload['note'] ?? '';
+        }
 
-            if (is_object($payload)) {
-                return $payload->note ?? '';
-            }
+        if (is_object($payload)) {
+            return $payload->note ?? '';
+        }
 
-            if (is_string($payload) && $payload !== '') {
-                $decoded = json_decode($payload, true);
-                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                    return $decoded['note'] ?? '';
-                }
+        if (is_string($payload) && $payload !== '') {
+            $decoded = json_decode($payload, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return $decoded['note'] ?? '';
             }
-        } catch (\Throwable $e) {
-            // Ignore errors
         }
 
         return '';
@@ -90,8 +86,13 @@ final class AdminOrderComposer
     private function isOfflinePayment($payment): bool
     {
         $method = strtolower($payment->method ?? '');
-        $gateway = strtolower($payment->payload['gateway'] ?? ($payment->payload['provider'] ?? ''));
+        $gateway = strtolower(
+            $payment->payload['gateway'] ??
+            ($payment->payload['provider'] ?? '')
+        );
 
-        return str_contains($method, 'offline') || $method === 'offline' || $gateway === 'offline';
+        return str_contains($method, 'offline') ||
+            $method === 'offline' ||
+            $gateway === 'offline';
     }
 }
