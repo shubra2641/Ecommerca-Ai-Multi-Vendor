@@ -27,10 +27,10 @@ class CheckoutViewBuilder
             $displayTotal = $total;
         }
 
-        if (!$currentCurrency || !$defaultCurrency || $currentCurrency->id === $defaultCurrency->id) {
+        if (! $currentCurrency || ! $defaultCurrency || $currentCurrency->id === $defaultCurrency->id) {
             // no currency conversion needed
         } else {
-            collect($items)->each(function (&$it) use ($defaultCurrency, $currentCurrency) {
+            collect($items)->each(function (&$it) use ($defaultCurrency, $currentCurrency): void {
                 try {
                     $it['display_price'] = $defaultCurrency->convertTo($it['price'], $currentCurrency, 2);
                 } catch (\Throwable $e) {
@@ -58,23 +58,23 @@ class CheckoutViewBuilder
         }
         $gateways = PaymentGateway::where('enabled', true)->get();
 
-        collect($items)->each(function (&$it) {
+        collect($items)->each(function (&$it): void {
             $variant = $it['variant'] ?? null;
-            if (!$variant) {
+            if (! $variant) {
                 $it['variant_label'] = null;
             } else {
                 $it['variant_label'] = match (true) {
-                    is_object($variant) => !empty($variant->name) ? $variant->name : (!empty($variant->attribute_data) ? collect($variant->attribute_data)->map(fn($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ') : null),
-                    is_string($variant) => (function($v) {
+                    is_object($variant) => ! empty($variant->name) ? $variant->name : (! empty($variant->attribute_data) ? collect($variant->attribute_data)->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ') : null),
+                    is_string($variant) => (function ($v) {
                         $parsed = json_decode($v, true);
-                        return json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data']) ? collect($parsed['attribute_data'])->map(fn($val, $key) => ucfirst($key) . ': ' . $val)->values()->join(', ') : $v;
+                        return json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data']) ? collect($parsed['attribute_data'])->map(fn ($val, $key) => ucfirst($key) . ': ' . $val)->values()->join(', ') : $v;
                     })($variant),
-                    !empty($it['attributes']) && is_array($it['attributes']) => implode(', ', $it['attributes']),
+                    ! empty($it['attributes']) && is_array($it['attributes']) => implode(', ', $it['attributes']),
                     default => null,
                 };
             }
             try {
-                if (!empty($it['product']->image_url)) {
+                if (! empty($it['product']->image_url)) {
                     $it['image'] = $it['product']->image_url;
                 } elseif (method_exists($it['product'], 'getFirstMediaUrl')) {
                     $it['image'] = $it['product']->getFirstMediaUrl('images');
@@ -126,7 +126,7 @@ class CheckoutViewBuilder
     {
         $items = collect($cart)->map(function ($row, $pid) {
             $product = Product::find($pid);
-            if (!$product) {
+            if (! $product) {
                 return null;
             }
             $qty = (int) ($row['qty'] ?? 1);
@@ -151,12 +151,12 @@ class CheckoutViewBuilder
 
     private function applyCoupon(?int $appliedCouponId, float $total, float $displayTotal, $currentCurrency, $defaultCurrency): array
     {
-        if (!$appliedCouponId) {
+        if (! $appliedCouponId) {
             return [null, 0, $total, $displayTotal];
         }
 
         $coupon = Coupon::find($appliedCouponId);
-        if (!$coupon || !$coupon->isValidForTotal($total)) {
+        if (! $coupon || ! $coupon->isValidForTotal($total)) {
             return [null, 0, $total, $displayTotal];
         }
 
@@ -170,24 +170,4 @@ class CheckoutViewBuilder
 
         return [$coupon, $discount, $discounted_total, $displayDiscountedTotal];
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

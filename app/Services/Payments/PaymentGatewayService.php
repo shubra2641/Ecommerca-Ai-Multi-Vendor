@@ -60,7 +60,7 @@ class PaymentGatewayService
         $cfg = $gateway->config ?? [];
         $secret = $cfg['secret_key'] ?? ($cfg['api_key'] ?? null);
 
-        if (!$secret || !$chargeId) {
+        if (! $secret || ! $chargeId) {
             throw new \RuntimeException('Missing gateway secret or charge id for verify');
         }
 
@@ -78,7 +78,7 @@ class PaymentGatewayService
     {
         $resp = Http::withToken($secret)->acceptJson()->get($apiBase . '/charges/' . $chargeId);
 
-        if (!$resp->ok()) {
+        if (! $resp->ok()) {
             return ['status' => 'pending', 'data' => null];
         }
 
@@ -105,7 +105,7 @@ class PaymentGatewayService
 
     private function determineStatus(?string $status): string
     {
-        if (!$status) {
+        if (! $status) {
             return 'processing';
         }
 
@@ -119,7 +119,7 @@ class PaymentGatewayService
     private function handlePaidPayment(Payment $payment): void
     {
         $order = $payment->order;
-        if (!$order) {
+        if (! $order) {
             $order = $this->createOrderFromSnapshot($payment);
         }
 

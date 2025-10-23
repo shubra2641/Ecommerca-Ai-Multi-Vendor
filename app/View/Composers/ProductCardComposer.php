@@ -34,52 +34,58 @@ final class ProductCardComposer
             'cardCmpActive' => in_array($product->id, $compareIds, true),
             'cardRating' => $product->reviews_avg_rating ?? 0.0,
             'cardReviewsCount' => $product->reviews_count ?? 0,
-            'cardFullStars' => (int) floor((float) ($product->reviews_avg_rating ?? 0.0)),
-            'cardSnippet' => (function () use ($product) {
-                $desc = trim(strip_tags($product->short_description ?? $product->description ?? ''));
-                return $desc ? Str::limit($desc, 50, '...') : '';
-            })(),
-            'cardDisplayPrice' => $product->display_price ?? ($product->price ?? ($product->effectivePrice() ?? 0)),
-            'cardDisplaySalePrice' => $this->getDisplaySalePriceValue($product),
+            'cardFullStars' => (int) floor($product->reviews_avg_rating ?? 0.0),
+            'cardSnippet' => $this->getCardSnippet($product),
+            'cardDisplayPrice' => $product->display_price ?? ($this->getEffectivePrice($product)),
+            'cardDisplaySalePrice' => $this->getDisplaySalePrice($product),
             'cardImageUrl' => $product->main_image ? asset($product->main_image) : asset('images/placeholder.png'),
         ];
     }
 
     private function isOnSale($product): bool
     {
-        $productPrice = $product->price ?? 0;
-        $productSale = $product->sale_price ?? null;
-
-        return $productSale !== null && $productSale < $productPrice;
+        $salePrice = $product->sale_price ?? null;
+        $price = $product->price ?? 0;
+        return $salePrice && $salePrice < $price;
     }
 
     private function calculateDiscountPercent($product): ?int
     {
-        $productPrice = $product->price ?? 0;
-        $productSale = $product->sale_price ?? null;
-
-        return $productPrice && $productSale && $productSale < $productPrice
-            ? (int) round(($productPrice - $productSale) / $productPrice * 100)
-            : null;
-    }
-
-    private function getDisplaySalePriceValue($product): mixed
-    {
-        $price = $product->price ?? null;
+        if (! $this->isOnSale($product)) {
+            return null;
+        }
+        $price = $product->price ?? 0;
         $salePrice = $product->sale_price ?? null;
-
-        return match (true) {
-            $salePrice && $price && $salePrice < $price => $salePrice,
-            default => null,
-        };
+        return (int) round(($price - $salePrice) / $price * 100);
     }
 
     private function getAvailableStock($product): ?int
     {
-        return match (true) {
-            isset($product->list_available) => $product->list_available,
-            !$product->manage_stock => null,
-            default => max(0, ($product->stock_qty ?? 0) - ($product->reserved_qty ?? 0)),
-        };
+        if (isset($product->list_available)) {
+            return $product->list_available;
+        }
+        if (! $product->manage_stock) {
+            return null;
+        }
+        return max(0, ($product->stock_qty ?? 0) - ($product->reserved_qty ?? 0));
+    }
+
+    private function getDisplaySalePrice($product): ?float
+    {
+        $salePrice = $product->sale_price ?? null;
+        $price = $product->price ?? null;
+        return $salePrice && $price && $salePrice < $price ? $salePrice : null;
+    }
+
+    private function getEffectivePrice($product): float
+    {
+        $price = $product->price ?? 0;
+        return $price > 0 ? $price : ($product->effectivePrice() ?? 0);
+    }
+
+    private function getCardSnippet($product): string
+    {
+        $desc = trim(strip_tags($product->short_description ?? $product->description ?? ''));
+        return $desc ? Str::limit($desc, 50, '...') : '';
     }
 }

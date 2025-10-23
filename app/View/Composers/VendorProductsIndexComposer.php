@@ -28,13 +28,13 @@ final class VendorProductsIndexComposer
 
     private function calculateProductStocks(array $data): array
     {
-        if (!isset($data['products'])) {
+        if (! isset($data['products'])) {
             return [];
         }
 
         return collect($data['products'])
-            ->filter(fn($product) => $product->manage_stock)
-            ->mapWithKeys(fn($product) => [$product->id => $this->calculateStockInfo($product)])
+            ->filter(fn ($product) => $product->manage_stock)
+            ->mapWithKeys(fn ($product) => [$product->id => $this->calculateStockInfo($product)])
             ->toArray();
     }
 

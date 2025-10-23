@@ -39,7 +39,7 @@ class PaymentGatewayManager
         $config = $this->getStripeConfig($gateway);
         $secret = $config['secret'] ?? env('STRIPE_SECRET');
 
-        if (!$secret) {
+        if (! $secret) {
             return null;
         }
 

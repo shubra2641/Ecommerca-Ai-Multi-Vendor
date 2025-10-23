@@ -13,7 +13,7 @@ class MailHelper
     public static function mailIsAvailable(): bool
     {
         $driver = config('mail.default') ?: env('MAIL_MAILER');
-        if (!$driver) {
+        if (! $driver) {
             return false;
         }
 
@@ -34,6 +34,6 @@ class MailHelper
         $username = env('MAIL_USERNAME');
         $password = env('MAIL_PASSWORD');
 
-        return !empty($host) && (!empty($username) || !empty($password));
+        return ! empty($host) && (! empty($username) || ! empty($password));
     }
 }

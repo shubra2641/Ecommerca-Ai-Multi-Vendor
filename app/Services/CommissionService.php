@@ -25,6 +25,22 @@ class CommissionService
         };
     }
 
+    /** Compute commission + vendor earnings for a line. */
+    public static function breakdown(Product $product, int $qty, float $unitPrice): array
+    {
+        $subtotal = $unitPrice * $qty;
+        $rate = self::rateForProduct($product);
+        $commission = $rate > 0 ? round($subtotal * $rate / 100, 2) : 0.0;
+        $vendorEarnings = round($subtotal - $commission, 2); // shipping & tax excluded (handled at order level)
+
+        return [
+            'rate' => $rate,
+            'commission' => $commission,
+            'vendor_earnings' => $vendorEarnings,
+            'subtotal' => $subtotal,
+        ];
+    }
+
     private static function getCommissionSettings()
     {
         static $settings = null;
@@ -46,21 +62,5 @@ class CommissionService
         }
 
         return 0.0;
-    }
-
-    /** Compute commission + vendor earnings for a line. */
-    public static function breakdown(Product $product, int $qty, float $unitPrice): array
-    {
-        $subtotal = $unitPrice * $qty;
-        $rate = self::rateForProduct($product);
-        $commission = $rate > 0 ? round($subtotal * $rate / 100, 2) : 0.0;
-        $vendorEarnings = round($subtotal - $commission, 2); // shipping & tax excluded (handled at order level)
-
-        return [
-            'rate' => $rate,
-            'commission' => $commission,
-            'vendor_earnings' => $vendorEarnings,
-            'subtotal' => $subtotal,
-        ];
     }
 }

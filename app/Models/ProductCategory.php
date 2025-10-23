@@ -72,20 +72,20 @@ class ProductCategory extends Model
      */
     public function translate(string $field, ?string $locale = null)
     {
-        if (!isset($this->translatable)) {
+        if (! isset($this->translatable)) {
             return $this->getAttribute($field);
         }
 
-        if (!in_array($field, $this->translatable, true)) {
+        if (! in_array($field, $this->translatable, true)) {
             return $this->getAttribute($field);
         }
 
         $translations = parent::getAttribute($field . '_translations');
-        if (!is_array($translations)) {
+        if (! is_array($translations)) {
             return $this->getAttribute($field);
         }
 
-        $locale = $locale ?: app()->getLocale();
+        $locale = $locale ? $locale : app()->getLocale();
         $fallback = config('app.fallback_locale');
         $translated = $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? null : null);
 

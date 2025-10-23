@@ -32,36 +32,6 @@ class PaymentService
         $this->updateConfigFields($gateway, $configFields);
     }
 
-    private function categorizeCredentials(array $credentials): array
-    {
-        $sensitiveFields = ['api_key', 'secret_key', 'public_key', 'merchant_id', 'webhook_secret'];
-        $dedicatedFields = [];
-        $configFields = [];
-
-        foreach ($credentials as $key => $value) {
-            if (in_array($key, $sensitiveFields, true) && Schema::hasColumn('payment_gateways', $key)) {
-                $dedicatedFields[$key] = $this->encryptValue($value);
-            } else {
-                $configFields[$key] = $value;
-            }
-        }
-
-        return [$dedicatedFields, $configFields];
-    }
-
-    private function updateDedicatedFields(PaymentGateway $gateway, array $dedicatedFields): void
-    {
-        foreach ($dedicatedFields as $field => $value) {
-            $gateway->{$field} = $value;
-        }
-    }
-
-    private function updateConfigFields(PaymentGateway $gateway, array $configFields): void
-    {
-        $currentConfig = is_array($gateway->config) ? $gateway->config : [];
-        $gateway->config = array_merge($currentConfig, $configFields);
-    }
-
     public function hasValidCredentials(PaymentGateway $gateway): bool
     {
         $credentials = $this->getCredentials($gateway);
@@ -101,6 +71,36 @@ class PaymentService
         }
 
         return $masked;
+    }
+
+    private function categorizeCredentials(array $credentials): array
+    {
+        $sensitiveFields = ['api_key', 'secret_key', 'public_key', 'merchant_id', 'webhook_secret'];
+        $dedicatedFields = [];
+        $configFields = [];
+
+        foreach ($credentials as $key => $value) {
+            if (in_array($key, $sensitiveFields, true) && Schema::hasColumn('payment_gateways', $key)) {
+                $dedicatedFields[$key] = $this->encryptValue($value);
+            } else {
+                $configFields[$key] = $value;
+            }
+        }
+
+        return [$dedicatedFields, $configFields];
+    }
+
+    private function updateDedicatedFields(PaymentGateway $gateway, array $dedicatedFields): void
+    {
+        foreach ($dedicatedFields as $field => $value) {
+            $gateway->{$field} = $value;
+        }
+    }
+
+    private function updateConfigFields(PaymentGateway $gateway, array $configFields): void
+    {
+        $currentConfig = is_array($gateway->config) ? $gateway->config : [];
+        $gateway->config = array_merge($currentConfig, $configFields);
     }
 
     private function decryptConfig($config): ?array

@@ -168,7 +168,7 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
     {
         $order = $this->payment->order;
 
-        if (!$order) {
+        if (! $order) {
             return null;
         }
 

@@ -33,7 +33,7 @@ class CheckoutViewBuilder
 
     public static function variantLabel($it): ?string
     {
-        if (!empty($it['variant'])) {
+        if (! empty($it['variant'])) {
             return match (true) {
                 is_object($it['variant']) => self::handleObjectVariant($it['variant']),
                 is_string($it['variant']) => self::handleStringVariant($it['variant']),
@@ -41,11 +41,16 @@ class CheckoutViewBuilder
             };
         }
 
-        if (!empty($it['attributes'])) {
+        if (! empty($it['attributes'])) {
             return is_array($it['attributes']) ? implode(', ', $it['attributes']) : (string) $it['attributes'];
         }
 
         return null;
+    }
+
+    public static function buildCheckoutConfig(array $base): array
+    {
+        return $base;
     }
 
     private static function handleObjectVariant($variant): ?string
@@ -54,9 +59,9 @@ class CheckoutViewBuilder
         if ($name) {
             return $name;
         }
-        if (!empty($variant->attribute_data)) {
+        if (! empty($variant->attribute_data)) {
             return collect($variant->attribute_data)
-                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
                 ->join(', ');
         }
@@ -68,15 +73,10 @@ class CheckoutViewBuilder
         $parsed = json_decode($variant, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data'])) {
             return collect($parsed['attribute_data'])
-                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
                 ->join(', ');
         }
         return $variant;
-    }
-
-    public static function buildCheckoutConfig(array $base): array
-    {
-        return $base;
     }
 }

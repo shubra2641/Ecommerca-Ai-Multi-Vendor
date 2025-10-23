@@ -40,7 +40,7 @@ class CartViewBuilder
     private function buildCartVariantLabel(array $it): ?string
     {
         $variant = $it['variant'] ?? null;
-        if (!$variant) {
+        if (! $variant) {
             return $this->handleAttributes($it);
         }
 
@@ -52,7 +52,7 @@ class CartViewBuilder
 
     private function handleAttributes(array $it): ?string
     {
-        if (!empty($it['attributes'])) {
+        if (! empty($it['attributes'])) {
             return is_array($it['attributes']) ? implode(', ', $it['attributes']) : $it['attributes'];
         }
         return null;
@@ -60,12 +60,12 @@ class CartViewBuilder
 
     private function buildObjectCartVariantLabel($variant): ?string
     {
-        if (!empty($variant->name)) {
+        if (! empty($variant->name)) {
             return $variant->name;
         }
-        if (!empty($variant->attribute_data)) {
+        if (! empty($variant->attribute_data)) {
             return collect($variant->attribute_data)
-                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
                 ->join(', ');
         }
@@ -74,7 +74,7 @@ class CartViewBuilder
 
     private function buildStringCartVariantLabel($variant): string
     {
-        if (!is_string($variant)) {
+        if (! is_string($variant)) {
             return (string) $variant;
         }
 
@@ -83,24 +83,19 @@ class CartViewBuilder
         }
 
         $parsed = json_decode($variant, true);
-        if (json_last_error() !== JSON_ERROR_NONE || !is_array($parsed) || !isset($parsed['attribute_data'])) {
+        if (json_last_error() !== JSON_ERROR_NONE || ! is_array($parsed) || ! isset($parsed['attribute_data'])) {
             return $variant;
         }
 
-        return $this->formatAttributeData($parsed['attribute_data']);
-    }
-
-    private function formatAttributeData(array $attributeData): string
-    {
-        return collect($attributeData)
-            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+        return collect($parsed['attribute_data'])
+            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
             ->values()
             ->join(', ');
     }
 
     private function calculateAvailability(array $it, $p): ?int
     {
-        if (!empty($it['variant']) && is_object($it['variant'])) {
+        if (! empty($it['variant']) && is_object($it['variant'])) {
             $v = $it['variant'];
             if ($v->manage_stock) {
                 return max(0, (int) $v->stock_qty - (int) $v->reserved_qty);

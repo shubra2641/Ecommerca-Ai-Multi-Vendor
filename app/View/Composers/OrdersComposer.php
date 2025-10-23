@@ -57,7 +57,7 @@ final class OrdersComposer
     {
         $firstItem = $order->items->first();
 
-        if (!$firstItem) {
+        if (! $firstItem) {
             return __('Order');
         }
 

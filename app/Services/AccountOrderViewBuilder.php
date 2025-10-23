@@ -31,7 +31,7 @@ class AccountOrderViewBuilder
     private function buildAddressText(Order $order): string
     {
         $addrSource = $order->shipping_address ?? $order->billing_address ?? $order->address;
-        if (!is_array($addrSource)) {
+        if (! is_array($addrSource)) {
             return (string) ($addrSource ?? '');
         }
 
@@ -54,7 +54,7 @@ class AccountOrderViewBuilder
     private function resolveCountry(array &$addrSource): void
     {
         $countryId = $addrSource['country_id'] ?? $addrSource['country'] ?? null;
-        if (!$countryId || !is_numeric($countryId)) {
+        if (! $countryId || ! is_numeric($countryId)) {
             return;
         }
 
@@ -68,7 +68,7 @@ class AccountOrderViewBuilder
     private function resolveGovernorate(array &$addrSource): void
     {
         $govId = $addrSource['governorate_id'] ?? $addrSource['governorate'] ?? null;
-        if (!$govId || !is_numeric($govId)) {
+        if (! $govId || ! is_numeric($govId)) {
             return;
         }
 
@@ -82,7 +82,7 @@ class AccountOrderViewBuilder
     private function resolveCity(array &$addrSource): void
     {
         $cityId = $addrSource['city_id'] ?? $addrSource['city'] ?? null;
-        if (!$cityId || !is_numeric($cityId)) {
+        if (! $cityId || ! is_numeric($cityId)) {
             return;
         }
 
@@ -107,12 +107,12 @@ class AccountOrderViewBuilder
             'phone',
         ];
         $parts = collect($orderedKeys)
-            ->filter(fn($k) => !empty($addrSource[$k]))
-            ->map(fn($k) => $addrSource[$k])
+            ->filter(fn ($k) => ! empty($addrSource[$k]))
+            ->map(fn ($k) => $addrSource[$k])
             ->toArray();
 
         $extraParts = collect($addrSource)
-            ->filter(fn($v) => is_scalar($v) && !in_array($v, $parts, true))
+            ->filter(fn ($v) => is_scalar($v) && ! in_array($v, $parts, true))
             ->values()
             ->toArray();
 
@@ -162,17 +162,17 @@ class AccountOrderViewBuilder
 
     private function buildItemVariantLabel($it): ?string
     {
-        if (!is_array($it->meta)) {
+        if (! is_array($it->meta)) {
             return null;
         }
 
-        if (!empty($it->meta['variant_name'])) {
+        if (! empty($it->meta['variant_name'])) {
             return $it->meta['variant_name'];
         }
 
-        if (!empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data'])) {
+        if (! empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data'])) {
             return collect($it->meta['attribute_data'])
-                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
                 ->join(', ');
         }

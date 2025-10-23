@@ -24,12 +24,12 @@ class ShippingResolver
         ?int $cityId = null,
         ?int $zoneId = null
     ): ?array {
-        if (!$countryId) {
+        if (! $countryId) {
             return null;
         }
         $base = ShippingRule::with('zone')->where('active', true)
             ->where('country_id', $countryId)
-            ->when($zoneId, fn($q) => $q->where('zone_id', $zoneId));
+            ->when($zoneId, fn ($q) => $q->where('zone_id', $zoneId));
 
         $attempts = [
             [['city_id' => $cityId], 'city'],
@@ -54,20 +54,6 @@ class ShippingResolver
         return null;
     }
 
-    private function findRule($base, array $conditions, string $level): ?array
-    {
-        $query = clone $base;
-        foreach ($conditions as $column => $value) {
-            if ($value === null) {
-                $query->whereNull($column);
-            } else {
-                $query->where($column, $value);
-            }
-        }
-        $rule = $query->first();
-        return $rule ? ['rule' => $rule, 'level' => $level] : null;
-    }
-
     /**
      * Return all matching shipping options (one per zone) for the given location.
      * Picks the best rule per zone using precedence city > governorate > country.
@@ -85,7 +71,7 @@ class ShippingResolver
         }
         $rules = ShippingRule::with('zone')->where('active', true)
             ->where('country_id', $countryId)
-            ->when($zoneId, fn($q) => $q->where('zone_id', $zoneId))
+            ->when($zoneId, fn ($q) => $q->where('zone_id', $zoneId))
             ->get();
 
         $bestPerZone = [];
@@ -130,5 +116,19 @@ class ShippingResolver
         });
 
         return $options;
+    }
+
+    private function findRule($base, array $conditions, string $level): ?array
+    {
+        $query = clone $base;
+        foreach ($conditions as $column => $value) {
+            if ($value === null) {
+                $query->whereNull($column);
+            } else {
+                $query->where($column, $value);
+            }
+        }
+        $rule = $query->first();
+        return $rule ? ['rule' => $rule, 'level' => $level] : null;
     }
 }

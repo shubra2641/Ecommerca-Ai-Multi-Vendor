@@ -17,11 +17,11 @@ class ReviewsPresenter
         // Aggregate stats (avoid re-querying rows multiple times)
         $allApproved = $query->get(['id', 'rating', 'helpful_count']);
         $total = $allApproved->count();
-        $distribution = collect([1, 2, 3, 4, 5])->mapWithKeys(fn($star) => [$star => $allApproved->where('rating', $star)->count()])->toArray();
+        $distribution = collect([1, 2, 3, 4, 5])->mapWithKeys(fn ($star) => [$star => $allApproved->where('rating', $star)->count()])->toArray();
         $helpfulTotal = $allApproved->sum('helpful_count');
         $average = $total ? round($allApproved->avg('rating'), 2) : 0;
         // Compute percentage per star
-        $distributionPercent = collect($distribution)->map(fn($count) => $total ? round($count * 100 / $total, 2) : 0)->toArray();
+        $distributionPercent = collect($distribution)->map(fn ($count) => $total ? round($count * 100 / $total, 2) : 0)->toArray();
 
         return [
             'reviews' => $reviews,

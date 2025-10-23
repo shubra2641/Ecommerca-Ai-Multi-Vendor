@@ -30,12 +30,11 @@ class SimpleAIService
 
             if ($response->successful()) {
                 return $this->handleSuccessfulResponse($response, $provider);
-            } else {
-                $errorMessage = $this->getSpecificErrorMessage($response);
-                Log::error('AI Service Error: ' . $errorMessage, ['response' => $response->json()]);
-
-                return ['error' => $errorMessage];
             }
+            $errorMessage = $this->getSpecificErrorMessage($response);
+            Log::error('AI Service Error: ' . $errorMessage, ['response' => $response->json()]);
+
+            return ['error' => $errorMessage];
         } catch (\Exception $e) {
             Log::error('AI Service Exception: ' . $e->getMessage());
 
@@ -82,7 +81,7 @@ class SimpleAIService
 
     private function getOpenAIError(array $error): ?string
     {
-        if (!isset($error['type'])) {
+        if (! isset($error['type'])) {
             return null;
         }
 
@@ -123,7 +122,7 @@ class SimpleAIService
     private function getGenericError(array $error): ?string
     {
         return match (true) {
-            !isset($error['message']) => null,
+            ! isset($error['message']) => null,
             str_contains(strtolower($error['message']), 'insufficient') ||
                 str_contains(strtolower($error['message']), 'quota') ||
                 str_contains(strtolower($error['message']), 'credit') => __('Insufficient credits. Please add credits to continue.'),

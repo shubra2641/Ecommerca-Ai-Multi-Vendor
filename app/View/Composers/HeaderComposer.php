@@ -14,6 +14,28 @@ use Throwable;
 
 final class HeaderComposer
 {
+
+    public function compose(View $view): void
+    {
+        $setting = $view->getData()['setting'] ??
+            (Schema::hasTable('settings') ? \App\Models\Setting::first() : null);
+
+        $currencies = $this->getCurrencies();
+        $currentCurrency = $this->resolveCurrentCurrency($currencies);
+
+        $data = $this->buildData($setting, $currencies, $currentCurrency);
+
+        $view->with($data);
+
+        try {
+            $symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
+            $view->with('currency_symbol', $symbol ?? '$');
+            $view->with('defaultCurrency', Currency::getDefault());
+            $view->with('currentCurrency', $currentCurrency);
+        } catch (\Throwable $e) {
+            $view->with('currency_symbol', '$');
+        }
+    }
     private function getCurrencies()
     {
         return Cache::remember('active_currencies', 3600, function () {
@@ -70,7 +92,7 @@ final class HeaderComposer
 
     private function getWishlistCount()
     {
-        if (!$this->isAuthenticatedForWishlist()) {
+        if (! $this->isAuthenticatedForWishlist()) {
             $session = session('wishlist');
             return match (true) {
                 is_array($session) => count($session),
@@ -130,27 +152,5 @@ final class HeaderComposer
                 return collect();
             }),
         ];
-    }
-
-    public function compose(View $view): void
-    {
-        $setting = $view->getData()['setting'] ??
-            (Schema::hasTable('settings') ? \App\Models\Setting::first() : null);
-
-        $currencies = $this->getCurrencies();
-        $currentCurrency = $this->resolveCurrentCurrency($currencies);
-
-        $data = $this->buildData($setting, $currencies, $currentCurrency);
-
-        $view->with($data);
-
-        try {
-            $symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
-            $view->with('currency_symbol', $symbol ?? '$');
-            $view->with('defaultCurrency', Currency::getDefault());
-            $view->with('currentCurrency', $currentCurrency);
-        } catch (\Throwable $e) {
-            $view->with('currency_symbol', '$');
-        }
     }
 }

@@ -89,6 +89,22 @@ class CheckoutProcessor
         return $order;
     }
 
+    /**
+     * Handle payment - simple version
+     */
+    public function processPayment(Order $order, PaymentGateway $gateway, Request $_request): array
+    {
+        if ($gateway->driver === 'offline') {
+            return $this->handleOfflinePayment($order, $_request);
+        }
+
+        if ($gateway->driver === 'stripe') {
+            return $this->handleStripePayment($order, $gateway);
+        }
+
+        throw new \Exception('Unsupported payment gateway');
+    }
+
     private function prepareOrderPayload(array $checkoutData): array
     {
         return [
@@ -212,22 +228,6 @@ class CheckoutProcessor
         } else {
             \App\Services\StockService::reserve($item['product'], $item['qty']);
         }
-    }
-
-    /**
-     * Handle payment - simple version
-     */
-    public function processPayment(Order $order, PaymentGateway $gateway, Request $_request): array
-    {
-        if ($gateway->driver === 'offline') {
-            return $this->handleOfflinePayment($order, $_request);
-        }
-
-        if ($gateway->driver === 'stripe') {
-            return $this->handleStripePayment($order, $gateway);
-        }
-
-        throw new \Exception('Unsupported payment gateway');
     }
 
     /**

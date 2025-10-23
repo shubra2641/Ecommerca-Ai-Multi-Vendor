@@ -50,7 +50,7 @@ class ProductVariation extends Model
     public function isOnSale(): bool
     {
         return match (true) {
-            !$this->sale_price => false,
+            ! $this->sale_price => false,
             $this->sale_start && Carbon::now()->lt($this->sale_start) => false,
             $this->sale_end && Carbon::now()->gt($this->sale_end) => false,
             default => $this->sale_price < $this->price,

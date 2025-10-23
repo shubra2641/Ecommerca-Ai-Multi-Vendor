@@ -32,12 +32,12 @@ class OrderViewBuilder
         ];
 
         $parts = collect($orderedKeys)
-            ->filter(fn($k) => ! empty($addrSource[$k]))
-            ->map(fn($k) => $addrSource[$k])
+            ->filter(fn ($k) => ! empty($addrSource[$k]))
+            ->map(fn ($k) => $addrSource[$k])
             ->toArray();
 
         $extraParts = collect($addrSource)
-            ->filter(fn($v) => is_scalar($v) && ! in_array($v, $parts, true))
+            ->filter(fn ($v) => is_scalar($v) && ! in_array($v, $parts, true))
             ->values()
             ->toArray();
 
@@ -76,9 +76,9 @@ class OrderViewBuilder
         }
 
         return match (true) {
-            !empty($it->meta['variant_name']) => $it->meta['variant_name'],
-            !empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data']) => collect($it->meta['attribute_data'])
-                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+            ! empty($it->meta['variant_name']) => $it->meta['variant_name'],
+            ! empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data']) => collect($it->meta['attribute_data'])
+                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
                 ->join(', '),
             default => null,
