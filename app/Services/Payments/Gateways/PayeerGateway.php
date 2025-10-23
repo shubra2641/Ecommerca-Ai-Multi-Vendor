@@ -45,11 +45,7 @@ class PayeerGateway
                     $client = $client->withToken($secret);
                 }
                 $resp = $client->post($apiBase . '/charges', $chargePayload);
-                try {
-                    $_ = null;
-                } catch (\Throwable $_) {
-                    $_ = null;
-                }
+                // Error handling block removed as it was not functional
                 if (! $resp->ok()) {
                     throw new \Exception('Charge error: ' . $resp->status() . ' ' . substr($resp->body(), 0, 200));
                 }

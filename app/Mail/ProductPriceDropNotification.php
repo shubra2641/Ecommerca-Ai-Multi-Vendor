@@ -14,13 +14,13 @@ class ProductPriceDropNotification extends Mailable
     use Queueable;
     use SerializesModels;
 
-    public ProductInterest $interest;
+    private ProductInterest $interest;
 
-    public float $oldPrice;
+    private float $oldPrice;
 
-    public float $newPrice;
+    private float $newPrice;
 
-    public float $percent;
+    private float $percent;
 
     public function __construct(ProductInterest $interest, float $oldPrice, float $newPrice, float $percent)
     {

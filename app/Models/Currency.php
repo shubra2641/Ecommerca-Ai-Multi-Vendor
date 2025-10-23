@@ -84,7 +84,7 @@ class Currency extends Model
     /* =============================
      |  Business Logic
      |============================= */
-    public function setAsDefault(): bool
+    public function makeDefault(): bool
     {
         return DB::transaction(function () {
             // Reset existing default

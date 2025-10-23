@@ -88,7 +88,9 @@ class GenerateVendorOrdersCsv implements ShouldQueue
             'status' => 'completed',
             'completed_at' => now(),
         ]);
-        @unlink($temp);
+        if (file_exists($temp)) {
+            unlink($temp);
+        }
 
         // create temporary signed URL (2 hours)
         $signed = URL::temporarySignedRoute(

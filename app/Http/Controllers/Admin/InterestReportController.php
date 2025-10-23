@@ -87,15 +87,16 @@ class InterestReportController extends Controller
         $sma = $ema = [];
         if ($changes->count()) {
             $prices = $changes->pluck('new_price')->values();
+            $pricesCount = $prices->count();
             // SMA
-            for ($i = 0; $i < $prices->count(); $i++) {
+            for ($i = 0; $i < $pricesCount; $i++) {
                 $start = max(0, $i - $window + 1);
                 $slice = $prices->slice($start, $i - $start + 1);
                 $sma[$i] = round($slice->avg(), 2);
             }
             // EMA
             $k = 2 / ($window + 1);
-            for ($i = 0; $i < $prices->count(); $i++) {
+            for ($i = 0; $i < $pricesCount; $i++) {
                 if ($i === 0) {
                     $ema[$i] = round($prices[$i], 2);
 
