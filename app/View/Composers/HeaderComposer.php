@@ -45,10 +45,48 @@ final class HeaderComposer
 
     private function isAuthenticatedForWishlist()
     {
+        return Auth::check() && Schema::hasTable('wishlist_items');
+    }
+
+    private function getCartCount()
+    {
+        $session = session('cart');
+        return match (true) {
+            is_array($session) => count($session),
+            $session instanceof \Countable => count($session),
+            default => 0,
+        };
+    }
+
+    private function getCompareCount()
+    {
+        $session = session('compare');
+        return match (true) {
+            is_array($session) => count($session),
+            $session instanceof \Countable => count($session),
+            default => 0,
+        };
+    }
+
+    private function getWishlistCount()
+    {
+        if (!$this->isAuthenticatedForWishlist()) {
+            $session = session('wishlist');
+            return match (true) {
+                is_array($session) => count($session),
+                $session instanceof \Countable => count($session),
+                default => 0,
+            };
+        }
         try {
-            return Auth::check() && Schema::hasTable('wishlist_items');
+            return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
         } catch (\Throwable $e) {
-            return false;
+            $session = session('wishlist');
+            return match (true) {
+                is_array($session) => count($session),
+                $session instanceof \Countable => count($session),
+                default => 0,
+            };
         }
     }
 
@@ -75,42 +113,9 @@ final class HeaderComposer
             }),
             'currencies' => $currencies,
             'currentCurrency' => $currentCurrency,
-            'cartCount' => (function () {
-                $session = session('cart');
-                return match (true) {
-                    is_array($session) => count($session),
-                    $session instanceof \Countable => count($session),
-                    default => 0,
-                };
-            })(),
-            'compareCount' => (function () {
-                $session = session('compare');
-                return match (true) {
-                    is_array($session) => count($session),
-                    $session instanceof \Countable => count($session),
-                    default => 0,
-                };
-            })(),
-            'wishlistCount' => (function () {
-                if (!$this->isAuthenticatedForWishlist()) {
-                    $session = session('wishlist');
-                    return match (true) {
-                        is_array($session) => count($session),
-                        $session instanceof \Countable => count($session),
-                        default => 0,
-                    };
-                }
-                try {
-                    return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
-                } catch (\Throwable $e) {
-                    $session = session('wishlist');
-                    return match (true) {
-                        is_array($session) => count($session),
-                        $session instanceof \Countable => count($session),
-                        default => 0,
-                    };
-                }
-            })(),
+            'cartCount' => $this->getCartCount(),
+            'compareCount' => $this->getCompareCount(),
+            'wishlistCount' => $this->getWishlistCount(),
             'activeLanguages' => Cache::remember('header_active_languages', 1800, function () {
                 if (Schema::hasTable('languages')) {
                     try {
