@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Tag;
-use App\Services\AI\AIFormHelper;
+use App\Services\AI\SimpleAIService;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -108,9 +108,41 @@ class PostController extends Controller
         return back()->with('success', __('Status updated'));
     }
 
-    public function aiSuggest(Request $request, AIFormHelper $aiHelper)
+    public function aiSuggest(Request $request, SimpleAIService $ai)
     {
-        return $aiHelper->handleFormGeneration($request, 'blog');
+        // Get name from array or string
+        $nameInput = $request->input('title');
+        $locale = $request->input('locale');
+
+        // Extract title from multilingual name array
+        if (is_array($nameInput)) {
+            // If locale specified, try to get title from that locale
+            if ($locale && !empty($nameInput[$locale])) {
+                $title = $nameInput[$locale];
+            } else {
+                // Otherwise get first non-empty value
+                $title = collect($nameInput)->filter()->first();
+            }
+        } else {
+            $title = $nameInput ?: $request->input('name');
+        }
+
+        // Validate title - ensure it's a string
+        if (empty($title) || !is_string($title)) {
+            return back()->with('error', __('Please enter a name first'));
+        }
+
+        $result = $ai->generate($title, 'blog', $locale);
+
+        if (isset($result['error'])) {
+            return back()->with('error', $result['error'])->withInput();
+        }
+
+        // Merge with existing form data to preserve user input
+        $existingData = $request->except(['_token']);
+        $mergedData = array_merge($existingData, $result);
+
+        return back()->with('success', __('AI generated successfully'))->withInput($mergedData);
     }
 
     private function validatePostData(Request $request): array
@@ -140,7 +172,7 @@ class PostController extends Controller
     private function buildPostPayload(array $data, HtmlSanitizer $sanitizer, ?Post $post = null): array
     {
         $fallback = config('app.fallback_locale');
-        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn ($v) => ! empty($v)) ?? '';
+        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn($v) => ! empty($v)) ?? '';
 
         $payload = [
             'title' => $defaultTitle,
@@ -165,7 +197,7 @@ class PostController extends Controller
                     $translations[$locale] = $sanitizer->clean($value);
                 }
                 $payload[$field . '_translations'] = $translations;
-                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn ($v) => ! empty($v));
+                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn($v) => ! empty($v));
             }
         }
 
@@ -195,7 +227,7 @@ class PostController extends Controller
         $base = $slug;
         $i = 1;
 
-        while (Post::where('slug', $slug)->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))->exists()) {
+        while (Post::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
             $slug = $base . '-' . $i;
             $i++;
         }

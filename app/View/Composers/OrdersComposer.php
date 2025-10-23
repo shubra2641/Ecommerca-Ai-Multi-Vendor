@@ -7,38 +7,67 @@ namespace App\View\Composers;
 use App\View\Builders\OrderViewBuilder;
 use Illuminate\View\View;
 
-class OrdersComposer
+final class OrdersComposer
 {
     public function compose(View $view): void
     {
         $data = $view->getData();
+
         if (isset($data['order'])) {
-            $order = $data['order'];
-            $addressText = OrderViewBuilder::buildAddressText($order);
-            $shipment = OrderViewBuilder::shipmentStages($order->status);
-            // Per-item variant labels
-            $variantLabels = [];
-            foreach ($order->items as $it) {
-                $variantLabels[$it->id] = OrderViewBuilder::variantLabel($it);
-            }
-            $view->with([
-                'ovbAddressText' => $addressText,
-                'ovbShipmentStages' => $shipment,
-                'ovbVariantLabels' => $variantLabels,
-            ]);
+            $this->composeSingleOrder($view, $data['order']);
         } elseif (isset($data['orders'])) {
-            // Build first item name+variant for each order
-            $orders = $data['orders'];
-            $firstSummaries = [];
-            foreach ($orders as $o) {
-                $firstItem = $o->items->first();
-                $firstName = $firstItem?->name;
-                if ($firstItem && is_array($firstItem->meta ?? null) && ! empty($firstItem->meta['variant_name'])) {
-                    $firstName .= ' - '.$firstItem->meta['variant_name'];
-                }
-                $firstSummaries[$o->id] = $firstName ? $firstName : __('Order');
-            }
-            $view->with('ordersFirstSummaries', $firstSummaries);
+            $this->composeOrderList($view, $data['orders']);
         }
+    }
+
+    private function composeSingleOrder(View $view, $order): void
+    {
+        $addressText = OrderViewBuilder::buildAddressText($order);
+        $shipment = OrderViewBuilder::shipmentStages($order->status);
+        $variantLabels = $this->buildVariantLabels($order);
+
+        $view->with([
+            'ovbAddressText' => $addressText,
+            'ovbShipmentStages' => $shipment,
+            'ovbVariantLabels' => $variantLabels,
+        ]);
+    }
+
+    private function buildVariantLabels($order): array
+    {
+        $variantLabels = [];
+        foreach ($order->items as $item) {
+            $variantLabels[$item->id] = OrderViewBuilder::variantLabel($item);
+        }
+
+        return $variantLabels;
+    }
+
+    private function composeOrderList(View $view, $orders): void
+    {
+        $firstSummaries = $this->buildOrderSummaries($orders);
+        $view->with('ordersFirstSummaries', $firstSummaries);
+    }
+
+    private function buildOrderSummaries($orders): array
+    {
+        $firstSummaries = [];
+        foreach ($orders as $order) {
+            $firstSummaries[$order->id] = $this->getOrderFirstItemSummary($order);
+        }
+
+        return $firstSummaries;
+    }
+
+    private function getOrderFirstItemSummary($order): string
+    {
+        $firstItem = $order->items->first();
+        $firstName = $firstItem?->name;
+
+        if ($firstItem && is_array($firstItem->meta ?? null) && ! empty($firstItem->meta['variant_name'])) {
+            $firstName .= ' - '.$firstItem->meta['variant_name'];
+        }
+
+        return $firstName ?: __('Order');
     }
 }

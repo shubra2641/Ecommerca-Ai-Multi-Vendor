@@ -7,36 +7,53 @@ namespace App\View\Composers;
 use App\Models\ProductCategory;
 use Illuminate\View\View;
 
-class VendorProductsIndexComposer
+final class VendorProductsIndexComposer
 {
     public function compose(View $view): void
     {
         $data = $view->getData();
-        $categories = [];
+
+        $view->with('vendorProductCategories', $this->getProductCategories());
+        $view->with('vendorProductStocks', $this->calculateProductStocks($data));
+    }
+
+    private function getProductCategories()
+    {
         try {
-            $categories = ProductCategory::orderBy('name')->get();
+            return ProductCategory::orderBy('name')->get();
         } catch (\Throwable $e) {
-            $categories = collect();
+            return collect();
+        }
+    }
+
+    private function calculateProductStocks(array $data): array
+    {
+        $productStocks = [];
+
+        if (! isset($data['products'])) {
+            return $productStocks;
         }
 
-        $productStocks = [];
-        if (isset($data['products'])) {
-            foreach ($data['products'] as $p) {
-                if ($p->manage_stock) {
-                    try {
-                        $av = (int) $p->availableStock();
-                    } catch (\Throwable $e) {
-                        $av = 0;
-                    }
-                    $productStocks[$p->id] = [
-                        'available' => $av,
-                        'stock_qty' => (int) ($p->stock_qty ?? 0),
-                    ];
-                }
+        foreach ($data['products'] as $product) {
+            if ($product->manage_stock) {
+                $productStocks[$product->id] = $this->getStockInfo($product);
             }
         }
 
-        $view->with('vendorProductCategories', $categories);
-        $view->with('vendorProductStocks', $productStocks);
+        return $productStocks;
+    }
+
+    private function getStockInfo($product): array
+    {
+        try {
+            $available = (int) $product->availableStock();
+        } catch (\Throwable $e) {
+            $available = 0;
+        }
+
+        return [
+            'available' => $available,
+            'stock_qty' => (int) ($product->stock_qty ?? 0),
+        ];
     }
 }

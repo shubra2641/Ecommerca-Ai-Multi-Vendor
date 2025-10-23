@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Concerns\HandlesErrors;
 use App\Http\Controllers\Controller;
 use App\Models\PushSubscription;
 use Illuminate\Http\Request;
 
 class PushSubscriptionController extends Controller
 {
-    use HandlesErrors;
 
     public function store(Request $request)
     {

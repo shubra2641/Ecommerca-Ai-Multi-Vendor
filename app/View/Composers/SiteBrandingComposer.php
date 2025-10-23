@@ -7,31 +7,47 @@ namespace App\View\Composers;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
-class SiteBrandingComposer
+final class SiteBrandingComposer
 {
     public function compose(View $view): void
     {
+        $view->with($this->getCachedBrandingData());
+    }
+
+    private function getCachedBrandingData(): array
+    {
         static $cached = null;
         if ($cached === null) {
-            $cached = [
-                'setting' => null,
-                'selectedFont' => 'Inter',
-                'siteName' => config('app.name', 'Easy'),
-                'logoPath' => null,
-            ];
-            try {
-                $setting = Cache::remember('site_settings', 3600, fn () => \App\Models\Setting::first());
-                if ($setting) {
-                    $cached['setting'] = $setting;
-                    $cached['selectedFont'] = cache()->get('settings.font_family', $setting->font_family ?? 'Inter');
-                    $cached['siteName'] = $setting->site_name ?? $cached['siteName'];
-                    $cached['logoPath'] = $setting->logo ?? null;
-                }
-            } catch (\Throwable $e) {
-                // Silent fail to keep defaults - intentionally empty
-                null;
-            }
+            $cached = $this->buildDefaultData();
+            $this->loadSettingsIntoCache($cached);
         }
-        $view->with($cached);
+
+        return $cached;
+    }
+
+    private function buildDefaultData(): array
+    {
+        return [
+            'setting' => null,
+            'selectedFont' => 'Inter',
+            'siteName' => config('app.name', 'Easy'),
+            'logoPath' => null,
+        ];
+    }
+
+    private function loadSettingsIntoCache(array &$cached): void
+    {
+        try {
+            $setting = Cache::remember('site_settings', 3600, fn () => \App\Models\Setting::first());
+            if ($setting) {
+                $cached['setting'] = $setting;
+                $cached['selectedFont'] = cache()->get('settings.font_family', $setting->font_family ?? 'Inter');
+                $cached['siteName'] = $setting->site_name ?? $cached['siteName'];
+                $cached['logoPath'] = $setting->logo ?? null;
+            }
+        } catch (\Throwable $e) {
+            // Silent fail to keep defaults - intentionally empty
+            null;
+        }
     }
 }

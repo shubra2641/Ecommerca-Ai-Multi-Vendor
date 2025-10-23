@@ -228,7 +228,7 @@ Route::middleware([
             Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
             Route::post('/{post}/publish', [PostController::class, 'publishToggle'])->name('publish');
             // AI assist for post content (title/excerpt/body/seo)
-            Route::post('/ai/suggest', [PostController::class, 'aiSuggest'])
+            Route::match(['get', 'post'], '/ai/suggest', [PostController::class, 'aiSuggest'])
                 ->name('ai.suggest');
         });
         // Categories

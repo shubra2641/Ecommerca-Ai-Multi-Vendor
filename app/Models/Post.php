@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
-    use \App\Models\Concerns\Translatable;
     use HasFactory;
     use SoftDeletes;
 
@@ -63,6 +62,56 @@ class Post extends Model
     public function scopePublished($q)
     {
         return $q->whereNotNull('published_at')->where('published_at', '<=', now());
+    }
+
+    /**
+     * Override getAttribute to inject translation resolution for configured attributes.
+     */
+    public function getAttribute($key)
+    {
+        // if key is explicitly requested translations array, return normal behavior
+        if (isset($this->translatable) && in_array($key, $this->translatable, true)) {
+            $translationsKey = $key . '_translations';
+            $raw = parent::getAttribute($key); // base stored value
+            $translations = parent::getAttribute($translationsKey);
+            if (is_array($translations)) {
+                $locale = app()->getLocale();
+                $fallback = config('app.fallback_locale');
+                if (isset($translations[$locale]) && $translations[$locale] !== '') {
+                    return $translations[$locale];
+                }
+                if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
+                    return $translations[$fallback];
+                }
+            }
+
+            return $raw; // fallback to raw column value
+        }
+
+        return parent::getAttribute($key);
+    }
+
+    /**
+     * Helper manual translation fetch if needed in code.
+     */
+    public function translate(string $field, ?string $locale = null)
+    {
+        if (! isset($this->translatable) || ! in_array($field, $this->translatable, true)) {
+            return $this->getAttribute($field);
+        }
+        $translations = parent::getAttribute($field . '_translations');
+        $locale = $locale ? $locale : app()->getLocale();
+        $fallback = config('app.fallback_locale');
+        if (is_array($translations)) {
+            if (isset($translations[$locale]) && $translations[$locale] !== '') {
+                return $translations[$locale];
+            }
+            if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
+                return $translations[$fallback];
+            }
+        }
+
+        return parent::getAttribute($field);
     }
 
     public function category()

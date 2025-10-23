@@ -237,9 +237,9 @@ class ProductController extends Controller
     protected function getFormData()
     {
         return [
-            'categories' => Cache::remember('product_categories_ordered', 3600, fn () => ProductCategory::orderBy('name')->get()),
-            'tags' => Cache::remember('product_tags_ordered', 3600, fn () => ProductTag::orderBy('name')->get()),
-            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn () => ProductAttribute::with('values')->orderBy('name')->get()),
+            'categories' => Cache::remember('product_categories_ordered', 3600, fn() => ProductCategory::orderBy('name')->get()),
+            'tags' => Cache::remember('product_tags_ordered', 3600, fn() => ProductTag::orderBy('name')->get()),
+            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn() => ProductAttribute::with('values')->orderBy('name')->get()),
         ];
     }
 
@@ -428,7 +428,7 @@ class ProductController extends Controller
                 $normalized[$locale] = is_string($val) ? trim($val) : trim((string) $val);
             }
             $base = $this->extractPrimaryTextFromArray($normalized);
-            $translations = array_filter($normalized, fn ($val) => $val !== '');
+            $translations = array_filter($normalized, fn($val) => $val !== '');
 
             return [$base, $translations ? $translations : null];
         }
@@ -551,7 +551,7 @@ class ProductController extends Controller
             $gallery = json_decode($gallery, true) ? json_decode($gallery, true) : [];
         }
 
-        return array_values(array_filter(array_map('trim', $gallery), fn ($v) => ! empty($v)));
+        return array_values(array_filter(array_map('trim', $gallery), fn($v) => ! empty($v)));
     }
 
     protected function applyStockFilter($query, string $stock): void
