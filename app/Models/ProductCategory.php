@@ -85,16 +85,10 @@ class ProductCategory extends Model
         }
 
         $locale = $locale ?: app()->getLocale();
-        if (isset($translations[$locale]) && $translations[$locale] !== '') {
-            return $translations[$locale];
-        }
-
         $fallback = config('app.fallback_locale');
-        if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
-            return $translations[$fallback];
-        }
+        $translated = $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? null : null);
 
-        return $this->getAttribute($field);
+        return $translated !== null && $translated !== '' ? $translated : $this->getAttribute($field);
     }
 
     // backward compatibility for existing blades calling ->translated('field')

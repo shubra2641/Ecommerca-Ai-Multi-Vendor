@@ -74,16 +74,28 @@ class CartViewBuilder
 
     private function buildStringCartVariantLabel($variant): string
     {
-        if (!is_string($variant) || strlen($variant) === 0) {
+        if (!is_string($variant)) {
             return (string) $variant;
         }
 
-        $parsed = json_decode($variant, true);
-        if (json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data'])) {
-            return $this->formatAttributeData($parsed['attribute_data']);
+        if (strlen($variant) === 0) {
+            return '';
         }
 
-        return $variant;
+        $parsed = json_decode($variant, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return $variant;
+        }
+
+        if (!is_array($parsed)) {
+            return $variant;
+        }
+
+        if (!isset($parsed['attribute_data'])) {
+            return $variant;
+        }
+
+        return $this->formatAttributeData($parsed['attribute_data']);
     }
 
     private function formatAttributeData(array $attributeData): string

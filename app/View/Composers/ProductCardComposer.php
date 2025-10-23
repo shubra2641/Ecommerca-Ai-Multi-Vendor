@@ -27,66 +27,17 @@ final class ProductCardComposer
         $compareIds = $data['compareIds'] ?? [];
 
         return [
-            ...$this->getCardSaleData($product),
-            ...$this->getCardAvailabilityData($product),
-            ...$this->getCardWishlistCompareData($product, $wishlistIds, $compareIds),
-            ...$this->getCardRatingData($product),
-            ...$this->getCardDescriptionData($product),
-            ...$this->getCardPriceData($product),
-            ...$this->getCardImageData($product),
-        ];
-    }
-
-    private function getCardSaleData($product): array
-    {
-        return [
             'cardOnSale' => $this->isOnSale($product),
             'cardDiscountPercent' => $this->calculateDiscountPercent($product),
-        ];
-    }
-
-    private function getCardAvailabilityData($product): array
-    {
-        return [
             'cardAvailable' => $this->getAvailableStock($product),
-        ];
-    }
-
-    private function getCardWishlistCompareData($product, array $wishlistIds, array $compareIds): array
-    {
-        return [
             'cardWishActive' => in_array($product->id, $wishlistIds, true),
             'cardCmpActive' => in_array($product->id, $compareIds, true),
-        ];
-    }
-
-    private function getCardRatingData($product): array
-    {
-        return [
             'cardRating' => $product->reviews_avg_rating ?? 0.0,
             'cardReviewsCount' => $product->reviews_count ?? 0,
             'cardFullStars' => $this->calculateFullStars($product),
-        ];
-    }
-
-    private function getCardDescriptionData($product): array
-    {
-        return [
             'cardSnippet' => $this->getDescriptionSnippet($product),
-        ];
-    }
-
-    private function getCardPriceData($product): array
-    {
-        return [
             'cardDisplayPrice' => $this->getDisplayPrice($product),
             'cardDisplaySalePrice' => $this->getDisplaySalePriceValue($product),
-        ];
-    }
-
-    private function getCardImageData($product): array
-    {
-        return [
             'cardImageUrl' => $this->getImageUrl($product),
         ];
     }

@@ -49,16 +49,12 @@ class ProductVariation extends Model
 
     public function isOnSale(): bool
     {
-        if (!$this->sale_price) {
-            return false;
-        }
-
-        $now = Carbon::now();
-        if (($this->sale_start && $now->lt($this->sale_start)) || ($this->sale_end && $now->gt($this->sale_end))) {
-            return false;
-        }
-
-        return $this->sale_price < $this->price;
+        return match (true) {
+            !$this->sale_price => false,
+            $this->sale_start && Carbon::now()->lt($this->sale_start) => false,
+            $this->sale_end && Carbon::now()->gt($this->sale_end) => false,
+            default => $this->sale_price < $this->price,
+        };
     }
 
     public function effectivePrice(): float
