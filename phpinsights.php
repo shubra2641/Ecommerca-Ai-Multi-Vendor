@@ -56,7 +56,6 @@ return [
 
     'remove' => [
         // Disable property type hint rule that causes issues with inherited properties
-        'SlevomatCodingStandard\Sniffs\TypeHints\PropertyTypeHintSniff',
     ],
 
     'config' => [

@@ -18,7 +18,36 @@ final class HeaderComposer
         $setting = $view->getData()['setting'] ??
             (Schema::hasTable('settings') ? \App\Models\Setting::first() : null);
 
-        $currencies = Cache::remember('active_currencies', 3600, function () {
+        $currencies = $this->getCurrencies();
+        $currentCurrency = $this->resolveCurrentCurrency($currencies);
+
+        $data = [
+            'setting' => $setting,
+            'siteName' => $setting->site_name ?? config('app.name'),
+            'logoPath' => $setting->logo ?? null,
+            'userName' => Auth::check() ? explode(' ', Auth::user()->name)[0] : null,
+            'rootCats' => $this->getRootCategories(),
+            'currencies' => $currencies,
+            'currentCurrency' => $currentCurrency,
+            ...$this->getCounts(),
+            'activeLanguages' => $this->getActiveLanguages(),
+        ];
+
+        $view->with($data);
+
+        try {
+            $symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
+            $view->with('currency_symbol', $symbol ?? '$');
+            $view->with('defaultCurrency', Currency::getDefault());
+            $view->with('currentCurrency', $currentCurrency);
+        } catch (\Throwable $e) {
+            $view->with('currency_symbol', '$');
+        }
+    }
+
+    private function getCurrencies()
+    {
+        return Cache::remember('active_currencies', 3600, function () {
             if (Schema::hasTable('currencies')) {
                 try {
                     return Currency::active()->take(4)->get();
@@ -26,10 +55,12 @@ final class HeaderComposer
                     return collect();
                 }
             }
-
             return collect();
         });
+    }
 
+    private function resolveCurrentCurrency($currencies)
+    {
         $current = $currencies->firstWhere('is_default', true) ?? $currencies->first();
         $currentCurrency = $current;
         $sessionCurrencyId = session('currency_id');
@@ -39,10 +70,12 @@ final class HeaderComposer
                 $currentCurrency = $sc;
             }
         }
+        return $currentCurrency;
+    }
 
-        $isAuthenticatedForWishlist = Auth::check() && Schema::hasTable('wishlist_items');
-
-        $rootCats = Cache::remember('header_root_categories', 1800, function () {
+    private function getRootCategories()
+    {
+        return Cache::remember('header_root_categories', 1800, function () {
             if (Schema::hasTable('product_categories')) {
                 try {
                     return \App\Models\ProductCategory::where('parent_id', null)->active()->get();
@@ -52,8 +85,11 @@ final class HeaderComposer
             }
             return collect();
         });
+    }
 
-        $activeLanguages = Cache::remember('header_active_languages', 1800, function () {
+    private function getActiveLanguages()
+    {
+        return Cache::remember('header_active_languages', 1800, function () {
             if (Schema::hasTable('languages')) {
                 try {
                     return \App\Models\Language::where('is_active', 1)
@@ -66,6 +102,11 @@ final class HeaderComposer
             }
             return collect();
         });
+    }
+
+    private function getCounts()
+    {
+        $isAuthenticatedForWishlist = Auth::check() && Schema::hasTable('wishlist_items');
 
         $cartCount = match (true) {
             is_array(session('cart')) => count(session('cart')),
@@ -83,29 +124,10 @@ final class HeaderComposer
             default => 0,
         };
 
-        $data = [
-            'setting' => $setting,
-            'siteName' => $setting->site_name ?? config('app.name'),
-            'logoPath' => $setting->logo ?? null,
-            'userName' => Auth::check() ? explode(' ', Auth::user()->name)[0] : null,
-            'rootCats' => $rootCats,
-            'currencies' => $currencies,
-            'currentCurrency' => $currentCurrency,
+        return [
             'cartCount' => $cartCount,
             'compareCount' => $compareCount,
             'wishlistCount' => $wishlistCount,
-            'activeLanguages' => $activeLanguages,
         ];
-
-        $view->with($data);
-
-        try {
-            $symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
-            $view->with('currency_symbol', $symbol ?? '$');
-            $view->with('defaultCurrency', Currency::getDefault());
-            $view->with('currentCurrency', $currentCurrency);
-        } catch (\Throwable $e) {
-            $view->with('currency_symbol', '$');
-        }
     }
 }

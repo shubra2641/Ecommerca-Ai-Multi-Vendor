@@ -6,14 +6,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\TranslatableTrait;
-
-class PostCategory extends Model
 {
-    use HasFactory, TranslatableTrait;
+    use HasFactory;
 
-    protected array $translatable = [
-        'name',
+    use HasFactory;
+    use HasFactory;
         'slug',
         'description',
         'seo_title',
@@ -40,11 +37,25 @@ class PostCategory extends Model
     protected $casts = [
         'name_translations' => 'array',
         'slug_translations' => 'array',
-        'description_translations' => 'array',
         'seo_title_translations' => 'array',
         'seo_description_translations' => 'array',
         'seo_tags_translations' => 'array',
     ];
+
+    public function parent()
+    {
+        return $this->belongsTo(PostCategory::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(PostCategory::class, 'parent_id');
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'category_id');
+    }
 
     /**
      * Override getAttribute to inject translation resolution for configured attributes.
