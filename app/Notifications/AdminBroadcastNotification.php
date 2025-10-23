@@ -31,44 +31,13 @@ class AdminBroadcastNotification extends Notification
 
     public function toArray(object $notifiable): array
     {
-        // Determine default language code
         $default = '\App\Models\Language'::where('is_default', true)->value('code') ?? 'en';
 
-        // Find first non-empty title/message to use as fallback
-        $firstTitle = '';
-        foreach ($this->titleTranslations as $v) {
-            if (! empty($v)) {
-                $firstTitle = $v;
-                break;
-            }
-        }
-        $firstMessage = '';
-        foreach ($this->messageTranslations as $v) {
-            if (! empty($v)) {
-                $firstMessage = $v;
-                break;
-            }
-        }
+        $titles = $this->ensureDefaultTranslation($this->titleTranslations, $default);
+        $messages = $this->ensureDefaultTranslation($this->messageTranslations, $default);
 
-        // Ensure default language entry exists: if missing, fallback to first provided translation
-        $titles = $this->titleTranslations;
-        $messages = $this->messageTranslations;
-        if (empty($titles) || ! is_array($titles)) {
-            $titles = [];
-        }
-        if (empty($messages) || ! is_array($messages)) {
-            $messages = [];
-        }
-        if (empty($titles[$default]) && $firstTitle !== '') {
-            $titles[$default] = $firstTitle;
-        }
-        if (empty($messages[$default]) && $firstMessage !== '') {
-            $messages[$default] = $firstMessage;
-        }
-
-        // Top-level fallback values (used by existing views that expect 'title'/'message')
-        $titleFallback = $titles[$default] ?? $firstTitle ?? '';
-        $messageFallback = $messages[$default] ?? $firstMessage ?? '';
+        $titleFallback = $titles[$default] ?? $this->getFirstNonEmpty($this->titleTranslations) ?? '';
+        $messageFallback = $messages[$default] ?? $this->getFirstNonEmpty($this->messageTranslations) ?? '';
 
         return [
             'type' => 'admin_broadcast',
@@ -79,5 +48,22 @@ class AdminBroadcastNotification extends Notification
             'message_translations' => $messages,
             'url' => $this->url,
         ];
+    }
+
+    private function getFirstNonEmpty(array $translations): ?string
+    {
+        return collect($translations)->first(fn($v) => !empty($v));
+    }
+
+    private function ensureDefaultTranslation(array $translations, string $default): array
+    {
+        $processed = is_array($translations) ? $translations : [];
+        $first = $this->getFirstNonEmpty($processed);
+
+        if (!isset($processed[$default]) && $first !== null) {
+            $processed[$default] = $first;
+        }
+
+        return $processed;
     }
 }

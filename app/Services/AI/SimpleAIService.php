@@ -28,32 +28,14 @@ class SimpleAIService
         try {
             $response = $this->makeApiRequest($apiKey, $provider, $title, $type, $locale);
 
-            if (! $response->successful()) {
+            if ($response->successful()) {
+                return $this->handleSuccessfulResponse($response, $provider);
+            } else {
                 $errorMessage = $this->getSpecificErrorMessage($response);
                 Log::error('AI Service Error: ' . $errorMessage, ['response' => $response->json()]);
 
                 return ['error' => $errorMessage];
             }
-
-            // Handle different response formats
-            if ($provider === 'gemini') {
-                $content = $response->json('candidates.0.content.parts.0.text');
-            } else {
-                $content = $response->json('choices.0.message.content');
-            }
-
-            // Clean content from markdown code blocks
-            $content = $this->cleanJsonContent($content);
-
-            $result = json_decode($content, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE || ! is_array($result)) {
-                Log::warning('AI returned invalid JSON', ['content' => $content]);
-
-                return ['error' => __('AI returned invalid response. Please try again.')];
-            }
-
-            return $result;
         } catch (\Exception $e) {
             Log::error('AI Service Exception: ' . $e->getMessage());
 
@@ -66,82 +48,111 @@ class SimpleAIService
         $statusCode = $response->status();
         $responseData = $response->json();
 
-        // Handle specific error cases
-        if ($statusCode === 401) {
-            return __('Invalid or expired API key. Please check your key in settings.');
-        }
+        // Handle specific HTTP status codes
+        $message = match ($statusCode) {
+            401 => __('Invalid or expired API key. Please check your key in settings.'),
+            402 => __('Insufficient credits. Please add credits to continue.'),
+            403 => __('Access denied. Please check your API key permissions.'),
+            429 => __('Rate limit exceeded. Please try again later.'),
+            404 => __('Model not found. Please check your API configuration.'),
+            500 => __('Server error. Please try again later.'),
+            default => null,
+        };
 
-        if ($statusCode === 402) {
-            return __('Insufficient credits. Please add credits to continue.');
-        }
-
-        if ($statusCode === 403) {
-            return __('Access denied. Please check your API key permissions.');
-        }
-
-        if ($statusCode === 429) {
-            return __('Rate limit exceeded. Please try again later.');
-        }
-
-        if ($statusCode === 404) {
-            return __('Model not found. Please check your API configuration.');
-        }
-
-        if ($statusCode === 500) {
-            return __('Server error. Please try again later.');
+        if ($message) {
+            return $message;
         }
 
         // Check for specific error messages in response
         if (isset($responseData['error'])) {
             $error = $responseData['error'];
+            $message = $this->getOpenAIError($error) ??
+                $this->getGeminiError($error) ??
+                $this->getGrokError($error) ??
+                $this->getGenericError($error);
 
-            // OpenAI specific errors
-            if (isset($error['type'])) {
-                switch ($error['type']) {
-                    case 'insufficient_quota':
-                        return __('Insufficient credits. Please add credits to continue.');
-                    case 'invalid_api_key':
-                        return __('Invalid API key. Please check your key in settings.');
-                    case 'rate_limit_exceeded':
-                        return __('Rate limit exceeded. Please try again later.');
-                }
-            }
-
-            // Gemini specific errors
-            if (isset($error['code']) && $error['code'] === 400) {
-                if (isset($error['message']) && str_contains(strtolower($error['message']), 'api key not valid')) {
-                    return __('Invalid API key. Please check your key in settings.');
-                }
-            }
-
-            // Grok specific errors
-            if (isset($error['error']) && str_contains($error['error'], 'credits')) {
-                return __('Insufficient credits. Please add credits to continue.');
-            }
-            if (isset($error['error']) && str_contains($error['error'], 'permission')) {
-                return __('Access denied. Please check your API key permissions.');
-            }
-
-            // Check error message content
-            if (isset($error['message'])) {
-                $message = strtolower($error['message']);
-
-                if (str_contains($message, 'insufficient') || str_contains($message, 'quota') || str_contains($message, 'credit')) {
-                    return __('Insufficient credits. Please add credits to continue.');
-                }
-
-                if (str_contains($message, 'invalid') && str_contains($message, 'key')) {
-                    return __('Invalid API key. Please check your key in settings.');
-                }
-
-                if (str_contains($message, 'rate') || str_contains($message, 'limit')) {
-                    return __('Rate limit exceeded. Please try again later.');
-                }
+            if ($message) {
+                return $message;
             }
         }
 
         // Default error message
         return __('AI service error. Please try again later.');
+    }
+
+    private function getOpenAIError(array $error): ?string
+    {
+        if (!isset($error['type'])) {
+            return null;
+        }
+
+        return match ($error['type']) {
+            'insufficient_quota' => __('Insufficient credits. Please add credits to continue.'),
+            'invalid_api_key' => __('Invalid API key. Please check your key in settings.'),
+            'rate_limit_exceeded' => __('Rate limit exceeded. Please try again later.'),
+            default => null,
+        };
+    }
+
+    private function getGeminiError(array $error): ?string
+    {
+        if (isset($error['code']) && $error['code'] === 400) {
+            if (isset($error['message']) && str_contains(strtolower($error['message']), 'api key not valid')) {
+                return __('Invalid API key. Please check your key in settings.');
+            }
+        }
+
+        return null;
+    }
+
+    private function getGrokError(array $error): ?string
+    {
+        if (isset($error['error'])) {
+            $errMsg = $error['error'];
+            if (str_contains($errMsg, 'credits')) {
+                return __('Insufficient credits. Please add credits to continue.');
+            }
+            if (str_contains($errMsg, 'permission')) {
+                return __('Access denied. Please check your API key permissions.');
+            }
+        }
+
+        return null;
+    }
+
+    private function getGenericError(array $error): ?string
+    {
+        return match (true) {
+            !isset($error['message']) => null,
+            str_contains(strtolower($error['message']), 'insufficient') ||
+                str_contains(strtolower($error['message']), 'quota') ||
+                str_contains(strtolower($error['message']), 'credit') => __('Insufficient credits. Please add credits to continue.'),
+            str_contains(strtolower($error['message']), 'invalid') &&
+                str_contains(strtolower($error['message']), 'key') => __('Invalid API key. Please check your key in settings.'),
+            str_contains(strtolower($error['message']), 'rate') ||
+                str_contains(strtolower($error['message']), 'limit') => __('Rate limit exceeded. Please try again later.'),
+            default => null,
+        };
+    }
+
+    private function handleSuccessfulResponse($response, $provider): array
+    {
+        $content = match ($provider) {
+            'gemini' => $response->json('candidates.0.content.parts.0.text'),
+            default => $response->json('choices.0.message.content'),
+        };
+
+        $content = $this->cleanJsonContent($content);
+
+        $result = json_decode($content, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || ! is_array($result)) {
+            Log::warning('AI returned invalid JSON', ['content' => $content]);
+
+            return ['error' => __('AI returned invalid response. Please try again.')];
+        }
+
+        return $result;
     }
 
     private function makeApiRequest($apiKey, $provider, $title, $type, $locale = null)

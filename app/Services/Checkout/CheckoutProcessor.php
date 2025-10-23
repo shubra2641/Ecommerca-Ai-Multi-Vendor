@@ -109,13 +109,16 @@ class CheckoutProcessor
 
     private function handleShippingAddress(Order $order, array $checkoutData): void
     {
-        if (!empty($checkoutData['selected_address_id']) || !$checkoutData['user']) {
-            return;
+        if (empty($checkoutData['selected_address_id']) && $checkoutData['user']) {
+            $this->createAndAttachShippingAddress($order, $checkoutData);
         }
+    }
 
+    private function createAndAttachShippingAddress(Order $order, array $checkoutData): void
+    {
         try {
             $addr = $this->createShippingAddress($checkoutData);
-            if ($addr && $addr->id) {
+            if ($addr?->id) {
                 $order->shipping_address_id = $addr->id;
                 $order->save();
             }

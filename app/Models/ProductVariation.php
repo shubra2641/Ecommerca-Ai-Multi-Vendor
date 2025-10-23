@@ -49,14 +49,12 @@ class ProductVariation extends Model
 
     public function isOnSale(): bool
     {
-        if (! $this->sale_price) {
+        if (!$this->sale_price) {
             return false;
         }
+
         $now = Carbon::now();
-        if ($this->sale_start && $now->lt($this->sale_start)) {
-            return false;
-        }
-        if ($this->sale_end && $now->gt($this->sale_end)) {
+        if (($this->sale_start && $now->lt($this->sale_start)) || ($this->sale_end && $now->gt($this->sale_end))) {
             return false;
         }
 

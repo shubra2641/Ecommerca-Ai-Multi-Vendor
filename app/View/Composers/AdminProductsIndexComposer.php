@@ -108,13 +108,10 @@ final class AdminProductsIndexComposer
 
     private function classAndBadge(int $available, int $low, int $soon): array
     {
-        if ($available <= $low) {
-            return ['class' => 'text-danger', 'badge' => 'low'];
-        }
-        if ($available <= $soon) {
-            return ['class' => 'text-warning', 'badge' => 'soon'];
-        }
-
-        return ['class' => '', 'badge' => null];
+        return match (true) {
+            $available <= $low => ['class' => 'text-danger', 'badge' => 'low'],
+            $available <= $soon => ['class' => 'text-warning', 'badge' => 'soon'],
+            default => ['class' => '', 'badge' => null],
+        };
     }
 }

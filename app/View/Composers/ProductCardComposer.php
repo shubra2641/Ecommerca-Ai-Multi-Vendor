@@ -124,7 +124,10 @@ final class ProductCardComposer
         $price = $product->price ?? null;
         $salePrice = $product->sale_price ?? null;
 
-        return $salePrice && $price && $salePrice < $price ? $salePrice : null;
+        return match (true) {
+            $salePrice && $price && $salePrice < $price => $salePrice,
+            default => null,
+        };
     }
 
     private function getImageUrl($product): string

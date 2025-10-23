@@ -56,20 +56,20 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
             ->greeting($greeting)
             ->line($this->getStatusMessage())
             ->line('Payment Details:')
-            ->line('Payment ID: '.$this->payment->payment_id)
-            ->line('Amount: '.$this->payment->amount.' '.$this->payment->currency)
-            ->line('Gateway: '.ucfirst($this->payment->gateway))
-            ->line('Status: '.ucfirst($this->status));
+            ->line('Payment ID: ' . $this->payment->payment_id)
+            ->line('Amount: ' . $this->payment->amount . ' ' . $this->payment->currency)
+            ->line('Gateway: ' . ucfirst($this->payment->gateway))
+            ->line('Status: ' . ucfirst($this->status));
 
         if ($order) {
-            $mail->line('Order ID: '.$order->id);
+            $mail->line('Order ID: ' . $order->id);
         }
 
         // Add action button based on status
         if (in_array($this->status, ['completed', 'paid', 'success'])) {
-            $mail->action('View Order', url('/orders/'.$order->id));
+            $mail->action('View Order', url('/orders/' . $order->id));
         } elseif (in_array($this->status, ['failed', 'cancelled'])) {
-            $mail->action('Try Again', url('/checkout/'.$order->id));
+            $mail->action('Try Again', url('/checkout/' . $order->id));
         }
 
         $mail->line('Thank you for using our service!');
@@ -125,22 +125,14 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
      */
     private function getEmailSubject(): string
     {
-        switch ($this->status) {
-            case 'completed':
-            case 'paid':
-            case 'success':
-                return 'Payment Successful - Order Confirmed';
-            case 'failed':
-                return 'Payment Failed - Action Required';
-            case 'cancelled':
-                return 'Payment Cancelled';
-            case 'refunded':
-                return 'Payment Refunded';
-            case 'pending':
-                return 'Payment Pending';
-            default:
-                return 'Payment Status Updated';
-        }
+        return match ($this->status) {
+            'completed', 'paid', 'success' => 'Payment Successful - Order Confirmed',
+            'failed' => 'Payment Failed - Action Required',
+            'cancelled' => 'Payment Cancelled',
+            'refunded' => 'Payment Refunded',
+            'pending' => 'Payment Pending',
+            default => 'Payment Status Updated',
+        };
     }
 
     /**
@@ -158,24 +150,15 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
      */
     private function getStatusMessage(): string
     {
-        switch ($this->status) {
-            case 'completed':
-            case 'paid':
-            case 'success':
-                return 'Your payment has been successfully processed and your order is confirmed.';
-            case 'failed':
-                return 'Unfortunately, your payment could not be processed. Please try again or use a different payment method.';
-            case 'cancelled':
-                return 'Your payment has been cancelled. You can try again if you wish to complete your order.';
-            case 'refunded':
-                return 'Your payment has been refunded. The amount will be credited back to your original payment method.';
-            case 'pending':
-                return 'Your payment is being processed. We will notify you once the payment is confirmed.';
-            case 'expired':
-                return 'Your payment session has expired. Please start a new payment process.';
-            default:
-                return "Your payment status has been updated to: {$this->status}";
-        }
+        return match ($this->status) {
+            'completed', 'paid', 'success' => 'Your payment has been successfully processed and your order is confirmed.',
+            'failed' => 'Unfortunately, your payment could not be processed. Please try again or use a different payment method.',
+            'cancelled' => 'Your payment has been cancelled. You can try again if you wish to complete your order.',
+            'refunded' => 'Your payment has been refunded. The amount will be credited back to your original payment method.',
+            'pending' => 'Your payment is being processed. We will notify you once the payment is confirmed.',
+            'expired' => 'Your payment session has expired. Please start a new payment process.',
+            default => "Your payment status has been updated to: {$this->status}",
+        };
     }
 
     /**
@@ -185,21 +168,14 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
     {
         $order = $this->payment->order;
 
-        if (! $order) {
+        if (!$order) {
             return null;
         }
 
-        switch ($this->status) {
-            case 'completed':
-            case 'paid':
-            case 'success':
-                return url('/orders/'.$order->id);
-            case 'failed':
-            case 'cancelled':
-            case 'expired':
-                return url('/checkout/'.$order->id);
-            default:
-                return url('/orders/'.$order->id);
-        }
+        return match ($this->status) {
+            'completed', 'paid', 'success' => url('/orders/' . $order->id),
+            'failed', 'cancelled', 'expired' => url('/checkout/' . $order->id),
+            default => url('/orders/' . $order->id),
+        };
     }
 }

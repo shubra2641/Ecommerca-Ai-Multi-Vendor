@@ -14,11 +14,45 @@ class CheckoutViewBuilder
 {
     public function build(array $cart, ?int $currencyId, ?int $appliedCouponId, $user): array
     {
+        [$items, $total] = $this->processCartItems($cart);
+        [$currentCurrency, $defaultCurrency, $currency_symbol] = $this->getCurrencies($currencyId);
+        $displayTotal = $this->calculateDisplayTotal($total, $currentCurrency, $defaultCurrency);
+
+        $this->applyCurrencyToItems($items, $currentCurrency, $defaultCurrency);
+
+        [$coupon, $discount, $discounted_total, $displayDiscountedTotal] = $this->applyCoupon($appliedCouponId, $total, $displayTotal, $currentCurrency, $defaultCurrency);
+
+        [$addresses, $defaultAddress] = $this->loadAddresses($user);
+        $gateways = $this->loadGateways();
+
+        $this->buildItemDetails($items);
+
+        $checkoutConfig = $this->buildCheckoutConfig($displayDiscountedTotal, $total, $coupon, $discount, $user);
+
+        return compact(
+            'items',
+            'total',
+            'displayTotal',
+            'gateways',
+            'currency_symbol',
+            'currentCurrency',
+            'coupon',
+            'discount',
+            'discounted_total',
+            'displayDiscountedTotal',
+            'defaultAddress',
+            'addresses',
+            'checkoutConfig'
+        );
+    }
+
+    private function processCartItems(array $cart): array
+    {
         $items = [];
         $total = 0;
         foreach ($cart as $pid => $row) {
             $product = Product::find($pid);
-            if (! $product) {
+            if (!$product) {
                 continue;
             }
             $qty = (int) ($row['qty'] ?? 1);
@@ -37,10 +71,19 @@ class CheckoutViewBuilder
                 'variant' => $variant,
             ];
         }
+        return [$items, $total];
+    }
 
+    private function getCurrencies(?int $currencyId): array
+    {
         $currentCurrency = $currencyId ? Currency::find($currencyId) : Currency::getDefault();
         $defaultCurrency = Currency::getDefault();
         $currency_symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
+        return [$currentCurrency, $defaultCurrency, $currency_symbol];
+    }
+
+    private function calculateDisplayTotal(float $total, $currentCurrency, $defaultCurrency): float
+    {
         $displayTotal = $total;
         try {
             if ($currentCurrency && $defaultCurrency && $currentCurrency->id !== $defaultCurrency->id) {
@@ -49,47 +92,50 @@ class CheckoutViewBuilder
         } catch (\Throwable $e) {
             $displayTotal = $total;
         }
+        return $displayTotal;
+    }
 
-        // Per-line display conversions
+    private function applyCurrencyToItems(array &$items, $currentCurrency, $defaultCurrency): void
+    {
+        if (!$currentCurrency || !$defaultCurrency || $currentCurrency->id === $defaultCurrency->id) {
+            return;
+        }
+
         foreach ($items as &$it) {
-            $it['display_price'] = $it['price'];
-            $it['display_lineTotal'] = $it['lineTotal'];
-            try {
-                if ($currentCurrency && $defaultCurrency && $currentCurrency->id !== $defaultCurrency->id) {
-                    $it['display_price'] = $defaultCurrency->convertTo($it['price'], $currentCurrency, 2);
-                    $it['display_lineTotal'] = $defaultCurrency->convertTo($it['lineTotal'], $currentCurrency, 2);
-                }
-            } catch (\Throwable $e) {
-                /* leave defaults */
-                null;
-            }
+            $it['display_price'] = $this->convertCurrency($it['price'], $defaultCurrency, $currentCurrency);
+            $it['display_lineTotal'] = $this->convertCurrency($it['lineTotal'], $defaultCurrency, $currentCurrency);
+        }
+    }
+
+    private function convertCurrency(float $amount, $fromCurrency, $toCurrency): float
+    {
+        try {
+            return $fromCurrency->convertTo($amount, $toCurrency, 2);
+        } catch (\Throwable $e) {
+            return $amount;
+        }
+    }
+
+    private function applyCoupon(?int $appliedCouponId, float $total, float $displayTotal, $currentCurrency, $defaultCurrency): array
+    {
+        if (!$appliedCouponId) {
+            return [null, 0, $total, $displayTotal];
         }
 
-        // Coupon
-        $coupon = null;
-        $discount = 0;
-        $discounted_total = $total;
-        $displayDiscountedTotal = $displayTotal;
-        if ($appliedCouponId) {
-            $coupon = Coupon::find($appliedCouponId);
-            if ($coupon && $coupon->isValidForTotal($total)) {
-                $discounted_total = $coupon->applyTo($total);
-                $discount = round($total - $discounted_total, 2);
-                try {
-                    if ($currentCurrency && $defaultCurrency && $currentCurrency->id !== $defaultCurrency->id) {
-                        $displayDiscountedTotal = $defaultCurrency->convertTo($discounted_total, $currentCurrency, 2);
-                    } else {
-                        $displayDiscountedTotal = $discounted_total;
-                    }
-                } catch (\Throwable $e) {
-                    $displayDiscountedTotal = $discounted_total;
-                }
-            } else {
-                $coupon = null; // invalid remove
-            }
+        $coupon = Coupon::find($appliedCouponId);
+        if (!$coupon || !$coupon->isValidForTotal($total)) {
+            return [null, 0, $total, $displayTotal];
         }
 
-        // Addresses
+        $discounted_total = $coupon->applyTo($total);
+        $discount = round($total - $discounted_total, 2);
+        $displayDiscountedTotal = $this->convertCurrency($discounted_total, $defaultCurrency, $currentCurrency) ?? $discounted_total;
+
+        return [$coupon, $discount, $discounted_total, $displayDiscountedTotal];
+    }
+
+    private function loadAddresses($user): array
+    {
         $addresses = collect();
         $defaultAddress = null;
         if ($user) {
@@ -97,59 +143,87 @@ class CheckoutViewBuilder
                 $addresses = $user->addresses()->get();
                 $defaultAddress = $addresses->firstWhere('is_default', true);
             } catch (\Throwable $e) {
-                // Intentionally empty - addresses loading failed
-                count([]);
+                // addresses loading failed
             }
         }
+        return [$addresses, $defaultAddress];
+    }
 
-        $gateways = PaymentGateway::where('enabled', true)->get();
+    private function loadGateways()
+    {
+        return PaymentGateway::where('enabled', true)->get();
+    }
 
-        // Pre-build order items for display (with variant label) & order summary lines
+    private function buildItemDetails(array &$items): void
+    {
         foreach ($items as &$it) {
-            $variantLabel = null;
-            $variant = $it['variant'] ?? null;
-            if ($variant) {
-                if (is_object($variant)) {
-                    $variantLabel = $variant->name ?? null;
-                    if (! $variantLabel && ! empty($variant->attribute_data)) {
-                        $variantLabel = collect($variant->attribute_data)
-                            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
-                            ->values()
-                            ->join(', ');
-                    }
-                } elseif (is_string($variant)) {
-                    $parsed = json_decode($variant, true);
-                    if (json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data'])) {
-                        $variantLabel = collect($parsed['attribute_data'])
-                            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
-                            ->values()
-                            ->join(', ');
-                    } else {
-                        $variantLabel = $variant;
-                    }
-                }
-            }
-            if (! $variantLabel && ! empty($it['attributes']) && is_array($it['attributes'])) {
-                $variantLabel = implode(', ', $it['attributes']);
-            }
-            $it['variant_label'] = $variantLabel;
-            // Resolve image
-            $img = null;
-            try {
-                if (! empty($it['product']->image_url)) {
-                    $img = $it['product']->image_url;
-                } elseif (method_exists($it['product'], 'getFirstMediaUrl')) {
-                    $img = $it['product']->getFirstMediaUrl('images');
-                }
-            } catch (\Throwable $e) {
-                // Intentionally empty - fallback to placeholder image
-                count([]);
-            }
-            $it['image'] = $img ? $img : asset('images/placeholder.svg');
+            $it['variant_label'] = $this->buildVariantLabel($it);
+            $it['image'] = $this->resolveItemImage($it);
+        }
+    }
+
+    private function buildVariantLabel(array $it): ?string
+    {
+        $variant = $it['variant'] ?? null;
+        if (!$variant) {
+            return null;
         }
 
-        // JS config
-        $checkoutConfig = [
+        return match (true) {
+            is_object($variant) => $this->buildObjectVariantLabel($variant),
+            is_string($variant) => $this->buildStringVariantLabel($variant),
+            !empty($it['attributes']) && is_array($it['attributes']) => implode(', ', $it['attributes']),
+            default => null,
+        };
+    }
+
+    private function buildObjectVariantLabel($variant): ?string
+    {
+        if (!empty($variant->name)) {
+            return $variant->name;
+        }
+
+        if (!empty($variant->attribute_data)) {
+            return collect($variant->attribute_data)
+                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                ->values()
+                ->join(', ');
+        }
+
+        return null;
+    }
+
+    private function buildStringVariantLabel(string $variant): string
+    {
+        $parsed = json_decode($variant, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data'])) {
+            return collect($parsed['attribute_data'])
+                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                ->values()
+                ->join(', ');
+        }
+
+        return $variant;
+    }
+
+    private function resolveItemImage(array $it): string
+    {
+        try {
+            if (!empty($it['product']->image_url)) {
+                return $it['product']->image_url;
+            }
+            if (method_exists($it['product'], 'getFirstMediaUrl')) {
+                return $it['product']->getFirstMediaUrl('images');
+            }
+        } catch (\Throwable $e) {
+            // fallback to placeholder
+        }
+        return asset('images/placeholder.svg');
+    }
+
+    private function buildCheckoutConfig(float $displayDiscountedTotal, float $total, $coupon, float $discount, $user): array
+    {
+        return [
             'baseTotal' => (float) $displayDiscountedTotal,
             'rawItemsSubtotal' => (float) $total,
             'coupon' => $coupon ? [
@@ -167,21 +241,5 @@ class CheckoutViewBuilder
                 'selectCity' => __('Select City'),
             ],
         ];
-
-        return compact(
-            'items',
-            'total',
-            'displayTotal',
-            'gateways',
-            'currency_symbol',
-            'currentCurrency',
-            'coupon',
-            'discount',
-            'discounted_total',
-            'displayDiscountedTotal',
-            'defaultAddress',
-            'addresses',
-            'checkoutConfig'
-        );
     }
 }

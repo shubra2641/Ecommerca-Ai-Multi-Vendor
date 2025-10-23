@@ -75,22 +75,26 @@ class ProductCategory extends Model
      */
     public function translate(string $field, ?string $locale = null)
     {
-        if (! isset($this->translatable) || ! in_array($field, $this->translatable, true)) {
+        if (!isset($this->translatable) || !in_array($field, $this->translatable, true)) {
             return $this->getAttribute($field);
         }
+
         $translations = parent::getAttribute($field . '_translations');
-        $locale = $locale ? $locale : app()->getLocale();
-        $fallback = config('app.fallback_locale');
-        if (is_array($translations)) {
-            if (isset($translations[$locale]) && $translations[$locale] !== '') {
-                return $translations[$locale];
-            }
-            if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
-                return $translations[$fallback];
-            }
+        if (!is_array($translations)) {
+            return $this->getAttribute($field);
         }
 
-        return parent::getAttribute($field);
+        $locale = $locale ?: app()->getLocale();
+        if (isset($translations[$locale]) && $translations[$locale] !== '') {
+            return $translations[$locale];
+        }
+
+        $fallback = config('app.fallback_locale');
+        if ($fallback && isset($translations[$fallback]) && $translations[$fallback] !== '') {
+            return $translations[$fallback];
+        }
+
+        return $this->getAttribute($field);
     }
 
     // backward compatibility for existing blades calling ->translated('field')

@@ -11,51 +11,10 @@ class CartViewBuilder
         $items = [];
         foreach ($rawItems as $it) {
             $p = $it['product'];
-            $variantLabel = null;
-            if (! empty($it['variant'])) {
-                $vObj = $it['variant'];
-                if (is_object($vObj)) {
-                    $variantLabel = $vObj->name ?? null;
-                    if (! $variantLabel && ! empty($vObj->attribute_data)) {
-                        $variantLabel = collect($vObj->attribute_data)
-                            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
-                            ->values()
-                            ->join(', ');
-                    }
-                } else {
-                    if (
-                        is_string($it['variant']) && strlen($it['variant']) > 0
-                    ) {
-                        $parsed = json_decode($it['variant'], true);
-                        if (json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data'])) {
-                            $variantLabel = collect($parsed['attribute_data'])
-                                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
-                                ->values()
-                                ->join(', ');
-                        } else {
-                            $variantLabel = $it['variant'];
-                        }
-                    } else {
-                        $variantLabel = (string) $it['variant'];
-                    }
-                }
-            } elseif (! empty($it['attributes'])) {
-                $variantLabel = is_array($it['attributes']) ? implode(', ', $it['attributes']) : $it['attributes'];
-            }
-            // availability for quantity max
-            $available = null;
-            if (! empty($it['variant']) && is_object($it['variant'])) {
-                $v = $it['variant'];
-                if ($v->manage_stock) {
-                    $available = max(0, (int) $v->stock_qty - (int) $v->reserved_qty);
-                }
-            } else {
-                if ($p->manage_stock) {
-                    $available = max(0, (int) ($p->stock_qty ?? 0) - (int) ($p->reserved_qty ?? 0));
-                }
-            }
-            $onSale = ($p->sale_price ?? null) && ($p->sale_price < ($p->price ?? 0));
-            $salePercent = $onSale && $p->price ? (int) round(($p->price - $p->sale_price) / $p->price * 100) : null;
+            $variantLabel = $this->buildCartVariantLabel($it);
+            $available = $this->calculateAvailability($it, $p);
+            [$onSale, $salePercent] = $this->calculateSaleData($p);
+
             $items[] = [
                 'product' => $p,
                 'price' => $it['price'],
@@ -76,5 +35,85 @@ class CartViewBuilder
             'items' => $items,
             'currency_symbol' => $currencySymbol,
         ];
+    }
+
+    private function buildCartVariantLabel(array $it): ?string
+    {
+        $variant = $it['variant'] ?? null;
+        if (!$variant) {
+            return $this->handleAttributes($it);
+        }
+
+        return match (true) {
+            is_object($variant) => $this->buildObjectCartVariantLabel($variant),
+            default => $this->buildStringCartVariantLabel($variant),
+        };
+    }
+
+    private function handleAttributes(array $it): ?string
+    {
+        if (!empty($it['attributes'])) {
+            return is_array($it['attributes']) ? implode(', ', $it['attributes']) : $it['attributes'];
+        }
+        return null;
+    }
+
+    private function buildObjectCartVariantLabel($variant): ?string
+    {
+        if (!empty($variant->name)) {
+            return $variant->name;
+        }
+        if (!empty($variant->attribute_data)) {
+            return collect($variant->attribute_data)
+                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                ->values()
+                ->join(', ');
+        }
+        return null;
+    }
+
+    private function buildStringCartVariantLabel($variant): string
+    {
+        if (!is_string($variant) || strlen($variant) === 0) {
+            return (string) $variant;
+        }
+
+        $parsed = json_decode($variant, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data'])) {
+            return $this->formatAttributeData($parsed['attribute_data']);
+        }
+
+        return $variant;
+    }
+
+    private function formatAttributeData(array $attributeData): string
+    {
+        return collect($attributeData)
+            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+            ->values()
+            ->join(', ');
+    }
+
+    private function calculateAvailability(array $it, $p): ?int
+    {
+        if (!empty($it['variant']) && is_object($it['variant'])) {
+            $v = $it['variant'];
+            if ($v->manage_stock) {
+                return max(0, (int) $v->stock_qty - (int) $v->reserved_qty);
+            }
+        } else {
+            if ($p->manage_stock) {
+                return max(0, (int) ($p->stock_qty ?? 0) - (int) ($p->reserved_qty ?? 0));
+            }
+        }
+
+        return null;
+    }
+
+    private function calculateSaleData($p): array
+    {
+        $onSale = ($p->sale_price ?? null) && ($p->sale_price < ($p->price ?? 0));
+        $salePercent = $onSale && $p->price ? (int) round(($p->price - $p->sale_price) / $p->price * 100) : null;
+        return [$onSale, $salePercent];
     }
 }
