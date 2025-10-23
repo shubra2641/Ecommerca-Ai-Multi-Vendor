@@ -138,18 +138,20 @@ class HomepageSectionController extends Controller
             }
             $section->cta_enabled = (bool) ($secData['cta_enabled'] ?? false);
             if (array_key_exists('cta_url', $secData)) {
-                $section->cta_url = $secData['cta_url'] ?: null;
+                $section->cta_url = $secData['cta_url'] ? $secData['cta_url'] : null;
             }
             $merge = function ($existing, $incoming) {
                 $existing = $existing ? $existing : [];
                 foreach (($incoming ? $incoming : []) as $lang => $val) {
                     if ($val === null) {
                         continue;
-                    } if ($val === '') {
+                    }
+                    if ($val === '') {
                         unset($existing[$lang]);
 
                         continue;
-                    } $existing[$lang] = $val;
+                    }
+                    $existing[$lang] = $val;
                 }
 
                 return $existing;

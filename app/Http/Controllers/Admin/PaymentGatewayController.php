@@ -102,7 +102,7 @@ class PaymentGatewayController extends Controller
 
         // Legacy encrypted credential columns removed
 
-        $cfg = $gateway->config ?: [];
+        $cfg = $gateway->config ? $gateway->config : [];
 
         // Offline gateway logic
         if ($data['driver'] === 'offline') {

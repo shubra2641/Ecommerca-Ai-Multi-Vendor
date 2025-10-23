@@ -36,7 +36,7 @@ class ReturnsController extends Controller
             'admin_note' => 'nullable|string',
             'image' => 'nullable|image|max:5120',
         ]);
-        $meta = $item->meta ?: [];
+        $meta = $item->meta ? $item->meta : [];
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
             $path = $request->file('image')->store('warranty_admin', 'public');
             $meta['admin_images'] = $meta['admin_images'] ?? [];

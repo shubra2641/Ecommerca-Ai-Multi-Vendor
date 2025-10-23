@@ -55,7 +55,8 @@ return [
     ],
 
     'remove' => [
-        //  ExampleInsight::class,
+        // Disable property type hint rule that causes issues with inherited properties
+        'SlevomatCodingStandard\Sniffs\TypeHints\PropertyTypeHintSniff',
     ],
 
     'config' => [
@@ -75,10 +76,10 @@ return [
     |
     */
     'requirements' => [
-        'min-quality' => 90,
-        'min-complexity' => 90,
-        'min-architecture' => 90,
-        'min-style' => 90,
+        'min-quality' => 95,
+        'min-complexity' => 95,
+        'min-architecture' => 95,
+        'min-style' => 95,
         'disable-security-check' => false,
     ],
 

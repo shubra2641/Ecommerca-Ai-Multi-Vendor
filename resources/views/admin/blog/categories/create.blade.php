@@ -22,7 +22,7 @@
     </div>
 
     <!-- Form -->
-    <form method="POST" action="{{ route('admin.blog.categories.store') }}" class="admin-modern-card">
+    <form id="category-form-enhanced" method="POST" action="{{ route('admin.blog.categories.store') }}" class="admin-modern-card">
       @csrf
       <div class="admin-card-body">
         @include('admin.blog.categories._form')

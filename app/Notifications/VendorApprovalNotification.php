@@ -46,15 +46,15 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
         return (new MailMessage())
             ->subject('New Vendor Registration')
             ->line('A new vendor has registered and is awaiting approval.')
-            ->line('Vendor Name: '.$this->vendor->name)
-            ->line('Vendor Email: '.$this->vendor->email)
+            ->line('Vendor Name: ' . $this->vendor->name)
+            ->line('Vendor Email: ' . $this->vendor->email)
             ->action('Approve Vendor', url('/admin/vendors'));
     }
 
     /**
      * Get the array representation of the notification.
      *
-     * @return array<string, mixed>
+     * @return array<string, string>
      */
     public function toArray(object $notifiable): array
     {

@@ -1,18 +1,8 @@
-<div class="admin-form-toolbar sticky-top bg-body pb-3 mb-3 border-bottom z-6 shadow-sm">
-    <div class="d-flex flex-wrap gap-2 align-items-center">
-        <div class="admin-text-muted small fw-semibold">{{ __('Category Form') }}</div>
-        <div class="ms-auto d-flex gap-2">
-            <button type="button" class="admin-btn admin-btn-small admin-btn-outline" data-collapse-all>
-                <i class="fas fa-compress d-sm-none"></i>
-                {{ __('Collapse All') }}
-            </button>
-            <button type="button" class="admin-btn admin-btn-small admin-btn-outline" data-expand-all>
-                <i class="fas fa-compress d-sm-none"></i>
-                {{ __('Expand All') }}
-            </button>
-        </div>
-    </div>
-</div>
+<button type="submit" form="category-form" formaction="{{ route('admin.product-categories.ai.suggest') }}?target=base" formmethod="get" class="admin-btn admin-btn-small admin-btn-outline">
+    <i class="fas fa-lightbulb"></i>
+    {{ __('AI Generate') }}
+</button>
+
 <div class="toolbar-spacer mb-3"></div>
 
 <div class="admin-modern-card mb-4" data-section>
@@ -51,10 +41,6 @@
             <div class="admin-form-group admin-form-group-wide">
                 <label class="admin-form-label d-flex justify-content-between align-items-center">
                     <span>{{ __('Description (Base)') }}</span>
-                    <button type="submit" form="category-form" formaction="{{ route('admin.product-categories.ai.suggest') }}?target=base" formmethod="get" class="admin-btn admin-btn-small admin-btn-outline">
-                        <i class="fas fa-lightbulb"></i>
-                        {{ __('AI Generate') }}
-                    </button>
                 </label>
                 <textarea name="description" rows="3" class="admin-form-input js-cat-description-base">{{ old('description',$model->description ?? '') }}</textarea>
             </div>
@@ -113,10 +99,6 @@
                     <div class="admin-form-group">
                         <label class="admin-form-label d-flex justify-content-between align-items-center">
                             <span>{{ __('Description') }}</span>
-                            <button type="submit" form="category-form" formaction="{{ route('admin.product-categories.ai.suggest') }}?target=i18n&locale={{ $lang->code }}" formmethod="get" class="admin-btn admin-btn-small admin-btn-outline">
-                                <i class="fas fa-lightbulb"></i>
-                                AI
-                            </button>
                         </label>
                         <textarea name="description_i18n[{{ $lang->code }}]" rows="2" class="admin-form-input js-cat-description-i18n" placeholder="{{ __('Translated description') }}">{{ old('description_i18n.'.$lang->code, $model->description_translations[$lang->code] ?? '') }}</textarea>
                     </div>
@@ -146,13 +128,6 @@
                 <input name="seo_keywords" value="{{ old('seo_keywords',$model->seo_keywords ?? '') }}" class="admin-form-input">
             </div>
             <div class="admin-form-group admin-form-group-wide">
-                <label class="admin-form-label d-flex justify-content-between align-items-center">
-                    <span>{{ __('SEO Description') }}</span>
-                    <button type="submit" form="category-form" formaction="{{ route('admin.product-categories.ai.suggest') }}?target=seo" formmethod="get" class="admin-btn admin-btn-small admin-btn-outline">
-                        <i class="fas fa-lightbulb"></i>
-                        {{ __('AI Generate') }}
-                    </button>
-                </label>
                 <textarea name="seo_description" rows="3" class="admin-form-input js-cat-description-seo">{{ old('seo_description',$model->seo_description ?? '') }}</textarea>
             </div>
         </div>

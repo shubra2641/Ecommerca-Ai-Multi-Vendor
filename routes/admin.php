@@ -240,7 +240,7 @@ Route::middleware([
             Route::put('/{category}', [PostCategoryController::class, 'update'])->name('update');
             Route::delete('/{category}', [PostCategoryController::class, 'destroy'])->name('destroy');
             // AI assist for blog category description & SEO
-            Route::post('/ai/suggest', [PostCategoryController::class, 'aiSuggest'])
+            Route::match(['get', 'post'], '/ai/suggest', [PostCategoryController::class, 'aiSuggest'])
                 ->name('ai.suggest');
         });
 
@@ -433,7 +433,7 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
             [ProductAttributeController::class, 'deleteValue']
         )->name('product-attributes.values.destroy');
         Route::resource('products', ProductController::class);
-        Route::post('ai/suggest', [ProductController::class, 'aiSuggest'])
+        Route::match(['get', 'post'], 'ai/suggest', [ProductController::class, 'aiSuggest'])
             ->name('products.ai.suggest');
         Route::get('products/export', [ProductController::class, 'export'])
             ->name('products.export');

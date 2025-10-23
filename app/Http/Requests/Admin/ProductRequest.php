@@ -17,7 +17,7 @@ class ProductRequest extends FormRequest
     public function rules()
     {
         $id = $this->route('product')?->id ?? null;
-        $type = $this->input('type') ?: null;
+        $type = $this->input('type') ? $this->input('type') : null;
 
         // Allow tests (which submit a simple string name) OR multilingual UI (array)
         $nameInput = $this->input('name');

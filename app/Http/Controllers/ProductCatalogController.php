@@ -26,14 +26,14 @@ class ProductCatalogController extends Controller
             $slugMap = Cache::remember(
                 'product_category_slug_id_map',
                 600,
-                fn() => ProductCategory::pluck('id', 'slug')->all()
+                fn () => ProductCategory::pluck('id', 'slug')->all()
             );
             $id = $slugMap[$cat] ?? null;
             if ($id) {
                 $childIds = Cache::remember(
                     'category_children_ids_' . $id,
                     600,
-                    fn() => ProductCategory::where('parent_id', $id)->pluck('id')->all()
+                    fn () => ProductCategory::where('parent_id', $id)->pluck('id')->all()
                 );
                 $query->where(function ($qq) use ($id, $childIds): void {
                     $qq->where('product_category_id', $id)
@@ -45,7 +45,7 @@ class ProductCatalogController extends Controller
         // Tag filter
         $tag = $request->get('tag');
         if ($tag) {
-            $query->whereHas('tags', fn($t) => $t->where('slug', $tag));
+            $query->whereHas('tags', fn ($t) => $t->where('slug', $tag));
         }
 
         $query = $this->applyFilters($query, $request);
@@ -180,7 +180,7 @@ class ProductCatalogController extends Controller
             $images->push('front/images/default-product.png');
         }
 
-        $gallery = $images->map(fn($p) => ['raw' => $p, 'url' => asset($p)]);
+        $gallery = $images->map(fn ($p) => ['raw' => $p, 'url' => asset($p)]);
         $mainImage = $gallery->first();
 
         // Pricing
@@ -231,7 +231,7 @@ class ProductCatalogController extends Controller
         $activeVars = collect();
         if ($product->type === 'variable') {
             $activeVars = $product->variations->where('active', true);
-            $prices = $activeVars->map(fn($v) => $v->effectivePrice())->filter();
+            $prices = $activeVars->map(fn ($v) => $v->effectivePrice())->filter();
             if ($prices->count()) {
                 $minP = $prices->min();
                 $maxP = $prices->max();
@@ -701,7 +701,7 @@ class ProductCatalogController extends Controller
         try {
             $cid = session('currency_id');
             if ($cid) {
-                $cached = \App\Models\Currency::find($cid) ?: \App\Models\Currency::getDefault();
+                $cached = \App\Models\Currency::find($cid) ? \App\Models\Currency::find($cid) : \App\Models\Currency::getDefault();
             } else {
                 $cached = \App\Models\Currency::getDefault();
             }

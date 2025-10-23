@@ -29,7 +29,7 @@ class Handler extends ExceptionHandler
         if ($request->expectsJson()) {
             $status = 500;
             $code = class_basename($e);
-            $message = $e->getMessage() ?: __('errors.unexpected');
+            $message = $e->getMessage() ? $e->getMessage() : __('errors.unexpected');
             if ($e instanceof OutOfStockException) {
                 $status = 422;
             } elseif ($e instanceof InvalidShippingSelectionException) {

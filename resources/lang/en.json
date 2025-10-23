@@ -825,5 +825,15 @@
     "Download Invoice": "Download Invoice",
     "Compare Products": "Compare Products",
     "Compare": "Compare",
-    "No products in compare list.": "No products in compare list."
+    "No products in compare list.": "No products in compare list.",
+    "Invalid or expired API key. Please check your key in settings.": "Invalid or expired API key. Please check your key in settings.",
+    "Insufficient credits. Please add credits to continue.": "Insufficient credits. Please add credits to continue.",
+    "Access denied. Please check your API key permissions.": "Access denied. Please check your API key permissions.",
+    "Rate limit exceeded. Please try again later.": "Rate limit exceeded. Please try again later.",
+    "Server error. Please try again later.": "Server error. Please try again later.",
+    "Invalid API key. Please check your key in settings.": "Invalid API key. Please check your key in settings.",
+    "AI service error. Please try again later.": "AI service error. Please try again later.",
+    "Model not found. Please check your API configuration.": "Model not found. Please check your API configuration.",
+    "AI returned invalid response. Please try again.": "AI returned invalid response. Please try again.",
+    "Please enter a name first": "Please enter a name first"
 }

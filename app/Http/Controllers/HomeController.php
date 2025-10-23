@@ -261,7 +261,7 @@ class HomeController extends Controller
                     $p->mini_trunc_name = $name;
                     // price html
                     try {
-                        $priceHtml = currency_format($p->effectivePrice());
+                        $priceHtml = \App\Helpers\GlobalHelper::currencyFormat($p->effectivePrice());
                     } catch (\Throwable $e) {
                         $priceHtml = number_format($p->price, 2);
                     }
@@ -270,7 +270,7 @@ class HomeController extends Controller
                     if ($sk === 'showcase_discount' && $p->effectivePrice() < $p->price) {
                         try {
                             $extra .= '<span class="mini-old">' .
-                                e(currency_format($p->price)) . '</span>';
+                                e(\App\Helpers\GlobalHelper::currencyFormat($p->price)) . '</span>';
                         } catch (\Throwable $e) {
                             // Ignore currency formatting errors
                             null;

@@ -21,63 +21,63 @@
                 </div>
             </div>
             @if(!empty($item->meta['user_images']))
-    <div><strong>User images:</strong>
-        <div class="d-flex gap-2 mt-1">
-            @foreach($item->meta['user_images'] as $img)
-            <img src="{{ storage_image_url($img) }}" class="max-w-120" />
-            @endforeach
+            <div><strong>User images:</strong>
+                <div class="d-flex gap-2 mt-1">
+                    @foreach($item->meta['user_images'] as $img)
+                    <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($img) }}" class="max-w-120" />
+                    @endforeach
+                </div>
+            </div>
+            @endif
+            @if(!empty($item->meta['admin_images']))
+            <div class="mt-2"><strong>Admin images:</strong>
+                <div class="d-flex gap-2 mt-1">
+                    @foreach($item->meta['admin_images'] as $img)
+                    <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($img) }}" class="max-w-120" />
+                    @endforeach
+                </div>
+            </div>
+            @endif
+            @if(!empty($item->meta['history']))
+            <div class="mt-2">
+                <strong>History</strong>
+                <ul>
+                    @foreach($item->meta['history'] as $h)
+                    <li>[{{ $h['when'] }}] {{ $h['actor'] }} - {{ $h['action'] }} {{ $h['note'] ? ': '.$h['note'] : '' }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+            <form method="post" action="{{ route('admin.returns.update', $item) }}" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-2">
+                    <label>{{ __('Status') }}</label>
+                    <select name="return_status" class="form-control">
+                        <option value="received" {{ $item->return_status === 'received' ? 'selected' : '' }}>received</option>
+                        <option value="in_repair" {{ $item->return_status === 'in_repair' ? 'selected' : '' }}>in_repair
+                        </option>
+                        <option value="shipped_back" {{ $item->return_status === 'shipped_back' ? 'selected' : '' }}>
+                            shipped_back</option>
+                        <option value="delivered" {{ $item->return_status === 'delivered' ? 'selected' : '' }}>delivered
+                        </option>
+                        <option value="completed" {{ $item->return_status === 'completed' ? 'selected' : '' }}>completed
+                        </option>
+                        <option value="cancelled" {{ $item->return_status === 'cancelled' ? 'selected' : '' }}>cancelled
+                        </option>
+                        <option value="pending" {{ $item->return_status === 'pending' ? 'selected' : '' }}>pending</option>
+                        <option value="rejected" {{ $item->return_status === 'rejected' ? 'selected' : '' }}>rejected</option>
+                        <option value="approved" {{ $item->return_status === 'approved' ? 'selected' : '' }}>approved</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label>{{ __('Admin note') }}</label>
+                    <textarea name="admin_note" class="form-control">{{ $item->meta['admin_note'] ?? '' }}</textarea>
+                </div>
+                <div class="mb-2">
+                    <label>{{ __('Attach image') }}</label>
+                    <input type="file" name="image" accept="image/*" class="form-control" />
+                </div>
+                <button class="btn btn-primary">Save</button>
+            </form>
         </div>
-    </div>
-    @endif
-    @if(!empty($item->meta['admin_images']))
-    <div class="mt-2"><strong>Admin images:</strong>
-        <div class="d-flex gap-2 mt-1">
-            @foreach($item->meta['admin_images'] as $img)
-            <img src="{{ storage_image_url($img) }}" class="max-w-120" />
-            @endforeach
-        </div>
-    </div>
-    @endif
-    @if(!empty($item->meta['history']))
-    <div class="mt-2">
-        <strong>History</strong>
-        <ul>
-            @foreach($item->meta['history'] as $h)
-            <li>[{{ $h['when'] }}] {{ $h['actor'] }} - {{ $h['action'] }} {{ $h['note'] ? ': '.$h['note'] : '' }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
-    <form method="post" action="{{ route('admin.returns.update', $item) }}" enctype="multipart/form-data">
-        @csrf
-        <div class="mb-2">
-            <label>{{ __('Status') }}</label>
-            <select name="return_status" class="form-control">
-                <option value="received" {{ $item->return_status === 'received' ? 'selected' : '' }}>received</option>
-                <option value="in_repair" {{ $item->return_status === 'in_repair' ? 'selected' : '' }}>in_repair
-                </option>
-                <option value="shipped_back" {{ $item->return_status === 'shipped_back' ? 'selected' : '' }}>
-                    shipped_back</option>
-                <option value="delivered" {{ $item->return_status === 'delivered' ? 'selected' : '' }}>delivered
-                </option>
-                <option value="completed" {{ $item->return_status === 'completed' ? 'selected' : '' }}>completed
-                </option>
-                <option value="cancelled" {{ $item->return_status === 'cancelled' ? 'selected' : '' }}>cancelled
-                </option>
-                <option value="pending" {{ $item->return_status === 'pending' ? 'selected' : '' }}>pending</option>
-                <option value="rejected" {{ $item->return_status === 'rejected' ? 'selected' : '' }}>rejected</option>
-                <option value="approved" {{ $item->return_status === 'approved' ? 'selected' : '' }}>approved</option>
-            </select>
-        </div>
-        <div class="mb-2">
-            <label>{{ __('Admin note') }}</label>
-            <textarea name="admin_note" class="form-control">{{ $item->meta['admin_note'] ?? '' }}</textarea>
-        </div>
-        <div class="mb-2">
-            <label>{{ __('Attach image') }}</label>
-            <input type="file" name="image" accept="image/*" class="form-control" />
-        </div>
-        <button class="btn btn-primary">Save</button>
-    </form>
-</div>
-@endsection
+        @endsection

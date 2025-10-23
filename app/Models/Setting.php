@@ -81,7 +81,7 @@ class Setting extends Model
     /**
      * Get the site name attribute with XSS protection.
      */
-    protected function siteName(): Attribute
+    protected function seoTitle(): Attribute
     {
         return Attribute::make(
             get: fn(?string $value) => $value ? htmlspecialchars_decode($value, ENT_QUOTES) : null,

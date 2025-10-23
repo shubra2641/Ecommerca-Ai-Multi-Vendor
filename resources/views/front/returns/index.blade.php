@@ -45,7 +45,7 @@
                         <div class="item-card-modern">
                             <div class="item-img-wrapper">
                                 @if($item['image'])
-                                <img src="{{ storage_image_url($item['image']) }}" class="item-img" alt="{{ $item['name'] }}">
+                                <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($item['image']) }}" class="item-img" alt="{{ $item['name'] }}">
                                 @else
                                 <div class="item-img-placeholder gradient-blue">
                                     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -151,8 +151,8 @@
                                 @foreach($item['images'] as $img)
                                 <div class="item-card-modern">
                                     <div class="item-img-wrapper">
-                                        <a href="{{ storage_image_url($img) }}" target="_blank">
-                                            <img src="{{ storage_image_url($img) }}" class="item-img" alt="Return Image">
+                                        <a href="{{ \App\Helpers\GlobalHelper::storageImageUrl($img) }}" target="_blank">
+                                            <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($img) }}" class="item-img" alt="Return Image">
                                         </a>
                                     </div>
                                 </div>

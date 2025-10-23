@@ -14,7 +14,7 @@ class WishlistController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $ids = $this->getUserListIds($user) ?: $this->getSessionList();
+        $ids = $this->getUserListIds($user) ? $this->getUserListIds($user) : $this->getSessionList();
         $items = Product::with('category')->whereIn('id', (array) $ids)->get();
 
         return view('front.products.wishlist', ['items' => $items, 'wishlistIds' => $ids, 'compareIds' => []]);

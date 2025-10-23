@@ -215,7 +215,7 @@ class GalleryController extends Controller
             \Storage::disk('public')->delete($setting->logo);
         }
         // prefer webp if available
-        $setting->logo = $image->webp_path ?: $image->original_path;
+        $setting->logo = $image->webp_path ? $image->webp_path : $image->original_path;
         $setting->save();
 
         return redirect()->route('admin.settings.index')->with('success', __('Logo updated from gallery.'));
@@ -306,7 +306,7 @@ class GalleryController extends Controller
 
     private function formatGalleryResponse(GalleryImage $image): array
     {
-        $path = $image->webp_path ?: $image->original_path;
+        $path = $image->webp_path ? $image->webp_path : $image->original_path;
 
         $url = $path ? asset('storage/' . ltrim($path, '/')) : null;
         $thumbPath = $image->thumbnail_path ? asset('storage/' . ltrim($image->thumbnail_path, '/')) : null;

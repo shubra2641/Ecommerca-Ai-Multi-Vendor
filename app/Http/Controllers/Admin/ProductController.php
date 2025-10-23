@@ -165,28 +165,40 @@ class ProductController extends Controller
 
     public function aiSuggest(Request $request, SimpleAIService $ai)
     {
-        $title = $request->input('name') ?: $request->input('title');
-        $result = $ai->generate($title, 'product');
+        // Get name from array or string
+        $nameInput = $request->input('name');
+        $locale = $request->input('locale');
+        $target = $request->input('target', 'all');
+
+        // Extract title from multilingual name array
+        if (is_array($nameInput)) {
+            // If locale specified, try to get title from that locale
+            if ($locale && ! empty($nameInput[$locale])) {
+                $title = $nameInput[$locale];
+            } else {
+                // Otherwise get first non-empty value
+                $title = collect($nameInput)->filter()->first();
+            }
+        } else {
+            $title = $nameInput ? $nameInput : $request->input('title');
+        }
+
+        // Validate title - ensure it's a string
+        if (empty($title) || ! is_string($title)) {
+            return back()->with('error', __('Please enter a name first'));
+        }
+
+        $result = $ai->generate($title, 'product', $locale);
 
         if (isset($result['error'])) {
             return back()->with('error', $result['error'])->withInput();
         }
 
-        $merge = [];
-        if (! empty($result['description'])) {
-            $merge['description'] = $result['description'];
-        }
-        if (! empty($result['short_description'])) {
-            $merge['short_description'] = $result['short_description'];
-        }
-        if (! empty($result['seo_description'])) {
-            $merge['seo_description'] = $result['seo_description'];
-        }
-        if (! empty($result['seo_tags'])) {
-            $merge['seo_keywords'] = $result['seo_tags'];
-        }
-
-        return back()->with('success', __('AI generated successfully'))->withInput($merge);
+        // Simple approach - return with message and let user copy manually
+        return back()
+            ->with('success', __('AI generated successfully'))
+            ->with('ai_result', $result)
+            ->with('ai_locale', $locale);
     }
 
     protected function applyFilters($query, Request $request): void
@@ -225,9 +237,9 @@ class ProductController extends Controller
     protected function getFormData()
     {
         return [
-            'categories' => Cache::remember('product_categories_ordered', 3600, fn() => ProductCategory::orderBy('name')->get()),
-            'tags' => Cache::remember('product_tags_ordered', 3600, fn() => ProductTag::orderBy('name')->get()),
-            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn() => ProductAttribute::with('values')->orderBy('name')->get()),
+            'categories' => Cache::remember('product_categories_ordered', 3600, fn () => ProductCategory::orderBy('name')->get()),
+            'tags' => Cache::remember('product_tags_ordered', 3600, fn () => ProductTag::orderBy('name')->get()),
+            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn () => ProductAttribute::with('values')->orderBy('name')->get()),
         ];
     }
 
@@ -416,7 +428,7 @@ class ProductController extends Controller
                 $normalized[$locale] = is_string($val) ? trim($val) : trim((string) $val);
             }
             $base = $this->extractPrimaryTextFromArray($normalized);
-            $translations = array_filter($normalized, fn($val) => $val !== '');
+            $translations = array_filter($normalized, fn ($val) => $val !== '');
 
             return [$base, $translations ? $translations : null];
         }
@@ -536,10 +548,10 @@ class ProductController extends Controller
     protected function cleanGallery($gallery)
     {
         if (is_string($gallery)) {
-            $gallery = json_decode($gallery, true) ?: [];
+            $gallery = json_decode($gallery, true) ? json_decode($gallery, true) : [];
         }
 
-        return array_values(array_filter(array_map('trim', $gallery), fn($v) => ! empty($v)));
+        return array_values(array_filter(array_map('trim', $gallery), fn ($v) => ! empty($v)));
     }
 
     protected function applyStockFilter($query, string $stock): void

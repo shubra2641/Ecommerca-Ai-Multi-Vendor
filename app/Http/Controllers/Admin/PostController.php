@@ -140,7 +140,7 @@ class PostController extends Controller
     private function buildPostPayload(array $data, HtmlSanitizer $sanitizer, ?Post $post = null): array
     {
         $fallback = config('app.fallback_locale');
-        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn($v) => ! empty($v)) ?? '';
+        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn ($v) => ! empty($v)) ?? '';
 
         $payload = [
             'title' => $defaultTitle,
@@ -165,7 +165,7 @@ class PostController extends Controller
                     $translations[$locale] = $sanitizer->clean($value);
                 }
                 $payload[$field . '_translations'] = $translations;
-                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn($v) => ! empty($v));
+                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn ($v) => ! empty($v));
             }
         }
 
@@ -195,8 +195,9 @@ class PostController extends Controller
         $base = $slug;
         $i = 1;
 
-        while (Post::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
-            $slug = $base . '-' . $i++;
+        while (Post::where('slug', $slug)->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))->exists()) {
+            $slug = $base . '-' . $i;
+            $i++;
         }
 
         return $slug;

@@ -1346,5 +1346,15 @@
     "vendor.withdrawals.term_processing": "وقت المعالجة",
     "vendor.withdrawals.term_processing_text": "تتم معالجة السحوبات حسب ترتيب الاستلام.",
     "vendor.withdrawals.term_minimum_text": "تنطبق قواعد الحد الأدنى للمبلغ.",
-    "vendor.withdrawals.close": "إغلاق"
+    "vendor.withdrawals.close": "إغلاق",
+    "Invalid or expired API key. Please check your key in settings.": "مفتاح API غير صحيح أو منتهي الصلاحية. يرجى التحقق من المفتاح في الإعدادات.",
+    "Insufficient credits. Please add credits to continue.": "لا يوجد رصيد كافي. يرجى إضافة رصيد للمتابعة.",
+    "Access denied. Please check your API key permissions.": "تم رفض الوصول. يرجى التحقق من صلاحيات مفتاح API.",
+    "Rate limit exceeded. Please try again later.": "تم تجاوز الحد المسموح من الطلبات. يرجى المحاولة لاحقاً.",
+    "Server error. Please try again later.": "خطأ في الخادم. يرجى المحاولة لاحقاً.",
+    "Invalid API key. Please check your key in settings.": "مفتاح API غير صحيح. يرجى التحقق من المفتاح في الإعدادات.",
+    "AI service error. Please try again later.": "خطأ في خدمة الذكاء الاصطناعي. يرجى المحاولة لاحقاً.",
+    "Model not found. Please check your API configuration.": "النموذج غير موجود. يرجى التحقق من إعدادات API.",
+    "AI returned invalid response. Please try again.": "استجابة غير صحيحة من الذكاء الاصطناعي. يرجى المحاولة مرة أخرى.",
+    "Please enter a name first": "يرجى إدخال الاسم أولاً"
 }

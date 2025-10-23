@@ -90,7 +90,7 @@ class ProductCategoryController extends Controller
         $data = $r->validate([
             'parent_id' => 'nullable|exists:product_categories,id',
             'name' => 'required',
-            'slug' => 'nullable|unique:product_categories,slug,'.$productCategory->id,
+            'slug' => 'nullable|unique:product_categories,slug,' . $productCategory->id,
             'description' => 'nullable',
             'image' => 'nullable|string',
             'seo_title' => 'nullable',
@@ -144,7 +144,7 @@ class ProductCategoryController extends Controller
 
     public function export(Request $r)
     {
-        $fileName = 'categories_export_'.date('Ymd_His').'.csv';
+        $fileName = 'categories_export_' . date('Ymd_His') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename={$fileName}",
@@ -175,8 +175,16 @@ class ProductCategoryController extends Controller
 
     public function aiSuggest(Request $request, SimpleAIService $ai)
     {
-        $title = $request->input('name') ?: $request->input('title');
-        $result = $ai->generate($title, 'category');
+        $title = $request->input('name') ? $request->input('name') : $request->input('title');
+        $target = $request->input('target', 'all');
+        $locale = $request->input('locale');
+
+        // Validate title
+        if (empty($title)) {
+            return back()->with('error', __('Please enter a name first'));
+        }
+
+        $result = $ai->generate($title, 'category', $locale);
 
         if (isset($result['error'])) {
             return back()->with('error', $result['error'])->withInput();
@@ -192,7 +200,22 @@ class ProductCategoryController extends Controller
         if (! empty($result['seo_tags'])) {
             $merge['seo_keywords'] = $result['seo_tags'];
         }
+        if (! empty($result['seo_title'])) {
+            $merge['seo_title'] = $result['seo_title'];
+        }
 
-        return back()->with('success', __('AI generated successfully'))->withInput($merge);
+        // Fill translations only for the requested language
+        if ($locale) {
+            if (! empty($result['description'])) {
+                $merge["name_i18n.{$locale}"] = $title;
+                $merge["description_i18n.{$locale}"] = $result['description'];
+            }
+        }
+
+        // Merge with existing form data to preserve user input
+        $existingData = $request->except(['_token']);
+        $mergedData = array_merge($existingData, $merge);
+
+        return back()->with('success', __('AI generated successfully'))->withInput($mergedData);
     }
 }

@@ -193,13 +193,15 @@
                                         <select id="ai_provider" name="ai_provider" class="form-select">
                                             <option value="" @selected(old('ai_provider',$setting->ai_provider ?? '')==='')>{{ __('Select') }}</option>
                                             <option value="openai" @selected(old('ai_provider',$setting->ai_provider ?? '')==='openai')>OpenAI</option>
+                                            <option value="grok" @selected(old('ai_provider',$setting->ai_provider ?? '')==='grok')>Grok</option>
+                                            <option value="gemini" @selected(old('ai_provider',$setting->ai_provider ?? '')==='gemini')>Gemini</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="ai_openai_api_key" class="form-label">{{ __('OpenAI API Key') }}</label>
-                                        <input type="text" id="ai_openai_api_key" name="ai_openai_api_key" class="form-control" value="{{ old('ai_openai_api_key', $setting->ai_openai_api_key ? '••••••••' : '') }}" placeholder="sk-...">
+                                        <label for="ai_openai_api_key" class="form-label">{{ __('AI API Key') }}</label>
+                                        <input type="text" id="ai_openai_api_key" name="ai_openai_api_key" class="form-control" value="{{ old('ai_openai_api_key', $setting->ai_openai_api_key ? '••••••••' : '') }}" placeholder="sk-... or grok-...">
                                         <div class="form-text small">{{ __('Stored encrypted. Never expose to vendors.') }}</div>
                                     </div>
                                 </div>

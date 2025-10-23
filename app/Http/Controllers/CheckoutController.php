@@ -270,17 +270,18 @@ class CheckoutController extends Controller
                 $session = \Stripe\Checkout\Session::create([
                     'mode' => 'payment',
                     'payment_method_types' => ['card'],
-                    'line_items' => [[
-                        'price_data' => [
-                            'currency' => $currency,
-                            'product_data' => ['name' => 'Order #'.$order->id],
-                            'unit_amount' => (int) round(($order->total ?? 0) * 100),
+                    'line_items' => [
+                        [
+                            'price_data' => [
+                                'currency' => $currency,
+                                'product_data' => ['name' => 'Order #' . $order->id],
+                                'unit_amount' => (int) round(($order->total ?? 0) * 100),
+                            ],
+                            'quantity' => 1,
                         ],
-                        'quantity' => 1,
                     ],
-                    ],
-                    'success_url' => url('/checkout/success?order='.$order->id),
-                    'cancel_url' => url('/checkout/cancel?order='.$order->id),
+                    'success_url' => url('/checkout/success?order=' . $order->id),
+                    'cancel_url' => url('/checkout/cancel?order=' . $order->id),
                     'metadata' => ['order_id' => $order->id],
                 ]);
 
@@ -301,7 +302,7 @@ class CheckoutController extends Controller
                     ]);
                 }
 
-                $payload = $payment->payload ?: [];
+                $payload = $payment->payload ? $payment->payload : [];
                 $payload['stripe_session_id'] = $session->id;
                 $payment->payload = $payload;
                 $payment->save();

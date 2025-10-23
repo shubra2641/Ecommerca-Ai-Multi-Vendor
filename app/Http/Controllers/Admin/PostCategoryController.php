@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PostCategory;
-use App\Services\AI\AIFormHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -58,7 +57,8 @@ class PostCategoryController extends Controller
         $unique = $baseSlug;
         $i = 1;
         while (PostCategory::where('slug', $unique)->exists()) {
-            $unique = $baseSlug.'-'.$i++;
+            $unique = $baseSlug . '-' . $i;
+            $i++;
         }
         $payload = [
             'name' => $defaultName,
@@ -74,9 +74,9 @@ class PostCategoryController extends Controller
                 foreach ($data[$f] as $lc => $v) {
                     $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
                 }
-                $payload[$f.'_translations'] = array_filter($clean);
-                $payload[$f] = $payload[$f.'_translations'][$fallback] ??
-                    collect($payload[$f.'_translations'])->first(fn ($v) => ! empty($v));
+                $payload[$f . '_translations'] = array_filter($clean);
+                $payload[$f] = $payload[$f . '_translations'][$fallback] ??
+                    collect($payload[$f . '_translations'])->first(fn ($v) => ! empty($v));
             }
         }
         PostCategory::create($payload);
@@ -132,9 +132,9 @@ class PostCategoryController extends Controller
                 foreach ($data[$f] as $lc => $v) {
                     $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
                 }
-                $payload[$f.'_translations'] = array_filter($clean);
-                $payload[$f] = $payload[$f.'_translations'][$fallback] ??
-                    collect($payload[$f.'_translations'])->first(fn ($v) => ! empty($v));
+                $payload[$f . '_translations'] = array_filter($clean);
+                $payload[$f] = $payload[$f . '_translations'][$fallback] ??
+                    collect($payload[$f . '_translations'])->first(fn ($v) => ! empty($v));
             }
         }
         $category->update($payload);
@@ -150,8 +150,40 @@ class PostCategoryController extends Controller
     }
 
     // AI suggestion for blog category description & SEO
-    public function aiSuggest(Request $request, AIFormHelper $aiHelper)
+    public function aiSuggest(Request $request, \App\Services\AI\SimpleAIService $ai)
     {
-        return $aiHelper->handleFormGeneration($request, 'category');
+        // Get name from array or string
+        $nameInput = $request->input('name');
+        $locale = $request->input('locale');
+        
+        // Extract title from multilingual name array
+        if (is_array($nameInput)) {
+            // If locale specified, try to get title from that locale
+            if ($locale && !empty($nameInput[$locale])) {
+                $title = $nameInput[$locale];
+            } else {
+                // Otherwise get first non-empty value
+                $title = collect($nameInput)->filter()->first();
+            }
+        } else {
+            $title = $nameInput ?: $request->input('title');
+        }
+
+        // Validate title - ensure it's a string
+        if (empty($title) || !is_string($title)) {
+            return back()->with('error', __('Please enter a name first'));
+        }
+
+        $result = $ai->generate($title, 'category', $locale);
+
+        if (isset($result['error'])) {
+            return back()->with('error', $result['error'])->withInput();
+        }
+
+        // Merge with existing form data to preserve user input
+        $existingData = $request->except(['_token']);
+        $mergedData = array_merge($existingData, $result);
+
+        return back()->with('success', __('AI generated successfully'))->withInput($mergedData);
     }
 }

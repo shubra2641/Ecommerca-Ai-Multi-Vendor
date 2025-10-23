@@ -37,7 +37,7 @@ class ReturnsController extends Controller
             'type' => 'required|in:return,exchange',
             'image' => 'nullable|image|max:5120',
         ]);
-        $meta = $item->meta ?: [];
+        $meta = $item->meta ? $item->meta : [];
         // handle optional user image
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
             $path = $request->file('image')->store('warranty', 'public');

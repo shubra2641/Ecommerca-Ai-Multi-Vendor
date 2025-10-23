@@ -64,7 +64,8 @@ class ProductController extends Controller
         $base = $slug;
         $i = 1;
         while (Product::where('slug', $slug)->exists()) {
-            $slug = $base.'-'.$i++;
+            $slug = $base . '-' . $i;
+            $i++;
         }
         $data['slug'] = $slug;
         if (isset($data['gallery'])) {
@@ -89,11 +90,11 @@ class ProductController extends Controller
                 try {
                     $admin->notify(new \App\Notifications\AdminProductPendingReviewNotification($product));
                 } catch (\Throwable $e) {
-                    logger()->warning('Failed to send product notification: '.$e->getMessage());
+                    logger()->warning('Failed to send product notification: ' . $e->getMessage());
                 }
             }
         } catch (\Exception $e) {
-            logger()->warning('Failed to send product review emails: '.$e->getMessage());
+            logger()->warning('Failed to send product review emails: ' . $e->getMessage());
         }
 
         return redirect()->route('vendor.products.index')->with('success', __('Product submitted for review.'));
@@ -134,7 +135,8 @@ class ProductController extends Controller
         $base = $slug;
         $i = 1;
         while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
-            $slug = $base.'-'.$i++;
+            $slug = $base . '-' . $i;
+            $i++;
         }
         $data['slug'] = $slug;
         if (isset($data['gallery'])) {
@@ -155,7 +157,7 @@ class ProductController extends Controller
                 Mail::to($admin->email)->queue(new ProductPendingForReview($product));
             }
         } catch (\Exception $e) {
-            logger()->warning('Failed to send product update emails: '.$e->getMessage());
+            logger()->warning('Failed to send product update emails: ' . $e->getMessage());
         }
 
         return redirect()->route('vendor.products.index')
@@ -205,7 +207,7 @@ class ProductController extends Controller
                             $incoming[$code] = $defaultVal;
                         }
                     }
-                    $data[$field.'_translations'] = $incoming;
+                    $data[$field . '_translations'] = $incoming;
                     // base column will be set later by collapsePrimaryTextFields
                 }
             }
@@ -218,7 +220,7 @@ class ProductController extends Controller
                 $data['slug_translations'] = $slugTranslations;
             }
         } catch (\Throwable $e) {
-            logger()->warning('Failed to merge vendor translations: '.$e->getMessage());
+            logger()->warning('Failed to merge vendor translations: ' . $e->getMessage());
         }
     }
 
@@ -320,7 +322,7 @@ class ProductController extends Controller
                         $data['name'] = $defaultVal;
                     }
                 } catch (\Throwable $e) {
-                    logger()->warning('Failed to process variation translations: '.$e->getMessage());
+                    logger()->warning('Failed to process variation translations: ' . $e->getMessage());
                 }
             }
             if ($id) {
