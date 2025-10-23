@@ -34,14 +34,11 @@ class CheckoutViewBuilder
     public static function variantLabel($it): ?string
     {
         if (!empty($it['variant'])) {
-            $variant = $it['variant'];
-            if (is_object($variant)) {
-                return self::handleObjectVariant($variant);
-            }
-            if (is_string($variant)) {
-                return self::handleStringVariant($variant);
-            }
-            return (string) $variant;
+            return match (true) {
+                is_object($it['variant']) => self::handleObjectVariant($it['variant']),
+                is_string($it['variant']) => self::handleStringVariant($it['variant']),
+                default => (string) $it['variant'],
+            };
         }
 
         if (!empty($it['attributes'])) {

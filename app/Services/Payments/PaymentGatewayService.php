@@ -75,7 +75,6 @@ class PaymentGatewayService
 
             $json = $resp->json();
             $status = $json['status'] ?? $json['data']['status'] ?? null;
-
             $finalStatus = $this->determineStatus($status);
 
             $payment->status = $finalStatus;
@@ -84,7 +83,7 @@ class PaymentGatewayService
             ]);
             $payment->save();
 
-            if ($payment->status === 'paid') {
+            if ($finalStatus === 'paid') {
                 $this->handlePaidPayment($payment);
             }
 
