@@ -48,7 +48,7 @@ class SocialLinkController extends Controller
 
     public function create()
     {
-        $link = new SocialLink;
+        $link = new SocialLink();
 
         return view('admin.social.form', compact('link'));
     }

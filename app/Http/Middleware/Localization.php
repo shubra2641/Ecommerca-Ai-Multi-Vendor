@@ -24,9 +24,9 @@ class Localization
             $header = $request->server('HTTP_ACCEPT_LANGUAGE');
             if ($header) {
                 $codes = collect(explode(',', $header))
-                    ->map(fn($p) => trim(explode(';', $p)[0]))
+                    ->map(fn ($p) => trim(explode(';', $p)[0]))
                     ->filter()
-                    ->map(fn($c) => substr($c, 0, 2))
+                    ->map(fn ($c) => substr($c, 0, 2))
                     ->unique()
                     ->values();
                 if ($codes->isNotEmpty()) {

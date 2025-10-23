@@ -93,7 +93,7 @@ class SettingsController extends Controller
         $setting = Setting::first();
         if (! $setting) {
             // provide an empty Setting instance to avoid null property access in views
-            $setting = new Setting;
+            $setting = new Setting();
         }
         // Auto-heal legacy double-encoded withdrawal_gateways like ["[\"Bank Transfer\",\"PayPal\"]"]
         if (! empty($setting->withdrawal_gateways)) {
@@ -137,7 +137,7 @@ class SettingsController extends Controller
 
         $setting = Setting::first();
         if (! $setting) {
-            $setting = new Setting;
+            $setting = new Setting();
         }
 
         // Handle logo upload with enhanced security

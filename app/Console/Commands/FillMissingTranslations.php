@@ -39,7 +39,7 @@ class FillMissingTranslations extends Command
             }));
 
         foreach ($models as $class) {
-            $instance = new $class;
+            $instance = new $class();
             if (! property_exists($instance, 'translatable')) {
                 $this->line("Skipping {$class} (no translatable property)");
 

@@ -205,7 +205,7 @@ class GalleryController extends Controller
     {
         $setting = \App\Models\Setting::first();
         if (! $setting) {
-            $setting = new \App\Models\Setting;
+            $setting = new \App\Models\Setting();
         }
         // delete old logo file if exists and different
         if (
@@ -269,7 +269,7 @@ class GalleryController extends Controller
         $thumbPath = null;
 
         try {
-            $manager = new ImageManager(new Driver);
+            $manager = new ImageManager(new Driver());
             $imageObj = $manager->read($file->getRealPath());
 
             $webpFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '.webp';

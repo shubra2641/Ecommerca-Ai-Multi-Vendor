@@ -25,7 +25,9 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void {}
+    public function register(): void
+    {
+    }
 
     /**
      * Bootstrap any application services.
@@ -158,7 +160,7 @@ class AppServiceProvider extends ServiceProvider
                         'setting' => \Illuminate\Support\Facades\Cache::remember(
                             'site_settings',
                             3600,
-                            fn() => \App\Models\Setting::first()
+                            fn () => \App\Models\Setting::first()
                         ),
                     ];
                 } catch (\Throwable $e) {
@@ -187,7 +189,7 @@ class AppServiceProvider extends ServiceProvider
                     $setting = \Illuminate\Support\Facades\Cache::remember(
                         'site_settings',
                         3600,
-                        fn() => \App\Models\Setting::first()
+                        fn () => \App\Models\Setting::first()
                     );
                     $font = cache()->get(
                         'settings.font_family',

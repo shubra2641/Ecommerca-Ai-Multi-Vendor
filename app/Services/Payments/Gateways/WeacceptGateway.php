@@ -132,7 +132,6 @@ class WeacceptGateway
                 $authResp = null;
                 foreach ($candidates as $try) {
                     try {
-
                         $http = Http::acceptJson()
                             ->timeout($timeoutSec)
                             ->retry(2, 500)

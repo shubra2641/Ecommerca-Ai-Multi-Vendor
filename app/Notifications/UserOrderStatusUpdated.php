@@ -42,7 +42,7 @@ class UserOrderStatusUpdated extends Notification implements ShouldQueue
         $locale = app()->getLocale();
         $view = $locale === 'ar' ? 'emails.orders.status_ar' : 'emails.orders.status_en';
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject(__('Order update').' #'.$this->order->id)
             ->view($view, ['order' => $this->order, 'status' => $this->status, 'tracking' => $this->tracking]);
     }

@@ -67,7 +67,7 @@ class FormValidationService
     /**
      * Get validation messages
      */
-    public function getValidationMessages(string $formType): array
+    public function getValidationMessages(string $_formType): array
     {
         return [
             'name.required' => __('Name is required'),

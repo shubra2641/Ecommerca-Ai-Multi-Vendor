@@ -21,12 +21,12 @@ class DashboardController extends Controller
         $vendor = User::find($vendorId);
 
         // Calculate total sales from completed orders
-        $totalSales = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $totalSales = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->sum(DB::raw('(price * COALESCE(qty, 1))'));
 
         // Count unique orders
-        $ordersCount = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
+        $ordersCount = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
             ->distinct('order_id')
             ->count('order_id');
 
@@ -66,7 +66,7 @@ class DashboardController extends Controller
             null;
         }
 
-        $recentOrders = Order::whereHas('items.product', fn($q) => $q->where('vendor_id', $vendorId))
+        $recentOrders = Order::whereHas('items.product', fn ($q) => $q->where('vendor_id', $vendorId))
             ->latest('created_at')
             ->limit(5)
             ->get();
@@ -104,8 +104,8 @@ class DashboardController extends Controller
         $availableBalance = (float) ($user->balance ?? 0);
 
         // Calculate total sales from completed orders only
-        $totalSales = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $totalSales = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->sum(DB::raw('(price * COALESCE(qty, 1))'));
 
         // Calculate total withdrawals
@@ -239,8 +239,8 @@ class DashboardController extends Controller
             $date = now()->subMonths($i);
             $monthKey = $date->format('M Y');
 
-            $monthlySales = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-                ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+            $monthlySales = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+                ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
                 ->whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->sum(DB::raw('(price * COALESCE(qty, 1))'));
@@ -262,8 +262,8 @@ class DashboardController extends Controller
             $date = now()->subMonths($i);
             $monthKey = $date->format('M Y');
 
-            $monthlyOrders = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-                ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+            $monthlyOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+                ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
                 ->whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->distinct('order_id')
@@ -280,14 +280,14 @@ class DashboardController extends Controller
      */
     private function calculateSalesGrowth($vendorId)
     {
-        $currentMonth = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $currentMonth = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
             ->sum(DB::raw('(price * COALESCE(qty, 1))'));
 
-        $previousMonth = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $previousMonth = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->whereYear('created_at', now()->subMonth()->year)
             ->whereMonth('created_at', now()->subMonth()->month)
             ->sum(DB::raw('(price * COALESCE(qty, 1))'));
@@ -304,15 +304,15 @@ class DashboardController extends Controller
      */
     private function calculateOrdersGrowth($vendorId)
     {
-        $currentMonthOrders = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $currentMonthOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
             ->distinct('order_id')
             ->count('order_id');
 
-        $previousMonthOrders = OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        $previousMonthOrders = OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->whereYear('created_at', now()->subMonth()->year)
             ->whereMonth('created_at', now()->subMonth()->month)
             ->distinct('order_id')

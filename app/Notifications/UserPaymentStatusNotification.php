@@ -40,7 +40,7 @@ class UserPaymentStatusNotification extends Notification implements ShouldQueue
         $locale = app()->getLocale();
         $view = $locale === 'ar' ? 'emails.payments.payment_status_ar' : 'emails.payments.payment_status_en';
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject(__('Payment update').' #'.($order?->id ?? ''))
             ->view($view, ['order' => $order, 'payment' => $this->payment, 'status' => $this->status]);
     }

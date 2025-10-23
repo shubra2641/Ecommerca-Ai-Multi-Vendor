@@ -46,7 +46,7 @@ class VendorProductStatusNotification extends Notification
             }
         }
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject($subject)
             ->line($line)
             ->action(__('View product'), route('vendor.products.edit', $this->product->id));

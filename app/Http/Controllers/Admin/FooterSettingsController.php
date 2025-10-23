@@ -49,7 +49,7 @@ class FooterSettingsController extends Controller
         UpdateFooterSettingsRequest $request,
         \App\Services\HtmlSanitizer $sanitizer
     ): RedirectResponse {
-        $setting = Setting::first() ?? new Setting;
+        $setting = Setting::first() ?? new Setting();
         $data = $request->validated();
 
         // Snapshot original values (only fields we may touch)

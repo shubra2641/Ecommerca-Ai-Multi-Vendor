@@ -49,7 +49,7 @@ class PaymentGatewayService
 
     public function verifyTapCharge(Payment $payment, PaymentGateway $gateway): array
     {
-        $gw = new \App\Services\Payments\Gateways\TapGateway;
+        $gw = new \App\Services\Payments\Gateways\TapGateway();
 
         return $gw->verifyCharge($payment, $gateway);
     }

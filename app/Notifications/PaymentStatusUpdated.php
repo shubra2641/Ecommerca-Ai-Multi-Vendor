@@ -51,7 +51,7 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
         $subject = $this->getEmailSubject();
         $greeting = $this->getEmailGreeting($notifiable);
 
-        $mail = (new MailMessage)
+        $mail = (new MailMessage())
             ->subject($subject)
             ->greeting($greeting)
             ->line($this->getStatusMessage())

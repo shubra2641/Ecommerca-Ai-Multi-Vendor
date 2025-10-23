@@ -179,10 +179,10 @@ class CheckoutProcessor
     /**
      * Handle payment - simple version
      */
-    public function processPayment(Order $order, PaymentGateway $gateway, Request $request): array
+    public function processPayment(Order $order, PaymentGateway $gateway, Request $_request): array
     {
         if ($gateway->driver === 'offline') {
-            return $this->handleOfflinePayment($order, $request);
+            return $this->handleOfflinePayment($order, $_request);
         }
 
         if ($gateway->driver === 'stripe') {

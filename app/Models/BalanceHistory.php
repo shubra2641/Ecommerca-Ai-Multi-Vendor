@@ -32,7 +32,7 @@ class BalanceHistory extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = [
+    protected array $fillable = [
         'user_id',
         'admin_id',
         'type',
@@ -49,7 +49,7 @@ class BalanceHistory extends Model
      *
      * @var array<string, string>
      */
-    protected $casts = [
+    protected array $casts = [
         'amount' => 'decimal:2',
         'previous_balance' => 'decimal:2',
         'new_balance' => 'decimal:2',

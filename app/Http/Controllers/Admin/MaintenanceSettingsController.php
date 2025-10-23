@@ -64,7 +64,7 @@ class MaintenanceSettingsController extends Controller
             'maintenance_message.*' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $setting = Setting::first() ?? new Setting;
+        $setting = Setting::first() ?? new Setting();
 
         $setting->maintenance_enabled = (bool) ($data['maintenance_enabled'] ?? false);
         $setting->maintenance_reopen_at = $data['maintenance_reopen_at'] ?? null;

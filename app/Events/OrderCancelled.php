@@ -13,5 +13,7 @@ class OrderCancelled
     use Dispatchable;
     use InteractsWithSockets;
 
-    public function __construct(public Order $order) {}
+    public function __construct(public Order $order)
+    {
+    }
 }

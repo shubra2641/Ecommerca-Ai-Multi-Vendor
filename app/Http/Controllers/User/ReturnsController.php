@@ -12,7 +12,7 @@ class ReturnsController extends Controller
 {
     public function index()
     {
-        $paginator = OrderItem::whereHas('order', fn($q) => $q->where('user_id', auth()->id()))
+        $paginator = OrderItem::whereHas('order', fn ($q) => $q->where('user_id', auth()->id()))
             ->with('product', 'order')
             ->orderByDesc('created_at')
             ->paginate(20);
