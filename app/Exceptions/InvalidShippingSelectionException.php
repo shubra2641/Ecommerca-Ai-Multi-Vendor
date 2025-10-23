@@ -6,7 +6,7 @@ namespace App\Exceptions;
 
 use RuntimeException;
 
-class InvalidShippingSelectionException extends RuntimeException
+final class InvalidShippingSelectionException extends RuntimeException
 {
     public function __construct(?string $message = null)
     {

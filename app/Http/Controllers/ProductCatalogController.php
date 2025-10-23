@@ -21,18 +21,19 @@ class ProductCatalogController extends Controller
         $query = $this->baseQuery();
 
         // Category filter
-        if ($cat = $request->get('category')) {
+        $cat = $request->get('category');
+        if ($cat) {
             $slugMap = Cache::remember(
                 'product_category_slug_id_map',
                 600,
-                fn () => ProductCategory::pluck('id', 'slug')->all()
+                fn() => ProductCategory::pluck('id', 'slug')->all()
             );
             $id = $slugMap[$cat] ?? null;
             if ($id) {
                 $childIds = Cache::remember(
-                    'category_children_ids_'.$id,
+                    'category_children_ids_' . $id,
                     600,
-                    fn () => ProductCategory::where('parent_id', $id)->pluck('id')->all()
+                    fn() => ProductCategory::where('parent_id', $id)->pluck('id')->all()
                 );
                 $query->where(function ($qq) use ($id, $childIds): void {
                     $qq->where('product_category_id', $id)
@@ -42,8 +43,9 @@ class ProductCatalogController extends Controller
         }
 
         // Tag filter
-        if ($tag = $request->get('tag')) {
-            $query->whereHas('tags', fn ($t) => $t->where('slug', $tag));
+        $tag = $request->get('tag');
+        if ($tag) {
+            $query->whereHas('tags', fn($t) => $t->where('slug', $tag));
         }
 
         $query = $this->applyFilters($query, $request);
@@ -61,7 +63,7 @@ class ProductCatalogController extends Controller
     public function category($slug, Request $request)
     {
         $category = ProductCategory::where('slug', $slug)->firstOrFail();
-        $childIds = Cache::remember('category_children_ids_'.$category->id, 600, function () use ($category) {
+        $childIds = Cache::remember('category_children_ids_' . $category->id, 600, function () use ($category) {
             return $category->children()->pluck('id')->all();
         });
 
@@ -132,7 +134,7 @@ class ProductCatalogController extends Controller
 
         // Related products
         $related = Cache::remember(
-            'product_related_'.$product->id,
+            'product_related_' . $product->id,
             300,
             function () use ($product) {
                 return Product::active()
@@ -178,7 +180,7 @@ class ProductCatalogController extends Controller
             $images->push('front/images/default-product.png');
         }
 
-        $gallery = $images->map(fn ($p) => ['raw' => $p, 'url' => asset($p)]);
+        $gallery = $images->map(fn($p) => ['raw' => $p, 'url' => asset($p)]);
         $mainImage = $gallery->first();
 
         // Pricing
@@ -207,11 +209,11 @@ class ProductCatalogController extends Controller
             $levelLabel = __('Out of stock');
         } elseif (is_numeric($available)) {
             if ($available <= 5) {
-                $levelLabel = __('In stock')." ({$available}) • Low stock";
+                $levelLabel = __('In stock') . " ({$available}) • Low stock";
             } elseif ($available <= 20) {
-                $levelLabel = __('In stock')." ({$available}) • Mid stock";
+                $levelLabel = __('In stock') . " ({$available}) • Mid stock";
             } else {
-                $levelLabel = __('In stock')." ({$available}) • High stock";
+                $levelLabel = __('In stock') . " ({$available}) • High stock";
             }
         } else {
             $levelLabel = __('In stock');
@@ -229,7 +231,7 @@ class ProductCatalogController extends Controller
         $activeVars = collect();
         if ($product->type === 'variable') {
             $activeVars = $product->variations->where('active', true);
-            $prices = $activeVars->map(fn ($v) => $v->effectivePrice())->filter();
+            $prices = $activeVars->map(fn($v) => $v->effectivePrice())->filter();
             if ($prices->count()) {
                 $minP = $prices->min();
                 $maxP = $prices->max();
@@ -323,7 +325,7 @@ class ProductCatalogController extends Controller
         $brandName = $product->brand->name ?? null;
 
         // Reviews
-        $formattedReviewsCount = $reviewsCount >= 1000 ? round($reviewsCount / 1000, 1).'k' : $reviewsCount;
+        $formattedReviewsCount = $reviewsCount >= 1000 ? round($reviewsCount / 1000, 1) . 'k' : $reviewsCount;
 
         try {
             $reviewsPayload = app(\App\Services\ReviewsPresenter::class)->build($product);
@@ -446,8 +448,9 @@ class ProductCatalogController extends Controller
     protected function applyFilters($query, Request $request)
     {
         // Search
-        if ($search = $request->get('q')) {
-            $query->where('name', 'like', '%'.$search.'%');
+        $search = $request->get('q');
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
         }
 
         // Filters
@@ -460,24 +463,24 @@ class ProductCatalogController extends Controller
         if ($request->boolean('sale')) {
             $query->onSale();
         }
-        if ($type = $request->get('type')) {
+        $type = $request->get('type');
+        if ($type) {
             $query->where('type', $type);
         }
 
         // Price range
-        if ($min = $request->get('min_price')) {
-            if (is_numeric($min)) {
-                $query->where('price', '>=', $min);
-            }
+        $min = $request->get('min_price');
+        if ($min && is_numeric($min)) {
+            $query->where('price', '>=', $min);
         }
-        if ($max = $request->get('max_price')) {
-            if (is_numeric($max)) {
-                $query->where('price', '<=', $max);
-            }
+        $max = $request->get('max_price');
+        if ($max && is_numeric($max)) {
+            $query->where('price', '<=', $max);
         }
 
         // Brand filter
-        if ($brands = $request->get('brand')) {
+        $brands = $request->get('brand');
+        if ($brands) {
             $brandsArr = array_filter(is_array($brands) ? $brands : explode(',', $brands));
             if ($brandsArr) {
                 $query->whereHas('brand', function ($b) use ($brandsArr): void {
@@ -564,7 +567,7 @@ class ProductCatalogController extends Controller
         $wishlistIds = [];
         if ($request->user()?->id) {
             $wishlistIds = (array) Cache::remember(
-                'wishlist_ids_'.$request->user()->id,
+                'wishlist_ids_' . $request->user()->id,
                 60,
                 function () use ($request) {
                     return \App\Models\WishlistItem::where('user_id', $request->user()->id)

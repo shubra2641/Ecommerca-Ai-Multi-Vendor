@@ -19,17 +19,22 @@ class PostController extends Controller
     {
         $query = Post::with('category', 'author');
 
-        if ($q = $request->get('q')) {
-            $query->where(function ($w) use ($q): void {
-                $w->where('title', 'like', "%{$q}%")->orWhere('slug', 'like', "%{$q}%");
+        $q = $request->get('q');
+        if ($q) {
+            $query->where(function ($qq) use ($q): void {
+                $qq->where('title', 'like', "%{$q}%")
+                    ->orWhere('excerpt', 'like', "%{$q}%")
+                    ->orWhere('body', 'like', "%{$q}%");
             });
         }
 
-        if ($categoryId = $request->get('category_id')) {
+        $categoryId = $request->get('category_id');
+        if ($categoryId) {
             $query->where('category_id', $categoryId);
         }
 
-        if ($published = $request->get('published')) {
+        $published = $request->get('published');
+        if ($published) {
             if ($published !== '') {
                 $query->where('published', (bool) $published);
             }
@@ -135,7 +140,7 @@ class PostController extends Controller
     private function buildPostPayload(array $data, HtmlSanitizer $sanitizer, ?Post $post = null): array
     {
         $fallback = config('app.fallback_locale');
-        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn ($v) => ! empty($v)) ?? '';
+        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn($v) => ! empty($v)) ?? '';
 
         $payload = [
             'title' => $defaultTitle,
@@ -159,8 +164,8 @@ class PostController extends Controller
                 foreach ($translations as $locale => $value) {
                     $translations[$locale] = $sanitizer->clean($value);
                 }
-                $payload[$field.'_translations'] = $translations;
-                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn ($v) => ! empty($v));
+                $payload[$field . '_translations'] = $translations;
+                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn($v) => ! empty($v));
             }
         }
 
@@ -190,8 +195,8 @@ class PostController extends Controller
         $base = $slug;
         $i = 1;
 
-        while (Post::where('slug', $slug)->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))->exists()) {
-            $slug = $base.'-'.$i++;
+        while (Post::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
+            $slug = $base . '-' . $i++;
         }
 
         return $slug;
@@ -214,14 +219,14 @@ class PostController extends Controller
 
         // Clear post-specific cache
         foreach ($locales as $locale) {
-            cache()->forget("blog.post.{$locale}.".$post->slug);
-            cache()->forget("blog.post.{$locale}.".$post->slug.'.related');
+            cache()->forget("blog.post.{$locale}." . $post->slug);
+            cache()->forget("blog.post.{$locale}." . $post->slug . '.related');
         }
 
         // Clear category cache
         if ($post->category_id) {
             foreach ($locales as $locale) {
-                cache()->forget("blog.cat.{$locale}.".optional($post->category)->slug);
+                cache()->forget("blog.cat.{$locale}." . optional($post->category)->slug);
             }
         }
 

@@ -8,12 +8,10 @@ use App\Models\Order;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 
-class OrderPaid
+final class OrderPaid
 {
     use Dispatchable;
     use InteractsWithSockets;
 
-    public function __construct(public Order $order)
-    {
-    }
+    public function __construct(public Order $order) {}
 }

@@ -6,7 +6,7 @@ namespace App\Exceptions;
 
 use RuntimeException;
 
-class OutOfStockException extends RuntimeException
+final class OutOfStockException extends RuntimeException
 {
     public function __construct(string $productName)
     {

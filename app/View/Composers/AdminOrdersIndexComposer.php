@@ -23,7 +23,7 @@ class AdminOrdersIndexComposer
                     $variantLabel = $first->meta['variant_name'];
                 } elseif (! empty($first->meta['attribute_data']) && is_array($first->meta['attribute_data'])) {
                     $variantLabel = collect($first->meta['attribute_data'])
-                        ->map(fn ($v, $k) => ucfirst($k).': '.$v)
+                        ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                         ->join(', ');
                 }
             }
@@ -35,17 +35,26 @@ class AdminOrdersIndexComposer
                     $countryId = $ship['country_id'] ?? $ship['country'] ?? null;
                     $govId = $ship['governorate_id'] ?? $ship['governorate'] ?? null;
                     $cityId = $ship['city_id'] ?? $ship['city'] ?? null;
-                    if ($countryId && is_numeric($countryId) && ($c = Country::find($countryId))) {
-                        $ship['country'] = $c->name;
+                    if ($countryId && is_numeric($countryId)) {
+                        $c = Country::find($countryId);
+                        if ($c) {
+                            $ship['country'] = $c->name;
+                        }
                     }
-                    if ($govId && is_numeric($govId) && ($g = Governorate::find($govId))) {
-                        $ship['governorate'] = $g->name;
+                    if ($govId && is_numeric($govId)) {
+                        $g = Governorate::find($govId);
+                        if ($g) {
+                            $ship['governorate'] = $g->name;
+                        }
                     }
-                    if ($cityId && is_numeric($cityId) && ($ci = City::find($cityId))) {
-                        $ship['city'] = $ci->name;
+                    if ($cityId && is_numeric($cityId)) {
+                        $ci = City::find($cityId);
+                        if ($ci) {
+                            $ship['city'] = $ci->name;
+                        }
                     }
                 } catch (\Throwable $e) {
-                    logger()->warning('Failed to resolve address components: '.$e->getMessage());
+                    logger()->warning('Failed to resolve address components: ' . $e->getMessage());
                 }
                 $shipParts = [];
                 foreach (['name', 'line1', 'city', 'governorate', 'country', 'phone'] as $k) {

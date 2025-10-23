@@ -191,7 +191,8 @@ class ProductController extends Controller
 
     protected function applyFilters($query, Request $request): void
     {
-        if ($search = $request->input('q')) {
+        $search = $request->input('q');
+        if ($search) {
             $query->where(function ($q) use ($search): void {
                 $q->where('name', 'like', "%{$search}%")->orWhere('sku', 'like', "%{$search}%");
             });
@@ -201,11 +202,13 @@ class ProductController extends Controller
             $query->where('product_category_id', $request->input('category'));
         }
 
-        if ($type = $request->input('type')) {
+        $type = $request->input('type');
+        if ($type) {
             $query->where('type', $type);
         }
 
-        if ($flag = $request->input('flag')) {
+        $flag = $request->input('flag');
+        if ($flag) {
             match ($flag) {
                 'featured' => $query->where('is_featured', 1),
                 'best' => $query->where('is_best_seller', 1),
@@ -213,7 +216,8 @@ class ProductController extends Controller
             };
         }
 
-        if ($stock = $request->input('stock')) {
+        $stock = $request->input('stock');
+        if ($stock) {
             $this->applyStockFilter($query, $stock);
         }
     }
@@ -221,9 +225,9 @@ class ProductController extends Controller
     protected function getFormData()
     {
         return [
-            'categories' => Cache::remember('product_categories_ordered', 3600, fn () => ProductCategory::orderBy('name')->get()),
-            'tags' => Cache::remember('product_tags_ordered', 3600, fn () => ProductTag::orderBy('name')->get()),
-            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn () => ProductAttribute::with('values')->orderBy('name')->get()),
+            'categories' => Cache::remember('product_categories_ordered', 3600, fn() => ProductCategory::orderBy('name')->get()),
+            'tags' => Cache::remember('product_tags_ordered', 3600, fn() => ProductTag::orderBy('name')->get()),
+            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn() => ProductAttribute::with('values')->orderBy('name')->get()),
         ];
     }
 
@@ -412,7 +416,7 @@ class ProductController extends Controller
                 $normalized[$locale] = is_string($val) ? trim($val) : trim((string) $val);
             }
             $base = $this->extractPrimaryTextFromArray($normalized);
-            $translations = array_filter($normalized, fn ($val) => $val !== '');
+            $translations = array_filter($normalized, fn($val) => $val !== '');
 
             return [$base, $translations ? $translations : null];
         }
@@ -535,7 +539,7 @@ class ProductController extends Controller
             $gallery = json_decode($gallery, true) ?: [];
         }
 
-        return array_values(array_filter(array_map('trim', $gallery), fn ($v) => ! empty($v)));
+        return array_values(array_filter(array_map('trim', $gallery), fn($v) => ! empty($v)));
     }
 
     protected function applyStockFilter($query, string $stock): void

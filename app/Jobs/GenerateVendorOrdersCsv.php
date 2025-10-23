@@ -25,9 +25,9 @@ class GenerateVendorOrdersCsv implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public int $vendorExportId;
+    protected int $vendorExportId;
 
-    public array $filters;
+    protected array $filters;
 
     public function __construct(int $vendorExportId, array $filters = [])
     {

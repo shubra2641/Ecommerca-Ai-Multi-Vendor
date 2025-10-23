@@ -13,7 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
-class SendInterestConfirmationJob implements ShouldQueue
+final class SendInterestConfirmationJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;

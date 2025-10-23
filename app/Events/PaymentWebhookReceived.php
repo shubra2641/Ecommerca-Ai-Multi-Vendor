@@ -17,13 +17,13 @@ class PaymentWebhookReceived
     use InteractsWithSockets;
     use SerializesModels;
 
-    public $payment;
+    protected $payment;
 
-    public $gateway;
+    protected $gateway;
 
-    public $webhookData;
+    protected $webhookData;
 
-    public $status;
+    protected $status;
 
     /**
      * Create a new event instance.
@@ -42,8 +42,8 @@ class PaymentWebhookReceived
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('payment.'.$this->payment->id),
-            new PrivateChannel('order.'.$this->payment->order_id),
+            new PrivateChannel('payment.' . $this->payment->id),
+            new PrivateChannel('order.' . $this->payment->order_id),
         ];
     }
 

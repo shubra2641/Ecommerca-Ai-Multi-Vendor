@@ -232,7 +232,7 @@ class HomeController extends Controller
                         ->orderByDesc('approved_reviews_count')
                         ->take($limit)->get(),
                     'showcase_brands' => Brand::active()
-                        ->withCount(['products' => fn($q) => $q->active()])
+                        ->withCount(['products' => fn ($q) => $q->active()])
                         ->orderByDesc('products_count')
                         ->take($limit)->get(),
                     default => collect(),
@@ -300,7 +300,7 @@ class HomeController extends Controller
             ]);
         }
         $showcaseSections = $showcaseSections->sortBy(
-            fn($s) => optional($sectionsIndex->get($s['key']))->sort_order ?? 9999
+            fn ($s) => optional($sectionsIndex->get($s['key']))->sort_order ?? 9999
         )->values();
         // Extract brand section separately & compute grid column count excluding brands
         $brandSec = $showcaseSections->firstWhere('type', 'brands');
