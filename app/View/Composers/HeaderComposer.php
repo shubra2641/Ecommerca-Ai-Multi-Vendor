@@ -69,84 +69,9 @@ final class HeaderComposer
     {
         $isAuthenticatedForWishlist = Auth::check() && Schema::hasTable('wishlist_items');
 
-        return [
-            'setting' => $setting,
-            'siteName' => $setting->site_name ?? config('app.name'),
-            'logoPath' => $setting->logo ?? null,
-            'userName' => Auth::check() ? explode(' ', Auth::user()->name)[0] : null,
-            'rootCats' => $this->getRootCategories(),
-            'currencies' => $currencies,
-            'currentCurrency' => $currentCurrency,
-            'cartCount' => $this->getCartCount(),
-            'compareCount' => $this->getCompareCount(),
-            'wishlistCount' => $this->getWishlistCount($isAuthenticatedForWishlist),
-            'activeLanguages' => $this->getActiveLanguages(),
-        ];
-    }
+        
 
-    private function getRootCategories()
-    {
-        return Cache::remember('root_categories', 3600, function () {
-            if (Schema::hasTable('product_categories')) {
-                try {
-                    return ProductCategory::where('active', 1)
-                        ->whereNull('parent_id')
-                        ->orderBy('name')
-                        ->take(14)
-                        ->get();
-                } catch (Throwable $e) {
-                    return collect();
-                }
-            }
-            return collect();
-        });
-    }
-
-    private function getCartCount(): int
-    {
-        $session = session('cart');
-        return match (true) {
-            is_array($session) => count($session),
-            $session instanceof \Countable => count($session),
-            default => 0,
-        };
-    }
-
-    private function getCompareCount(): int
-    {
-        $session = session('compare');
-        return match (true) {
-            is_array($session) => count($session),
-            $session instanceof \Countable => count($session),
-            default => 0,
-        };
-    }
-
-    private function getWishlistCount(bool $isAuthenticatedForWishlist): int
-    {
-        if (! $isAuthenticatedForWishlist) {
-            $session = session('wishlist');
-            return match (true) {
-                is_array($session) => count($session),
-                $session instanceof \Countable => count($session),
-                default => 0,
-            };
-        }
-        try {
-            return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
-        } catch (\Throwable $e) {
-            $session = session('wishlist');
-            return match (true) {
-                is_array($session) => count($session),
-                $session instanceof \Countable => count($session),
-                default => 0,
-            };
-        }
-    }
-
-    private function getActiveLanguages()
-    {
-        return Cache::remember('header_active_languages', 1800, function () {
+        $activeLanguages = Cache::remember('header_active_languages', 1800, function () {
             if (Schema::hasTable('languages')) {
                 try {
                     return \App\Models\Language::where('is_active', 1)
@@ -159,5 +84,47 @@ final class HeaderComposer
             }
             return collect();
         });
+
+        return [
+            'setting' => $setting,
+            'siteName' => $setting->site_name ?? config('app.name'),
+            'logoPath' => $setting->logo ?? null,
+            'userName' => Auth::check() ? explode(' ', Auth::user()->name)[0] : null,
+            'rootCats' => $rootCats,
+            'currencies' => $currencies,
+            'currentCurrency' => $currentCurrency,
+            'cartCount' => $this->getSessionCount('cart'),
+            'compareCount' => $this->getSessionCount('compare'),
+            'wishlistCount' => $this->getWishlistCount($isAuthenticatedForWishlist),
+            'activeLanguages' => $activeLanguages,
+        ];
     }
+
+    private function getSessionCount(string $key): int
+    {
+        $session = session($key);
+        return match (true) {
+            is_array($session) => count($session),
+            $session instanceof \Countable => count($session),
+            default => 0,
+        };
+    }
+
+
+
+
+
+    private function getWishlistCount(bool $isAuthenticatedForWishlist): int
+    {
+        if (! $isAuthenticatedForWishlist) {
+            return $this->getSessionCount('wishlist');
+        }
+        try {
+            return \App\Models\WishlistItem::where('user_id', Auth::id())->count();
+        } catch (\Throwable $e) {
+            return $this->getSessionCount('wishlist');
+        }
+    }
+
+
 }

@@ -32,65 +32,53 @@ final class AdminProductsIndexComposer
 
     private function calculateProductStocks($products, int $low, int $soon): array
     {
-        $productStocks = [];
-
-        foreach ($products as $p) {
-            if (! $p->manage_stock) {
-                continue;
-            }
-
-            $available = (int) $p->availableStock();
-            $status = $this->classAndBadge($available, $low, $soon);
-
-            $productStocks[$p->id] = [
-                'available' => $available,
-                'stock_qty' => (int) ($p->stock_qty ?? 0),
-                'class' => $status['class'],
-                'badge' => $status['badge'],
-                'backorder' => (bool) ($p->backorder ?? false),
-            ];
-        }
-
-        return $productStocks;
+        return collect($products)
+            ->filter(fn($p) => $p->manage_stock)
+            ->mapWithKeys(function ($p) use ($low, $soon) {
+                $available = (int) $p->availableStock();
+                $status = match (true) {
+                    $available <= $low => ['class' => 'text-danger', 'badge' => 'low'],
+                    $available <= $soon => ['class' => 'text-warning', 'badge' => 'soon'],
+                    default => ['class' => '', 'badge' => null],
+                };
+                return [
+                    $p->id => [
+                        'available' => $available,
+                        'stock_qty' => (int) ($p->stock_qty ?? 0),
+                        'class' => $status['class'],
+                        'badge' => $status['badge'],
+                        'backorder' => (bool) ($p->backorder ?? false),
+                    ]
+                ];
+            })
+            ->toArray();
     }
 
     private function calculateVariationStocks($products, int $low, int $soon): array
     {
-        $variationStocks = [];
-
-        foreach ($products as $p) {
-            if ($p->type !== 'variable') {
-                continue;
-            }
-
-            $variations = $p->relationLoaded('variations') ? $p->variations : $p->variations()->get();
-
-            foreach ($variations as $v) {
-                if (! $v->manage_stock) {
-                    continue;
-                }
-
-                $available = (int) (($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0));
-                $status = $this->classAndBadge($available, $low, $soon);
-
-                $variationStocks[$v->id] = [
-                    'available' => $available,
-                    'stock_qty' => (int) ($v->stock_qty ?? 0),
-                    'class' => $status['class'],
-                    'badge' => $status['badge'],
-                ];
-            }
-        }
-
-        return $variationStocks;
-    }
-
-    private function classAndBadge(int $available, int $low, int $soon): array
-    {
-        return match (true) {
-            $available <= $low => ['class' => 'text-danger', 'badge' => 'low'],
-            $available <= $soon => ['class' => 'text-warning', 'badge' => 'soon'],
-            default => ['class' => '', 'badge' => null],
-        };
+        return collect($products)
+            ->filter(fn($p) => $p->type === 'variable')
+            ->flatMap(function ($p) use ($low, $soon) {
+                $variations = $p->relationLoaded('variations') ? $p->variations : $p->variations()->get();
+                return collect($variations)
+                    ->filter(fn($v) => $v->manage_stock)
+                    ->mapWithKeys(function ($v) use ($low, $soon) {
+                        $available = (int) (($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0));
+                        $status = match (true) {
+                            $available <= $low => ['class' => 'text-danger', 'badge' => 'low'],
+                            $available <= $soon => ['class' => 'text-warning', 'badge' => 'soon'],
+                            default => ['class' => '', 'badge' => null],
+                        };
+                        return [
+                            $v->id => [
+                                'available' => $available,
+                                'stock_qty' => (int) ($v->stock_qty ?? 0),
+                                'class' => $status['class'],
+                                'badge' => $status['badge'],
+                            ]
+                        ];
+                    });
+            })
+            ->toArray();
     }
 }

@@ -52,9 +52,11 @@ final class AdminProductVariationsDataComposer
         }
     }
 
-    private function getAttributeData($attributes)
+    private function getJsonData($model, $attributes): string
     {
-        return $attributes->map(function ($a) {
+        $existing = $this->getExistingVariations($model);
+
+        $attributeData = $attributes->map(function ($a) {
             try {
                 return [
                     'id' => $a->id,
@@ -72,11 +74,8 @@ final class AdminProductVariationsDataComposer
                 return [];
             }
         })->filter()->values()->all();
-    }
 
-    private function getLanguageData()
-    {
-        return Language::where('is_active', 1)
+        $languageData = Language::where('is_active', 1)
             ->orderByDesc('is_default')
             ->get()
             ->map(fn ($l) => [
@@ -86,14 +85,11 @@ final class AdminProductVariationsDataComposer
             ])
             ->values()
             ->all();
-    }
 
-    private function getJsonData($model, $attributes): string
-    {
         return json_encode([
-            'existing' => $this->getExistingVariations($model),
-            'attributes' => $this->getAttributeData($attributes),
-            'languages' => $this->getLanguageData(),
+            'existing' => $existing,
+            'attributes' => $attributeData,
+            'languages' => $languageData,
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 }
