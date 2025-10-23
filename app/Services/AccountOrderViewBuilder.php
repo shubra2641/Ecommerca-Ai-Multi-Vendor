@@ -36,35 +36,9 @@ class AccountOrderViewBuilder
         }
 
         try {
-            // Resolve country
-            $countryId = $addrSource['country_id'] ?? $addrSource['country'] ?? null;
-            if ($countryId && is_numeric($countryId)) {
-                $c = Country::find($countryId);
-                if ($c) {
-                    $addrSource['country'] = $c->name;
-                    $addrSource['country_id'] = $countryId;
-                }
-            }
-
-            // Resolve governorate
-            $govId = $addrSource['governorate_id'] ?? $addrSource['governorate'] ?? null;
-            if ($govId && is_numeric($govId)) {
-                $g = Governorate::find($govId);
-                if ($g) {
-                    $addrSource['governorate'] = $g->name;
-                    $addrSource['governorate_id'] = $govId;
-                }
-            }
-
-            // Resolve city
-            $cityId = $addrSource['city_id'] ?? $addrSource['city'] ?? null;
-            if ($cityId && is_numeric($cityId)) {
-                $ci = City::find($cityId);
-                if ($ci) {
-                    $addrSource['city'] = $ci->name;
-                    $addrSource['city_id'] = $cityId;
-                }
-            }
+            $this->resolveCountry($addrSource);
+            $this->resolveGovernorate($addrSource);
+            $this->resolveCity($addrSource);
         } catch (\Throwable $e) {
             logger()->warning('Failed to resolve address components: ' . $e->getMessage());
         }
@@ -82,16 +56,58 @@ class AccountOrderViewBuilder
             'phone',
         ];
         $parts = collect($orderedKeys)
-            ->filter(fn ($k) => ! empty($addrSource[$k]))
-            ->map(fn ($k) => $addrSource[$k])
+            ->filter(fn($k) => ! empty($addrSource[$k]))
+            ->map(fn($k) => $addrSource[$k])
             ->toArray();
 
         $extraParts = collect($addrSource)
-            ->filter(fn ($v) => is_scalar($v) && ! in_array($v, $parts, true))
+            ->filter(fn($v) => is_scalar($v) && ! in_array($v, $parts, true))
             ->values()
             ->toArray();
 
         return implode("\n", array_merge($parts, $extraParts));
+    }
+
+    private function resolveCountry(array &$addrSource): void
+    {
+        $countryId = $addrSource['country_id'] ?? $addrSource['country'] ?? null;
+        if (! $countryId || ! is_numeric($countryId)) {
+            return;
+        }
+        $c = Country::find($countryId);
+        if (! $c) {
+            return;
+        }
+        $addrSource['country'] = $c->name;
+        $addrSource['country_id'] = $countryId;
+    }
+
+    private function resolveGovernorate(array &$addrSource): void
+    {
+        $govId = $addrSource['governorate_id'] ?? $addrSource['governorate'] ?? null;
+        if (! $govId || ! is_numeric($govId)) {
+            return;
+        }
+        $g = Governorate::find($govId);
+        if (! $g) {
+            return;
+        }
+        $addrSource['governorate'] = $g->name;
+        $addrSource['governorate_id'] = $govId;
+    }
+
+    private function resolveCity(array &$addrSource): void
+    {
+        $cityId = $addrSource['city_id'] ?? $addrSource['city'] ?? null;
+        if (! $cityId || ! is_numeric($cityId)) {
+            return;
+        }
+        $ci = City::find($cityId);
+        if (! $ci) {
+            return;
+        }
+        $addrSource['city'] = $ci->name;
+        $addrSource['city_id'] = $cityId;
     }
 
     private function buildShipmentStages(Order $order): array
@@ -147,7 +163,7 @@ class AccountOrderViewBuilder
 
         if (! empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data'])) {
             return collect($it->meta['attribute_data'])
-                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
                 ->join(', ');
         }

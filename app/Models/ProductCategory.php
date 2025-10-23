@@ -48,23 +48,25 @@ class ProductCategory extends Model
      */
     public function getAttribute($key)
     {
-        // if key is explicitly requested translations array, return normal behavior
-        if (isset($this->translatable) && in_array($key, $this->translatable, true)) {
-            $translationsKey = $key . '_translations';
-            $raw = parent::getAttribute($key); // base stored value
-            $translations = parent::getAttribute($translationsKey);
-            if (is_array($translations)) {
-                $locale = app()->getLocale();
-                $fallback = config('app.fallback_locale');
-                $translated = $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? null : null);
-
-                return $translated !== null && $translated !== '' ? $translated : $raw;
-            }
-
-            return $raw; // fallback to raw column value
+        if (! isset($this->translatable) || ! in_array($key, $this->translatable, true)) {
+            return parent::getAttribute($key);
         }
 
-        return parent::getAttribute($key);
+        $translationsKey = $key . '_translations';
+        $raw = parent::getAttribute($key);
+        $translations = parent::getAttribute($translationsKey);
+        if (! is_array($translations)) {
+            return $raw;
+        }
+
+        $locale = app()->getLocale();
+        $fallback = config('app.fallback_locale');
+        $translated = $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? null : null);
+        if ($translated !== null && $translated !== '') {
+            return $translated;
+        }
+
+        return $raw;
     }
 
     /**
@@ -72,11 +74,7 @@ class ProductCategory extends Model
      */
     public function translate(string $field, ?string $locale = null)
     {
-        if (! isset($this->translatable)) {
-            return $this->getAttribute($field);
-        }
-
-        if (! in_array($field, $this->translatable, true)) {
+        if (! isset($this->translatable) || ! in_array($field, $this->translatable, true)) {
             return $this->getAttribute($field);
         }
 
@@ -85,11 +83,19 @@ class ProductCategory extends Model
             return $this->getAttribute($field);
         }
 
-        $locale = $locale ? $locale : app()->getLocale();
+        $locale = $locale ?: app()->getLocale();
         $fallback = config('app.fallback_locale');
-        $translated = $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? null : null);
 
-        return $translated !== null && $translated !== '' ? $translated : $this->getAttribute($field);
+        return $this->getTranslatedValue($translations, $locale, $fallback, $field);
+    }
+
+    private function getTranslatedValue(array $translations, string $locale, ?string $fallback, string $field)
+    {
+        $translated = $translations[$locale] ?? ($fallback ? $translations[$fallback] ?? null : null);
+        if ($translated !== null && $translated !== '') {
+            return $translated;
+        }
+        return $this->getAttribute($field);
     }
 
     // backward compatibility for existing blades calling ->translated('field')

@@ -29,14 +29,13 @@ final class ProductCardComposer
         $price = $product->price ?? 0;
         $salePrice = $product->sale_price ?? null;
         $cardOnSale = $salePrice && $salePrice < $price;
-        $cardDiscountPercent = $cardOnSale ? (int) round(($price - $salePrice) / $price * 100) : null;
-        $cardAvailable = isset($product->list_available) ? (int) $product->list_available : (! $product->manage_stock ? null : max(0, (int) ($product->stock_qty ?? 0) - (int) ($product->reserved_qty ?? 0)));
+        $cardDiscountPercent = $this->calculateDiscountPercent($price, $salePrice);
+        $cardAvailable = $this->getAvailableStock($product);
         $cardDisplaySalePrice = $cardOnSale ? (float) $salePrice : null;
         $effectivePrice = $price > 0 ? $price : ($product->effectivePrice() ?? 0);
         $cardDisplayPrice = $product->display_price ?? $effectivePrice;
         $desc = trim(strip_tags($product->short_description ?? $product->description ?? ''));
         $cardSnippet = $desc ? Str::limit($desc, 50, '...') : '';
-
         return [
             'cardOnSale' => $cardOnSale,
             'cardDiscountPercent' => $cardDiscountPercent,
@@ -51,5 +50,24 @@ final class ProductCardComposer
             'cardDisplaySalePrice' => $cardDisplaySalePrice,
             'cardImageUrl' => $product->main_image ? asset($product->main_image) : asset('images/placeholder.png'),
         ];
+    }
+
+    private function calculateDiscountPercent(float $price, ?float $salePrice): ?int
+    {
+        if (! $salePrice || $salePrice >= $price) {
+            return null;
+        }
+        return (int) round(($price - $salePrice) / $price * 100);
+    }
+
+    private function getAvailableStock($product): ?int
+    {
+        if (isset($product->list_available)) {
+            return (int) $product->list_available;
+        }
+        if (! $product->manage_stock) {
+            return null;
+        }
+        return max(0, (int) ($product->stock_qty ?? 0) - (int) ($product->reserved_qty ?? 0));
     }
 }

@@ -122,10 +122,10 @@ class CheckoutViewBuilder
             return null;
         }
         return match (true) {
-            is_object($variant) => ! empty($variant->name) ? $variant->name : (! empty($variant->attribute_data) ? collect($variant->attribute_data)->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ') : null),
+            is_object($variant) => ! empty($variant->name) ? $variant->name : (! empty($variant->attribute_data) ? collect($variant->attribute_data)->map(fn($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ') : null),
             is_string($variant) => (function ($v) {
                 $parsed = json_decode($v, true);
-                return json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data']) ? collect($parsed['attribute_data'])->map(fn ($val, $key) => ucfirst($key) . ': ' . $val)->values()->join(', ') : $v;
+                return json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data']) ? collect($parsed['attribute_data'])->map(fn($val, $key) => ucfirst($key) . ': ' . $val)->values()->join(', ') : $v;
             })($variant),
             ! empty($attributes) => implode(', ', $attributes),
             default => null,
@@ -152,10 +152,27 @@ class CheckoutViewBuilder
         $defaultCurrency = Currency::getDefault();
         $currency_symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
         $displayTotal = $total;
+
+        $status = match (true) {
+            ! $currentCurrency => 'no_current',
+            ! $defaultCurrency => 'no_default',
+            $currentCurrency->id === $defaultCurrency->id => 'same',
+            default => 'convert',
+        };
+
+        return match ($status) {
+            'no_current' => [$currentCurrency, $defaultCurrency, Currency::defaultSymbol(), $total],
+            'no_default' => [$currentCurrency, $defaultCurrency, $currency_symbol, $total],
+            'same' => [$currentCurrency, $defaultCurrency, $currency_symbol, $displayTotal],
+            'convert' => $this->convertTotal($currentCurrency, $defaultCurrency, $currency_symbol, $total),
+        };
+    }
+
+    private function convertTotal($currentCurrency, $defaultCurrency, string $currency_symbol, float $total): array
+    {
+        $displayTotal = $total;
         try {
-            if ($currentCurrency && $defaultCurrency && $currentCurrency->id !== $defaultCurrency->id) {
-                $displayTotal = $defaultCurrency->convertTo($total, $currentCurrency, 2);
-            }
+            $displayTotal = $defaultCurrency->convertTo($total, $currentCurrency, 2);
         } catch (\Throwable $e) {
         }
         return [$currentCurrency, $defaultCurrency, $currency_symbol, $displayTotal];
