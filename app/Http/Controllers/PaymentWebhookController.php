@@ -90,6 +90,8 @@ class PaymentWebhookController extends Controller
                 try {
                     event(new \App\Events\OrderPaid($order));
                 } catch (\Throwable $e) {
+                    // Ignore event dispatch errors
+                    null;
                 }
             }
 

@@ -12,7 +12,7 @@ class ReturnsController extends Controller
 {
     public function index()
     {
-        $paginator = OrderItem::whereHas('order', fn ($q) => $q->where('user_id', auth()->id()))
+        $paginator = OrderItem::whereHas('order', fn($q) => $q->where('user_id', auth()->id()))
             ->with('product', 'order')
             ->orderByDesc('created_at')
             ->paginate(20);
@@ -68,11 +68,14 @@ class ReturnsController extends Controller
             }
         } catch (\Throwable $e) {
             // swallow notify errors to avoid breaking UX
+            null;
         }
 
         try {
             session()->flash('refresh_admin_notifications', true);
         } catch (\Throwable $e) {
+            // Ignore session flash errors
+            null;
         }
 
         return back()->with('success', __('Return request submitted'));

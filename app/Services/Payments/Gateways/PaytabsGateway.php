@@ -68,9 +68,6 @@ class PaytabsGateway
                 try {
                     $client = Http::acceptJson();
                     // Log which config key is used (do not log the secret value)
-                    try {
-                    } catch (\Throwable $_) {
-                    }
                     if (! empty($secret)) {
                         $authType = $gateway->config['auth_type'] ?? null;
                         if ($authType === 'header') {
@@ -86,13 +83,6 @@ class PaytabsGateway
                         $apiBase . '/charges',
                         $chargePayload
                     );
-                    try {
-                        // Intentionally empty try block
-                        null;
-                    } catch (\Throwable $_) {
-                        // Intentionally empty catch block
-                        null;
-                    }
                     if (! $resp->ok()) {
                         throw new \Exception(
                             'Charge error: ' . $resp->status() . ' ' . substr($resp->body(), 0, 200)

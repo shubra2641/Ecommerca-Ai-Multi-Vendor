@@ -56,7 +56,7 @@ class DistributeOrderProceedsListener
 
                     // Determine if any items for this vendor in this order are still within refund window
                     $vendorItems = $order->items->filter(
-                        fn ($it) => ($it->product?->vendor_id ?? null) === $vendorId
+                        fn($it) => ($it->product?->vendor_id ?? null) === $vendorId
                     );
                     $hasHeld = false;
                     foreach ($vendorItems as $vi) {
@@ -73,7 +73,7 @@ class DistributeOrderProceedsListener
                             $amount,
                             (float) $vendor->balance,
                             (float) $vendor->balance,
-                            'Held credit for Order #'.$order->id.
+                            'Held credit for Order #' . $order->id .
                                 ' (refund window active)',
                             null,
                             $order
@@ -89,7 +89,7 @@ class DistributeOrderProceedsListener
                             $amount,
                             $previous,
                             (float) $vendor->balance,
-                            'Order #'.$order->id,
+                            'Order #' . $order->id,
                             null,
                             $order
                         );
@@ -110,6 +110,7 @@ class DistributeOrderProceedsListener
                             $commission = (float) ($break['commission'] ?? 0.0);
                         } catch (\Throwable $e) {
                             // Fallback to zero commission
+                            null;
                         }
                     }
                     $platformShare += $commission;
@@ -128,7 +129,7 @@ class DistributeOrderProceedsListener
                             $platformShare,
                             $prevAdmin,
                             (float) $admin->balance,
-                            'Platform share for Order #'.$order->id,
+                            'Platform share for Order #' . $order->id,
                             null,
                             $order
                         );

@@ -60,8 +60,8 @@ class GatewayReturnController extends Controller
             $base = rtrim($payload['weaccept_api_base'] ?? 'https://accept.paymob.com', '/');
             $iframeId = $payload['weaccept_iframe_id'] ?? ($payload['weaccept_integration_id'] ?? null);
             if ($iframeId) {
-                $redirect = $base.'/api/acceptance/iframes/'.$iframeId.
-                    '?payment_token='.$payload['weaccept_payment_token'];
+                $redirect = $base . '/api/acceptance/iframes/' . $iframeId .
+                    '?payment_token=' . $payload['weaccept_payment_token'];
             }
         }
 
@@ -73,7 +73,7 @@ class GatewayReturnController extends Controller
         $gateway = $this->getEnabledGateway($gatewaySlug);
 
         if (! $gateway) {
-            return $this->redirectWithError($payment, $gatewaySlug.' gateway disabled');
+            return $this->redirectWithError($payment, $gatewaySlug . ' gateway disabled');
         }
 
         try {
@@ -219,7 +219,7 @@ class GatewayReturnController extends Controller
     {
         if ($payment->order_id) {
             return redirect()->route('orders.show', $payment->order_id)
-                ->with('error', __(ucfirst($gatewaySlug).' verification error'));
+                ->with('error', __(ucfirst($gatewaySlug) . ' verification error'));
         }
 
         $this->restoreCartFromSnapshot($payment, $gatewaySlug);
@@ -227,7 +227,7 @@ class GatewayReturnController extends Controller
         return view('payments.failure')
             ->with('order', null)
             ->with('payment', $payment)
-            ->with('error_message', __(ucfirst($gatewaySlug).' verification error'));
+            ->with('error_message', __(ucfirst($gatewaySlug) . ' verification error'));
     }
 
     private function getEnabledGateway(string $slug): ?PaymentGateway
@@ -340,6 +340,7 @@ class GatewayReturnController extends Controller
             session()->forget('cart');
         } catch (\Throwable $e) {
             // Ignore cart clearing errors
+            null;
         }
     }
 }

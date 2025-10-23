@@ -21,7 +21,7 @@ class CurrencyDetection
             $header = $request->server('HTTP_ACCEPT_LANGUAGE');
             if ($header) {
                 $locales = collect(explode(',', $header))
-                    ->map(fn ($p) => trim(explode(';', $p)[0]))
+                    ->map(fn($p) => trim(explode(';', $p)[0]))
                     ->filter()
                     ->unique()
                     ->values();
@@ -41,6 +41,7 @@ class CurrencyDetection
                                 }
                             } catch (\Throwable $e) {
                                 // silent
+                                null;
                             }
                         }
                     }

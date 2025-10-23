@@ -16,7 +16,7 @@ class NotifyController extends Controller
             'product_id' => ['required', 'exists:products,id'],
             'email' => ['nullable', 'email'],
             'phone' => ['nullable', 'string', 'max:40'],
-            'type' => ['sometimes', 'in:'.implode(',', $allowed)],
+            'type' => ['sometimes', 'in:' . implode(',', $allowed)],
         ]);
         if (! $data['email'] && auth()->check()) {
             $data['email'] = auth()->user()->email;
@@ -65,7 +65,7 @@ class NotifyController extends Controller
                     );
                 }
             } catch (\Throwable $e) {
-                logger()->warning('Failed sending product interest admin notification: '.$e->getMessage());
+                logger()->warning('Failed sending product interest admin notification: ' . $e->getMessage());
             }
         }
 
@@ -75,7 +75,9 @@ class NotifyController extends Controller
         // If the request came from an admin browsing session (rare) we also set a session flag.
         try {
             session()->flash('refresh_admin_notifications', true);
-        } catch (\Throwable $e) { /* ignore when session not writable (API) */
+        } catch (\Throwable $e) {
+            // ignore when session not writable (API)
+            null;
         }
 
         return response()->json(['ok' => true, 'message' => __('Subscription saved')]);

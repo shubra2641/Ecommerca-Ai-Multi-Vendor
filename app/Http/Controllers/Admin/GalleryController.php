@@ -272,8 +272,8 @@ class GalleryController extends Controller
             $manager = new ImageManager(new Driver);
             $imageObj = $manager->read($file->getRealPath());
 
-            $webpFileName = pathinfo($file->hashName(), PATHINFO_FILENAME).'.webp';
-            $webpRelative = 'gallery/webp/'.$webpFileName;
+            $webpFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '.webp';
+            $webpRelative = 'gallery/webp/' . $webpFileName;
             $imageObj->toWebp(85)->save(Storage::disk('public')->path($webpRelative));
             $webpPath = $webpRelative;
 
@@ -282,12 +282,13 @@ class GalleryController extends Controller
                 $constraint->aspectRatio();
                 $constraint->upsize();
             });
-            $thumbFileName = pathinfo($file->hashName(), PATHINFO_FILENAME).'_thumb.jpg';
-            $thumbRelative = 'gallery/thumbs/'.$thumbFileName;
+            $thumbFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '_thumb.jpg';
+            $thumbRelative = 'gallery/thumbs/' . $thumbFileName;
             $thumbClone->toJpeg(75)->save(Storage::disk('public')->path($thumbRelative));
             $thumbPath = $thumbRelative;
         } catch (\Throwable $e) {
             // leave optional derivatives empty if processing fails
+            null;
         }
 
         return GalleryImage::create([
@@ -307,8 +308,8 @@ class GalleryController extends Controller
     {
         $path = $image->webp_path ?: $image->original_path;
 
-        $url = $path ? asset('storage/'.ltrim($path, '/')) : null;
-        $thumbPath = $image->thumbnail_path ? asset('storage/'.ltrim($image->thumbnail_path, '/')) : null;
+        $url = $path ? asset('storage/' . ltrim($path, '/')) : null;
+        $thumbPath = $image->thumbnail_path ? asset('storage/' . ltrim($image->thumbnail_path, '/')) : null;
         $thumb = $thumbPath ? $thumbPath : $url;
 
         return [

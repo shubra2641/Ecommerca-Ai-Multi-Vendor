@@ -103,7 +103,9 @@ class SettingsController extends Controller
                 // Silent save to clean once; ignore failures
                 try {
                     $setting->save();
-                } catch (\Throwable $e) { /* ignore */
+                } catch (\Throwable $e) {
+                    // ignore save failures
+                    null;
                 }
             }
         }
@@ -280,7 +282,7 @@ class SettingsController extends Controller
 
             // Generate secure filename
             $extension = $file->getClientOriginalExtension();
-            $filename = 'logo_'.time().'_'.uniqid().'.'.$extension;
+            $filename = 'logo_' . time() . '_' . uniqid() . '.' . $extension;
 
             // Store file
             $path = $file->storeAs('uploads', $filename, 'public');

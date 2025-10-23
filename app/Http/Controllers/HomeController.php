@@ -273,6 +273,8 @@ class HomeController extends Controller
                             $extra .= '<span class="mini-old">' .
                                 e(currency_format($p->price)) . '</span>';
                         } catch (\Throwable $e) {
+                            // Ignore currency formatting errors
+                            null;
                         }
                     }
                     if ($sk === 'showcase_most_rated' && $p->approved_reviews_avg) {

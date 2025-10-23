@@ -159,6 +159,8 @@ class PaypalController extends Controller
                                 });
                                 $payment->order_id = $order->id;
                             } catch (\Throwable $e) {
+                                // Ignore order creation errors
+                                null;
                             }
                         }
                     }
@@ -196,6 +198,7 @@ class PaypalController extends Controller
                     ->with('error_message', $msg);
             }
             if ($statusCode === 400) {
+                null;
             }
             $payment->status = 'failed';
             $payment->failure_reason = 'capture_failed_http_' . $statusCode;

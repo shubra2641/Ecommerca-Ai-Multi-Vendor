@@ -73,6 +73,7 @@ class HandlePaymentWebhook implements ShouldQueue
 
         if (! $order) {
             if (! app()->environment('testing')) {
+                null;
             }
 
             return;
@@ -87,6 +88,7 @@ class HandlePaymentWebhook implements ShouldQueue
                     $order->save();
 
                     if (! app()->environment('testing')) {
+                        null;
                     }
                 }
                 break;
@@ -136,6 +138,7 @@ class HandlePaymentWebhook implements ShouldQueue
             }
         } catch (\Exception $e) {
             if (! app()->environment('testing')) {
+                null;
             }
         }
     }
@@ -196,6 +199,7 @@ class HandlePaymentWebhook implements ShouldQueue
             }
         } catch (\Exception $e) {
             if (! app()->environment('testing')) {
+                null;
             }
         }
     }
@@ -229,6 +233,7 @@ class HandlePaymentWebhook implements ShouldQueue
             }
         } catch (\Exception $e) {
             if (! app()->environment('testing')) {
+                null;
             }
         }
     }
@@ -258,6 +263,7 @@ class HandlePaymentWebhook implements ShouldQueue
             }
         } catch (\Exception $e) {
             if (! app()->environment('testing')) {
+                null;
             }
         }
     }
@@ -269,6 +275,7 @@ class HandlePaymentWebhook implements ShouldQueue
     {
         // Implementation depends on your inventory system
         if (! app()->environment('testing')) {
+            null;
         }
     }
 
@@ -279,6 +286,7 @@ class HandlePaymentWebhook implements ShouldQueue
     {
         // Implementation depends on your inventory system
         if (! app()->environment('testing')) {
+            null;
         }
     }
 
@@ -289,6 +297,7 @@ class HandlePaymentWebhook implements ShouldQueue
     {
         // Implementation depends on your invoice system
         if (! app()->environment('testing')) {
+            null;
         }
     }
 
@@ -299,6 +308,7 @@ class HandlePaymentWebhook implements ShouldQueue
     {
         // Implementation depends on your notification system
         if (! app()->environment('testing')) {
+            null;
         }
     }
 
@@ -316,6 +326,7 @@ class HandlePaymentWebhook implements ShouldQueue
             $order->save();
 
             if (! app()->environment('testing')) {
+                null;
             }
         }
     }

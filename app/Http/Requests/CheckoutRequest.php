@@ -41,7 +41,9 @@ class CheckoutRequest extends FormRequest
                     $rules['transfer_image'] = 'required|image|mimes:jpg,jpeg,png|max:5120'; // max 5MB
                 }
             }
-        } catch (\Throwable $e) { /* fail silently; no extra rule applied */
+        } catch (\Throwable $e) {
+            /* fail silently; no extra rule applied */
+            null;
         }
 
         return $rules;

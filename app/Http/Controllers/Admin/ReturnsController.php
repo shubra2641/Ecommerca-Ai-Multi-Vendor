@@ -69,6 +69,7 @@ class ReturnsController extends Controller
             }
         } catch (\Throwable $e) {
             // ignore notification errors
+            null;
         }
 
         return back()->with('success', __('Updated'));

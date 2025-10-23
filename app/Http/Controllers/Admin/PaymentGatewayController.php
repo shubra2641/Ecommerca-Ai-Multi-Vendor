@@ -132,6 +132,7 @@ class PaymentGatewayController extends Controller
             // If we move TO stripe we'll create nested structure below
             if ($gateway->driver === 'stripe') {
                 // flatten any prior non-stripe credentials (leave them in case user switches back) – no action needed
+                null;
             }
             // moving away from stripe - already unset above
         }

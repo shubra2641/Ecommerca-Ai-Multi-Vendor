@@ -190,7 +190,8 @@ class InstallController extends Controller
             try {
                 $user->assignRole('admin');
             } catch (\Throwable $e) {
-                /* ignore */
+                // ignore role assignment errors
+                null;
             }
         }
 
@@ -199,6 +200,7 @@ class InstallController extends Controller
             Artisan::call('db:seed', ['--force' => true]);
         } catch (\Throwable $e) {
             // log but allow continuation
+            null;
         }
 
         // create marker file

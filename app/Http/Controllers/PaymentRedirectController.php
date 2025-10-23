@@ -32,6 +32,7 @@ class PaymentRedirectController extends Controller
             $externalRedirectEnabled = $setting && ($setting->enable_external_payment_redirect ?? false);
         } catch (\Throwable $e) {
             // ignore settings failure
+            null;
         }
 
         if ($gateway && ($gateway->enabled ?? false)) {
@@ -70,7 +71,8 @@ class PaymentRedirectController extends Controller
                                     }
                                 }
                             } catch (\Throwable) {
-                                /* ignore */
+                                // Ignore parsing errors
+                                null;
                             }
 
                             if ($redirectUrl !== $currentUrl && ! $isInternalRedirect) {
@@ -87,6 +89,8 @@ class PaymentRedirectController extends Controller
                         }
                     }
                 } catch (\Exception $e) {
+                    // Ignore gateway errors
+                    null;
                 }
             }
         }
@@ -177,6 +181,8 @@ class PaymentRedirectController extends Controller
                 $order->save();
             }
         } catch (\Throwable $e) {
+            // Ignore save errors
+            null;
         }
 
         $errorMessage = $payment->failure_reason ?? __('Payment failed or cancelled');

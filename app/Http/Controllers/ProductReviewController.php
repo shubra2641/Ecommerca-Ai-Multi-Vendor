@@ -19,11 +19,11 @@ class ProductReviewController extends Controller
 
         $userId = Auth::id();
 
-        // Optional: verify ownership of order_id if provided
         if (! empty($data['order_id'])) {
             // we can't reliably check orders table if it doesn't exist;
             // best-effort: check product_serials for order_id belonging to user
             // If no verification possible, record order_id but still require admin approval
+            null;
         }
 
         $autoPublish = optional(\App\Models\Setting::first())->auto_publish_reviews ? true : false;
@@ -51,7 +51,7 @@ class ProductReviewController extends Controller
         try {
             session()->flash('refresh_admin_notifications', true);
         } catch (\Throwable $e) {
-            logger()->warning('Failed to flash admin notification refresh: '.$e->getMessage());
+            logger()->warning('Failed to flash admin notification refresh: ' . $e->getMessage());
         }
 
         return redirect()->back()->with('status', 'Review submitted and awaits moderation.');
