@@ -32,7 +32,7 @@ class BalanceHistory extends Model
      *
      * @var array<int, string>
      */
-    protected array $fillable = [
+    protected $fillable = [
         'user_id',
         'admin_id',
         'type',
@@ -49,7 +49,7 @@ class BalanceHistory extends Model
      *
      * @var array<string, string>
      */
-    protected array $casts = [
+    protected $casts = [
         'amount' => 'decimal:2',
         'previous_balance' => 'decimal:2',
         'new_balance' => 'decimal:2',
@@ -120,7 +120,7 @@ class BalanceHistory extends Model
     {
         $symbol = Currency::defaultSymbol();
 
-        return number_format((float) $this->amount, 2).' '.$symbol;
+        return number_format((float) $this->amount, 2) . ' ' . $symbol;
     }
 
     /**
@@ -130,7 +130,7 @@ class BalanceHistory extends Model
     {
         $symbol = Currency::defaultSymbol();
 
-        return number_format((float) $this->previous_balance, 2).' '.$symbol;
+        return number_format((float) $this->previous_balance, 2) . ' ' . $symbol;
     }
 
     /**
@@ -140,7 +140,7 @@ class BalanceHistory extends Model
     {
         $symbol = Currency::defaultSymbol();
 
-        return number_format((float) $this->new_balance, 2).' '.$symbol;
+        return number_format((float) $this->new_balance, 2) . ' ' . $symbol;
     }
 
     /**
