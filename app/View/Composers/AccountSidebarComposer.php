@@ -27,7 +27,7 @@ final class AccountSidebarComposer
             return is_array($compare) ? count($compare) : 0;
         } catch (\Throwable $e) {
             logger()->warning(
-                'Failed to get compare count: '.$e->getMessage()
+                'Failed to get compare count: ' . $e->getMessage()
             );
             return 0;
         }
@@ -45,8 +45,8 @@ final class AccountSidebarComposer
             return is_array($wishlist) ? count($wishlist) : 0;
         } catch (\Throwable $e) {
             logger()->warning(
-                'Failed to get wishlist count from database: '.
-                $e->getMessage()
+                'Failed to get wishlist count from database: ' .
+                    $e->getMessage()
             );
             $wishlist = session('wishlist');
             return is_array($wishlist) ? count($wishlist) : 0;

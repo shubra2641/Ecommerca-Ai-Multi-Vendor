@@ -63,7 +63,7 @@ final class AdminProductFormComposer
                     'name' => $a->name,
                     'slug' => $a->slug,
                     'values' => $a->values
-                        ->map(fn ($v) => [
+                        ->map(fn($v) => [
                             'id' => $v->id,
                             'value' => $v->value,
                             'slug' => $v->slug
@@ -126,27 +126,39 @@ final class AdminProductFormComposer
             $code = $lang->code;
             $isDefault = (bool) $lang->is_default;
             $pfLangMeta[$code] = [
-                'name_val' => old("name.{$code}",
-                    $model?->translate('name', $code) ?? ''),
-                'short_val' => old("short_description.{$code}",
-                    $model?->translate('short_description', $code) ?? ''),
-                'desc_val' => old("description.{$code}",
-                    $model?->translate('description', $code) ?? ''),
-                'seo_title' => old("seo_title.{$code}",
-                    $model?->translate('seo_title', $code) ?? ''),
-                'seo_keywords' => old("seo_keywords.{$code}",
-                    $model?->translate('seo_keywords', $code) ?? ''),
-                'seo_description' => old("seo_description.{$code}",
-                    $model?->translate('seo_description', $code) ?? ''),
+                'name_val' => old(
+                    "name.{$code}",
+                    $model?->translate('name', $code) ?? ''
+                ),
+                'short_val' => old(
+                    "short_description.{$code}",
+                    $model?->translate('short_description', $code) ?? ''
+                ),
+                'desc_val' => old(
+                    "description.{$code}",
+                    $model?->translate('description', $code) ?? ''
+                ),
+                'seo_title' => old(
+                    "seo_title.{$code}",
+                    $model?->translate('seo_title', $code) ?? ''
+                ),
+                'seo_keywords' => old(
+                    "seo_keywords.{$code}",
+                    $model?->translate('seo_keywords', $code) ?? ''
+                ),
+                'seo_description' => old(
+                    "seo_description.{$code}",
+                    $model?->translate('seo_description', $code) ?? ''
+                ),
                 'ph_name' => $isDefault ? __('Main name') :
-                    __('Name').' ('.$code.')',
+                    __('Name') . ' (' . $code . ')',
                 'ph_short' => $isDefault ? __('Short description') :
-                    __('Short').' ('.$code.')',
+                    __('Short') . ' (' . $code . ')',
                 'ph_desc' => $isDefault ? __('Full description') :
-                    __('Description').' ('.$code.')',
-                'ph_seo_title' => __('SEO Title').' ('.$code.')',
-                'ph_seo_keywords' => __('SEO Keywords').' ('.$code.')',
-                'ph_seo_description' => __('SEO Description').' ('.$code.')',
+                    __('Description') . ' (' . $code . ')',
+                'ph_seo_title' => __('SEO Title') . ' (' . $code . ')',
+                'ph_seo_keywords' => __('SEO Keywords') . ' (' . $code . ')',
+                'ph_seo_description' => __('SEO Description') . ' (' . $code . ')',
             ];
         }
         return $pfLangMeta;

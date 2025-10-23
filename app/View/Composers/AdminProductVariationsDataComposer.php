@@ -79,7 +79,7 @@ final class AdminProductVariationsDataComposer
         return Language::where('is_active', 1)
             ->orderByDesc('is_default')
             ->get()
-            ->map(fn ($l) => [
+            ->map(fn($l) => [
                 'code' => $l->code,
                 'name' => $l->name,
                 'is_default' => $l->is_default,

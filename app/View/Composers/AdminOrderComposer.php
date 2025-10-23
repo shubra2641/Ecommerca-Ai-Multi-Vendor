@@ -88,7 +88,7 @@ final class AdminOrderComposer
         $method = strtolower($payment->method ?? '');
         $gateway = strtolower(
             $payment->payload['gateway'] ??
-            ($payment->payload['provider'] ?? '')
+                ($payment->payload['provider'] ?? '')
         );
 
         return str_contains($method, 'offline') ||
