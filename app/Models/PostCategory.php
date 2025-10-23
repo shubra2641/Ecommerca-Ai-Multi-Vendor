@@ -12,13 +12,28 @@ class PostCategory extends Model
     use HasFactory;
 
     protected array $translatable = [
-        'name', 'slug', 'description', 'seo_title', 'seo_description', 'seo_tags',
+        'name',
+        'slug',
+        'description',
+        'seo_title',
+        'seo_description',
+        'seo_tags',
     ];
 
     protected $fillable = [
-        'slug', 'name', 'description', 'seo_title', 'seo_description', 'seo_tags', 'parent_id',
-        'name_translations', 'slug_translations', 'description_translations',
-        'seo_title_translations', 'seo_description_translations', 'seo_tags_translations',
+        'slug',
+        'name',
+        'description',
+        'seo_title',
+        'seo_description',
+        'seo_tags',
+        'parent_id',
+        'name_translations',
+        'slug_translations',
+        'description_translations',
+        'seo_title_translations',
+        'seo_description_translations',
+        'seo_tags_translations',
     ];
 
     protected $casts = [

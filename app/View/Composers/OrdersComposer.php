@@ -65,7 +65,7 @@ final class OrdersComposer
         $firstName = $firstItem?->name;
 
         if ($firstItem && is_array($firstItem->meta ?? null) && ! empty($firstItem->meta['variant_name'])) {
-            $firstName .= ' - '.$firstItem->meta['variant_name'];
+            $firstName .= ' - ' . $firstItem->meta['variant_name'];
         }
 
         return $firstName ?: __('Order');

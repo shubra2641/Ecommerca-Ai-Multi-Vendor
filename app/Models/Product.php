@@ -179,7 +179,7 @@ class Product extends Model
     public function effectivePrice(): float
     {
         if ($this->type === 'variable') {
-            $min = $this->variations->filter(fn ($v) => $v->active)->map(fn ($v) => $v->effectivePrice())->min();
+            $min = $this->variations->filter(fn($v) => $v->active)->map(fn($v) => $v->effectivePrice())->min();
 
             return $min ?? (float) $this->price;
         }
@@ -214,7 +214,7 @@ class Product extends Model
         return max(0, (int) $this->stock_qty - (int) $this->reserved_qty);
     }
 
-        // backward compatibility for existing blades calling ->translated('field')
+    // backward compatibility for existing blades calling ->translated('field')
     public function translated(string $field, ?string $lang = null)
     {
         return $this->translate($field, $lang);

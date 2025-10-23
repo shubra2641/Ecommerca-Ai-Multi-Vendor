@@ -39,7 +39,7 @@ class PushSubscriptionController extends Controller
     {
         $data = $request->validate(['endpoint' => 'required|string']);
         PushSubscription::where('endpoint', $data['endpoint'])
-            ->when($request->user(), fn ($q) => $q->where('user_id', $request->user()->id))
+            ->when($request->user(), fn($q) => $q->where('user_id', $request->user()->id))
             ->delete();
 
         return response()->json(['ok' => true]);
