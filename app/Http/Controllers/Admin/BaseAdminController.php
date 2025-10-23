@@ -82,7 +82,7 @@ abstract class BaseAdminController extends Controller
      */
     protected function formatCurrency(float $amount, string $symbol = '$'): string
     {
-        return number_format($amount, 2).' '.$symbol;
+        return number_format($amount, 2) . ' ' . $symbol;
     }
 
     /**

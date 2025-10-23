@@ -15,7 +15,7 @@ class PaymentSecurityMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         // Rate limiting for payment endpoints
-        $key = 'payment-attempts:'.$request->ip();
+        $key = 'payment-attempts:' . $request->ip();
 
         if (RateLimiter::tooManyAttempts($key, 10)) {
             return response()->json([

@@ -16,7 +16,7 @@ class CartViewBuilder
                     $variantLabel = $vObj->name ?? null;
                     if (! $variantLabel && ! empty($vObj->attribute_data)) {
                         $variantLabel = collect($vObj->attribute_data)
-                            ->map(fn ($v, $k) => ucfirst($k).': '.$v)
+                            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                             ->values()
                             ->join(', ');
                     }
@@ -27,7 +27,7 @@ class CartViewBuilder
                     ) {
                         if (is_array($parsed) && isset($parsed['attribute_data'])) {
                             $variantLabel = collect($parsed['attribute_data'])
-                                ->map(fn ($v, $k) => ucfirst($k).': '.$v)
+                                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                                 ->values()
                                 ->join(', ');
                         } else {

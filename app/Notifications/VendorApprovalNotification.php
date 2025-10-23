@@ -41,11 +41,11 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject('New Vendor Registration')
             ->line('A new vendor has registered and is awaiting approval.')
-            ->line('Vendor Name: '.$this->vendor->name)
-            ->line('Vendor Email: '.$this->vendor->email)
+            ->line('Vendor Name: ' . $this->vendor->name)
+            ->line('Vendor Email: ' . $this->vendor->email)
             ->action('Approve Vendor', url('/admin/vendors'));
     }
 
@@ -57,7 +57,6 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            //
         ];
     }
 }

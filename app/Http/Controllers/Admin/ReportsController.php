@@ -219,17 +219,17 @@ class ReportsController extends Controller
         $report = $request->get('report', 'users'); // users, vendors, financial, system
 
         try {
-            $filename = 'admin-'.$report.'-report-'.date('Y-m-d-H-i-s');
+            $filename = 'admin-' . $report . '-report-' . date('Y-m-d-H-i-s');
 
             if ($type === 'pdf') {
                 return $this->exportToPdf($report, $filename);
-            } else {
-                return $this->exportToExcel($report, $filename);
             }
+
+            return $this->exportToExcel($report, $filename);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => __('Failed to export data: ').$e->getMessage(),
+                'message' => __('Failed to export data: ') . $e->getMessage(),
             ], 500);
         }
     }
@@ -365,7 +365,7 @@ class ReportsController extends Controller
             $tables = DB::select('SHOW TABLES');
             $dbSize = DB::select(
                 'SELECT SUM(data_length + index_length) / 1024 / 1024 AS "DB Size in MB" '
-                    .'FROM information_schema.tables WHERE table_schema = DATABASE()'
+                    . 'FROM information_schema.tables WHERE table_schema = DATABASE()'
             )[0];
 
             return [
@@ -392,7 +392,7 @@ class ReportsController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('Excel export feature will be implemented'),
-            'filename' => $filename.'.xlsx',
+            'filename' => $filename . '.xlsx',
         ]);
     }
 
@@ -405,7 +405,7 @@ class ReportsController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('PDF export feature will be implemented'),
-            'filename' => $filename.'.pdf',
+            'filename' => $filename . '.pdf',
         ]);
     }
 }

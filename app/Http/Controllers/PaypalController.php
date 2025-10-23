@@ -32,11 +32,11 @@ class PaypalController extends Controller
                     ->asForm()
                     ->timeout(20)
                     ->retry(2, 300)
-                    ->post($base.'/v1/oauth2/token', [
+                    ->post($base . '/v1/oauth2/token', [
                         'grant_type' => 'client_credentials',
                     ]);
                 if (! $tokenResp->ok()) {
-                    throw new \Exception('token_http_'.$tokenResp->status());
+                    throw new \Exception('token_http_' . $tokenResp->status());
                 }
                 $accessToken = $tokenResp->json('access_token');
                 $expiresIn = (int) ($tokenResp->json('expires_in') ?? 0);
@@ -52,7 +52,7 @@ class PaypalController extends Controller
                 throw new \Exception('missing_order');
             }
             $captureUrl = $payment->payload['paypal_capture_url'] ??
-                ($base.'/v2/checkout/orders/'.$orderId.'/capture');
+                ($base . '/v2/checkout/orders/' . $orderId . '/capture');
             try {
                 $captureResp = Http::withToken($accessToken)
                     ->asJson()
@@ -98,7 +98,7 @@ class PaypalController extends Controller
                 // Already captured or duplicate call: fetch order details
                 $details = Http::withToken($accessToken)
                     ->acceptJson()
-                    ->get($base.'/v2/checkout/orders/'.$orderId);
+                    ->get($base . '/v2/checkout/orders/' . $orderId);
                 $body = $details->json();
             }
             if ($statusCode >= 200 && $statusCode < 300) {
@@ -116,7 +116,7 @@ class PaypalController extends Controller
                         ->asJson()
                         ->acceptJson()
                         ->post(
-                            $base.'/v2/checkout/orders/'.$orderId.'/capture',
+                            $base . '/v2/checkout/orders/' . $orderId . '/capture',
                             (object) []
                         );
                     if ($second->status() >= 200 && $second->status() < 300) {
@@ -196,10 +196,9 @@ class PaypalController extends Controller
                     ->with('error_message', $msg);
             }
             if ($statusCode === 400) {
-            } else {
             }
             $payment->status = 'failed';
-            $payment->failure_reason = 'capture_failed_http_'.$statusCode;
+            $payment->failure_reason = 'capture_failed_http_' . $statusCode;
             $payment->failed_at = now();
             $payment->save();
             if ($payment->order_id) {

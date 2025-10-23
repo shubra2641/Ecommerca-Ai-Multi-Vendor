@@ -139,7 +139,7 @@ class Payment extends Model
     public static function generatePaymentId(): string
     {
         do {
-            $paymentId = 'PAY_'.strtoupper(uniqid());
+            $paymentId = 'PAY_' . strtoupper(uniqid());
         } while (self::where('payment_id', $paymentId)->exists());
 
         return $paymentId;

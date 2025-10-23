@@ -108,7 +108,7 @@ class ProductController extends Controller
 
     public function export(Request $request)
     {
-        $fileName = 'products_'.date('Ymd_His').'.csv';
+        $fileName = 'products_' . date('Ymd_His') . '.csv';
         $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$fileName}"];
 
         $callback = function () {
@@ -136,7 +136,7 @@ class ProductController extends Controller
 
     public function variationsExport(Request $request)
     {
-        $fileName = 'variations_'.date('Ymd_His').'.csv';
+        $fileName = 'variations_' . date('Ymd_His') . '.csv';
         $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$fileName}"];
 
         $callback = function () {

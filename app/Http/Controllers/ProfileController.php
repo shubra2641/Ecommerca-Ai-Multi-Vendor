@@ -197,7 +197,7 @@ class ProfileController extends Controller
      */
     private function saveSettings(Request $request, HtmlSanitizer $sanitizer): void
     {
-        $setting = \App\Models\Setting::first() ?? new \App\Models\Setting;
+        $setting = \App\Models\Setting::first() ?? new \App\Models\Setting();
 
         $setting->site_name = $sanitizer->clean($request->input('site_name'));
         $setting->site_description = $request->filled('site_description')

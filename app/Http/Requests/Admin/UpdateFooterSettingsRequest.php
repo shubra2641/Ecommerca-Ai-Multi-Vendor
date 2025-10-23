@@ -79,7 +79,7 @@ class UpdateFooterSettingsRequest extends FormRequest
             if (! empty($row['url']) && is_string($row['url'])) {
                 $u = trim($row['url']);
                 if ($u !== '' && ! preg_match('~^https?://~i', $u)) {
-                    $appLinks[$k]['url'] = 'https://'.$u;
+                    $appLinks[$k]['url'] = 'https://' . $u;
                     $changed = true;
                 }
             }

@@ -56,7 +56,7 @@ class PostCategoryController extends Controller
         $unique = $baseSlug;
         $i = 1;
         while (PostCategory::where('slug', $unique)->exists()) {
-            $unique = $baseSlug.'-'.$i++;
+            $unique = $baseSlug . '-' . $i++;
         }
         $payload = [
             'name' => $defaultName,
@@ -72,9 +72,9 @@ class PostCategoryController extends Controller
                 foreach ($data[$f] as $lc => $v) {
                     $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
                 }
-                $payload[$f.'_translations'] = array_filter($clean);
-                $payload[$f] = $payload[$f.'_translations'][$fallback] ??
-                    collect($payload[$f.'_translations'])->first(fn ($v) => ! empty($v));
+                $payload[$f . '_translations'] = array_filter($clean);
+                $payload[$f] = $payload[$f . '_translations'][$fallback] ??
+                    collect($payload[$f . '_translations'])->first(fn ($v) => ! empty($v));
             }
         }
         PostCategory::create($payload);
@@ -130,9 +130,9 @@ class PostCategoryController extends Controller
                 foreach ($data[$f] as $lc => $v) {
                     $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
                 }
-                $payload[$f.'_translations'] = array_filter($clean);
-                $payload[$f] = $payload[$f.'_translations'][$fallback] ??
-                    collect($payload[$f.'_translations'])->first(fn ($v) => ! empty($v));
+                $payload[$f . '_translations'] = array_filter($clean);
+                $payload[$f] = $payload[$f . '_translations'][$fallback] ??
+                    collect($payload[$f . '_translations'])->first(fn ($v) => ! empty($v));
             }
         }
         $category->update($payload);

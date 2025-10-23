@@ -40,11 +40,11 @@ class VendorProductStatusNotification extends Notification
             $subject = __('Your product was rejected');
             $line = __('Your product :name was rejected.', ['name' => $this->product->name]);
             if ($this->reason) {
-                $line .= '\n'.$this->reason;
+                $line .= '\n' . $this->reason;
             }
         }
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject($subject)
             ->line($line)
             ->action(__('View product'), route('vendor.products.edit', $this->product->id));
@@ -53,7 +53,7 @@ class VendorProductStatusNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'type' => 'product_'.$this->action,
+            'type' => 'product_' . $this->action,
             'title' => $this->action === 'approved' ? __('Product approved') : __('Product rejected'),
             'message' => $this->action === 'approved'
                 ? __('Your product :name was approved', ['name' => $this->product->name])

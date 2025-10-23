@@ -32,7 +32,7 @@ class AdminVendorRegisteredNotification extends Notification implements ShouldQu
         return [
             'type' => 'vendor_registered',
             'title' => __('New vendor registered'),
-            'message' => $this->vendor->name.' ('.($this->vendor->email ?? '').') '.__('registered'),
+            'message' => $this->vendor->name . ' (' . ($this->vendor->email ?? '') . ') ' . __('registered'),
             'url' => route('admin.users.show', $this->vendor->id),
             'icon' => 'store',
         ];

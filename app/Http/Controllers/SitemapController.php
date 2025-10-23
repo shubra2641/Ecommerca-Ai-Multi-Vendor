@@ -18,9 +18,8 @@ class SitemapController extends Controller
                 'changefreq' => 'daily',
                 'priority' => '1.0',
             ];
-            $xml = view('sitemap.xml', compact('urls'))->render();
 
-            return $xml;
+            return view('sitemap.xml', compact('urls'))->render();
         });
 
         return Response::make($content, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);

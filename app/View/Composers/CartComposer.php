@@ -12,7 +12,7 @@ class CartComposer
         if (isset($data['items'])) {
             $items = collect($data['items'])->map(function ($it) {
                 $p = $it['product'];
-                $onSale = ($p->sale_price ?? null) && ($p->sale_price < ($p->price ?? 0));
+                $onSale = ($p->sale_price ?? null) && $p->sale_price < ($p->price ?? 0);
                 $salePercent = $onSale && $p->price ? round((($p->price - $p->sale_price) / $p->price) * 100) : null;
 
                 return $it + [

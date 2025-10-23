@@ -137,7 +137,7 @@ class ProductDemoSeeder extends Seeder
             ];
             foreach ($storageOptions as [$stLabel, $price]) {
                 $p2->variations()->create([
-                    'sku' => 'QX-'.Str::slug($stLabel),
+                    'sku' => 'QX-' . Str::slug($stLabel),
                     'price' => $price,
                     'attribute_data' => ['storage' => $stLabel],
                     'manage_stock' => 1,
@@ -188,7 +188,7 @@ class ProductDemoSeeder extends Seeder
             foreach ($colors as $col) {
                 foreach ($sizes as $sz) {
                     $p4->variations()->create([
-                        'sku' => 'CT-'.Str::substr($col, 0, 1).$sz,
+                        'sku' => 'CT-' . Str::substr($col, 0, 1) . $sz,
                         'price' => 25.00,
                         'sale_price' => ($col === 'Black' && $sz === 'M')
                             ? 20.00

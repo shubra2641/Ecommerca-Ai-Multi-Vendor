@@ -29,10 +29,10 @@ class BalanceService
             'transaction_count' => $transactionCount,
             'last_transaction' => $lastTransaction ? $lastTransaction->created_at->format('Y-m-d H:i:s') : null,
             'formatted' => [
-                'balance' => number_format($user->balance, 2).' '.$symbol,
-                'total_added' => number_format($totalAdded, 2).' '.$symbol,
-                'total_deducted' => number_format($totalDeducted, 2).' '.$symbol,
-                'net_change' => number_format($totalAdded - $totalDeducted, 2).' '.$symbol,
+                'balance' => number_format($user->balance, 2) . ' ' . $symbol,
+                'total_added' => number_format($totalAdded, 2) . ' ' . $symbol,
+                'total_deducted' => number_format($totalDeducted, 2) . ' ' . $symbol,
+                'net_change' => number_format($totalAdded - $totalDeducted, 2) . ' ' . $symbol,
             ],
         ];
     }

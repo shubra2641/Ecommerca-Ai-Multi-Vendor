@@ -14,11 +14,11 @@ class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
         OrderPaid::class => [
-            StockAdjustmentListener::class.'@handleOrderPaid',
-            \App\Listeners\DistributeOrderProceedsListener::class.'@handle',
+            StockAdjustmentListener::class . '@handleOrderPaid',
+            \App\Listeners\DistributeOrderProceedsListener::class . '@handle',
         ],
-        OrderCancelled::class => [StockAdjustmentListener::class.'@handleOrderCancelled'],
-        OrderRefunded::class => [StockAdjustmentListener::class.'@handleOrderRefunded'],
+        OrderCancelled::class => [StockAdjustmentListener::class . '@handleOrderCancelled'],
+        OrderRefunded::class => [StockAdjustmentListener::class . '@handleOrderRefunded'],
         PaymentWebhookReceived::class => [
             HandlePaymentWebhook::class,
         ],

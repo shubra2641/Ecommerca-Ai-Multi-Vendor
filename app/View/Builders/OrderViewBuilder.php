@@ -44,7 +44,7 @@ class OrderViewBuilder
                     $parts[] = $addrSource[$k];
                 }
             }
-            foreach ($addrSource as $k => $v) {
+            foreach ($addrSource as $v) {
                 if (is_scalar($v) && ! in_array($v, $parts, true)) {
                     $parts[] = $v;
                 }
@@ -88,7 +88,7 @@ class OrderViewBuilder
                 $variantLabel = $it->meta['variant_name'];
             } elseif (! empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data'])) {
                 $variantLabel = collect($it->meta['attribute_data'])
-                    ->map(fn ($v, $k) => ucfirst($k).': '.$v)
+                    ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                     ->values()
                     ->join(', ');
             }

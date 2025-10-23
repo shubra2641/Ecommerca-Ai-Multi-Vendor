@@ -20,7 +20,7 @@ class PaymentGatewayController extends Controller
 
     public function create()
     {
-        return view('admin.payment_gateways.form', ['gateway' => new PaymentGateway]);
+        return view('admin.payment_gateways.form', ['gateway' => new PaymentGateway()]);
     }
 
     public function store(PaymentGatewayRequest $request, HtmlSanitizer $sanitizer)
@@ -29,7 +29,7 @@ class PaymentGatewayController extends Controller
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
         }
-        $gateway = new PaymentGateway;
+        $gateway = new PaymentGateway();
         $this->fillGateway($gateway, $data);
 
         // Capture any dynamic driver-specific fields that are not part of the validated set
@@ -131,9 +131,8 @@ class PaymentGatewayController extends Controller
             // If we move TO stripe we'll create nested structure below
             if ($gateway->driver === 'stripe') {
                 // flatten any prior non-stripe credentials (leave them in case user switches back) – no action needed
-            } else {
-                // moving away from stripe - already unset above
             }
+            // moving away from stripe - already unset above
         }
 
         // Stripe config (kept namespaced under 'stripe')

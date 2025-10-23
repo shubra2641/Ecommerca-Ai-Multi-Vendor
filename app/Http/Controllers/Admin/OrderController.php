@@ -37,16 +37,16 @@ class OrderController extends Controller
         $aovAddressText = '';
         if ($order->shippingAddress) {
             $addr = $order->shippingAddress;
-            $aovAddressText = ($addr->line1 ? $addr->line1.', ' : '').
-                ($addr->line2 ? $addr->line2.', ' : '').
-                ($addr->city ? $addr->city->name.', ' : '').
-                ($addr->governorate ? $addr->governorate->name.', ' : '').
+            $aovAddressText = ($addr->line1 ? $addr->line1 . ', ' : '') .
+                ($addr->line2 ? $addr->line2 . ', ' : '') .
+                ($addr->city ? $addr->city->name . ', ' : '') .
+                ($addr->governorate ? $addr->governorate->name . ', ' : '') .
                 ($addr->country ? $addr->country->name : '');
         } elseif ($order->shipping_address && is_array($order->shipping_address)) {
             $addr = $order->shipping_address;
-            $aovAddressText = ($addr['customer_address'] ?? '').', '.
-                ($addr['city'] ?? '').', '.
-                ($addr['governorate'] ?? '').', '.
+            $aovAddressText = ($addr['customer_address'] ?? '') . ', ' .
+                ($addr['city'] ?? '') . ', ' .
+                ($addr['governorate'] ?? '') . ', ' .
                 ($addr['country'] ?? '');
         }
 
@@ -84,7 +84,7 @@ class OrderController extends Controller
         try {
             app(\App\Services\SerialAssignmentService::class)->assignForOrder($order->id, $order->items->toArray());
         } catch (\Exception $e) {
-            logger()->error('Serial assignment failed for order '.$order->id.': '.$e->getMessage());
+            logger()->error('Serial assignment failed for order ' . $order->id . ': ' . $e->getMessage());
         }
 
         // Notify user
@@ -94,7 +94,7 @@ class OrderController extends Controller
                 $order->user->notify(new \App\Notifications\UserOrderStatusUpdated($order, $order->status));
             }
         } catch (\Throwable $e) {
-            logger()->warning('Payment accept notification failed: '.$e->getMessage());
+            logger()->warning('Payment accept notification failed: ' . $e->getMessage());
         }
 
         return redirect()->back()->with('success', __('Payment accepted'));
@@ -125,7 +125,7 @@ class OrderController extends Controller
                 $order->user->notify(new \App\Notifications\UserOrderStatusUpdated($order, $order->status));
             }
         } catch (\Throwable $e) {
-            logger()->warning('Payment reject notification failed: '.$e->getMessage());
+            logger()->warning('Payment reject notification failed: ' . $e->getMessage());
         }
 
         return redirect()->back()->with('success', __('Payment rejected and order cancelled'));
@@ -195,7 +195,7 @@ class OrderController extends Controller
                 $order->user->notify(new \App\Notifications\UserOrderStatusUpdated($order, $data['status'], $tracking));
             }
         } catch (\Throwable $e) {
-            logger()->warning('Order status notification failed: '.$e->getMessage());
+            logger()->warning('Order status notification failed: ' . $e->getMessage());
         }
 
         // Notify vendors who have items in this order about the status change
@@ -216,7 +216,7 @@ class OrderController extends Controller
                 }
             }
         } catch (\Throwable $e) {
-            logger()->warning('Vendor order status notifications failed: '.$e->getMessage());
+            logger()->warning('Vendor order status notifications failed: ' . $e->getMessage());
         }
 
         return redirect()->back()->with('success', __('Order status updated'));
@@ -257,9 +257,9 @@ class OrderController extends Controller
 
             return redirect()->back()->with('success', __('Backorder cancelled and stock released'));
         } catch (\Exception $e) {
-            logger()->error('Failed cancelling backorder for item '.$item->id.': '.$e->getMessage());
+            logger()->error('Failed cancelling backorder for item ' . $item->id . ': ' . $e->getMessage());
 
-            return redirect()->back()->with('error', __('Failed to cancel backorder: ').$e->getMessage());
+            return redirect()->back()->with('error', __('Failed to cancel backorder: ') . $e->getMessage());
         }
     }
 }

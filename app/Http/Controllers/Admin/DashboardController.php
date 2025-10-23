@@ -35,7 +35,7 @@ class DashboardController extends Controller
             try {
                 $tables = DB::select('SHOW TABLES');
                 $dbSizeRow = DB::select(
-                    'SELECT SUM(data_length + index_length) / 1024 / 1024 AS db_size_mb '.
+                    'SELECT SUM(data_length + index_length) / 1024 / 1024 AS db_size_mb ' .
                         'FROM information_schema.tables WHERE table_schema = DATABASE()'
                 );
                 $dbSize = isset($dbSizeRow[0]->db_size_mb) ? (float) $dbSizeRow[0]->db_size_mb : 0.0;
@@ -46,7 +46,7 @@ class DashboardController extends Controller
                     'connection' => 'active',
                 ];
             } catch (\Exception $e) {
-                logger()->error('Failed retrieving database info for admin dashboard: '.$e->getMessage());
+                logger()->error('Failed retrieving database info for admin dashboard: ' . $e->getMessage());
                 $dbInfo = [
                     'tables_count' => 0,
                     'size_mb' => 0,
@@ -292,7 +292,7 @@ class DashboardController extends Controller
     {
         $from = now()->subDays(29)->startOfDay();
         $raw = Order::selectRaw(
-            'DATE(created_at) as day, COUNT(*) as orders, '.
+            'DATE(created_at) as day, COUNT(*) as orders, ' .
                 'SUM(CASE WHEN payment_status = "paid" THEN total ELSE 0 END) as revenue'
         )
             ->where('created_at', '>=', $from)
@@ -457,7 +457,7 @@ class DashboardController extends Controller
     public function generateReport()
     {
         // Generate Excel report
-        $filename = 'admin-report-'.date('Y-m-d').'.xlsx';
+        $filename = 'admin-report-' . date('Y-m-d') . '.xlsx';
 
         return response()->json(['message' => 'Report generated successfully', 'filename' => $filename]);
     }
@@ -472,7 +472,7 @@ class DashboardController extends Controller
 
             return redirect()->back()->with('success', __('Cache cleared successfully'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Failed to clear cache: ').$e->getMessage());
+            return redirect()->back()->with('error', __('Failed to clear cache: ') . $e->getMessage());
         }
     }
 
@@ -486,7 +486,7 @@ class DashboardController extends Controller
 
             return redirect()->back()->with('success', __('Logs cleared successfully'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Failed to clear logs: ').$e->getMessage());
+            return redirect()->back()->with('error', __('Failed to clear logs: ') . $e->getMessage());
         }
     }
 
@@ -499,7 +499,7 @@ class DashboardController extends Controller
 
             return redirect()->back()->with('success', __('System optimized successfully'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Failed to optimize system: ').$e->getMessage());
+            return redirect()->back()->with('error', __('Failed to optimize system: ') . $e->getMessage());
         }
     }
 

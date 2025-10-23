@@ -21,10 +21,10 @@ class VendorExportController extends Controller
 
     public function download(VendorExport $export)
     {
-        if (! $export->path || ! file_exists(storage_path('app/'.$export->path))) {
+        if (! $export->path || ! file_exists(storage_path('app/' . $export->path))) {
             abort(404);
         }
 
-        return response()->download(storage_path('app/'.$export->path), $export->filename);
+        return response()->download(storage_path('app/' . $export->path), $export->filename);
     }
 }

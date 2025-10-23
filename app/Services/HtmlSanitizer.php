@@ -21,8 +21,7 @@ class HtmlSanitizer
         );
         $config->set(
             'HTML.Allowed',
-            'p,b,strong,i,em,a[href|title|rel],ul,ol,li,br,span[style],'.
-                'img[src|alt|title|width|height],h1,h2,h3,h4,blockquote'
+            'p,b,strong,i,em,a[href|title|rel],ul,ol,li,br,span[style],img[src|alt|title|width|height],h1,h2,h3,h4,blockquote'
         );
         $purifier = new HTMLPurifier($config);
 

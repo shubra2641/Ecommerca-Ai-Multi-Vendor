@@ -57,7 +57,7 @@ class GenerateVendorOrdersCsv implements ShouldQueue
             $q->whereHas('order', fn ($qo) => $qo->whereDate('created_at', '<=', $this->filters['end_date']));
         }
 
-        $filename = 'vendor_orders_'.$export->vendor_id.'_'.date('Ymd_His').'_'.Str::random(6).'.csv';
+        $filename = 'vendor_orders_' . $export->vendor_id . '_' . date('Ymd_His') . '_' . Str::random(6) . '.csv';
         $temp = tempnam(sys_get_temp_dir(), 'vendor_exp_');
         $handle = fopen($temp, 'w');
         fputcsv($handle, ['order_id', 'order_date', 'product', 'quantity', 'total_price', 'status']);
@@ -77,7 +77,7 @@ class GenerateVendorOrdersCsv implements ShouldQueue
 
         fclose($handle);
 
-        $storagePath = 'vendor_exports/'.$filename;
+        $storagePath = 'vendor_exports/' . $filename;
         Storage::disk('local')->putFileAs('vendor_exports', new \Illuminate\Http\File($temp), $filename);
         // update export record
         $export->update([

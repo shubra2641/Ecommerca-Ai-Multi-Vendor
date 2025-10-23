@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Artisan;
 // If the application is running in the console, register our scheduled pruning task.
 if (app()->runningInConsole()) {
     app()->booted(function () {
-        $schedule = app(Schedule::class);
+        app(Schedule::class);
     });
 }
 

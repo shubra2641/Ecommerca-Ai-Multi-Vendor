@@ -18,7 +18,7 @@ class ProductCardComposer
 
         // On sale logic
         $price = $product->price ?? null;
-        $sale = ($product->sale_price ?? null) && ($product->sale_price < $price ? $product->sale_price : null);
+        $sale = ($product->sale_price ?? null) && $product->sale_price < $price ? $product->sale_price : null;
         $onSale = $sale !== null;
         $discountPercent = null;
         if ($onSale && $price) {

@@ -88,7 +88,7 @@ class ProductCategoryController extends Controller
         $data = $r->validate([
             'parent_id' => 'nullable|exists:product_categories,id',
             'name' => 'required',
-            'slug' => 'nullable|unique:product_categories,slug,'.$productCategory->id,
+            'slug' => 'nullable|unique:product_categories,slug,' . $productCategory->id,
             'description' => 'nullable',
             'image' => 'nullable|string',
             'seo_title' => 'nullable',
@@ -142,7 +142,7 @@ class ProductCategoryController extends Controller
 
     public function export(Request $r)
     {
-        $fileName = 'categories_export_'.date('Ymd_His').'.csv';
+        $fileName = 'categories_export_' . date('Ymd_His') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename={$fileName}",

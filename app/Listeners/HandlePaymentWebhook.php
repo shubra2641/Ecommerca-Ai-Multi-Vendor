@@ -7,7 +7,6 @@ use App\Models\Order;
 use App\Notifications\PaymentStatusUpdated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 class HandlePaymentWebhook implements ShouldQueue

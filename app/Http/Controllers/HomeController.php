@@ -226,7 +226,7 @@ class HomeController extends Controller
                 continue;
             }
             $limit = $secCfg->item_limit ?? 4;
-            $cacheKey = 'showcase_'.$sk.'_data_v1';
+            $cacheKey = 'showcase_' . $sk . '_data_v1';
             $items = Cache::remember($cacheKey, 600, function () use ($sk, $limit) {
                 return match ($sk) {
                     'showcase_latest' => Product::active()->latest()->take($limit)->get(),
@@ -252,7 +252,7 @@ class HomeController extends Controller
                 $items = $items->map(function ($p) use ($sk) {
                     try {
                         $image = $p->main_image
-                            ? asset('storage/'.$p->main_image)
+                            ? asset('storage/' . $p->main_image)
                             : asset('images/placeholder.svg');
                     } catch (\Throwable $e) {
                         $image = asset('images/placeholder.svg');
@@ -261,7 +261,7 @@ class HomeController extends Controller
                     $p->mini_image_is_placeholder = empty($p->main_image);
                     $name = $p->name;
                     if (strlen($name) > 40) {
-                        $name = mb_substr($name, 0, 40).'…';
+                        $name = mb_substr($name, 0, 40) . '…';
                     }
                     $p->mini_trunc_name = $name;
                     // price html
@@ -274,14 +274,14 @@ class HomeController extends Controller
                     $extra = '';
                     if ($sk === 'showcase_discount' && $p->effectivePrice() < $p->price) {
                         try {
-                            $extra .= '<span class="mini-old">'.
-                                e(currency_format($p->price)).'</span>';
+                            $extra .= '<span class="mini-old">' .
+                                e(currency_format($p->price)) . '</span>';
                         } catch (\Throwable $e) {
                         }
                     }
                     if ($sk === 'showcase_most_rated' && $p->approved_reviews_avg) {
-                        $extra .= '<span class="mini-rating">★ '.
-                            number_format($p->approved_reviews_avg, 1).'</span>';
+                        $extra .= '<span class="mini-rating">★ ' .
+                            number_format($p->approved_reviews_avg, 1) . '</span>';
                     }
                     $p->mini_extra_html = $extra;
                     $flags = [];

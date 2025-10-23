@@ -108,15 +108,15 @@ class ContentSecurityPolicy
         $cspEnforced = [
             "default-src 'self'",
             "base-uri 'self'",
-            'form-action '.implode(' ', $formActionHosts),
-            'img-src '.implode(' ', $imgHosts),
+            'form-action ' . implode(' ', $formActionHosts),
+            'img-src ' . implode(' ', $imgHosts),
             "font-src 'self' data:",
-            'script-src '.implode(' ', $scriptHosts),
+            'script-src ' . implode(' ', $scriptHosts),
             "style-src 'self'",
             "frame-ancestors 'self'",
-            'frame-src '.implode(' ', $frameHosts),
+            'frame-src ' . implode(' ', $frameHosts),
             "object-src 'none'",
-            'connect-src '.implode(' ', $connectHosts),
+            'connect-src ' . implode(' ', $connectHosts),
             'upgrade-insecure-requests',
         ];
         // Report-Only variant (exclude upgrade-insecure-requests to avoid warning)
@@ -132,10 +132,10 @@ class ContentSecurityPolicy
             'include_subdomains' => false,
         ];
         $response->headers->set('Report-To', json_encode($reportTo, JSON_UNESCAPED_SLASHES));
-        $response->headers->set('Reporting-Endpoints', 'csp-endpoint="'.$reportEndpoint.'"');
+        $response->headers->set('Reporting-Endpoints', 'csp-endpoint="' . $reportEndpoint . '"');
         $response->headers->set(
             'Content-Security-Policy-Report-Only',
-            implode('; ', $cspReportOnly).'; report-to csp-endpoint; report-uri '.$reportEndpoint
+            implode('; ', $cspReportOnly) . '; report-to csp-endpoint; report-uri ' . $reportEndpoint
         );
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('X-Content-Type-Options', 'nosniff');

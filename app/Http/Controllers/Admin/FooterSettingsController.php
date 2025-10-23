@@ -60,8 +60,8 @@ class FooterSettingsController extends Controller
         foreach ($result as $key => &$link) {
             if ($request->hasFile("app_links.$key.image")) {
                 $file = $request->file("app_links.$key.image");
-                $filename = 'app_badge_'.$key.'_'.time().'_'.
-                    uniqid().'.'.$file->getClientOriginalExtension();
+                $filename = 'app_badge_' . $key . '_' . time() . '_' .
+                    uniqid() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('uploads/footer', $filename, 'public');
                 $link['image'] = $path;
             } else {
@@ -133,7 +133,7 @@ class FooterSettingsController extends Controller
         UpdateFooterSettingsRequest $request,
         \App\Services\HtmlSanitizer $sanitizer
     ): RedirectResponse {
-        $setting = Setting::first() ?? new Setting;
+        $setting = Setting::first() ?? new Setting();
         $data = $request->validated();
 
         // Snapshot original values (only fields we may touch)

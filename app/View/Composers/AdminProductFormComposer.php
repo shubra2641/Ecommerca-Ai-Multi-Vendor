@@ -86,12 +86,12 @@ class AdminProductFormComposer
                 'seo_keywords' => old("seo_keywords.$code", $model?->translate('seo_keywords', $code) ?? ''),
                 'seo_description' => old("seo_description.$code", $model?->translate('seo_description', $code) ?? ''),
                 // placeholders (basic heuristics)
-                'ph_name' => $isDefault ? __('Main name') : __('Name').' ('.$code.')',
-                'ph_short' => $isDefault ? __('Short description') : __('Short').' ('.$code.')',
-                'ph_desc' => $isDefault ? __('Full description') : __('Description').' ('.$code.')',
-                'ph_seo_title' => __('SEO Title').' ('.$code.')',
-                'ph_seo_keywords' => __('SEO Keywords').' ('.$code.')',
-                'ph_seo_description' => __('SEO Description').' ('.$code.')',
+                'ph_name' => $isDefault ? __('Main name') : __('Name') . ' (' . $code . ')',
+                'ph_short' => $isDefault ? __('Short description') : __('Short') . ' (' . $code . ')',
+                'ph_desc' => $isDefault ? __('Full description') : __('Description') . ' (' . $code . ')',
+                'ph_seo_title' => __('SEO Title') . ' (' . $code . ')',
+                'ph_seo_keywords' => __('SEO Keywords') . ' (' . $code . ')',
+                'ph_seo_description' => __('SEO Description') . ' (' . $code . ')',
             ];
         }
 

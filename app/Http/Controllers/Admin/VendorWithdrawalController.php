@@ -92,7 +92,7 @@ class VendorWithdrawalController extends Controller
                         $withdrawal
                     );
                 } catch (\Throwable $e) {
-                    logger()->warning('Failed to credit commission history: '.$e->getMessage());
+                    logger()->warning('Failed to credit commission history: ' . $e->getMessage());
                 }
             }
         }
@@ -114,14 +114,14 @@ class VendorWithdrawalController extends Controller
                 $withdrawal
             );
         } catch (\Throwable $e) {
-            logger()->warning('Failed to log approval transaction: '.$e->getMessage());
+            logger()->warning('Failed to log approval transaction: ' . $e->getMessage());
         }
 
         // Notify vendor via DB notification
         try {
             $withdrawal->user->notify(new \App\Notifications\VendorWithdrawalStatusUpdated($withdrawal, 'approved'));
         } catch (\Throwable $e) {
-            logger()->warning('Vendor notification failed: '.$e->getMessage());
+            logger()->warning('Vendor notification failed: ' . $e->getMessage());
         }
 
         // Also notify admins (audit) if needed
@@ -156,7 +156,7 @@ class VendorWithdrawalController extends Controller
                     $withdrawal
                 );
             } catch (\Throwable $e) {
-                logger()->warning('Failed to log rejection transaction: '.$e->getMessage());
+                logger()->warning('Failed to log rejection transaction: ' . $e->getMessage());
             }
         }
 
@@ -195,7 +195,7 @@ class VendorWithdrawalController extends Controller
                 $payout
             );
         } catch (\Throwable $e) {
-            logger()->warning('Failed to record balance history for payout '.$payout->id.': '.$e->getMessage());
+            logger()->warning('Failed to record balance history for payout ' . $payout->id . ': ' . $e->getMessage());
         }
         // mark withdrawal completed
         $withdrawal = $payout->withdrawal;
@@ -213,13 +213,13 @@ class VendorWithdrawalController extends Controller
                     )
                 );
             } catch (\Throwable $e) {
-                logger()->warning('Vendor notification failed: '.$e->getMessage());
+                logger()->warning('Vendor notification failed: ' . $e->getMessage());
             }
         }
         try {
             \Illuminate\Support\Facades\Mail::to($user->email)->queue(new \App\Mail\PayoutExecuted($payout));
         } catch (\Throwable $e) {
-            logger()->warning('Failed to queue payout executed mail: '.$e->getMessage());
+            logger()->warning('Failed to queue payout executed mail: ' . $e->getMessage());
         }
 
         return back()->with('success', __('Payout executed'));

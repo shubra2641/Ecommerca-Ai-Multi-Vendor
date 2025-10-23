@@ -310,13 +310,13 @@ class CheckoutController extends Controller
                     'line_items' => [[
                         'price_data' => [
                             'currency' => $currency,
-                            'product_data' => ['name' => 'Order #'.$order->id],
+                            'product_data' => ['name' => 'Order #' . $order->id],
                             'unit_amount' => (int) round(($order->total ?? 0) * 100),
                         ],
                         'quantity' => 1,
                     ]],
-                    'success_url' => url('/checkout/success?order='.$order->id),
-                    'cancel_url' => url('/checkout/cancel?order='.$order->id),
+                    'success_url' => url('/checkout/success?order=' . $order->id),
+                    'cancel_url' => url('/checkout/cancel?order=' . $order->id),
                     'metadata' => ['order_id' => $order->id],
                 ]);
 

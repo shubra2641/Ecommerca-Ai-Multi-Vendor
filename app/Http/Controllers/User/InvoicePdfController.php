@@ -24,7 +24,7 @@ class InvoicePdfController extends Controller
 
         return response($dompdf->output(), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="invoice-'.$order->id.'.pdf"',
+            'Content-Disposition' => 'inline; filename="invoice-' . $order->id . '.pdf"',
         ]);
     }
 }

@@ -28,7 +28,7 @@ class PaymentApiController extends Controller
                     'id' => $g->id,
                     'name' => $g->name,
                     'slug' => $g->slug,
-                    'logo' => $g->logo ? asset('storage/'.$g->logo) : null,
+                    'logo' => $g->logo ? asset('storage/' . $g->logo) : null,
                     'description' => $g->description,
                     'is_available' => (bool) $g->enabled,
                 ]);

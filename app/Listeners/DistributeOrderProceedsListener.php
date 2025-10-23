@@ -71,7 +71,7 @@ class DistributeOrderProceedsListener
                             $amount,
                             (float) $vendor->balance,
                             (float) $vendor->balance,
-                            'Held credit for Order #'.$order->id.
+                            'Held credit for Order #' . $order->id .
                                 ' (refund window active)',
                             null,
                             $order
@@ -87,7 +87,7 @@ class DistributeOrderProceedsListener
                             $amount,
                             $previous,
                             (float) $vendor->balance,
-                            'Order #'.$order->id,
+                            'Order #' . $order->id,
                             null,
                             $order
                         );
@@ -126,11 +126,10 @@ class DistributeOrderProceedsListener
                             $platformShare,
                             $prevAdmin,
                             (float) $admin->balance,
-                            'Platform share for Order #'.$order->id,
+                            'Platform share for Order #' . $order->id,
                             null,
                             $order
                         );
-                    } else {
                     }
                 }
 

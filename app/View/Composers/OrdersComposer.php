@@ -32,7 +32,7 @@ class OrdersComposer
                 $firstItem = $o->items->first();
                 $firstName = $firstItem?->name;
                 if ($firstItem && is_array($firstItem->meta ?? null) && ! empty($firstItem->meta['variant_name'])) {
-                    $firstName .= ' - '.$firstItem->meta['variant_name'];
+                    $firstName .= ' - ' . $firstItem->meta['variant_name'];
                 }
                 $firstSummaries[$o->id] = $firstName ?: __('Order');
             }

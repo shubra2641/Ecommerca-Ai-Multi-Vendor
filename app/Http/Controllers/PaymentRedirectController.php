@@ -83,12 +83,10 @@ class PaymentRedirectController extends Controller
 
                             return view('payments.redirect', ['payment' => $payment]);
                         }
-                    } else {
                     }
                 } catch (\Exception $e) {
                 }
             }
-        } else {
         }
 
         return view('payments.redirect', ['payment' => $payment]);

@@ -34,7 +34,6 @@ use App\Http\Controllers\User\OrdersController;
 use App\Http\Controllers\User\ReturnsController;
 use App\Http\Controllers\Vendor\OrderController as VendorOrderController;
 use App\Http\Controllers\WishlistController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
@@ -163,10 +162,10 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
-        $user = Auth::user();
         if (Gate::allows('access-admin')) {
             return redirect()->route('admin.dashboard');
-        } elseif (Gate::allows('access-vendor')) {
+        }
+        if (Gate::allows('access-vendor')) {
             return redirect()->route('vendor.dashboard');
         }
 
@@ -211,21 +210,21 @@ Route::middleware(['auth', 'can:access-user'])->prefix('user')->name('user.')->g
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // Admin routes
 Route::prefix('admin')->group(function () {
-    require __DIR__.'/admin.php';
+    require __DIR__ . '/admin.php';
 });
 
 // Installer routes (one-time installer)
-require __DIR__.'/install.php';
+require __DIR__ . '/install.php';
 
 // Append admin test webhook route to admin routes file by editing admin.php
 
 // Vendor routes
 Route::prefix('vendor')->name('vendor.')->group(function () {
-    require __DIR__.'/vendor.php';
+    require __DIR__ . '/vendor.php';
 });
 
 // Note: routes/api.php is loaded by the RouteServiceProvider with the 'api' middleware

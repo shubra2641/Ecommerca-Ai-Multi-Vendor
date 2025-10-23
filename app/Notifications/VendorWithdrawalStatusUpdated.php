@@ -40,7 +40,7 @@ class VendorWithdrawalStatusUpdated extends Notification
         ];
 
         if (! empty($this->withdrawal->proof_path)) {
-            $payload['proof_url'] = asset('storage/'.$this->withdrawal->proof_path);
+            $payload['proof_url'] = asset('storage/' . $this->withdrawal->proof_path);
         }
 
         return $payload;

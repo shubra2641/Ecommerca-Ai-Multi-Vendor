@@ -211,9 +211,7 @@ class Product extends Model
             // if serials are used, count unsold serials; if none exist, treat as unlimited (null)
             $totalSerials = $this->serials()->count();
             if ($totalSerials > 0) {
-                $unsold = $this->serials()->whereNull('sold_at')->count();
-
-                return $unsold;
+                return $this->serials()->whereNull('sold_at')->count();
             }
 
             return null;
