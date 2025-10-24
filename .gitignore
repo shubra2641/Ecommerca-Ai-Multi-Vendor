@@ -28,7 +28,6 @@ easy.zip
 
 # Custom exclusions for GitHub upload
 # Database files and directories
-database/
 database/factories/
 database/seeders/
 *.sqlite*
@@ -42,7 +41,6 @@ storage/
 bootstrap/
 
 # Development and testing directories
-tests/
 vendor/
 
 # IDE and development tools

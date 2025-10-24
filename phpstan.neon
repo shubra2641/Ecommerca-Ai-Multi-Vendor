@@ -1,0 +1,18 @@
+includes:
+    - vendor/shipmonk/phpstan-rules/rules.neon
+    - vendor/tomasvotruba/class-leak/config/extension.neon
+
+parameters:
+    level: 8
+    paths:
+        - app
+        - config
+        - database
+        - routes
+    excludePaths:
+        - app/Http/Controllers/Auth/*
+        - app/Console/Commands/*
+    ignoreErrors:
+        - '#Dead catch -#'
+        - '#Unused variable#'
+        - '#Parameter .* never used#'
