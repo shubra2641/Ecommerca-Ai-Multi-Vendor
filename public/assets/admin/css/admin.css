@@ -25,7 +25,7 @@
     /* Enhanced header styles */
     --admin-header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --admin-header-text: #ffffff;
-    --admin-header-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    --admin-header-shadow: 0 4px 20px rgb(0 0 0 / 0.1);
 
     /* sidebar */
     --sidebar-width: 260px;
@@ -157,12 +157,12 @@ body {
 .admin-btn-primary {
     background: linear-gradient(135deg, var(--admin-primary) 0%, #2563eb 100%);
     color: white;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 12px rgb(59 130 246 / 0.3);
 }
 
 .admin-btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 6px 20px rgb(59 130 246 / 0.4);
 }
 
 .admin-btn-secondary {
@@ -245,7 +245,7 @@ body {
 .admin-modern-card {
     background: var(--admin-card-bg);
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
     margin-bottom: 1.5rem;
     overflow: hidden;
     border: 1px solid var(--admin-border);
@@ -257,7 +257,7 @@ body {
     gap: 0.75rem;
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid var(--admin-border);
-    background: linear-gradient(to right, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+    background: linear-gradient(to right, rgb(59 130 246 / 0.05) 0%, transparent 100%);
 }
 
 .admin-card-header svg {
@@ -391,7 +391,7 @@ body {
 
 /* Total Section */
 .admin-total-section {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
+    background: linear-gradient(135deg, rgb(59 130 246 / 0.1) 0%, rgb(37 99 235 / 0.05) 100%);
     padding: 1.5rem;
     margin: 0;
     text-align: center;
@@ -512,7 +512,7 @@ body {
 }
 
 .admin-item-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.08);
     transform: translateY(-2px);
 }
 
@@ -785,7 +785,7 @@ body {
 
 /* Manage Form */
 .admin-manage-card {
-    background: linear-gradient(to bottom, var(--admin-card-bg) 0%, rgba(59, 130, 246, 0.02) 100%);
+    background: linear-gradient(to bottom, var(--admin-card-bg) 0%, rgb(59 130 246 / 0.02) 100%);
 }
 
 .admin-manage-form {
@@ -1135,7 +1135,7 @@ body {
     justify-content: center;
     font-weight: 700;
     font-size: 0.9rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.2);
 }
 
 .admin-rank-display {
@@ -2643,13 +2643,13 @@ body.dark-mode .modern-card {
 .admin-header-icon {
     width: 64px;
     height: 64px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(255 255 255 / 0.1);
     border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgb(255 255 255 / 0.2);
 }
 
 .admin-header-text {
@@ -2667,14 +2667,14 @@ body.dark-mode .modern-card {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(255 255 255 / 0.1);
     padding: 0.5rem 1rem;
     border-radius: 20px;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgb(255 255 255 / 0.2);
     font-size: 0.875rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgb(255 255 255 / 0.9);
 }
 
 .admin-action-group {
@@ -2688,13 +2688,13 @@ body.dark-mode .modern-card {
     font-size: 1rem;
     font-weight: 600;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
     transition: all 0.3s ease;
 }
 
 .admin-btn-large:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 25px rgb(0 0 0 / 0.2);
 }
 
 /* Enhanced Stats Cards */
@@ -2702,7 +2702,7 @@ body.dark-mode .modern-card {
     background: var(--admin-card-bg);
     border-radius: 16px;
     padding: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.08);
     border: 1px solid var(--admin-border);
     transition: all 0.3s ease;
     position: relative;
@@ -2722,7 +2722,7 @@ body.dark-mode .modern-card {
 
 .admin-stat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 30px rgb(0 0 0 / 0.12);
 }
 
 .admin-stat-header {
@@ -2746,7 +2746,7 @@ body.dark-mode .modern-card {
 .admin-stat-badge {
     width: 32px;
     height: 32px;
-    background: rgba(16, 185, 129, 0.1);
+    background: rgb(16 185 129 / 0.1);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -2852,13 +2852,13 @@ body.dark-mode .modern-card {
 .admin-btn-filter {
     background: linear-gradient(135deg, var(--admin-primary), #2563eb);
     border: none;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 12px rgb(59 130 246 / 0.3);
 }
 
 .admin-btn-filter:hover {
     background: linear-gradient(135deg, #2563eb, var(--admin-primary));
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 6px 20px rgb(59 130 246 / 0.4);
 }
 
 .admin-btn-clear {
@@ -2882,7 +2882,7 @@ body.dark-mode .modern-card {
 .admin-filter-count {
     font-size: 0.875rem;
     color: var(--admin-text-secondary);
-    background: rgba(59, 130, 246, 0.1);
+    background: rgb(59 130 246 / 0.1);
     padding: 0.5rem 1rem;
     border-radius: 20px;
     font-weight: 500;
@@ -2956,7 +2956,7 @@ body.dark-mode .modern-card {
     border-spacing: 0;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
 }
 
 .admin-table thead th {
@@ -3126,7 +3126,7 @@ body.dark-mode .modern-card {
     background: var(--admin-bg-white);
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
 }
 
 .admin-table thead {
@@ -3215,7 +3215,7 @@ body.dark-mode .modern-card {
 
 .admin-settings-form .admin-form-input:focus {
     border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgb(102 126 234 / 0.1);
     outline: none;
 }
 
@@ -3321,7 +3321,7 @@ body.dark-mode .modern-card {
 .admin-settings-form select:focus,
 .admin-settings-form textarea:focus {
     border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgb(102 126 234 / 0.1);
     outline: none;
 }
 
@@ -3368,7 +3368,7 @@ body.dark-mode .modern-card {
 
 .admin-modern-card .admin-card-body .admin-form-input:focus {
     border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgb(102 126 234 / 0.1);
     outline: none;
 }
 
@@ -3473,7 +3473,7 @@ body.dark-mode .modern-card {
     color: white;
     font-size: 1.5rem;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgb(102 126 234 / 0.3);
 }
 
 .admin-user-info {
@@ -3531,7 +3531,7 @@ body.dark-mode .modern-card {
 
 .admin-stat-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
 }
 
 .admin-stat-icon {
@@ -3588,14 +3588,14 @@ body.dark-mode .modern-card {
     width: 80px;
     height: 80px;
     margin: 0 auto 1.5rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(255 255 255 / 0.1);
     border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgb(255 255 255 / 0.2);
 }
 
 .admin-login-title {
@@ -3603,12 +3603,12 @@ body.dark-mode .modern-card {
     font-weight: 700;
     color: white;
     margin: 0 0 0.5rem 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
 }
 
 .admin-login-subtitle {
     font-size: 1rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgb(255 255 255 / 0.8);
     margin: 0;
 }
 
@@ -3709,3 +3709,4 @@ body.dark-mode .modern-card {
         height: 64px;
     }
 }
+
