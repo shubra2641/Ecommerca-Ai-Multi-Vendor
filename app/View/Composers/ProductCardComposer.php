@@ -6,13 +6,14 @@ namespace App\View\Composers;
 
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use App\Models\Product;
 
 final class ProductCardComposer
 {
     public function compose(View $view): void
     {
         $data = $view->getData();
-        /** @var \App\Models\Product $product */
+        /** @var Product $product */
         $product = $data['product'] ?? null;
         if (! $product) {
             return;

@@ -254,7 +254,7 @@ final class HomeController extends Controller
             return $bn;
         });
         $banners = $bannersCollection->groupBy(function ($b) {
-            return $b->placement_key ?: 'default';
+            return $b->placement_key ? $b->placement_key : 'default';
         });
 
         return compact('slides', 'banners');
@@ -288,7 +288,7 @@ final class HomeController extends Controller
                         ->orderByDesc('approved_reviews_count')
                         ->take($limit)->get(),
                     'showcase_brands' => Brand::active()
-                        ->withCount(['products' => fn ($q) => $q->active()])
+                        ->withCount(['products' => fn($q) => $q->active()])
                         ->orderByDesc('products_count')
                         ->take($limit)->get(),
                     default => collect(),
@@ -309,7 +309,7 @@ final class HomeController extends Controller
             ]);
         }
         $showcaseSections = $showcaseSections->sortBy(
-            fn ($s) => optional($sectionsIndex->get($s['key']))->sort_order ?? 9999
+            fn($s) => optional($sectionsIndex->get($s['key']))->sort_order ?? 9999
         )->values();
         $brandSec = $showcaseSections->firstWhere('type', 'brands');
         $showcaseSectionsActiveCount = $showcaseSections->where('type', '!=', 'brands')->count();
@@ -328,7 +328,7 @@ final class HomeController extends Controller
                 $image = asset('images/placeholder.svg');
             }
             $p->mini_image_url = $image;
-            $p->mini_image_is_placeholder = empty($p->main_image);
+            $p->mini_image_is_placeholder = ! $p->main_image;
             $name = $p->name;
             if (strlen($name) > 40) {
                 $name = mb_substr($name, 0, 40) . '…';

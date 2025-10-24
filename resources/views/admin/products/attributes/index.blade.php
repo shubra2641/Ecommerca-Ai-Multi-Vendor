@@ -19,10 +19,6 @@
                 </div>
             </div>
             <div class="header-actions">
-                <button type="button" class="admin-btn admin-btn-secondary" data-action="export-attributes">
-                    <i class="fas fa-download"></i>
-                    {{ __('Export') }}
-                </button>
                 <a href="{{ route('admin.product-attributes.create') }}" class="admin-btn admin-btn-primary">
                     <i class="fas fa-plus"></i>
                     {{ __('Add Attribute') }}

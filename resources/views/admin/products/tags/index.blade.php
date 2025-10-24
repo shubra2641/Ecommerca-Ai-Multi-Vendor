@@ -19,10 +19,6 @@
                 </div>
             </div>
             <div class="header-actions">
-                <button class="admin-btn admin-btn-secondary" title="{{ __('Export Tags') }}">
-                    <i class="fas fa-download"></i>
-                    {{ __('Export Tags') }}
-                </button>
                 <a href="{{ route('admin.product-tags.create') }}" class="admin-btn admin-btn-primary" title="{{ __('Add Tag') }}">
                     <i class="fas fa-plus"></i>
                     {{ __('Add Tag') }}
