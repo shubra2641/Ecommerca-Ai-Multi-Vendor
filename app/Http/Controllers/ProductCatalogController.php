@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\GlobalHelper;
 use App\Models\Brand;
+use App\Models\Currency;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductTag;
@@ -14,6 +15,89 @@ use Illuminate\Support\Facades\Cache;
 
 final class ProductCatalogController extends Controller
 {
+    /**
+     * Color presets for swatch mapping
+     */
+    private const COLOR_PRESETS = [
+        'black' => '#000000',
+        'white' => '#ffffff',
+        'gray' => '#808080',
+        'grey' => '#808080',
+        'silver' => '#c0c0c0',
+        'charcoal' => '#36454f',
+        'graphite' => '#383e42',
+        'slate' => '#708090',
+        'red' => '#ff0000',
+        'crimson' => '#dc143c',
+        'maroon' => '#800000',
+        'burgundy' => '#800020',
+        'brick' => '#b22222',
+        'orange' => '#ff8c00',
+        'amber' => '#ffbf00',
+        'gold' => '#ffd700',
+        'yellow' => '#ffd700',
+        'mustard' => '#ffdb58',
+        'olive' => '#556b2f',
+        'green' => '#008000',
+        'forest green' => '#228b22',
+        'mint' => '#3eb489',
+        'emerald' => '#50c878',
+        'teal' => '#008080',
+        'cyan' => '#00b7eb',
+        'aqua' => '#00ffff',
+        'turquoise' => '#40e0d0',
+        'blue' => '#0052cc',
+        'navy' => '#001f3f',
+        'navy blue' => '#001f3f',
+        'light blue' => '#87cefa',
+        'sky blue' => '#87ceeb',
+        'royal blue' => '#4169e1',
+        'purple' => '#800080',
+        'violet' => '#8a2be2',
+        'lavender' => '#e6e6fa',
+        'magenta' => '#ff00ff',
+        'pink' => '#ff69b4',
+        'rose' => '#ff007f',
+        'peach' => '#ffdab9',
+        'coral' => '#ff7f50',
+        'brown' => '#8b4513',
+        'chocolate' => '#7b3f00',
+        'tan' => '#d2b48c',
+        'beige' => '#f5f5dc',
+        'cream' => '#fffdd0',
+        'khaki' => '#c3b091',
+        'sand' => '#f4a460',
+        'bronze' => '#cd7f32',
+        'copper' => '#b87333',
+        'transparent' => '#f3f4f6',
+    ];
+
+    /**
+     * Get category children IDs with caching
+     */
+    protected function getCategoryChildrenIds($categoryId): array
+    {
+        return Cache::remember(
+            'category_children_ids_' . $categoryId,
+            600,
+            fn () => ProductCategory::where('parent_id', $categoryId)->pluck('id')->all()
+        );
+    }
+
+    /**
+     * Common listing logic for index/category/tag pages
+     */
+    protected function handleListing(Request $request, $query = null, array $extraData = [])
+    {
+        $query ??= $this->baseQuery();
+        $query = $this->applyFilters($query, $request);
+        $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
+
+        $commonData = $this->getCommonData($request);
+
+        return array_merge($commonData, compact('products'), $extraData);
+    }
+
     /**
      * Main catalog index
      */
@@ -31,11 +115,7 @@ final class ProductCatalogController extends Controller
             );
             $id = $slugMap[$cat] ?? null;
             if ($id) {
-                $childIds = Cache::remember(
-                    'category_children_ids_' . $id,
-                    600,
-                    fn () => ProductCategory::where('parent_id', $id)->pluck('id')->all()
-                );
+                $childIds = $this->getCategoryChildrenIds($id);
                 $query->where(function ($qq) use ($id, $childIds): void {
                     $qq->where('product_category_id', $id)
                         ->orWhereIn('product_category_id', $childIds);
@@ -49,13 +129,9 @@ final class ProductCatalogController extends Controller
             $query->whereHas('tags', fn ($t) => $t->where('slug', $tag));
         }
 
-        $query = $this->applyFilters($query, $request);
-        $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
+        $data = $this->handleListing($request, $query, ['selectedBrands' => (array) $request->get('brand', [])]);
 
-        $commonData = $this->getCommonData($request);
-        $selectedBrands = (array) $request->get('brand', []);
-
-        return view('front.products.index', array_merge($commonData, compact('products', 'selectedBrands')));
+        return view('front.products.index', $data);
     }
 
     /**
@@ -64,20 +140,15 @@ final class ProductCatalogController extends Controller
     public function category($slug, Request $request)
     {
         $category = ProductCategory::where('slug', $slug)->firstOrFail();
-        $childIds = Cache::remember('category_children_ids_' . $category->id, 600, function () use ($category) {
-            return $category->children()->pluck('id')->all();
-        });
+        $childIds = $this->getCategoryChildrenIds($category->id);
 
         $query = $this->baseQuery()->where(function ($qq) use ($category, $childIds): void {
             $qq->where('product_category_id', $category->id)->orWhereIn('product_category_id', $childIds);
         });
 
-        $query = $this->applyFilters($query, $request);
-        $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
+        $data = $this->handleListing($request, $query, compact('category'));
 
-        $commonData = $this->getCommonData($request);
-
-        return view('front.products.category', array_merge($commonData, compact('category', 'products')));
+        return view('front.products.category', $data);
     }
 
     /**
@@ -90,12 +161,9 @@ final class ProductCatalogController extends Controller
             $t->where('product_tags.id', $tag->id);
         });
 
-        $query = $this->applyFilters($query, $request);
-        $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
+        $data = $this->handleListing($request, $query, compact('tag'));
 
-        $commonData = $this->getCommonData($request);
-
-        return view('front.products.tag', array_merge($commonData, compact('tag', 'products')));
+        return view('front.products.tag', $data);
     }
 
     /**
@@ -397,60 +465,6 @@ final class ProductCatalogController extends Controller
      */
     protected function buildSwatchMap(array $values): array
     {
-        $presets = [
-            'black' => '#000000',
-            'white' => '#ffffff',
-            'gray' => '#808080',
-            'grey' => '#808080',
-            'silver' => '#c0c0c0',
-            'charcoal' => '#36454f',
-            'graphite' => '#383e42',
-            'slate' => '#708090',
-            'red' => '#ff0000',
-            'crimson' => '#dc143c',
-            'maroon' => '#800000',
-            'burgundy' => '#800020',
-            'brick' => '#b22222',
-            'orange' => '#ff8c00',
-            'amber' => '#ffbf00',
-            'gold' => '#ffd700',
-            'yellow' => '#ffd700',
-            'mustard' => '#ffdb58',
-            'olive' => '#556b2f',
-            'green' => '#008000',
-            'forest green' => '#228b22',
-            'mint' => '#3eb489',
-            'emerald' => '#50c878',
-            'teal' => '#008080',
-            'cyan' => '#00b7eb',
-            'aqua' => '#00ffff',
-            'turquoise' => '#40e0d0',
-            'blue' => '#0052cc',
-            'navy' => '#001f3f',
-            'navy blue' => '#001f3f',
-            'light blue' => '#87cefa',
-            'sky blue' => '#87ceeb',
-            'royal blue' => '#4169e1',
-            'purple' => '#800080',
-            'violet' => '#8a2be2',
-            'lavender' => '#e6e6fa',
-            'magenta' => '#ff00ff',
-            'pink' => '#ff69b4',
-            'rose' => '#ff007f',
-            'peach' => '#ffdab9',
-            'coral' => '#ff7f50',
-            'brown' => '#8b4513',
-            'chocolate' => '#7b3f00',
-            'tan' => '#d2b48c',
-            'beige' => '#f5f5dc',
-            'cream' => '#fffdd0',
-            'khaki' => '#c3b091',
-            'sand' => '#f4a460',
-            'bronze' => '#cd7f32',
-            'copper' => '#b87333',
-            'transparent' => '#f3f4f6',
-        ];
-
         $map = [];
         foreach ($values as $raw) {
             if (! is_string($raw)) {
@@ -468,22 +482,19 @@ final class ProductCatalogController extends Controller
             // Check if it's already a hex color
             if (preg_match('/^#([0-9a-f]{3}|[0-9a-f]{6})$/i', $value)) {
                 $map[$key] = $value;
-
                 continue;
             }
 
             // Check direct preset match
-            if (isset($presets[$normalized])) {
-                $map[$key] = $presets[$normalized];
-
+            if (isset(self::COLOR_PRESETS[$normalized])) {
+                $map[$key] = self::COLOR_PRESETS[$normalized];
                 continue;
             }
 
             // Try without spaces
             $fallback = str_replace(' ', '', $normalized);
-            if (isset($presets[$fallback])) {
-                $map[$key] = $presets[$fallback];
-
+            if (isset(self::COLOR_PRESETS[$fallback])) {
+                $map[$key] = self::COLOR_PRESETS[$fallback];
                 continue;
             }
 
@@ -506,9 +517,9 @@ final class ProductCatalogController extends Controller
 
         $cid = session('currency_id');
         if ($cid) {
-            $cached = \App\Models\Currency::find($cid) ?: \App\Models\Currency::getDefault();
+            $cached = Currency::find($cid) ?: Currency::getDefault();
         } else {
-            $cached = \App\Models\Currency::getDefault();
+            $cached = Currency::getDefault();
         }
 
         return $cached;
