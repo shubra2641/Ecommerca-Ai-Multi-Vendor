@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Helpers\GlobalHelper;
 use App\Http\Requests\ProductIdRequest;
 use App\Models\Product;
 use App\Models\WishlistItem;
@@ -15,9 +16,17 @@ class WishlistController extends Controller
     {
         $user = $request->user();
         $ids = $this->getUserListIds($user) ? $this->getUserListIds($user) : $this->getSessionList();
-        $items = Product::with('category')->whereIn('id', (array) $ids)->get();
+        $items = Product::with('category')->whereIn('id', (array) $ids)->get()->map(function ($product) {
+            $product->display_price = GlobalHelper::convertCurrency($product->price);
+            if ($product->sale_price) {
+                $product->display_sale_price = GlobalHelper::convertCurrency($product->sale_price);
+            }
+            return $product;
+        });
 
-        return view('front.products.wishlist', ['items' => $items, 'wishlistIds' => $ids, 'compareIds' => []]);
+        $currency_symbol = GlobalHelper::getCurrentCurrencySymbol();
+
+        return view('front.products.wishlist', ['items' => $items, 'wishlistIds' => $ids, 'compareIds' => [], 'currency_symbol' => $currency_symbol]);
     }
 
     public function toggle(ProductIdRequest $r)

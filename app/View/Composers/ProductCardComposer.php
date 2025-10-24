@@ -75,7 +75,7 @@ final class ProductCardComposer
         $salePrice = $product->sale_price ?? null;
         $cardOnSale = $salePrice && $salePrice < $price;
         $cardDiscountPercent = $cardOnSale ? (int) round(($price - $salePrice) / $price * 100) : null;
-        $cardDisplaySalePrice = $cardOnSale ? (float) $salePrice : null;
+        $cardDisplaySalePrice = $cardOnSale ? ($product->display_sale_price ?? (float) $salePrice) : null;
         $effectivePrice = $price > 0 ? $price : ($product->effectivePrice() ?? 0);
         $cardDisplayPrice = $product->display_price ?? $effectivePrice;
 
