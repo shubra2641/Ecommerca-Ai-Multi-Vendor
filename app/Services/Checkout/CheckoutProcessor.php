@@ -30,8 +30,9 @@ class CheckoutProcessor
                 continue;
             }
 
-            $qty = $row['qty'];
-            $price = $row['price'];
+            // Ensure numeric types
+            $qty = (int) ($row['qty'] ?? 1);
+            $price = (float) ($row['price'] ?? 0);
             $subtotal += $price * $qty;
 
             $items[] = [
@@ -223,10 +224,10 @@ class CheckoutProcessor
         if ($variantId) {
             $variant = \App\Models\ProductVariation::find($variantId);
             if ($variant) {
-                \App\Services\StockService::reserveVariation($variant, $item['qty']);
+                \App\Services\StockService::reserveVariation($variant, (int) ($item['qty'] ?? 1));
             }
         } else {
-            \App\Services\StockService::reserve($item['product'], $item['qty']);
+            \App\Services\StockService::reserve($item['product'], (int) ($item['qty'] ?? 1));
         }
     }
 
