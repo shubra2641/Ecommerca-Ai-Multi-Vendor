@@ -57,8 +57,10 @@ Route::middleware(\App\Http\Middleware\CheckMaintenanceMode::class)->group(funct
 
     Route::get('/api/shipping/options', [ShippingController::class, 'options']);
     Route::get('/api/new-shipping/quote', [NewShippingController::class, 'quote']);
-    Route::post('/api/push/subscribe', [PushSubscriptionController::class, 'store'])->name('push.subscribe');
-    Route::post('/api/push/unsubscribe', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+    Route::post('/api/push/subscribe', [PushSubscriptionController::class, 'store'])
+        ->name('push.subscribe');
+    Route::post('/api/push/unsubscribe', [PushSubscriptionController::class, 'destroy'])
+        ->name('push.unsubscribe');
 
     // Public location endpoints for frontend checkout
     Route::get('/api/locations/governorates', [AdminLocationController::class, 'governorates']);
@@ -72,19 +74,26 @@ Route::middleware(\App\Http\Middleware\CheckMaintenanceMode::class)->group(funct
     Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
     Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
     Route::get('/shop', [ProductCatalogController::class, 'index'])->name('products.index');
-    Route::get('/shop/category/{slug}', [ProductCatalogController::class, 'category'])->name('products.category');
-    Route::get('/shop/tag/{slug}', [ProductCatalogController::class, 'tag'])->name('products.tag');
+    Route::get('/shop/category/{slug}', [ProductCatalogController::class, 'category'])
+        ->name('products.category');
+    Route::get('/shop/tag/{slug}', [ProductCatalogController::class, 'tag'])
+        ->name('products.tag');
     Route::get('/product/{slug}', [ProductCatalogController::class, 'show'])->name('products.show');
     // Cart & Checkout (server rendered)
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
     Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('/cart/move-to-wishlist', [CartController::class, 'moveToWishlist'])->name('cart.moveToWishlist');
-    Route::post('/cart/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.applyCoupon');
-    Route::post('/cart/remove-coupon', [CartController::class, 'removeCoupon'])->name('cart.removeCoupon');
+    Route::post('/cart/move-to-wishlist', [CartController::class, 'moveToWishlist'])
+        ->name('cart.moveToWishlist');
+    Route::post('/cart/apply-coupon', [CartController::class, 'applyCoupon'])
+        ->name('cart.applyCoupon');
+    Route::post('/cart/remove-coupon', [CartController::class, 'removeCoupon'])
+        ->name('cart.removeCoupon');
     Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-    Route::get('/checkout', [CheckoutController::class, 'showForm'])->name('checkout.form')->middleware('auth');
+    Route::get('/checkout', [CheckoutController::class, 'showForm'])
+        ->name('checkout.form')
+        ->middleware('auth');
     Route::post('/checkout/submit', [CheckoutController::class, 'submitForm'])
         ->name('checkout.submit')
         ->middleware('auth');
@@ -267,7 +276,9 @@ Route::middleware('auth')
 
 // Payrexx gateway removed from this deployment (route intentionally omitted)
 
-Route::post('/payments/payeer/callback', [PayeerController::class, 'callback'])->name('payeer.callback');
+Route::post('/payments/payeer/callback', [PayeerController::class, 'callback'])
+    ->name('payeer.callback');
 
 // Webhook endpoint for external gateways, driver name in path
-Route::post('/webhooks/{driver}', [PaymentWebhookController::class, 'handle'])->name('webhooks.driver');
+Route::post('/webhooks/{driver}', [PaymentWebhookController::class, 'handle'])
+    ->name('webhooks.driver');
