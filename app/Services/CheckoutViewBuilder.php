@@ -105,7 +105,7 @@ class CheckoutViewBuilder
         $discounted_total = $coupon->applyTo($total);
         $discount = round($total - $discounted_total, 2);
         try {
-            $displayDiscountedTotal = $defaultCurrency->convertTo($discounted_total, $currentCurrency, 2);
+            $displayDiscountedTotal = $defaultCurrency->convertTo((float) $discounted_total, $currentCurrency, 2);
         } catch (\Throwable $e) {
             $displayDiscountedTotal = $discounted_total;
         }
@@ -120,12 +120,12 @@ class CheckoutViewBuilder
         }
         collect($items)->each(function (&$it) use ($defaultCurrency, $currentCurrency): void {
             try {
-                $it['display_price'] = $defaultCurrency->convertTo($it['price'], $currentCurrency, 2);
+                $it['display_price'] = $defaultCurrency->convertTo((float) $it['price'], $currentCurrency, 2);
             } catch (\Throwable $e) {
                 $it['display_price'] = $it['price'];
             }
             try {
-                $it['display_lineTotal'] = $defaultCurrency->convertTo($it['lineTotal'], $currentCurrency, 2);
+                $it['display_lineTotal'] = $defaultCurrency->convertTo((float) $it['lineTotal'], $currentCurrency, 2);
             } catch (\Throwable $e) {
                 $it['display_lineTotal'] = $it['lineTotal'];
             }
@@ -197,7 +197,7 @@ class CheckoutViewBuilder
     {
         $displayTotal = $total;
         try {
-            $displayTotal = $defaultCurrency->convertTo($total, $currentCurrency, 2);
+            $displayTotal = $defaultCurrency->convertTo((float) $total, $currentCurrency, 2);
         } catch (\Throwable $e) {
         }
         return [$currentCurrency, $defaultCurrency, $currency_symbol, $displayTotal];

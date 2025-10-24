@@ -37,10 +37,10 @@ class GlobalHelper
         $toCurrency ??= session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
 
         if ($fromCurrency && $toCurrency && $fromCurrency->id !== $toCurrency->id) {
-            return $fromCurrency->convertTo($amount, $toCurrency, $decimals);
+            return $fromCurrency->convertTo((float) $amount, $toCurrency, $decimals);
         }
 
-        return round($amount, $decimals);
+        return round((float) $amount, $decimals);
     }
 
     /**
