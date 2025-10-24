@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
+use App\Models\Currency;
 
 class UserController extends BaseAdminController
 {
@@ -120,7 +121,7 @@ class UserController extends BaseAdminController
     {
         return view('admin.users.balance', [
             'user' => $user,
-            'defaultCurrency' => \App\Models\Currency::getDefault(),
+            'defaultCurrency' => Currency::getDefault(),
         ]);
     }
 
