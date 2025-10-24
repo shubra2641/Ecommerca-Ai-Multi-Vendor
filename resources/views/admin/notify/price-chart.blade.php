@@ -90,18 +90,27 @@
 
     <div class="table-responsive bg-white border rounded">
         <table class="table table-sm mb-0" id="priceChangesTable">
-            <thead><tr><th>{{ __('Date') }}</th><th>{{ __('Old') }}</th><th>{{ __('New') }}</th><th>{{ __('% Change') }}</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>{{ __('Date') }}</th>
+                    <th>{{ __('Old') }}</th>
+                    <th>{{ __('New') }}</th>
+                    <th>{{ __('% Change') }}</th>
+                </tr>
+            </thead>
             <tbody>
-            @forelse($changes as $c)
+                @forelse($changes as $c)
                 <tr>
                     <td>{{ $c->created_at->format('Y-m-d H:i') }}</td>
                     <td>{{ number_format($c->old_price,2) }}</td>
                     <td>{{ number_format($c->new_price,2) }}</td>
                     <td class="{{ $c->percent<0?'text-danger':($c->percent>0?'text-success':'') }}">{{ number_format($c->percent,2) }}</td>
                 </tr>
-            @empty
-                <tr><td colspan="4" class="text-center text-muted py-4">{{ __('No price changes recorded') }}</td></tr>
-            @endforelse
+                @empty
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">{{ __('No price changes recorded') }}</td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
