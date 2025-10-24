@@ -14,28 +14,6 @@
                 </h1>
                 <p class="admin-order-subtitle">{{ __('System health, performance and storage analysis') }}</p>
             </div>
-            <div class="header-actions">
-                <button type="button" class="admin-btn admin-btn-secondary js-refresh-page" data-action="refresh">
-                    <i class="fas fa-sync-alt"></i>
-                    {{ __('Refresh') }}
-                </button>
-                <div class="dropdown">
-                    <button class="admin-btn admin-btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-download"></i>
-                        {{ __('Export') }}
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item js-export" href="#" data-export-type="excel" data-report="system">
-                                <i class="fas fa-file-excel"></i>
-                                {{ __('Excel') }}
-                            </a></li>
-                        <li><a class="dropdown-item js-export" href="#" data-export-type="pdf" data-report="system">
-                                <i class="fas fa-file-pdf"></i>
-                                {{ __('PDF') }}
-                            </a></li>
-                    </ul>
-                </div>
-            </div>
         </div>
 
         <!-- System Health Overview -->

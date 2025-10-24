@@ -15,15 +15,7 @@
                 <p class="admin-order-subtitle">{{ __('Financial analysis and balance statistics') }}</p>
             </div>
             <div class="header-actions">
-                <button type="button" class="admin-btn admin-btn-secondary js-refresh-page" data-action="refresh">
-                    <i class="fas fa-sync-alt"></i>
-                    {{ __('Refresh') }}
-                </button>
                 <div class="dropdown">
-                    <button class="admin-btn admin-btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-download"></i>
-                        {{ __('Export') }}
-                    </button>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item js-export" href="#" data-export-type="excel" data-report="financial">
                                 <i class="fas fa-file-excel"></i>

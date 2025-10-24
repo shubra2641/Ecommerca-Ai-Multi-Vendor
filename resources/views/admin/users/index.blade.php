@@ -39,10 +39,6 @@
                         <i class="fas fa-plus"></i>
                         {{ __('Add New User') }}
                     </a>
-                    <a href="{{ route('admin.users.export') }}" class="admin-btn admin-btn-secondary admin-btn-large">
-                        <i class="fas fa-download"></i>
-                        {{ __('Export') }}
-                    </a>
                 </div>
             </div>
         </div>

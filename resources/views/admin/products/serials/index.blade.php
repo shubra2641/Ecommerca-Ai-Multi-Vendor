@@ -19,12 +19,6 @@
 
         <!-- Import/Export Form -->
         <div class="admin-modern-card">
-            <div class="admin-card-header">
-                <h3 class="admin-card-title">
-                    <i class="fas fa-file-import"></i>
-                    {{ __('Import/Export Serials') }}
-                </h3>
-            </div>
             <div class="admin-card-body">
                 <form method="post" action="{{ route('admin.products.serials.import',$product) }}" enctype="multipart/form-data">
                     @csrf

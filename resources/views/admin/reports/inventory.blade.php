@@ -14,12 +14,6 @@
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Comprehensive inventory analysis and stock management') }}</p>
             </div>
-            <div class="header-actions">
-                <a href="{{ route('admin.reports.export', 'inventory') }}" class="admin-btn admin-btn-secondary">
-                    <i class="fas fa-download"></i>
-                    {{ __('Export Report') }}
-                </a>
-            </div>
         </div>
 
         <!-- Enhanced Stats Cards -->

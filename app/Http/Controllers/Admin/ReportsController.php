@@ -312,30 +312,4 @@ class ReportsController extends Controller
             ];
         }
     }
-
-    /**
-     * Export to Excel
-     */
-    private function exportToExcel($report, $filename)
-    {
-        // Implementation for Excel export
-        return response()->json([
-            'success' => true,
-            'message' => __('Excel export feature will be implemented'),
-            'filename' => $filename . '.xlsx',
-        ]);
-    }
-
-    /**
-     * Export to PDF
-     */
-    private function exportToPdf($report, $filename)
-    {
-        // Implementation for PDF export
-        return response()->json([
-            'success' => true,
-            'message' => __('PDF export feature will be implemented'),
-            'filename' => $filename . '.pdf',
-        ]);
-    }
 }

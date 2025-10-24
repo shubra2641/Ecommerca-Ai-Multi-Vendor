@@ -15,10 +15,6 @@
                 <p class="admin-order-subtitle">{{ __('Comprehensive vendors analysis and statistics') }}</p>
             </div>
             <div class="header-actions">
-                <button type="button" class="admin-btn admin-btn-secondary js-refresh-page" data-action="refresh">
-                    <i class="fas fa-sync-alt"></i>
-                    {{ __('Refresh') }}
-                </button>
                 <div class="dropdown">
                     <button class="admin-btn admin-btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                         <i class="fas fa-download"></i>

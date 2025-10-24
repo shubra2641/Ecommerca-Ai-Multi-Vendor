@@ -1,95 +1,80 @@
-/* Responsive, professional maintenance page styles
-   Extracted from blade to comply with Envato inline-CSS rule.
-*/
-:root {
-  --bg: #f7f7f9;
-  --card: #ffffff;
-  --text: #1f2937;
-  --accent: #0ea5a4;
-  --container-max: 900px;
-}
+        .maintenance-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
 
-* {
-  box-sizing: border-box;
-}
+        .maintenance-card {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
 
-html,
-body {
-  height: 100%;
-}
+        .maintenance-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
 
-body {
-  margin: 0;
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-}
+        .maintenance-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0 0 1rem 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
 
-.maintenance-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
+        .maintenance-message {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 0 0 2rem 0;
+            text-align: center;
+        }
 
-.card {
-  width: 100%;
-  max-width: var(--container-max);
-  background: var(--card);
-  padding: 36px;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgb(2 6 23 / 8%);
-  text-align: center;
-}
+        .countdown-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
 
-.card h1 {
-  margin: 0 0 12px;
-  font-size: clamp(20px, 3vw, 32px);
-  line-height: 1.1;
-}
+        .countdown-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 0 1rem 0;
+        }
 
-.msg {
-  margin: 0 0 18px;
-  font-size: clamp(14px, 2.2vw, 18px);
-  color: rgb(31 41 55 / 90%);
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
-}
+        .countdown-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
 
-.count {
-  font-weight: 700;
-  font-size: 28px;
-  margin-top: 12px;
-  color: var(--accent);
-}
+        .countdown-time {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin: 0;
+        }
 
-.reopen {
-  margin-top: 8px;
-  font-size: 13px;
-  color: rgb(31 41 55 / 70%);
-}
+        .maintenance-footer {
+            margin-top: 2rem;
+            text-align: center;
+        }
 
-@media (max-width: 600px) {
-  .card {
-    padding: 20px;
-    border-radius: 10px;
-  }
-  
-  .count {
-    font-size: 22px;
-  }
-}
-
-/* High contrast mode for printers / accessibility */
-@media print {
-  body {
-    background: #fff;
-    color: #000;
-  }
-  
-  .card {
-    box-shadow: none;
-  }
-}
+        .maintenance-footer p {
+            font-size: 1rem;
+            color: #6b7280;
+            margin: 0;
+        }
