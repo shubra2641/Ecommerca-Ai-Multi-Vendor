@@ -69,7 +69,7 @@
                                                 <button type="button" class="qty-btn qty-increase" disabled aria-label="Cannot increase above available stock">+</button>
                                                 @endif
                                         </div>
-                                        <button type="submit" class="btn btn-sm btn-outline">Update</button>
+                                        <button type="submit" class="btn btn-sm btn-outline">{{ __('Update') }}</button>
                                     </form>
 
                                     {{-- Remove Item Form --}}
@@ -147,13 +147,13 @@
                                         @endif
                                     </span>
                                 </div>
-                                <div class="line shipping">Shipping Fee: <span>Calculated at checkout</span></div>
+                                <div class="line shipping">Shipping Fee: <span>__{{ __('Calculated at checkout') }}</span></div>
                                 <div class="line total">Total: <span class="total-amount">{{ $currency_symbol ?? '$' }}
                                         {{ number_format(($discounted_total ?? false) ? (($displayTotal ?? $total ?? 0) - ($discount ?? 0)) : ($displayTotal ?? $total ?? 0),2) }}</span>
                                 </div>
                             </div>
 
-                            <a href="{{ route('checkout.form') }}" class="btn btn-primary w-100">CHECKOUT</a>
+                            <a href="{{ route('checkout.form') }}" class="btn btn-primary w-100">{{ __('CHECKOUT') }}</a>
                         </div>
                     </aside>
 

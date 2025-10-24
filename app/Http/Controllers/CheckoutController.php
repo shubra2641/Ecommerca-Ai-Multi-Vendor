@@ -11,6 +11,15 @@ use App\Models\PaymentGateway;
 use App\Services\Checkout\CheckoutProcessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Services\CheckoutViewBuilder;
+use App\Http\Requests\CreateOrderRequest;
+use App\Http\Requests\SubmitOfflinePaymentRequest;
+use App\Http\Requests\StartGatewayPaymentRequest;
+use App\Models\Product;
+use App\Models\OrderItem;
+use App\Events\OrderPaid;
+use App\Models\Coupon;
 
 class CheckoutController extends Controller
 {
@@ -23,7 +32,7 @@ class CheckoutController extends Controller
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', __('Your cart is empty'));
         }
-        $vm = app(\App\Services\CheckoutViewBuilder::class)->build(
+        $vm = app(CheckoutViewBuilder::class)->build(
             $cart,
             session('currency_id'),
             session('applied_coupon_id'),
@@ -66,7 +75,7 @@ class CheckoutController extends Controller
     /**
      * Create order via API
      */
-    public function create(\App\Http\Requests\CreateOrderRequest $request)
+    public function create(CreateOrderRequest $request)
     {
         $data = $request->validated();
         $user = $request->user();
@@ -74,7 +83,7 @@ class CheckoutController extends Controller
         $items = [];
 
         foreach ($data['items'] as $it) {
-            $product = \App\Models\Product::findOrFail($it['product_id']);
+            $product = Product::findOrFail($it['product_id']);
             $qty = (int) $it['qty'];
             $price = $product->price ?? 0;
             $total += $price * $qty;
@@ -99,7 +108,7 @@ class CheckoutController extends Controller
             ]);
 
             foreach ($items as $item) {
-                \App\Models\OrderItem::create([
+                OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item['product']->id,
                     'name' => $item['product']->name,
@@ -125,7 +134,7 @@ class CheckoutController extends Controller
     /**
      * Submit offline payment proof
      */
-    public function submitOfflinePayment(\App\Http\Requests\SubmitOfflinePaymentRequest $request, $orderId)
+    public function submitOfflinePayment(SubmitOfflinePaymentRequest $request, $orderId)
     {
         $order = Order::findOrFail($orderId);
         $data = $request->validated();
@@ -146,7 +155,7 @@ class CheckoutController extends Controller
             $order->save();
 
             // Dispatch OrderPaid event to trigger stock deduction
-            event(new \App\Events\OrderPaid($order));
+            event(new OrderPaid($order));
 
             return response()->json(['ok' => true, 'payment_id' => $payment->id]);
         });
@@ -180,7 +189,7 @@ class CheckoutController extends Controller
     /**
      * Start gateway payment
      */
-    public function startGatewayPayment(\App\Http\Requests\StartGatewayPaymentRequest $request, $orderId)
+    public function startGatewayPayment(StartGatewayPaymentRequest $request, $orderId)
     {
         $order = Order::findOrFail($orderId);
         $data = $request->validated();
@@ -286,7 +295,7 @@ class CheckoutController extends Controller
     {
         $subtotal = 0.0;
         foreach ($cart as $pid => $row) {
-            $product = \App\Models\Product::find($pid);
+            $product = Product::find($pid);
             if (! $product) {
                 continue;
             }
@@ -305,7 +314,7 @@ class CheckoutController extends Controller
             return $discount;
         }
 
-        $coupon = \App\Models\Coupon::find($couponId);
+        $coupon = Coupon::find($couponId);
         if ($coupon && $coupon->isValid($subtotal)) {
             if ($coupon->type === 'percentage') {
                 $discount = $subtotal * ((float) $coupon->value) / 100.0;
@@ -486,7 +495,7 @@ class CheckoutController extends Controller
             $order->save();
 
             // Dispatch OrderPaid event to trigger stock deduction
-            event(new \App\Events\OrderPaid($order));
+            event(new OrderPaid($order));
 
             return response()->json(['ok' => true]);
         });
