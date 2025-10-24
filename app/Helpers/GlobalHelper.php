@@ -23,9 +23,9 @@ class GlobalHelper
     public static function getCurrentCurrencySymbol(): string
     {
         return session('currency_symbol') ??
-               config('app.currency_symbol') ??
-               Currency::defaultSymbol() ??
-               '$';
+            config('app.currency_symbol') ??
+            Currency::defaultSymbol() ??
+            '$';
     }
 
     /**
