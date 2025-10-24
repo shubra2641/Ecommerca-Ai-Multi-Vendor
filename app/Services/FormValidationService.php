@@ -67,7 +67,7 @@ class FormValidationService
     /**
      * Get validation messages
      */
-    public function getValidationMessages(string $_formType): array
+    public function getValidationMessages(): array
     {
         return [
             'name.required' => __('Name is required'),
@@ -84,7 +84,7 @@ class FormValidationService
     public function validateForm(array $data, string $formType): array
     {
         $rules = $this->getValidationRules($formType);
-        $messages = $this->getValidationMessages($formType);
+        $messages = $this->getValidationMessages();
 
         $validator = Validator::make($data, $rules, $messages);
 
@@ -107,7 +107,7 @@ class FormValidationService
     public function validateForAutoSave(array $data, string $formType): array
     {
         $rules = $this->getAutoSaveRules($formType);
-        $messages = $this->getValidationMessages($formType);
+        $messages = $this->getValidationMessages();
 
         $validator = Validator::make($data, $rules, $messages);
 

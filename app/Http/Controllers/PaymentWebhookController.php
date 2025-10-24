@@ -18,6 +18,7 @@ class PaymentWebhookController extends Controller
      * Verifies signature if provided, enforces idempotency via transaction id.
      */
     public function handle(Request $request, string $driver)
+    {
         // Read raw payload and signature
         $payload = (string) $request->getContent();
         $signature = $request->header('X-Signature') ??

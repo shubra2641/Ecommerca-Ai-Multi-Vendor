@@ -81,7 +81,7 @@ class PaymentEncryptionService
             'card_number' => function ($value) {
                 return substr($value, 0, 4) . '****' . substr($value, -4);
             },
-            'cvv' => function ($value) {
+            'cvv' => function ($_value) {
                 return '***';
             },
             'api_key' => function ($value) {

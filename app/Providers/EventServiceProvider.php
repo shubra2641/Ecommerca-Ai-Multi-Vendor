@@ -14,6 +14,7 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 
 class EventServiceProvider extends ServiceProvider
 {
+    /** @var array $listen */
     protected $listen = [
         OrderPaid::class => [
             StockAdjustmentListener::class . '@handleOrderPaid',
@@ -29,5 +30,6 @@ class EventServiceProvider extends ServiceProvider
     /**
      * The subscriber classes to register.
      */
+    /** @var array $subscribe */
     protected $subscribe = [];
 }

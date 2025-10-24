@@ -13,7 +13,8 @@ final class PaymentProcessingService
     public function __construct(
         private readonly OfflinePaymentHandler $offlinePaymentHandler,
         private readonly StripePaymentHandler $stripePaymentHandler
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string, string>

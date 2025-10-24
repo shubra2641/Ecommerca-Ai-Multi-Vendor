@@ -10,7 +10,7 @@ use App\Models\Order;
 final class ShippingAddressHandler
 {
     /**
-     * @param array<string, mixed> $checkoutData
+     * @param array $checkoutData
      */
     public function handleShippingAddress(Order $order, array $checkoutData): void
     {
@@ -22,7 +22,7 @@ final class ShippingAddressHandler
     }
 
     /**
-     * @param array<string, mixed> $checkoutData
+     * @param array $checkoutData
      */
     private function createAndAttachShippingAddress(Order $order, array $checkoutData): void
     {
@@ -41,7 +41,7 @@ final class ShippingAddressHandler
     }
 
     /**
-     * @param array<string, mixed> $checkoutData
+     * @param array $checkoutData
      */
     private function createShippingAddress(array $checkoutData): ?Address
     {

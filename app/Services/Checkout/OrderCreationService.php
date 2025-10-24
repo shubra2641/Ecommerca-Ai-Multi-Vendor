@@ -11,7 +11,8 @@ final class OrderCreationService
     public function __construct(
         private readonly ShippingAddressHandler $shippingAddressHandler,
         private readonly OrderItemsCreator $orderItemsCreator
-    ) {}
+    ) {
+    }
 
     /**
      * @param array<string, mixed> $checkoutData

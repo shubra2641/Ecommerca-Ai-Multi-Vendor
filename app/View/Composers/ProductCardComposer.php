@@ -22,6 +22,9 @@ final class ProductCardComposer
         $view->with($this->buildCardData($product, $data));
     }
 
+    /**
+     * @param array $data
+     */
     private function buildCardData(Product $product, array $data): array
     {
         $wishlistIds = $data['wishlistIds'] ?? [];

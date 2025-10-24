@@ -14,7 +14,8 @@ final class CheckoutProcessor
     public function __construct(
         private readonly OrderCreationService $orderCreationService,
         private readonly PaymentProcessingService $paymentProcessingService
-    ) {}
+    ) {
+    }
 
     /**
      * Process checkout - simple version
