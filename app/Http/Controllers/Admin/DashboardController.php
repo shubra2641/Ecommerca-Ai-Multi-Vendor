@@ -47,7 +47,7 @@ class DashboardController extends Controller
                     'connection' => 'active',
                 ];
             } catch (\Exception $e) {
-                logger()->error('Failed retrieving database info for admin dashboard: '.$e->getMessage());
+                logger()->error('Failed retrieving database info for admin dashboard: ' . $e->getMessage());
                 $dbInfo = [
                     'tables_count' => 0,
                     'size_mb' => 0,
@@ -162,7 +162,7 @@ class DashboardController extends Controller
 
             return redirect()->back()->with('success', __('Cache cleared successfully'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Failed to clear cache: ').$e->getMessage());
+            return redirect()->back()->with('error', __('Failed to clear cache: ') . $e->getMessage());
         }
     }
 
@@ -176,7 +176,7 @@ class DashboardController extends Controller
 
             return redirect()->back()->with('success', __('Logs cleared successfully'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Failed to clear logs: ').$e->getMessage());
+            return redirect()->back()->with('error', __('Failed to clear logs: ') . $e->getMessage());
         }
     }
 
@@ -189,7 +189,7 @@ class DashboardController extends Controller
 
             return redirect()->back()->with('success', __('System optimized successfully'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Failed to optimize system: ').$e->getMessage());
+            return redirect()->back()->with('error', __('Failed to optimize system: ') . $e->getMessage());
         }
     }
 
@@ -409,10 +409,10 @@ class DashboardController extends Controller
             $productQ = Product::query();
             $totalProducts = $productQ->count();
             $lowStock = $productQ->where('manage_stock', 1)->get()
-                ->filter(fn ($p) => ($p->availableStock() ?? 0) > 0 &&
+                ->filter(fn($p) => ($p->availableStock() ?? 0) > 0 &&
                     ($p->availableStock() ?? 0) <= 5)->count();
             $outOfStock = $productQ->where('manage_stock', 1)->get()
-                ->filter(fn ($p) => ($p->availableStock() ?? 0) <= 0)->count();
+                ->filter(fn($p) => ($p->availableStock() ?? 0) <= 0)->count();
             $onSale = Product::whereNotNull('sale_price')->whereColumn('sale_price', '<', 'price')->count();
 
             // Payment metrics

@@ -13,13 +13,13 @@ class OrdersController extends Controller
     public function index(Request $r)
     {
         $q = OrderItem::with(['order.user', 'product'])
-            ->whereHas('product', fn ($qq) => $qq->where('vendor_id', $r->user()->id));
+            ->whereHas('product', fn($qq) => $qq->where('vendor_id', $r->user()->id));
 
         if ($r->filled('q')) {
-            $q->whereHas('order', fn ($qo) => $qo->where('id', 'like', '%'.$r->input('q').'%'));
+            $q->whereHas('order', fn($qo) => $qo->where('id', 'like', '%' . $r->input('q') . '%'));
         }
         if ($r->filled('status')) {
-            $q->whereHas('order', fn ($qo) => $qo->where('status', $r->input('status')));
+            $q->whereHas('order', fn($qo) => $qo->where('status', $r->input('status')));
         }
 
         $items = $q->latest()->paginate(30);
@@ -49,7 +49,7 @@ class OrdersController extends Controller
     {
         $item = OrderItem::with(['order.user', 'product'])
             ->where('id', $id)
-            ->whereHas('product', fn ($qq) => $qq->where('vendor_id', $r->user()->id))
+            ->whereHas('product', fn($qq) => $qq->where('vendor_id', $r->user()->id))
             ->firstOrFail();
 
         // Transform the data to match frontend expectations
@@ -65,13 +65,14 @@ class OrdersController extends Controller
             'quantity' => $item->qty,
             'price' => $item->price,
             'shipping_address' => $item->order->shipping_address,
-            'items' => [[
-                'product_name' => $item->product ? $item->product->name : 'Unknown Product',
-                'quantity' => $item->qty,
-                'price' => $item->price,
-                'total' => $item->qty * $item->price,
-                'product' => $item->product,
-            ],
+            'items' => [
+                [
+                    'product_name' => $item->product ? $item->product->name : 'Unknown Product',
+                    'quantity' => $item->qty,
+                    'price' => $item->price,
+                    'total' => $item->qty * $item->price,
+                    'product' => $item->product,
+                ],
             ],
             'order' => $item->order,
             'product' => $item->product,
@@ -89,7 +90,7 @@ class OrdersController extends Controller
 
         $item = OrderItem::with(['order', 'product'])
             ->where('id', $id)
-            ->whereHas('product', fn ($qq) => $qq->where('vendor_id', $r->user()->id))
+            ->whereHas('product', fn($qq) => $qq->where('vendor_id', $r->user()->id))
             ->firstOrFail();
 
         $order = $item->order;
@@ -108,7 +109,7 @@ class OrdersController extends Controller
                 $order->user->notify(new \App\Notifications\UserOrderStatusUpdated($order, $r->input('status')));
             }
         } catch (\Throwable $e) {
-            logger()->warning('Order status notification failed: '.$e->getMessage());
+            logger()->warning('Order status notification failed: ' . $e->getMessage());
         }
 
         return response()->json(['success' => true, 'message' => 'Order status updated successfully']);
