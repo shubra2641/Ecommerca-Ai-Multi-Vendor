@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\Admin\StoreUserRequest;
+use App\Http\Requests\Admin\UpdateUserRequest;
 
 class UserController extends BaseAdminController
 {
@@ -35,7 +37,7 @@ class UserController extends BaseAdminController
         return view('admin.users.form', ['user' => new User()]);
     }
 
-    public function store(\App\Http\Requests\Admin\StoreUserRequest $request, HtmlSanitizer $sanitizer)
+    public function store(StoreUserRequest $request, HtmlSanitizer $sanitizer)
     {
         User::create($this->prepareUserData($request->validated(), $sanitizer));
 
@@ -52,7 +54,7 @@ class UserController extends BaseAdminController
         return view('admin.users.form', compact('user'));
     }
 
-    public function update(\App\Http\Requests\Admin\UpdateUserRequest $request, User $user, HtmlSanitizer $sanitizer)
+    public function update(UpdateUserRequest $request, User $user, HtmlSanitizer $sanitizer)
     {
         $user->update($this->prepareUserData($request->validated(), $sanitizer, $user));
 

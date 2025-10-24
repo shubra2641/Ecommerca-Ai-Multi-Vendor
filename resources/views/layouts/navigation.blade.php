@@ -101,13 +101,6 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <a href="{{ route('admin.balances.index') }}"
-                                class="dropdown-item {{ request()->routeIs('admin.balances*') ? 'active' : '' }}">
-                                <i class="fas fa-wallet"></i>
-                                {{ __('User Balances') }}
-                            </a>
-                        </li>
-                        <li>
                             <a href="{{ route('admin.vendor.withdrawals.index') }}"
                                 class="dropdown-item {{ request()->routeIs('admin.vendor.withdrawals*') ? 'active' : '' }}">
                                 <i class="fas fa-hand-holding-usd"></i>

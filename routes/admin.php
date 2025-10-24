@@ -71,7 +71,6 @@ Route::middleware([
         Route::get('/system', [ReportsController::class, 'systemReport'])->name('system');
         Route::get('/inventory', [ReportsController::class, 'inventoryReport'])->name('inventory');
         Route::post('/refresh', [ReportsController::class, 'refresh'])->name('refresh');
-        Route::post('/generate', [ReportsController::class, 'generateReport'])->name('generate');
     });
 
     // Notify interests management
