@@ -71,6 +71,22 @@ class GlobalHelper
     }
 
     /**
+     * Convert amount to cents (for Stripe payments).
+     */
+    public static function toCents($amount): int
+    {
+        return (int) round((float) $amount * 100);
+    }
+
+    /**
+     * Convert cents to amount (from Stripe payments).
+     */
+    public static function fromCents($cents): float
+    {
+        return round((float) $cents / 100, 2);
+    }
+
+    /**
      * Backwards compatibility alias.
      */
     public static function currencyFormat($amount, $decimals = 2): string

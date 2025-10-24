@@ -13,13 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Services\CheckoutViewBuilder;
-use App\Http\Requests\CreateOrderRequest;
-use App\Http\Requests\SubmitOfflinePaymentRequest;
-use App\Http\Requests\StartGatewayPaymentRequest;
-use App\Models\Product;
-use App\Models\OrderItem;
-use App\Events\OrderPaid;
-use App\Models\Coupon;
+use App\Helpers\GlobalHelper;
 
 class CheckoutController extends Controller
 {
@@ -379,7 +373,7 @@ class CheckoutController extends Controller
                         'price_data' => [
                             'currency' => $currency,
                             'product_data' => ['name' => 'Order #' . $order->id],
-                            'unit_amount' => (int) round(($order->total ?? 0) * 100),
+                            'unit_amount' => GlobalHelper::toCents($order->total ?? 0),
                         ],
                         'quantity' => 1,
                     ],
@@ -440,7 +434,7 @@ class CheckoutController extends Controller
             ->orderBy('id')
             ->first();
 
-        $amount = (($session['amount_total'] ?? ($order->total * 100)) / 100);
+        $amount = GlobalHelper::fromCents($session['amount_total'] ?? ($order->total * 100));
         $currency = strtolower($session['currency'] ?? $order->currency);
         $tx = $session['payment_intent'] ?? ($session['id'] ?? null);
 
