@@ -6,12 +6,16 @@ namespace App\Http\Controllers;
 
 use App\Models\ProductInterest;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Notifications\AdminProductInterestNotification;
+use App\Jobs\SendInterestConfirmationJob;
+use Illuminate\Support\Facades\Notification;
 
 class NotifyController extends Controller
 {
     public function store(Request $request)
     {
-        $allowed = \App\Models\ProductInterest::allowedTypes();
+        $allowed = ProductInterest::allowedTypes();
         $data = $request->validate([
             'product_id' => ['required', 'exists:products,id'],
             'email' => ['nullable', 'email'],
@@ -57,11 +61,11 @@ class NotifyController extends Controller
 
             // Notify admins a new product interest was created
             try {
-                $admins = \App\Models\User::where('role', 'admin')->get();
+                $admins = User::where('role', 'admin')->get();
                 if ($admins && $admins->count()) {
-                    \Illuminate\Support\Facades\Notification::sendNow(
+                    Notification::sendNow(
                         $admins,
-                        new \App\Notifications\AdminProductInterestNotification($interest)
+                        new AdminProductInterestNotification($interest)
                     );
                 }
             } catch (\Throwable $e) {
@@ -70,7 +74,7 @@ class NotifyController extends Controller
         }
 
         // Queue confirmation email
-        dispatch(new \App\Jobs\SendInterestConfirmationJob($interest->id))->afterResponse();
+        dispatch(new SendInterestConfirmationJob($interest->id))->afterResponse();
 
         // If the request came from an admin browsing session (rare) we also set a session flag.
         try {
