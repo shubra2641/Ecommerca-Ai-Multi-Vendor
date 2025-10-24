@@ -10,10 +10,10 @@ class Kernel extends HttpKernel
 {
     protected $middlewareGroups = [
         'web' => [
+            \App\Http\Middleware\CheckMaintenanceMode::class,
             // Laravel default web group is normally in parent; assuming sessions, cookies, etc auto-handled
             \App\Http\Middleware\SanitizeInput::class,
             // Global HTTP middleware stack
-            \App\Http\Middleware\CheckMaintenanceMode::class,
             \App\Http\Middleware\ContentSecurityPolicy::class,
             \App\Http\Middleware\Localization::class,
         ],

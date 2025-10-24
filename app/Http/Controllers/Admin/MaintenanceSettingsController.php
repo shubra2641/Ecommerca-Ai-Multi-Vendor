@@ -34,7 +34,7 @@ class MaintenanceSettingsController extends Controller
                     return $rows;
                 }
             } catch (\Throwable $e) {
-                logger()->warning('Failed to fetch active languages: '.$e->getMessage());
+                logger()->warning('Failed to fetch active languages: ' . $e->getMessage());
             }
             $configured = config('app.locales') ??
                 [config('app.locale', 'en')];
@@ -86,27 +86,5 @@ class MaintenanceSettingsController extends Controller
         }
 
         return back()->with('success', __('Maintenance settings updated.'));
-    }
-
-    public function preview(): View
-    {
-        $setting = Setting::first();
-        $messages = $setting?->maintenance_message ?? [];
-        if (is_string($messages)) {
-            $decoded = json_decode($messages, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $messages = $decoded;
-            }
-        }
-        $defaultLang = config('app.locale', 'en');
-        $currentMessage = $messages[$defaultLang] ?? (is_array($messages) ? reset($messages) : null);
-        $reopenAt = $setting?->maintenance_reopen_at;
-
-        return view('front.maintenance', [
-            'message' => $currentMessage,
-            'allMessages' => $messages,
-            'reopenAt' => $reopenAt,
-            'isPreview' => true,
-        ]);
     }
 }

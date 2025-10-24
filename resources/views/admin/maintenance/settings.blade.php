@@ -76,10 +76,6 @@
             <i class="fas fa-save"></i>
             {{ __('Save Maintenance Settings') }}
           </button>
-          <a href="{{ route('admin.maintenance-settings.preview') }}" target="_blank" class="admin-btn admin-btn-secondary">
-            <i class="fas fa-eye"></i>
-            {{ __('Preview Page') }}
-          </a>
           <a href="{{ route('admin.footer-settings.edit') }}" class="admin-btn admin-btn-outline">
             <i class="fas fa-arrow-left"></i>
             {{ __('Back to Footer') }}
