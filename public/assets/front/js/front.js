@@ -1,4 +1,4 @@
-// Header dropdown & currency interactions
+// Front-end JavaScript - Optimized
 (function () {
     const doc = document;
     const $ = (s) => doc.querySelector(s);
@@ -73,50 +73,59 @@
         if (document.readyState === 'complete') hideLoader(); else { window.addEventListener('load', hideLoader); setTimeout(hideLoader, 3000); }
     }
 
-    // --- Hero slider ---
-    function getSliderElements(slider) {
+    // Hero slider
+    function initHeroSlider() {
+        const slider = $('.hero-slider'); if (!slider) return;
         const track = slider.querySelector('[data-hero-slider-track]');
         const prevBtn = slider.querySelector('[data-hero-prev]');
         const nextBtn = slider.querySelector('[data-hero-next]');
         const dots = slider.querySelector('[data-hero-dots]');
         const slides = slider.querySelectorAll('.hero-slide');
-        if (!track || slides.length <= 1) return null;
-        return { track, prevBtn, nextBtn, dots, slides };
-    }
+        if (!track || slides.length <= 1) return;
 
-    function createSliderState(elements) {
-        const state = { currentSlide: 0, totalSlides: elements.slides.length };
-        if (elements.prevBtn) elements.prevBtn.hidden = false;
-        if (elements.nextBtn) elements.nextBtn.hidden = false;
-        if (elements.dots) elements.dots.hidden = false;
-        return state;
-    }
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+        if (prevBtn) prevBtn.hidden = false;
+        if (nextBtn) nextBtn.hidden = false;
+        if (dots) dots.hidden = false;
 
-    function createDots(dots, totalSlides, state) {
-        if (!dots) return;
-        for (let i = 0; i < totalSlides; i++) {
-            const dot = doc.createElement('button'); dot.type = 'button'; dot.className = i === 0 ? 'active' : ''; dot.addEventListener('click', () => goToSlide(i, state)); dots.appendChild(dot);
+        // Create dots
+        if (dots) {
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = doc.createElement('button'); dot.type = 'button'; dot.className = i === 0 ? 'active' : '';
+                dot.addEventListener('click', () => goToSlide(i)); dots.appendChild(dot);
+            }
+        }
+
+        // Event listeners
+        if (nextBtn) nextBtn.addEventListener('click', () => nextSlide());
+        if (prevBtn) prevBtn.addEventListener('click', () => prevSlide());
+
+        // Auto play
+        const AUTO_PLAY_INTERVAL = 5000;
+        let autoPlay = setInterval(() => nextSlide(), AUTO_PLAY_INTERVAL);
+        slider.addEventListener('mouseenter', () => clearInterval(autoPlay));
+        slider.addEventListener('mouseleave', () => { autoPlay = setInterval(() => nextSlide(), AUTO_PLAY_INTERVAL); });
+
+        function goToSlide(index) {
+            currentSlide = index;
+            track.scrollLeft = index * track.offsetWidth;
+            updateDots();
+        }
+
+        function nextSlide() { goToSlide((currentSlide + 1) % totalSlides); }
+        function prevSlide() { goToSlide((currentSlide - 1 + totalSlides) % totalSlides); }
+
+        function updateDots() {
+            if (!dots) return;
+            const dotElements = dots.querySelectorAll('button');
+            dotElements.forEach((dot, idx) => dot.classList.toggle('active', idx === currentSlide));
         }
     }
 
-    function setupEventListeners(elements, state) {
-        if (elements.nextBtn) elements.nextBtn.addEventListener('click', () => nextSlide(state));
-        if (elements.prevBtn) elements.prevBtn.addEventListener('click', () => prevSlide(state));
-    }
-
-    function goToSlide(index, state) { state.currentSlide = index; const track = $('[data-hero-slider-track]'); if (track) track.scrollLeft = index * track.offsetWidth; updateDots(state); }
-    function nextSlide(state) { state.currentSlide = (state.currentSlide + 1) % state.totalSlides; goToSlide(state.currentSlide, state); }
-    function prevSlide(state) { state.currentSlide = (state.currentSlide - 1 + state.totalSlides) % state.totalSlides; goToSlide(state.currentSlide, state); }
-
-    function updateDots(state) { const dots = $('[data-hero-dots]'); if (!dots) return; const dotElements = dots.querySelectorAll('button'); dotElements.forEach((dot, idx) => dot.classList.toggle('active', idx === state.currentSlide)); }
-
-    function setupAutoPlay(slider, state) { const AUTO_PLAY_INTERVAL = 5000; let autoPlay = setInterval(() => nextSlide(state), AUTO_PLAY_INTERVAL); slider.addEventListener('mouseenter', () => clearInterval(autoPlay)); slider.addEventListener('mouseleave', () => { autoPlay = setInterval(() => nextSlide(state), AUTO_PLAY_INTERVAL); }); }
-
-    function initHeroSlider() { const slider = $('.hero-slider'); if (!slider) return; const elements = getSliderElements(slider); if (!elements) return; const state = createSliderState(elements); createDots(elements.dots, elements.slides.length, state); setupEventListeners(elements, state); setupAutoPlay(slider, state); }
-
-    // --- Quantity selector (single) ---
+    // Quantity selector
     function initQuantitySelector() {
-        const qtyDisplay = $('#qtyDisplay'); const qtyInput = $('#qtyInputSide'); const increaseBtn = doc.querySelector('.qty-increase'); const trashBtn = doc.querySelector('.qty-trash');
+        const qtyDisplay = $('#qtyDisplay'); const qtyInput = $('#qtyInputSide'); const increaseBtn = $('.qty-increase'); const trashBtn = $('.qty-trash');
         if (!(qtyDisplay && qtyInput && increaseBtn && trashBtn)) return;
         let currentQty = 1; const maxStock = parseInt(qtyInput.getAttribute('max')) || 999;
         const updateQuantity = (newQty) => { currentQty = Math.max(1, Math.min(newQty, maxStock)); qtyDisplay.textContent = currentQty; qtyInput.value = currentQty; };
@@ -124,13 +133,14 @@
         trashBtn.addEventListener('click', () => updateQuantity(currentQty - 1));
     }
 
-    // --- Product variations ---
+    // Product variations
     function initProductVariations() {
         const variationCard = $('#variationGridCard'); if (!variationCard) return;
         const variationsData = variationCard.dataset.variations; const currencySymbol = variationCard.dataset.currency; if (!variationsData || !currencySymbol) return;
         const variations = JSON.parse(variationsData);
-        const applyColorSwatches = () => $$('.option-btn.color[data-swatch], .option-btn.color-swatch[data-swatch]').forEach(btn => { const swatch = btn.dataset.swatch; if (swatch) btn.style.setProperty('background-color', swatch, 'important'); });
-        applyColorSwatches();
+
+        // Apply color swatches
+        $$('.option-btn.color[data-swatch], .option-btn.color-swatch[data-swatch]').forEach(btn => { const swatch = btn.dataset.swatch; if (swatch) btn.style.setProperty('background-color', swatch, 'important'); });
 
         function updateAvailableOptions(selectedAttrs) {
             $$('.variation-attr-block').forEach(block => {
@@ -146,7 +156,7 @@
         function updatePrice(selectedAttrs) {
             const priceElement = $('#productPrice'); const priceMaxElement = $('#productPriceMax'); const priceRangeSep = $('.price-range-sep');
             if (!selectedAttrs || Object.keys(selectedAttrs).length === 0) { if (priceElement && priceMaxElement && priceRangeSep) { priceElement.style.display = 'inline'; priceRangeSep.style.display = 'inline'; priceMaxElement.style.display = 'inline'; } return; }
-            const matchingVariation = variations.find(v => { const attrData = v.attribute_data || {}; return Object.keys(selectedAttrs).every(attr => attrData[attr] === selectedAttrs[attr]); });
+            const matchingVariation = variations.find(v => { const attrData = v.attribute_data || {}; return Object.keys(selectedAttrs).every(attr => attrData[attr] === testAttrs[attr]); });
             if (matchingVariation) {
                 const displayPrice = matchingVariation.effective_price; if (priceElement) priceElement.textContent = currencySymbol + ' ' + displayPrice.toFixed(2); if (priceMaxElement) priceMaxElement.style.display = 'none'; if (priceRangeSep) priceRangeSep.style.display = 'none';
                 const priceInput = $('#selectedPrice'); if (priceInput) priceInput.value = displayPrice; const variationInput = $('#selectedVariationId'); if (variationInput) variationInput.value = matchingVariation.id;
@@ -166,15 +176,15 @@
         updateAvailableOptions({});
     }
 
-    // --- Shipping / Checkout ---
+    // Shipping / Checkout - Unified functions
     function clearSelect(select, placeholder) { if (!select) return; select.innerHTML = `<option value="">${placeholder}</option>`; }
     function populateSelect(select, options, selectedValue = null) { if (!select) return; const firstText = select.querySelector('option')?.textContent || ''; select.innerHTML = `<option value="">${firstText}</option>`; (options || []).forEach(option => { const opt = doc.createElement('option'); opt.value = option.id; opt.textContent = option.name; if (selectedValue && option.id == selectedValue) opt.selected = true; select.appendChild(opt); }); }
 
     function initCheckoutShipping() {
-        const checkoutRoot = $('#checkout-root'); const translations = { selectGovernorate: checkoutRoot?.dataset.selectGovernorate || 'Select Governorate', selectCity: checkoutRoot?.dataset.selectCity || 'Select City', selectShippingCompany: checkoutRoot?.dataset.selectShippingCompany || 'Select Shipping Company' };
-        const currencySymbol = checkoutRoot?.dataset.currencySymbol; const baseTotal = parseFloat(checkoutRoot?.dataset.baseTotal || '0') || 0;
+        const checkoutRoot = $('#checkout-root'); if (!checkoutRoot) return;
+        const translations = { selectGovernorate: checkoutRoot.dataset.selectGovernorate || 'Select Governorate', selectCity: checkoutRoot.dataset.selectCity || 'Select City', selectShippingCompany: checkoutRoot.dataset.selectShippingCompany || 'Select Shipping Company' };
+        const currencySymbol = checkoutRoot.dataset.currencySymbol; const baseTotal = parseFloat(checkoutRoot.dataset.baseTotal || '0') || 0;
         const countrySelect = $('#country-select'); const governorateSelect = $('#governorate-select'); const citySelect = $('#city-select'); const shippingZoneSelect = $('#shipping-zone-select'); const shippingCostDisplay = $('#shipping-cost-display'); const shippingCompanyDisplay = $('#shipping-company-display'); const shippingCostInput = $('#shipping-cost-input'); const shippingDaysInput = $('#shipping-days-input'); const shippingDaysDiv = $('#shipping-days'); const shippingDaysDisplay = $('#shipping-days-display'); const shippingInfo = $('#shipping-info'); const hiddenShippingZoneId = $('#input-shipping-zone-id'); const hiddenShippingPrice = $('#input-shipping-price'); const hiddenShippingDays = $('#shipping-days-input');
-        if (!countrySelect || !governorateSelect || !citySelect) return;
 
         async function loadGovernorates(countryId) { if (!countryId) { clearSelect(governorateSelect, translations.selectGovernorate); clearSelect(citySelect, translations.selectCity); clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); return; } const data = await fetchJson(`/api/locations/governorates?country=${countryId}`); populateSelect(governorateSelect, data.data || []); clearSelect(citySelect, translations.selectCity); clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); }
 
@@ -195,7 +205,7 @@
         if (countrySelect.value) loadGovernorates(countrySelect.value);
     }
 
-    // --- Address selection ---
+    // Address selection - Simplified
     function initAddressSelection() {
         const addressRadios = $$('input[name="selected_address"]'); const selectedAddressIdHidden = $('#selected-address-id'); const customerNameInput = $('#customer_name'); const customerEmailInput = $('#customer_email'); const customerPhoneInput = $('#customer_phone'); const customerAddressInput = $('#customer_address'); const countrySelect = $('#country-select'); const governorateSelect = $('#governorate-select'); const citySelect = $('#city-select'); const translations = { selectGovernorate: 'Select Governorate', selectCity: 'Select City', selectShippingCompany: 'Select Shipping Company' };
 
