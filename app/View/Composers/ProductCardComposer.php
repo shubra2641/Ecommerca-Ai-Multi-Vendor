@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\View\Composers;
 
+use App\Models\Product;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-use App\Models\Product;
 
 final class ProductCardComposer
 {
@@ -22,7 +22,7 @@ final class ProductCardComposer
         $view->with($this->buildCardData($product, $data));
     }
 
-    private function buildCardData($product, array $data): array
+    private function buildCardData(Product $product, array $data): array
     {
         $wishlistIds = $data['wishlistIds'] ?? [];
         $compareIds = $data['compareIds'] ?? [];
@@ -47,7 +47,7 @@ final class ProductCardComposer
         ];
     }
 
-    private function calculateCardAvailable($product): ?int
+    private function calculateCardAvailable(Product $product): ?int
     {
         if (isset($product->list_available)) {
             return (int) $product->list_available;
@@ -60,13 +60,13 @@ final class ProductCardComposer
         return max(0, (int) ($product->stock_qty ?? 0) - (int) ($product->reserved_qty ?? 0));
     }
 
-    private function generateCardSnippet($product): string
+    private function generateCardSnippet(Product $product): string
     {
         $desc = trim(strip_tags($product->short_description ?? $product->description ?? ''));
         return $desc ? Str::limit($desc, 50, '...') : '';
     }
 
-    private function getCardPrices($product): array
+    private function getCardPrices(Product $product): array
     {
         $price = $product->price ?? 0;
         $salePrice = $product->sale_price ?? null;

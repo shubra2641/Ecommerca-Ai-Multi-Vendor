@@ -143,7 +143,6 @@ final class AdminProductFormComposer
     {
         return $languages->mapWithKeys(function ($lang) use ($model) {
             $code = $lang->code;
-            $isDefault = (bool) $lang->is_default;
             return [
                 $code => [
                     'name_val' => old(
@@ -170,15 +169,6 @@ final class AdminProductFormComposer
                         "seo_description.{$code}",
                         $model?->translate('seo_description', $code) ?? ''
                     ),
-                    'ph_name' => $isDefault ? __('Main name') :
-                        __('Name') . ' (' . $code . ')',
-                    'ph_short' => $isDefault ? __('Short description') :
-                        __('Short') . ' (' . $code . ')',
-                    'ph_desc' => $isDefault ? __('Full description') :
-                        __('Description') . ' (' . $code . ')',
-                    'ph_seo_title' => __('SEO Title') . ' (' . $code . ')',
-                    'ph_seo_keywords' => __('SEO Keywords') . ' (' . $code . ')',
-                    'ph_seo_description' => __('SEO Description') . ' (' . $code . ')',
                 ],
             ];
         })->all();

@@ -42,11 +42,9 @@ class ProductSerialController extends Controller
                 }
             }
         }
-        $created = 0;
         foreach ($list as $s) {
             if (! ProductSerial::where('product_id', $product->id)->where('serial', $s)->exists()) {
                 ProductSerial::create(['product_id' => $product->id, 'serial' => $s]);
-                $created++;
             }
         }
 

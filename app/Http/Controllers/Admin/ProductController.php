@@ -113,7 +113,6 @@ class ProductController extends Controller
         // Get name from array or string
         $nameInput = $request->input('name');
         $locale = $request->input('locale');
-        $target = $request->input('target', 'all');
 
         // Extract title from multilingual name array
         if (is_array($nameInput)) {
