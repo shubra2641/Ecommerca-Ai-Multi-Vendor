@@ -67,7 +67,6 @@
                             @php($existingConfig = $gateway->getCredentials() ?? ($gateway->config ?? []))
                             <select name="driver" id="driver" class="admin-form-select @error('driver') is-invalid @enderror"
                                 {{ $gateway->exists ? 'disabled' : '' }} required
-                                data-config-base-url="{{ url('admin/payment-gateways-management/config-fields') }}"
                                 data-existing-config='{{ e(json_encode($existingConfig, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'>
                                 <option value="">-- {{ __('Choose') }} --</option>
                                 <option value="stripe" {{ old('driver', $gateway->driver) === 'stripe' ? 'selected' : '' }}>Stripe</option>
@@ -177,9 +176,7 @@
                         </h3>
                     </div>
                     <div class="admin-card-body">
-                        <div id="dynamic-config-fields">
-                            {{-- Fields will be rendered here by JS when a dynamic driver is selected --}}
-                        </div>
+                        {{-- Dynamic config removed --}}
                     </div>
 
                     <!-- PayTabs Fields -->

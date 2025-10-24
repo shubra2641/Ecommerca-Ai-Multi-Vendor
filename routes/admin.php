@@ -23,7 +23,6 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\NotifyController as AdminNotifyController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentGatewayController;
-use App\Http\Controllers\Admin\PaymentGatewayManagementController;
 use App\Http\Controllers\Admin\PostCategoryController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ProductApprovalController;
@@ -333,24 +332,6 @@ Route::middleware([
         ->name('admin.payment-gateways.toggle');
     Route::post('payment-gateways/{paymentGateway}/test-webhook', [PaymentGatewayController::class, 'testWebhook'])
         ->name('admin.payment-gateways.test-webhook');
-
-    // Advanced Payment Gateway Management
-    Route::prefix('payment-gateways-management')->name('admin.payment-gateways-management.')->group(function (): void {
-        Route::get('dashboard', [PaymentGatewayManagementController::class, 'dashboard'])->name('dashboard');
-        Route::post('{paymentGateway}/test-connection', [PaymentGatewayManagementController::class, 'testConnection'])
-            ->name('test-connection');
-        Route::get(
-            'config-fields/{driver}',
-            [PaymentGatewayManagementController::class, 'getConfigFields']
-        )->name('config-fields');
-        Route::post('{paymentGateway}/update-config', [PaymentGatewayManagementController::class, 'updateConfig'])
-            ->name('update-config');
-        Route::get('{paymentGateway}/analytics', [PaymentGatewayManagementController::class, 'getAnalytics'])
-            ->name('analytics');
-        Route::get('transaction/{payment}', [PaymentGatewayManagementController::class, 'getTransaction'])
-            ->name('transaction');
-        Route::post('sync', [PaymentGatewayManagementController::class, 'syncGateways'])->name('sync');
-    });
 
     // Coupons management (moved here so path is /admin/coupons)
     Route::prefix('coupons')->name('admin.coupons.')->group(function (): void {

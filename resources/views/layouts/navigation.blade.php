@@ -320,9 +320,6 @@
                         <li><a href="{{ route('admin.payment-gateways.index') }}"
                                 class="dropdown-item {{ request()->routeIs('admin.payment-gateways.index') || request()->routeIs('admin.payment-gateways.create') || request()->routeIs('admin.payment-gateways.edit') ? 'active' : '' }}"><i
                                     class="fas fa-credit-card"></i> {{ __('Payment Gateways') }}</a></li>
-                        <li><a href="{{ route('admin.payment-gateways-management.dashboard') }}"
-                                class="dropdown-item {{ request()->routeIs('admin.payment-gateways-management*') ? 'active' : '' }}"><i
-                                    class="fas fa-chart-line"></i> {{ __('Gateway Management') }}</a></li>
                         <li><a href="{{ route('admin.coupons.index') }}"
                                 class="dropdown-item {{ request()->routeIs('admin.coupons*') ? 'active' : '' }}"><i
                                     class="fas fa-ticket-alt"></i> {{ __('Coupons') }}</a></li>
