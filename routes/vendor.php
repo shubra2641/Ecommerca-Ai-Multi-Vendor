@@ -31,9 +31,6 @@ Route::middleware(['auth', 'can:access-vendor', 'role:vendor'])->group(function 
         ->name('vendor.withdrawals.receipt');
     // Vendor orders
     Route::get('orders', [VendorOrderController::class, 'index'])->name('vendor.orders.index');
-    Route::get('orders/export', [VendorOrderController::class, 'export'])->name('vendor.orders.export');
-    Route::post('orders/export/request', [VendorOrderController::class, 'requestExport'])
-        ->name('vendor.orders.export.request');
     Route::get('orders/{id}', [VendorOrderController::class, 'show'])->name('vendor.orders.show');
 
     // Vendor notifications (mirroring admin endpoints)

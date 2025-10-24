@@ -152,14 +152,6 @@ class DashboardController extends Controller
         return response()->json(['message' => 'System report feature coming soon']);
     }
 
-    public function generateReport()
-    {
-        // Generate Excel report
-        $filename = 'admin-report-'.date('Y-m-d').'.xlsx';
-
-        return response()->json(['message' => 'Report generated successfully', 'filename' => $filename]);
-    }
-
     public function clearCache()
     {
         try {
@@ -222,7 +214,6 @@ class DashboardController extends Controller
                     'stats' => $stats,
                     'charts' => $chartData,
                     'salesChart' => $salesChartData,
-                    'activities' => $activities,
                 ],
             ]);
         } catch (\Exception $e) {

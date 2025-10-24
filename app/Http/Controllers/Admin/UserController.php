@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exports\UsersBalanceExport;
 use App\Http\Requests\Admin\AdjustBalanceRequest;
 use App\Models\User;
 use App\Services\BalanceService;
 use App\Services\HtmlSanitizer;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
-use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends BaseAdminController
 {

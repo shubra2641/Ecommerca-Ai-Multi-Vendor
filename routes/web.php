@@ -237,10 +237,6 @@ Route::prefix('vendor')->name('vendor.')->group(function (): void {
 // and '/api' prefix. Do not require it here to avoid registering API routes under
 // the web (CSRF-protected) middleware.
 
-// Public signed download route for vendor export files
-Route::get('/vendor/orders/export/file/{filename}', [VendorOrderController::class, 'downloadExport'])
-    ->name('vendor.orders.export.file');
-
 // Debug route removed from web routes.
 
 // Simulated payment redirect routes for local/testing (accept POST for gateways that POST JSON)

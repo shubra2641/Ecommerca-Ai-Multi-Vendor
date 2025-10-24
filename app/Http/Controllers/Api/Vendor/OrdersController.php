@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Vendor;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\GenerateVendorOrdersCsv;
 use App\Models\OrderItem;
-use App\Models\VendorExport;
 use Illuminate\Http\Request;
 
 class OrdersController extends Controller
@@ -114,19 +112,5 @@ class OrdersController extends Controller
         }
 
         return response()->json(['success' => true, 'message' => 'Order status updated successfully']);
-    }
-
-    public function requestExport(Request $r)
-    {
-        $filters = $r->only(['status', 'start_date', 'end_date', 'q']);
-        $export = VendorExport::create([
-            'vendor_id' => $r->user()->id,
-            'status' => 'pending',
-            'filters' => $filters,
-        ]);
-
-        GenerateVendorOrdersCsv::dispatch($export->id, $filters);
-
-        return response()->json(['ok' => true, 'message' => 'Export requested']);
     }
 }

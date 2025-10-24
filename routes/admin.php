@@ -40,7 +40,6 @@ use App\Http\Controllers\Admin\ShippingZoneController;
 use App\Http\Controllers\Admin\SocialLinkController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\VendorExportController;
 use App\Http\Controllers\Admin\VendorWithdrawalController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -358,12 +357,6 @@ Route::middleware([
         ->name('admin.vendor.payouts.index');
     Route::get('payouts/{payout}', [VendorWithdrawalController::class, 'payoutsShow'])
         ->name('admin.vendor.payouts.show');
-    // Vendor exports admin
-    Route::prefix('vendor-exports')->name('admin.vendor_exports.')->group(function (): void {
-        Route::get('/', [VendorExportController::class, 'index'])->name('index');
-        Route::get('/{export}/download', [VendorExportController::class, 'download'])
-            ->name('download');
-    });
     // Locations management
     Route::resource('countries', CountryController::class)->except(['show'])->names('admin.countries');
     Route::resource('governorates', GovernorateController::class)->except(['show'])->names('admin.governorates');

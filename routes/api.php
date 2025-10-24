@@ -31,7 +31,6 @@ Route::prefix('vendor')->group(function (): void {
         Route::get('/orders', [ApiVendorOrdersController::class, 'index']);
         Route::get('/orders/{id}', [ApiVendorOrdersController::class, 'show']);
         Route::put('/orders/{id}/status', [ApiVendorOrdersController::class, 'updateOrderStatus']);
-        Route::post('/orders/export', [ApiVendorOrdersController::class, 'requestExport']);
 
         Route::get('/products', [ApiVendorProductsController::class, 'index']);
         Route::post('/products', [ApiVendorProductsController::class, 'store']);
