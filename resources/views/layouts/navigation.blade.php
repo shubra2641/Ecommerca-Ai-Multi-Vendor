@@ -156,13 +156,13 @@
             <!-- Home & Footer Management -->
             <div class="nav-section">
                 <div class="nav-section-title">{{ __('Homepage') }}</div>
-                <div class="nav-dropdown dropdown {{ (request()->routeIs('admin.footer-settings.*') || request()->routeIs('admin.maintenance-settings.*') || request()->routeIs('admin.homepage.sections.*') || request()->routeIs('admin.homepage.slides.*') || request()->routeIs('admin.homepage.banners.*')) ? 'show' : '' }}">
-                    <a href="#" class="nav-item dropdown-toggle" aria-expanded="{{ (request()->routeIs('admin.footer-settings.*') || request()->routeIs('admin.maintenance-settings.*') || request()->routeIs('admin.homepage.sections.*') || request()->routeIs('admin.homepage.slides.*') || request()->routeIs('admin.homepage.banners.*')) ? 'true' : 'false' }}">
+                <div class="nav-dropdown dropdown {{ (request()->routeIs('admin.footer-settings.*') || request()->routeIs('admin.homepage.sections.*') || request()->routeIs('admin.homepage.slides.*') || request()->routeIs('admin.homepage.banners.*')) ? 'show' : '' }}">
+                    <a href="#" class="nav-item dropdown-toggle" aria-expanded="{{ (request()->routeIs('admin.footer-settings.*') || request()->routeIs('admin.homepage.sections.*') || request()->routeIs('admin.homepage.slides.*') || request()->routeIs('admin.homepage.banners.*')) ? 'true' : 'false' }}">
                         <div class="nav-icon"><i class="fas fa-layer-group"></i></div>
                         <span class="nav-text">{{ __('Homepage') }}</span>
                         <i class="fas fa-chevron-down dropdown-arrow"></i>
                     </a>
-                    <ul class="dropdown-menu {{ (request()->routeIs('admin.footer-settings.*')||request()->routeIs('admin.maintenance-settings.*')||request()->routeIs('admin.homepage.sections.*')||request()->routeIs('admin.homepage.slides.*')||request()->routeIs('admin.homepage.banners.*')) ? 'show' : '' }}">
+                    <ul class="dropdown-menu {{ (request()->routeIs('admin.footer-settings.*')||request()->routeIs('admin.homepage.sections.*')||request()->routeIs('admin.homepage.slides.*')||request()->routeIs('admin.homepage.banners.*')) ? 'show' : '' }}">
                         <li><a href="{{ route('admin.homepage.sections.index') }}" class="dropdown-item {{ request()->routeIs('admin.homepage.sections.*') ? 'active' : '' }}"><i class="fas fa-list"></i> {{ __('Sections') }}</a></li>
                         <li><a href="{{ route('admin.homepage.slides.index') }}" class="dropdown-item {{ request()->routeIs('admin.homepage.slides.*') ? 'active' : '' }}"><i class="fas fa-images"></i> {{ __('Slides') }}</a></li>
                         <li><a href="{{ route('admin.homepage.banners.index') }}" class="dropdown-item {{ request()->routeIs('admin.homepage.banners.*') ? 'active' : '' }}"><i class="fas fa-ad"></i> {{ __('Banners') }}</a></li>
@@ -170,7 +170,6 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li><a href="{{ route('admin.footer-settings.edit') }}" class="dropdown-item {{ request()->routeIs('admin.footer-settings.*') ? 'active' : '' }}"><i class="fas fa-shoe-prints"></i> {{ __('Footer Settings') }}</a></li>
-                        <li><a href="{{ route('admin.maintenance-settings.edit') }}" class="dropdown-item {{ request()->routeIs('admin.maintenance-settings.*') ? 'active' : '' }}"><i class="fas fa-tools"></i> {{ __('Maintenance Mode') }}</a></li>
                     </ul>
                 </div>
             </div>
@@ -313,7 +312,7 @@
                         <i class="fas fa-chevron-down dropdown-arrow"></i>
                     </a>
                     <ul
-                        class="dropdown-menu {{ request()->routeIs('admin.settings*')||request()->routeIs('admin.payment-gateways*')||request()->routeIs('admin.coupons*')||request()->routeIs('admin.languages*')||request()->routeIs('admin.currencies*')||request()->routeIs('admin.social*') ? 'show' : '' }}">
+                        class="dropdown-menu {{ request()->routeIs('admin.settings*')||request()->routeIs('admin.payment-gateways*')||request()->routeIs('admin.maintenance-settings.*')||request()->routeIs('admin.coupons*')||request()->routeIs('admin.languages*')||request()->routeIs('admin.currencies*')||request()->routeIs('admin.social*') ? 'show' : '' }}">
                         <li><a href="{{ route('admin.settings.index') }}"
                                 class="dropdown-item {{ request()->routeIs('admin.settings*') ? 'active' : '' }}"><i
                                     class="fas fa-sliders-h"></i> {{ __('Settings') }}</a></li>
@@ -332,6 +331,8 @@
                         <li><a href="{{ route('admin.social.index') }}"
                                 class="dropdown-item {{ request()->routeIs('admin.social*') ? 'active' : '' }}"><i
                                     class="fas fa-share-alt"></i> {{ __('Social Links') }}</a></li>
+                        <li><a href="{{ route('admin.maintenance-settings.edit') }}" class="dropdown-item {{ request()->routeIs('admin.maintenance-settings.*') ? 'active' : '' }}"><i class="fas fa-tools"></i> {{ __('Maintenance Mode') }}</a></li>
+
                     </ul>
                 </div>
             </div>
