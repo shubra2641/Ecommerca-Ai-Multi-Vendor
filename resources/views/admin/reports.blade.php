@@ -37,11 +37,6 @@
                 </div>
             </div>
             <div class="header-actions">
-                <button type="button" class="admin-btn admin-btn-secondary" id="refreshReportsBtn"
-                    data-bs-toggle="tooltip" title="{{ __('Refresh reports data') }}">
-                    <i class="fas fa-sync-alt"></i>
-                    {{ __('Refresh') }}
-                </button>
                 <div class="dropdown d-inline-block">
                     <button class="admin-btn admin-btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                         <i class="fas fa-download"></i>
@@ -80,17 +75,6 @@
                     </div>
                     <div class="admin-stat-label">{{ __('Total Users') }}</div>
                     <div class="admin-stat-description">{{ __('All registered users in the system') }}</div>
-                </div>
-                <div class="admin-stat-footer">
-                    <a href="{{ route('admin.reports.users') }}" class="admin-btn admin-btn-secondary">
-                        {{ __('View Report') }}
-                        <i class="fas fa-arrow-up"></i>
-                    </a>
-                    <div class="admin-stat-trend admin-stat-trend-up">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>+12%</span>
-                        <small>{{ __('this month') }}</small>
-                    </div>
                 </div>
             </div>
 
@@ -256,20 +240,6 @@
                     </div>
                     <div class="admin-card-body">
                         <div class="admin-items-list">
-                            <a href="{{ route('admin.reports.users') }}" class="admin-item-card text-decoration-none">
-                                <div class="admin-item-placeholder admin-item-placeholder-primary">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <div class="admin-item-details">
-                                    <div class="admin-item-name">{{ __('Users Report') }}</div>
-                                    <div class="admin-item-meta">
-                                        <span class="admin-text-muted">{{ __('Detailed user analytics and statistics') }}</span>
-                                    </div>
-                                </div>
-                                <div class="admin-item-price">
-                                    <span class="admin-badge admin-badge-primary" data-countup data-target="{{ (int)($stats['totalUsers'] ?? 0) }}">{{ isset($stats['totalUsers']) ? $stats['totalUsers'] : '0' }} {{ __('users') }}</span>
-                                </div>
-                            </a>
 
                             <a href="{{ route('admin.reports.vendors') }}" class="admin-item-card text-decoration-none">
                                 <div class="admin-item-placeholder admin-item-placeholder-success">

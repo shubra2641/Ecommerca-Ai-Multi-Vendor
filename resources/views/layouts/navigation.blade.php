@@ -49,9 +49,6 @@
                         <li><a href="{{ route('admin.reports.inventory') }}"
                                 class="dropdown-item {{ request()->routeIs('admin.reports.inventory') ? 'active' : '' }}"><i
                                     class="fas fa-warehouse"></i> {{ __('Inventory') }}</a></li>
-                        <li><a href="{{ route('admin.reports.users') }}"
-                                class="dropdown-item {{ request()->routeIs('admin.reports.users') ? 'active' : '' }}"><i
-                                    class="fas fa-user"></i> {{ __('Users') }}</a></li>
                         <li><a href="{{ route('admin.reports.vendors') }}"
                                 class="dropdown-item {{ request()->routeIs('admin.reports.vendors') ? 'active' : '' }}"><i
                                     class="fas fa-store"></i> {{ __('Vendors') }}</a></li>

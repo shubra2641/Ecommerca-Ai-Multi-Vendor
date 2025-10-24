@@ -57,25 +57,6 @@ class ReportsController extends Controller
     }
 
     /**
-     * Generate users report
-     */
-    public function usersReport()
-    {
-        $users = User::select('id', 'name', 'email', 'role', 'balance', 'created_at', 'approved_at')
-            ->orderBy('created_at', 'desc')
-            ->paginate(50);
-
-        $usersData = [
-            'total_users' => User::count(),
-            'active_users' => User::whereNotNull('approved_at')->count(),
-            'pending_users' => User::whereNull('approved_at')->count(),
-            'new_this_month' => User::whereMonth('created_at', now()->month)->count(),
-        ];
-
-        return view('admin.reports.users', compact('users', 'usersData'));
-    }
-
-    /**
      * Generate vendors report
      */
     public function vendorsReport()
@@ -170,72 +151,20 @@ class ReportsController extends Controller
             'manage_stock_count' => \App\Models\Product::where('manage_stock', 1)->count(),
             'out_of_stock' => \App\Models\Product::where('manage_stock', 1)
                 ->get()
-                ->filter(fn ($x) => ($x->availableStock() ?? 0) <= 0)
+                ->filter(fn($x) => ($x->availableStock() ?? 0) <= 0)
                 ->count(),
             'serials_low' => \App\Models\Product::where('has_serials', 1)
                 ->get()
-                ->filter(fn ($x) => $x->serials()->whereNull('sold_at')->count() <= 5)
+                ->filter(fn($x) => $x->serials()->whereNull('sold_at')->count() <= 5)
                 ->count(),
             'average_stock' => (int) round(\App\Models\Product::where('manage_stock', 1)
                 ->get()
-                ->map(fn ($x) => $x->availableStock() ?? 0)
+                ->map(fn($x) => $x->availableStock() ?? 0)
                 ->avg()),
         ];
 
         return view('admin.reports.inventory', compact('products', 'totals'));
     }
-
-    /**
-     * Refresh reports data
-     */
-    public function refresh()
-    {
-        try {
-            // Clear reports cache
-            Cache::forget('reports_stats');
-            Cache::forget('dashboard_stats');
-
-            return response()->json([
-                'success' => true,
-                'message' => __('Reports data refreshed successfully'),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __('Failed to refresh reports data'),
-            ], 500);
-        }
-    }
-
-    /**
-     * Export data to Excel/PDF
-     */
-    public function exportData(Request $request)
-    {
-        $request->validate([
-            'type' => ['nullable', 'in:excel,pdf'],
-            'report' => ['nullable', 'in:users,vendors,financial,system'],
-        ]);
-
-        $type = $request->get('type', 'excel'); // excel or pdf
-        $report = $request->get('report', 'users'); // users, vendors, financial, system
-
-        try {
-            $filename = 'admin-'.$report.'-report-'.date('Y-m-d-H-i-s');
-
-            if ($type === 'pdf') {
-                return $this->exportToPdf($report, $filename);
-            }
-
-            return $this->exportToExcel($report, $filename);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __('Failed to export data: ').$e->getMessage(),
-            ], 500);
-        }
-    }
-
     /**
      * Get registration chart data
      */
@@ -393,7 +322,7 @@ class ReportsController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('Excel export feature will be implemented'),
-            'filename' => $filename.'.xlsx',
+            'filename' => $filename . '.xlsx',
         ]);
     }
 
@@ -406,7 +335,7 @@ class ReportsController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('PDF export feature will be implemented'),
-            'filename' => $filename.'.pdf',
+            'filename' => $filename . '.pdf',
         ]);
     }
 }

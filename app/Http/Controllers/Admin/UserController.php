@@ -90,7 +90,7 @@ class UserController extends BaseAdminController
     {
         return view('admin.users.index', [
             'users' => $this->getUsersByStatus($status, $role),
-            'title' => ucfirst($status).($role ? ' '.ucfirst($role).'s' : ' Users'),
+            'title' => ucfirst($status) . ($role ? ' ' . ucfirst($role) . 's' : ' Users'),
         ]);
     }
 
@@ -99,18 +99,6 @@ class UserController extends BaseAdminController
         return view('admin.balances.index', [
             'users' => User::select('name', 'email', 'role', 'balance')->paginate(20),
         ]);
-    }
-
-    public function export(Request $request)
-    {
-        $users = User::select('name', 'email', 'role', 'balance')->get();
-        $format = $request->query('format', 'xlsx');
-
-        if ($format === 'pdf') {
-            return Pdf::loadView('exports.balances', compact('users'))->download('user_balances.pdf');
-        }
-
-        return Excel::download(new UsersBalanceExport($users), 'user_balances.xlsx');
     }
 
     public function bulkApprove(Request $request)

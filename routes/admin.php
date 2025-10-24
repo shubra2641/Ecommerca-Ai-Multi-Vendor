@@ -67,7 +67,6 @@ Route::middleware([
     // Reports routes
     Route::prefix('reports')->name('admin.reports.')->group(function (): void {
         Route::get('/', [ReportsController::class, 'index'])->name('index');
-        Route::get('/users', [ReportsController::class, 'usersReport'])->name('users');
         Route::get('/vendors', [ReportsController::class, 'vendorsReport'])->name('vendors');
         Route::get('/financial', [ReportsController::class, 'financialReport'])->name('financial');
         Route::get('/system', [ReportsController::class, 'systemReport'])->name('system');
