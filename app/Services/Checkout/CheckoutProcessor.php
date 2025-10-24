@@ -6,32 +6,94 @@ namespace App\Services\Checkout;
 
 use App\Models\Order;
 use App\Models\PaymentGateway;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
-class CheckoutProcessor
+final class CheckoutProcessor
 {
+    public function __construct(
+        private readonly OrderCreationService $orderCreationService,
+        private readonly PaymentProcessingService $paymentProcessingService
+    ) {}
+
     /**
      * Process checkout - simple version
+     * @param array<int|string, mixed> $cart
+     * @param array<string, mixed> $validatedData
+     * @return array<string, mixed>
      */
     public function processCheckout(Request $request, array $cart, array $validatedData, float $discount = 0): array
     {
-        // Get gateway
-        $gateway = PaymentGateway::where('slug', $validatedData['gateway'])->where('enabled', true)->first();
+        $gateway = $this->resolveGateway($validatedData['gateway'] ?? null);
+        [$items, $subtotal] = $this->mapCartItems($cart);
+
+        $subtotal = $this->applyDiscount($subtotal, $discount);
+        $shippingPrice = (float) ($validatedData['shipping_price'] ?? 0);
+        $total = $subtotal + $shippingPrice;
+
+        $shippingAddress = $this->buildShippingAddress($validatedData);
+
+        return $this->buildCheckoutPayload(
+            $gateway,
+            $items,
+            $subtotal,
+            $shippingPrice,
+            $total,
+            $shippingAddress,
+            $validatedData,
+            $request
+        );
+    }
+
+    /**
+     * Create simple order
+     * @param array<string, mixed> $checkoutData
+     */
+    public function createOrder(array $checkoutData): Order
+    {
+        return $this->orderCreationService->createOrder($checkoutData);
+    }
+
+    /**
+     * Handle payment - simple version
+     * @return array<string, string>
+     */
+    public function processPayment(Order $order, PaymentGateway $gateway, Request $request): array
+    {
+        return $this->paymentProcessingService->processPayment($order, $gateway, $request);
+    }
+
+    private function resolveGateway(?string $gatewaySlug): PaymentGateway
+    {
+        $gateway = PaymentGateway::query()
+            ->where('slug', $gatewaySlug)
+            ->where('enabled', true)
+            ->first();
+
         if (! $gateway) {
             throw new \Exception(__('Selected payment method is not available'));
         }
 
-        // Calculate subtotal
-        $subtotal = 0;
+        return $gateway;
+    }
+
+    /**
+     * @param array<int|string, mixed> $cart
+     * @return array{0: array<int, array<string, mixed>>, 1: float}
+     */
+    private function mapCartItems(array $cart): array
+    {
+        $subtotal = 0.0;
         $items = [];
-        foreach ($cart as $pid => $row) {
-            $product = \App\Models\Product::find($pid);
+
+        foreach ($cart as $productId => $row) {
+            $product = $this->findProduct((int) $productId);
+
             if (! $product) {
                 continue;
             }
 
-            // Ensure numeric types
-            $qty = (int) ($row['qty'] ?? 1);
+            $qty = max(1, (int) ($row['qty'] ?? 1));
             $price = (float) ($row['price'] ?? 0);
             $subtotal += $price * $qty;
 
@@ -43,25 +105,53 @@ class CheckoutProcessor
             ];
         }
 
-        // Apply discount
-        $subtotal -= $discount;
+        return [$items, $subtotal];
+    }
 
-        // Add shipping cost if provided
-        $shippingPrice = $validatedData['shipping_price'] ?? 0;
-        $total = $subtotal + $shippingPrice;
+    private function findProduct(int $productId): ?Product
+    {
+        return Product::find($productId);
+    }
 
-        // Prepare shipping address
-        $shippingAddress = [
-            'customer_name' => $validatedData['customer_name'],
-            'customer_email' => $validatedData['customer_email'],
-            'customer_phone' => $validatedData['customer_phone'],
-            'customer_address' => $validatedData['customer_address'],
-            'country_id' => $validatedData['country'],
+    private function applyDiscount(float $subtotal, float $discount): float
+    {
+        return max(0.0, $subtotal - max(0.0, $discount));
+    }
+
+    /**
+     * @param array<string, mixed> $validatedData
+     * @return array<string, mixed>
+     */
+    private function buildShippingAddress(array $validatedData): array
+    {
+        return [
+            'customer_name' => $validatedData['customer_name'] ?? null,
+            'customer_email' => $validatedData['customer_email'] ?? null,
+            'customer_phone' => $validatedData['customer_phone'] ?? null,
+            'customer_address' => $validatedData['customer_address'] ?? null,
+            'country_id' => $validatedData['country'] ?? null,
             'governorate_id' => $validatedData['governorate'] ?? null,
             'city_id' => $validatedData['city'] ?? null,
             'notes' => $validatedData['notes'] ?? null,
         ];
+    }
 
+    /**
+     * @param array<int, array<string, mixed>> $items
+     * @param array<string, mixed> $shippingAddress
+     * @param array<string, mixed> $validatedData
+     * @return array<string, mixed>
+     */
+    private function buildCheckoutPayload(
+        PaymentGateway $gateway,
+        array $items,
+        float $subtotal,
+        float $shippingPrice,
+        float $total,
+        array $shippingAddress,
+        array $validatedData,
+        Request $request
+    ): array {
         return [
             'gateway' => $gateway,
             'items' => $items,
@@ -73,241 +163,6 @@ class CheckoutProcessor
             'shipping_address' => $shippingAddress,
             'selected_address_id' => $validatedData['selected_address_id'] ?? null,
             'user' => $request->user(),
-        ];
-    }
-
-    /**
-     * Create simple order
-     */
-    public function createOrder(array $checkoutData, Request $request): Order
-    {
-        $payload = $this->prepareOrderPayload($checkoutData);
-        $order = Order::create($payload);
-
-        $this->handleShippingAddress($order, $checkoutData);
-        $this->createOrderItems($order, $checkoutData);
-
-        return $order;
-    }
-
-    /**
-     * Handle payment - simple version
-     */
-    public function processPayment(Order $order, PaymentGateway $gateway, Request $_request): array
-    {
-        if ($gateway->driver === 'offline') {
-            return $this->handleOfflinePayment($order, $_request);
-        }
-
-        if ($gateway->driver === 'stripe') {
-            return $this->handleStripePayment($order, $gateway);
-        }
-
-        throw new \Exception('Unsupported payment gateway');
-    }
-
-    private function prepareOrderPayload(array $checkoutData): array
-    {
-        return [
-            'user_id' => $checkoutData['user']?->id,
-            'status' => 'pending',
-            'total' => $checkoutData['total'],
-            'items_subtotal' => $checkoutData['items_subtotal'],
-            'currency' => config('app.currency', 'USD'),
-            'payment_method' => $checkoutData['gateway']->slug,
-            'payment_status' => 'pending',
-            'shipping_price' => $checkoutData['shipping_price'] ?? 0,
-            'shipping_zone_id' => $checkoutData['shipping_zone_id'] ?? null,
-            'shipping_estimated_days' => $checkoutData['shipping_estimated_days'] ?? null,
-            'shipping_address' => $checkoutData['shipping_address'] ?? null,
-            'shipping_address_id' => $checkoutData['selected_address_id'] ?? null,
-        ];
-    }
-
-    private function handleShippingAddress(Order $order, array $checkoutData): void
-    {
-        if (empty($checkoutData['selected_address_id']) && $checkoutData['user']) {
-            $this->createAndAttachShippingAddress($order, $checkoutData);
-        }
-    }
-
-    private function createAndAttachShippingAddress(Order $order, array $checkoutData): void
-    {
-        try {
-            $addr = $this->createShippingAddress($checkoutData);
-            if ($addr?->id) {
-                $order->shipping_address_id = $addr->id;
-                $order->save();
-            }
-        } catch (\Throwable $e) {
-            logger()->warning('Failed to persist shipping address for order ' . $order->id . ': ' . $e->getMessage());
-        }
-    }
-
-    private function createShippingAddress(array $checkoutData): ?\App\Models\Address
-    {
-        $addrData = $checkoutData['shipping_address'] ?? [];
-        return \App\Models\Address::create([
-            'user_id' => $checkoutData['user']->id,
-            'name' => $addrData['customer_name'] ?? null,
-            'phone' => $addrData['customer_phone'] ?? null,
-            'country_id' => $addrData['country_id'] ?? null,
-            'governorate_id' => $addrData['governorate_id'] ?? null,
-            'city_id' => $addrData['city_id'] ?? null,
-            'line1' => $addrData['customer_address'] ?? null,
-            'line2' => null,
-            'postal_code' => null,
-            'is_default' => false,
-        ]);
-    }
-
-    private function createOrderItems(Order $order, array $checkoutData): void
-    {
-        foreach ($checkoutData['items'] as $item) {
-            $this->createOrderItem($order, $item);
-        }
-    }
-
-    private function createOrderItem(Order $order, array $item): void
-    {
-        $meta = $this->prepareItemMeta($item);
-        $name = $this->prepareItemName($item, $meta['variant'] ?? null);
-
-        \App\Models\OrderItem::create([
-            'order_id' => $order->id,
-            'product_id' => $item['product']->id,
-            'name' => $name,
-            'qty' => $item['qty'],
-            'price' => $item['price'],
-            'meta' => $meta,
-            'purchased_at' => now(),
-        ]);
-
-        $this->reserveStock($item);
-    }
-
-    private function prepareItemMeta(array $item): array
-    {
-        $meta = [];
-        $variantId = $item['variant'] ?? null;
-
-        if ($variantId) {
-            $variant = \App\Models\ProductVariation::find($variantId);
-            if ($variant) {
-                $meta['variant_id'] = $variant->id;
-                $meta['variant'] = [
-                    'id' => $variant->id,
-                    'name' => $variant->name,
-                    'sku' => $variant->sku,
-                    'price' => $variant->price,
-                ];
-            }
-        }
-
-        return $meta;
-    }
-
-    private function prepareItemName(array $item, ?array $variant): string
-    {
-        $name = $item['product']->name;
-        if ($variant) {
-            $name .= ' - ' . $variant['name'];
-        }
-
-        return $name;
-    }
-
-    private function reserveStock(array $item): void
-    {
-        $variantId = $item['variant'] ?? null;
-
-        if ($variantId) {
-            $variant = \App\Models\ProductVariation::find($variantId);
-            if ($variant) {
-                \App\Services\StockService::reserveVariation($variant, (int) ($item['qty'] ?? 1));
-            }
-        } else {
-            \App\Services\StockService::reserve($item['product'], (int) ($item['qty'] ?? 1));
-        }
-    }
-
-    /**
-     * Handle offline payment
-     */
-    private function handleOfflinePayment(Order $order, Request $request): array
-    {
-        $payment = \App\Models\Payment::create([
-            'order_id' => $order->id,
-            'user_id' => $order->user_id,
-            'method' => 'offline',
-            'amount' => $order->total,
-            'currency' => $order->currency,
-            'status' => 'pending',
-        ]);
-
-        // Handle transfer image if uploaded
-        if ($request->hasFile('transfer_image')) {
-            $file = $request->file('transfer_image');
-            $path = $file->store('payments', 'public');
-            \App\Models\PaymentAttachment::create([
-                'payment_id' => $payment->id,
-                'path' => $path,
-                'mime' => $file->getMimeType(),
-                'user_id' => $order->user_id,
-            ]);
-        }
-
-        return [
-            'type' => 'offline',
-            'redirect_url' => route('orders.show', $order),
-        ];
-    }
-
-    /**
-     * Handle Stripe payment
-     */
-    private function handleStripePayment(Order $order, PaymentGateway $gateway): array
-    {
-        $stripeCfg = method_exists($gateway, 'getStripeConfig') ? $gateway->getStripeConfig() : [];
-        $secret = $stripeCfg['secret_key'] ?? null;
-
-        if (! $secret || ! class_exists(\Stripe\Stripe::class)) {
-            throw new \Exception(__('Stripe not configured'));
-        }
-
-        \Stripe\Stripe::setApiKey($secret);
-
-        $session = \Stripe\Checkout\Session::create([
-            'mode' => 'payment',
-            'payment_method_types' => ['card'],
-            'line_items' => [
-                [
-                    'price_data' => [
-                        'currency' => strtolower($order->currency ?? 'usd'),
-                        'product_data' => ['name' => 'Order #' . $order->id],
-                        'unit_amount' => (int) round(($order->total ?? 0) * 100),
-                    ],
-                    'quantity' => 1,
-                ],
-            ],
-            'success_url' => url('/checkout/success?order=' . $order->id),
-            'cancel_url' => url('/checkout/cancel?order=' . $order->id),
-            'metadata' => ['order_id' => $order->id],
-        ]);
-
-        \App\Models\Payment::create([
-            'order_id' => $order->id,
-            'user_id' => $order->user_id,
-            'method' => 'stripe',
-            'amount' => $order->total,
-            'currency' => $order->currency,
-            'status' => 'pending',
-            'payload' => ['stripe_session_id' => $session->id],
-        ]);
-
-        return [
-            'type' => 'stripe',
-            'redirect_url' => $session->url,
         ];
     }
 }

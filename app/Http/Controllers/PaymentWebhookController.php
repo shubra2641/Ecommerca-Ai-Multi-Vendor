@@ -1,5 +1,6 @@
 <?php
 
+
 declare(strict_types=1);
 
 namespace App\Http\Controllers;
@@ -17,7 +18,6 @@ class PaymentWebhookController extends Controller
      * Verifies signature if provided, enforces idempotency via transaction id.
      */
     public function handle(Request $request, string $driver)
-    {
         // Read raw payload and signature
         $payload = (string) $request->getContent();
         $signature = $request->header('X-Signature') ??
@@ -145,7 +145,6 @@ class PaymentWebhookController extends Controller
         // Use configured available gateways if present
         // Basic whitelist (static) after removal
         $validGateways = ['stripe', 'offline'];
-
         return in_array($driver, $validGateways, true);
     }
 }
