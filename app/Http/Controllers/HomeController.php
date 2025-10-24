@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Helpers\GlobalHelper;
 use App\Models\Brand;
 use App\Models\HomepageBanner;
 use App\Models\HomepageSection;
@@ -320,13 +321,9 @@ final class HomeController extends Controller
     private function mapProductItems($items, $sk)
     {
         return $items->map(function ($p) use ($sk) {
-            try {
-                $image = $p->main_image
-                    ? asset('storage/' . $p->main_image)
-                    : asset('images/placeholder.svg');
-            } catch (\Throwable $e) {
-                $image = asset('images/placeholder.svg');
-            }
+            $image = $p->main_image
+                ? asset('storage/' . $p->main_image)
+                : asset('images/placeholder.svg');
             $p->mini_image_url = $image;
             $p->mini_image_is_placeholder = ! $p->main_image;
             $name = $p->name;
@@ -334,20 +331,12 @@ final class HomeController extends Controller
                 $name = mb_substr($name, 0, 40) . '…';
             }
             $p->mini_trunc_name = $name;
-            try {
-                $priceHtml = \App\Helpers\GlobalHelper::currencyFormat($p->effectivePrice());
-            } catch (\Throwable $e) {
-                $priceHtml = number_format($p->price, 2);
-            }
+            $priceHtml = GlobalHelper::currencyFormat($p->effectivePrice());
             $p->mini_price_html = $priceHtml;
             $extra = '';
             if ($sk === 'showcase_discount' && $p->effectivePrice() < $p->price) {
-                try {
-                    $extra .= '<span class="mini-old">' .
-                        e(\App\Helpers\GlobalHelper::currencyFormat($p->price)) . '</span>';
-                } catch (\Throwable $e) {
-                    null;
-                }
+                $extra .= '<span class="mini-old">' .
+                    e(GlobalHelper::currencyFormat($p->price)) . '</span>';
             }
             if ($sk === 'showcase_most_rated' && $p->approved_reviews_avg) {
                 $extra .= '<span class="mini-rating">★ ' .
