@@ -13,17 +13,7 @@
                     <i class="fas fa-wallet"></i>
                     {{ __('User Balances') }}
                 </h1>
-                <p class="admin-order-subtitle">{{ __('View and export user balance information') }}</p>
-            </div>
-            <div class="header-actions">
-                <a href="{{ route('admin.balances.export', ['format' => 'xlsx']) }}" class="admin-btn admin-btn-success">
-                    <i class="fas fa-file-excel"></i>
-                    {{ __('Export XLSX') }}
-                </a>
-                <a href="{{ route('admin.balances.export', ['format' => 'pdf']) }}" class="admin-btn admin-btn-secondary">
-                    <i class="fas fa-file-pdf"></i>
-                    {{ __('Export PDF') }}
-                </a>
+                <p class="admin-order-subtitle">{{ __('View user balance information') }}</p>
             </div>
         </div>
 

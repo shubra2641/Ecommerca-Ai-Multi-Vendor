@@ -5,7 +5,6 @@
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
         <h1 class="h4 mb-0">{{ __('Price History') }}: {{ $product->name }}</h1>
         <div class="btn-group">
-            <button class="btn btn-outline-secondary btn-sm" id="btnExportCsv">{{ __('Export CSV') }}</button>
             <button class="btn btn-outline-secondary btn-sm" id="btnTogglePercent">% {{ __('Change') }}</button>
             <button class="btn btn-outline-secondary btn-sm" id="btnToggleInterest">{{ __('Interest') }}</button>
         </div>

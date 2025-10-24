@@ -36,25 +36,6 @@
                     </div>
                 </div>
             </div>
-            <div class="header-actions">
-                <div class="dropdown d-inline-block">
-                    <button class="admin-btn admin-btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-download"></i>
-                        {{ __('Export') }}
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" data-export="excel">
-                                <i class="fas fa-file-excel"></i> {{ __('Export to Excel') }}
-                            </a></li>
-                        <li><a class="dropdown-item" href="#" data-export="pdf">
-                                <i class="fas fa-file-pdf"></i> {{ __('Export to PDF') }}
-                            </a></li>
-                        <li><a class="dropdown-item" href="#" data-export="csv">
-                                <i class="fas fa-file-csv"></i> {{ __('Export to CSV') }}
-                            </a></li>
-                    </ul>
-                </div>
-            </div>
         </div>
 
         <!-- Statistics Cards -->

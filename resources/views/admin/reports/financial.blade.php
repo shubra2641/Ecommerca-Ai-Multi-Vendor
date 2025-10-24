@@ -14,19 +14,6 @@
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Financial analysis and balance statistics') }}</p>
             </div>
-            <div class="header-actions">
-                <div class="dropdown">
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item js-export" href="#" data-export-type="excel" data-report="financial">
-                                <i class="fas fa-file-excel"></i>
-                                {{ __('Excel') }}
-                            </a></li>
-                        <li><a class="dropdown-item js-export" href="#" data-export-type="pdf" data-report="financial">
-                                <i class="fas fa-file-pdf"></i>
-                                {{ __('PDF') }}
-                            </a></li>
-                    </ul>
-                </div>
             </div>
         </div>
 

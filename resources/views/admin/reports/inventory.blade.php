@@ -113,10 +113,6 @@
                 <div class="card-actions">
                     <div class="bulk-actions d-flex flex-column flex-sm-row gap-2" id="bulkActions">
                         <span class="selected-count text-muted">0</span> <span class="text-muted d-none d-sm-inline">{{ __('selected') }}</span>
-                        <button type="button" class="btn btn-sm btn-success" data-action="bulk-export">
-                            <i class="fas fa-download"></i>
-                            <span class="d-none d-md-inline">{{ __('Export Selected') }}</span>
-                        </button>
                         <button type="button" class="btn btn-sm btn-outline-primary" data-action="bulk-print">
                             <i class="fas fa-print"></i>
                             <span class="d-none d-md-inline">{{ __('Print Report') }}</span>

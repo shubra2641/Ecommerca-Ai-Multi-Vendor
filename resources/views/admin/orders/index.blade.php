@@ -18,11 +18,6 @@
                     </div>
                 </div>
             </div>
-            <div class="header-actions">
-                <button type="button" class="admin-btn admin-btn-secondary" data-action="export-orders">
-                    <i class="fas fa-download"></i>
-                    {{ __('Export') }}
-                </button>
             </div>
         </div>
 

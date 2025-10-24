@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <!-- Import/Export Form -->
+        <!-- Import Form -->
         <div class="admin-modern-card">
             <div class="admin-card-body">
                 <form method="post" action="{{ route('admin.products.serials.import',$product) }}" enctype="multipart/form-data">

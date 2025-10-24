@@ -71,7 +71,6 @@ Route::middleware([
         Route::get('/system', [ReportsController::class, 'systemReport'])->name('system');
         Route::get('/inventory', [ReportsController::class, 'inventoryReport'])->name('inventory');
         Route::post('/refresh', [ReportsController::class, 'refresh'])->name('refresh');
-        Route::get('/export', [ReportsController::class, 'exportData'])->name('export');
         Route::post('/generate', [ReportsController::class, 'generateReport'])->name('generate');
     });
 
@@ -120,7 +119,6 @@ Route::middleware([
         Route::get('/create', [UserController::class, 'create'])->name('create');
         Route::post('/', [UserController::class, 'store'])->name('store');
         Route::get('/pending', [UserController::class, 'pending'])->name('pending');
-        Route::get('/export', [UserController::class, 'exportExcel'])->name('export');
         Route::get('/{user}', [UserController::class, 'show'])->name('show');
         Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
         Route::put('/{user}', [UserController::class, 'update'])->name('update');
@@ -136,14 +134,6 @@ Route::middleware([
         Route::get('/{user}/balance/stats', [UserController::class, 'getBalanceStats'])->name('balance.stats');
         Route::get('/{user}/balance/history', [UserController::class, 'getBalanceHistory'])->name('balance.history');
         Route::post('/{user}/balance/refresh', [UserController::class, 'refreshBalance'])->name('balance.refresh');
-    });
-
-    // Balance exports
-    Route::prefix('balances')->name('admin.balances.')->group(function (): void {
-        Route::get('/', [UserController::class, 'balances'])->name('index');
-        Route::get('/export/excel', [UserController::class, 'exportExcel'])->name('export.excel');
-        Route::get('/export/pdf', [UserController::class, 'exportPdf'])->name('export.pdf');
-        Route::get('/export', [UserController::class, 'exportExcel'])->name('export');
     });
 
     // Languages management

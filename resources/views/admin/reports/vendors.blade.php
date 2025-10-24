@@ -14,24 +14,6 @@
                 </h1>
                 <p class="admin-order-subtitle">{{ __('Comprehensive vendors analysis and statistics') }}</p>
             </div>
-            <div class="header-actions">
-                <div class="dropdown">
-                    <button class="admin-btn admin-btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-download"></i>
-                        {{ __('Export') }}
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item js-export" href="#" data-export-type="excel" data-report="vendors">
-                                <i class="fas fa-file-excel"></i>
-                                {{ __('Excel') }}
-                            </a></li>
-                        <li><a class="dropdown-item js-export" href="#" data-export-type="pdf" data-report="vendors">
-                                <i class="fas fa-file-pdf"></i>
-                                {{ __('PDF') }}
-                            </a></li>
-                    </ul>
-                </div>
-            </div>
         </div>
 
         <!-- Statistics Cards -->
@@ -138,10 +120,6 @@
                         <button type="button" class="btn btn-sm btn-success" data-action="bulk-approve">
                             <i class="fas fa-check"></i>
                             <span class="d-none d-md-inline">{{ __('Approve') }}</span>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-primary" data-action="bulk-export">
-                            <i class="fas fa-download"></i>
-                            <span class="d-none d-md-inline">{{ __('Export') }}</span>
                         </button>
                     </div>
                 </div>
