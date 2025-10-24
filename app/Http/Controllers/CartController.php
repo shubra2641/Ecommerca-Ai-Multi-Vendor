@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Helpers\GlobalHelper;
 use App\Http\Requests\Cart\AddToCartRequest;
 use App\Http\Requests\Cart\ApplyCouponRequest;
 use App\Http\Requests\Cart\RemoveFromCartRequest;
@@ -14,7 +15,9 @@ use App\Models\Currency;
 use App\Models\Product;
 use App\Models\ProductVariation;
 use App\Models\WishlistItem;
+use App\Services\CartViewBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Throwable;
 
 /**
@@ -33,7 +36,7 @@ final class CartController extends Controller
         [$displayTotal, $displayDiscount, $currency_symbol, $currentCurrency] = $this->handleCurrencyConversion($items, $total, $discount);
 
         // Build presentation items (variant labels, availability, sale percents) to remove inline Blade @php
-        $cartVm = app(\App\Services\CartViewBuilder::class)->build($items, $currency_symbol);
+        $cartVm = app(CartViewBuilder::class)->build($items, $currency_symbol);
         $presentedItems = $cartVm['items'];
 
         return view('front.cart.index', [
@@ -260,15 +263,7 @@ final class CartController extends Controller
         }
         $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
         $defaultCurrency = Currency::getDefault();
-        try {
-            if ($currentCurrency && $defaultCurrency && $currentCurrency->id !== $defaultCurrency->id) {
-                $displayTotal = $defaultCurrency->convertTo($total, $currentCurrency, 2);
-            } else {
-                $displayTotal = $total;
-            }
-        } catch (Throwable $e) {
-            $displayTotal = $total;
-        }
+        $displayTotal = GlobalHelper::convertCurrency($total, $defaultCurrency, $currentCurrency, 2);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -277,7 +272,7 @@ final class CartController extends Controller
                 'displayTotal' => $displayTotal,
                 'discountedTotal' => $displayTotal,
                 'discount' => 0,
-                'currency_symbol' => $currentCurrency?->symbol ?? Currency::defaultSymbol(),
+                'currency_symbol' => GlobalHelper::getCurrentCurrencySymbol(),
             ]);
         }
 
@@ -376,7 +371,7 @@ final class CartController extends Controller
                 'stock_display' => ($product->stock_qty ?? null) !== null ?
                     (($product->stock_qty ?? 0) > 0 ? $product->stock_qty . ' in stock' : 'Out of stock') : null,
                 'seller_name' => method_exists($product, 'seller') && $product->seller ? $product->seller->name : null,
-                'short_desc' => $product->short_description ? \Str::limit($product->short_description, 120) : null,
+                'short_desc' => $product->short_description ? Str::limit($product->short_description, 120) : null,
             ];
         }
 
@@ -392,7 +387,7 @@ final class CartController extends Controller
         if (! $variantLabel && ! empty($variation->attribute_data)) {
             try {
                 $variantLabel = collect($variation->attribute_data)
-                    ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                    ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                     ->values()
                     ->join(', ');
             } catch (\Throwable $e) {
@@ -438,21 +433,13 @@ final class CartController extends Controller
     {
         $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
         $defaultCurrency = Currency::getDefault();
-        $currency_symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
+        $currency_symbol = GlobalHelper::getCurrentCurrencySymbol();
 
         try {
-            if ($currentCurrency && $defaultCurrency && $currentCurrency->id !== $defaultCurrency->id) {
-                $displayTotal = $defaultCurrency->convertTo($total, $currentCurrency, 2);
-                foreach ($items as &$it) {
-                    $it['display_price'] = $defaultCurrency->convertTo($it['price'], $currentCurrency, 2);
-                    $it['display_line_total'] = $defaultCurrency->convertTo($it['line_total'], $currentCurrency, 2);
-                }
-            } else {
-                $displayTotal = $total;
-                foreach ($items as &$it) {
-                    $it['display_price'] = $it['price'];
-                    $it['display_line_total'] = $it['line_total'];
-                }
+            $displayTotal = GlobalHelper::convertCurrency($total, $defaultCurrency, $currentCurrency, 2);
+            foreach ($items as &$it) {
+                $it['display_price'] = GlobalHelper::convertCurrency($it['price'], $defaultCurrency, $currentCurrency, 2);
+                $it['display_line_total'] = GlobalHelper::convertCurrency($it['line_total'], $defaultCurrency, $currentCurrency, 2);
             }
         } catch (Throwable $e) {
             $displayTotal = $total;
@@ -469,17 +456,7 @@ final class CartController extends Controller
 
     private function calculateServerDisplayedTotal($total)
     {
-        $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
-        $defaultCurrency = Currency::getDefault();
-
-        try {
-            if ($currentCurrency && $defaultCurrency && $currentCurrency->id !== $defaultCurrency->id) {
-                return $defaultCurrency->convertTo($total, $currentCurrency, 2);
-            }
-            return $total;
-        } catch (Throwable $e) {
-            return $total;
-        }
+        return GlobalHelper::convertCurrency($total);
     }
 
     private function isCouponValidForTotal($coupon, $serverDisplayedTotal)
@@ -504,16 +481,11 @@ final class CartController extends Controller
     {
         $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
         $defaultCurrency = Currency::getDefault();
-        $currency_symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
+        $currency_symbol = GlobalHelper::getCurrentCurrencySymbol();
 
         try {
-            if ($currentCurrency && $defaultCurrency && $currentCurrency->id !== $defaultCurrency->id) {
-                $displayTotal = $defaultCurrency->convertTo($total, $currentCurrency, 2);
-                $discounted_display = $defaultCurrency->convertTo($coupon->applyTo($total), $currentCurrency, 2);
-            } else {
-                $displayTotal = $total;
-                $discounted_display = $coupon->applyTo($total);
-            }
+            $displayTotal = GlobalHelper::convertCurrency($total, $defaultCurrency, $currentCurrency, 2);
+            $discounted_display = GlobalHelper::convertCurrency($coupon->applyTo($total), $defaultCurrency, $currentCurrency, 2);
         } catch (Throwable $e) {
             $displayTotal = $total;
             $discounted_display = $coupon->applyTo($total);

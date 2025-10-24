@@ -97,4 +97,36 @@ class GlobalHelper
 
         return time();
     }
+
+    /**
+     * Get the current currency symbol from session or default.
+     */
+    public static function getCurrentCurrencySymbol(): string
+    {
+        try {
+            $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
+            return $currentCurrency?->symbol ?? Currency::defaultSymbol();
+        } catch (Throwable $e) {
+            return '$';
+        }
+    }
+
+    /**
+     * Convert amount between currencies.
+     */
+    public static function convertCurrency($amount, $fromCurrency = null, $toCurrency = null, $decimals = 2)
+    {
+        try {
+            $fromCurrency = $fromCurrency ?: Currency::getDefault();
+            $toCurrency = $toCurrency ?: (session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault());
+
+            if ($fromCurrency && $toCurrency && $fromCurrency->id !== $toCurrency->id) {
+                return $fromCurrency->convertTo($amount, $toCurrency, $decimals);
+            }
+
+            return round($amount, $decimals);
+        } catch (Throwable $e) {
+            return round($amount, $decimals);
+        }
+    }
 }
