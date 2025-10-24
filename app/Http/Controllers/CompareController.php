@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Helpers\GlobalHelper;
 use App\Http\Requests\ProductIdRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -47,7 +48,7 @@ class CompareController extends Controller
         if (! empty($ids)) {
             $items = Product::with(['category', 'brand'])->whereIn('id', $ids)->get();
         }
-        $currency_symbol = config('app.currency_symbol', '$');
+        $currency_symbol = GlobalHelper::getCurrentCurrencySymbol();
 
         return view('front.products.compare', [
             'items' => $items,
