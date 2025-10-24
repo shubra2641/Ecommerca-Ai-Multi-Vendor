@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Helpers\GlobalHelper;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -136,9 +137,7 @@ final class ProductCatalogController extends Controller
         // Convert price
         $this->convertPrices(collect([$product]));
 
-        $currentCurrency = session('currency_id')
-            ? \App\Models\Currency::find(session('currency_id'))
-            : \App\Models\Currency::getDefault();
+        $currentCurrency = $this->resolveCurrentCurrency();
 
         // Reviews data
         $reviewsCount = (int) ($product->approved_reviews_count ?? 0);
@@ -353,29 +352,8 @@ final class ProductCatalogController extends Controller
      */
     protected function convertPrices($products): void
     {
-        try {
-            $sessionCurrencyId = session('currency_id');
-            if ($sessionCurrencyId) {
-                $target = \App\Models\Currency::find($sessionCurrencyId);
-                $default = \App\Models\Currency::getDefault();
-                if ($target && $default && $target->id !== $default->id) {
-                    foreach ($products as $p) {
-                        $p->display_price = $default->convertTo($p->price, $target, 2);
-                    }
-                } else {
-                    foreach ($products as $p) {
-                        $p->display_price = $p->price;
-                    }
-                }
-            } else {
-                foreach ($products as $p) {
-                    $p->display_price = $p->price;
-                }
-            }
-        } catch (\Throwable $e) {
-            foreach ($products as $p) {
-                $p->display_price = $p->price;
-            }
+        foreach ($products as $p) {
+            $p->display_price = GlobalHelper::convertCurrency($p->price);
         }
     }
 
@@ -526,15 +504,11 @@ final class ProductCatalogController extends Controller
             return $cached;
         }
 
-        try {
-            $cid = session('currency_id');
-            if ($cid) {
-                $cached = \App\Models\Currency::find($cid) ? \App\Models\Currency::find($cid) : \App\Models\Currency::getDefault();
-            } else {
-                $cached = \App\Models\Currency::getDefault();
-            }
-        } catch (\Throwable $e) {
-            $cached = null;
+        $cid = session('currency_id');
+        if ($cid) {
+            $cached = \App\Models\Currency::find($cid) ?: \App\Models\Currency::getDefault();
+        } else {
+            $cached = \App\Models\Currency::getDefault();
         }
 
         return $cached;
