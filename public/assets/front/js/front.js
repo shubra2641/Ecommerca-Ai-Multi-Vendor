@@ -7,6 +7,10 @@
     async function fetchJson(url) {
         try {
             const res = await fetch(url);
+            if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) {
+                console.error('fetchJson error: Invalid response type or status', url, res.status);
+                return { data: [] };
+            }
             return await res.json();
         } catch (err) {
             console.error('fetchJson error', url, err);
@@ -200,7 +204,7 @@
 
         countrySelect.addEventListener('change', function () { loadGovernorates(this.value); }); governorateSelect.addEventListener('change', function () { loadCities(this.value); }); citySelect.addEventListener('change', function () { if (this.value) loadShippingOptions(countrySelect.value, governorateSelect.value, this.value); else loadShippingOptions(countrySelect.value, governorateSelect.value, null); });
 
-        shippingZoneSelect.addEventListener('change', function () { const selectedZoneId = this.value; if (!selectedZoneId) { hideShippingInfo(); return; } const params = new URLSearchParams({ country: countrySelect.value }); if (governorateSelect.value) params.append('governorate', governorateSelect.value); if (citySelect.value) params.append('city', citySelect.value); params.append('all', '1'); fetch(`/api/new-shipping/quote?${params}`).then(r => r.json()).then(data => { const selectedOption = data.data.find(item => item.zone_id == selectedZoneId); if (selectedOption) updateShippingDisplay(selectedOption); }).catch(err => console.error('Error updating shipping display:', err)); });
+        shippingZoneSelect.addEventListener('change', function () { const selectedZoneId = this.value; if (!selectedZoneId) { hideShippingInfo(); return; } const params = new URLSearchParams({ country: countrySelect.value }); if (governorateSelect.value) params.append('governorate', governorateSelect.value); if (citySelect.value) params.append('city', citySelect.value); params.append('all', '1'); fetch(`/api/new-shipping/quote?${params}`).then(r => { if (!r.ok || !r.headers.get('content-type')?.includes('application/json')) throw new Error('Invalid response'); return r.json(); }).then(data => { const selectedOption = data.data.find(item => item.zone_id == selectedZoneId); if (selectedOption) updateShippingDisplay(selectedOption); }).catch(err => console.error('Error updating shipping display:', err)); });
 
         if (countrySelect.value) loadGovernorates(countrySelect.value);
     }
@@ -208,6 +212,7 @@
     // Address selection - Simplified
     function initAddressSelection() {
         const addressRadios = $$('input[name="selected_address"]'); const selectedAddressIdHidden = $('#selected-address-id'); const customerNameInput = $('#customer_name'); const customerEmailInput = $('#customer_email'); const customerPhoneInput = $('#customer_phone'); const customerAddressInput = $('#customer_address'); const countrySelect = $('#country-select'); const governorateSelect = $('#governorate-select'); const citySelect = $('#city-select'); const translations = { selectGovernorate: 'Select Governorate', selectCity: 'Select City', selectShippingCompany: 'Select Shipping Company' };
+        const currencySymbol = $('meta[name="currency-symbol"]')?.content || '$'; // Get currency symbol from meta tag
 
         async function loadGovernoratesAsync(countryId) { if (!countryId) { if (governorateSelect) clearSelect(governorateSelect, translations.selectGovernorate); if (citySelect) clearSelect(citySelect, translations.selectCity); const shippingZoneSelect = $('#shipping-zone-select'); if (shippingZoneSelect) clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); return; } try { const data = await fetchJson(`/api/locations/governorates?country=${countryId}`); if (governorateSelect) populateSelect(governorateSelect, data.data); if (citySelect) clearSelect(citySelect, translations.selectCity); const shippingZoneSelect = $('#shipping-zone-select'); if (shippingZoneSelect) clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); } catch (err) { console.error('Error loading governorates:', err); } }
 
