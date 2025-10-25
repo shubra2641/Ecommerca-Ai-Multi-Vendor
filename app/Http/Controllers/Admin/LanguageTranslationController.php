@@ -12,14 +12,14 @@ use Illuminate\Support\Facades\File;
 
 final class LanguageTranslationController extends Controller
 {
-    public function translations(Language $language)
+    public function translations(Language $language): \Illuminate\Contracts\View\View
     {
         $translations = $this->getTranslations($language->code);
 
         return view('admin.languages.translations', compact('language', 'translations'));
     }
 
-    public function updateTranslations(Request $request, Language $language, HtmlSanitizer $sanitizer)
+    public function updateTranslations(Request $request, Language $language, HtmlSanitizer $sanitizer): \Illuminate\Http\RedirectResponse
     {
         $translations = $request->input('translations', []);
 
@@ -36,7 +36,7 @@ final class LanguageTranslationController extends Controller
             ->with('success', __('Translations updated successfully'));
     }
 
-    public function addTranslation(Request $request, Language $language)
+    public function addTranslation(Request $request, Language $language): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'key' => 'required|string|max:255',
@@ -54,7 +54,7 @@ final class LanguageTranslationController extends Controller
             ->with('success', __('Translation added successfully'));
     }
 
-    public function deleteTranslation(Request $request, Language $language)
+    public function deleteTranslation(Request $request, Language $language): \Illuminate\Http\RedirectResponse
     {
         $key = $request->input('key');
         $translations = $this->getTranslations($language->code);
@@ -68,6 +68,9 @@ final class LanguageTranslationController extends Controller
             ->with('success', __('Translation deleted successfully'));
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getTranslations(string $langCode): array
     {
         $path = resource_path("lang/{$langCode}.json");
@@ -80,13 +83,20 @@ final class LanguageTranslationController extends Controller
         return [];
     }
 
+    /**
+     * @param array<string, string> $translations
+     */
     private function saveTranslations(string $langCode, array $translations): void
     {
-        $path = resource_path("lang/{$langCode}.json");
-        $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
+        $path = resource_path('lang/' . $langCode . '.json');
+        $options = JSON_PRETTY_PRINT |
+            JSON_UNESCAPED_UNICODE;
         File::put($path, json_encode($translations, $options));
     }
 
+    /**
+     * @param array<string, string> &$translations
+     */
     private function sanitizeTranslations(array &$translations, HtmlSanitizer $sanitizer): void
     {
         $sanitizeValue = function (&$value) use ($sanitizer): void {
@@ -95,6 +105,9 @@ final class LanguageTranslationController extends Controller
             }
         };
 
-        array_walk_recursive($translations, $sanitizeValue);
+        array_walk_recursive(
+            $translations,
+            $sanitizeValue
+        );
     }
 }

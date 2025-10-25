@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -67,7 +69,7 @@ final class LanguageController extends Controller
             ->with('success', __('Language updated successfully'));
     }
 
-    public function destroy(Language $language)
+    public function destroy(Language $language): \Illuminate\Http\RedirectResponse
     {
         if ($language->is_default) {
             return redirect()->route('admin.languages.index')
@@ -86,7 +88,7 @@ final class LanguageController extends Controller
             ->with('success', __('Language deleted successfully'));
     }
 
-    public function makeDefault(Language $language)
+    public function makeDefault(Language $language): \Illuminate\Http\RedirectResponse
     {
         DB::transaction(function () use ($language): void {
             $this->handleDefaultLanguage(true);
@@ -104,18 +106,6 @@ final class LanguageController extends Controller
         }
     }
 
-    private function getTranslations(string $langCode): array
-    {
-        $path = resource_path("lang/{$langCode}.json");
-        if (File::exists($path)) {
-            $content = File::get($path);
-
-            return json_decode($content, true) ? json_decode($content, true) : [];
-        }
-
-        return [];
-    }
-
     private function createTranslationFile(string $langCode): void
     {
         $defaultTranslations = [
@@ -128,6 +118,9 @@ final class LanguageController extends Controller
         File::put($path, json_encode($defaultTranslations, $options));
     }
 
+    /**
+     * @return array<string, string|bool>
+     */
     private function validateLanguageData(Request $request, ?Language $language = null): array
     {
         $rules = [
@@ -145,17 +138,5 @@ final class LanguageController extends Controller
         }
 
         return $request->validate($rules);
-    }
-
-    private function sanitizeLanguageData(Request $request, HtmlSanitizer $sanitizer): array
-    {
-        $clean = [];
-        foreach (['name', 'code', 'flag'] as $key) {
-            if ($request->has($key) && is_string($request->input($key))) {
-                $clean[$key] = $sanitizer->clean($request->input($key));
-            }
-        }
-
-        return $clean;
     }
 }
