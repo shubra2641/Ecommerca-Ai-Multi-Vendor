@@ -43,46 +43,122 @@ class ProductController extends Controller
 
     public function store(ProductRequest $request)
     {
+        return $this->handleProductSave($request, null);
+    }
+
+    public function update(ProductRequest $request, Product $product)
+    {
+        $this->authorize('update', $product);
+        return $this->handleProductSave($request, $product);
+    }
+
+    private function handleProductSave(ProductRequest $request, ?Product $product): \Illuminate\Http\RedirectResponse
+    {
         $data = $request->validated();
 
-        // Build translations arrays (name/short_description/description) like admin flow
-        $this->mergeVendorTranslations($request, $data);
+        $this->processProductTranslations($request, $data, $product);
+        $data = $this->collapsePrimaryTextFields($data, $product);
+        $data['slug'] = $this->generateUniqueSlug($data, $product);
 
-        // Collapse to base columns after building *_translations arrays (base = default language value)
-        $data = $this->collapsePrimaryTextFields($data);
+        $this->processGalleryData($data);
 
-        // prepare slug similar to admin
-        $defaultName = $data['name'] ?? '';
-        $slug = Str::slug(
-            is_array($defaultName)
-                ? (array_values(array_filter($defaultName))[0] ?? '')
-                : $defaultName
-        );
-        $base = $slug;
-        $i = 1;
-        while (Product::where('slug', $slug)->exists()) {
-            $slug = $base . '-' . $i;
-            $i++;
-        }
-        $data['slug'] = $slug;
+        $product = $this->saveProduct($data, $product);
+        $this->syncProductTags($product, $request);
+        $this->handleProductVariations($product, $request);
+
+        $this->notifyAdminsOfProductSubmission($product);
+
+        $message = $product->wasRecentlyCreated
+            ? __('Product submitted for review.')
+            : __('Product updated and resubmitted for review.');
+
+        return redirect()->route('vendor.products.index')->with('success', $message);
+    }
+
+    private function processProductTranslations(ProductRequest $request, array &$data, ?Product $product): void
+    {
+        $this->mergeVendorTranslations($request, $data, $product);
+    }
+
+    private function processGalleryData(array &$data): void
+    {
         if (isset($data['gallery'])) {
             $data['gallery'] = $this->cleanGalleryValue($data['gallery']);
         }
+    }
 
-        $product = Product::create($data + [
+    private function saveProduct(array $data, ?Product $product): Product
+    {
+        if ($product) {
+            $product->fill($data);
+            $product->active = false;
+            $product->save();
+            return $product;
+        }
+
+        return Product::create($data + [
             'vendor_id' => auth()->id(),
             'active' => false,
         ]);
-        // tags
+    }
+
+    private function syncProductTags(Product $product, ProductRequest $request): void
+    {
         $product->tags()->sync($request->input('tag_ids', []));
+    }
+
+    private function handleProductVariations(Product $product, ProductRequest $request): void
+    {
         if ($product->type === 'variable') {
             $this->syncVariations($product, $request);
         }
+    }
 
-        // notify admins
-        $this->notifyAdminsOfProductSubmission($product);
+    private function generateUniqueSlug(array $data, ?Product $product): string
+    {
+        $name = $this->extractProductName($data, $product);
+        $baseSlug = Str::slug($name);
 
-        return redirect()->route('vendor.products.index')->with('success', __('Product submitted for review.'));
+        if (!$this->slugExists($baseSlug, $product?->id)) {
+            return $baseSlug;
+        }
+
+        return $this->generateUniqueSlugWithSuffix($baseSlug, $product?->id);
+    }
+
+    private function extractProductName(array $data, ?Product $product): string
+    {
+        $name = $data['name'] ?? $product?->name ?? '';
+
+        if (is_array($name)) {
+            return array_values(array_filter($name))[0] ?? '';
+        }
+
+        return $name;
+    }
+
+    private function slugExists(string $slug, ?int $excludeId = null): bool
+    {
+        $query = Product::where('slug', $slug);
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        return $query->exists();
+    }
+
+    private function generateUniqueSlugWithSuffix(string $baseSlug, ?int $excludeId): string
+    {
+        $counter = 1;
+        $slug = $baseSlug . '-' . $counter;
+
+        while ($this->slugExists($slug, $excludeId)) {
+            $counter++;
+            $slug = $baseSlug . '-' . $counter;
+        }
+
+        return $slug;
     }
 
     public function edit(Product $product)
@@ -92,47 +168,6 @@ class ProductController extends Controller
         $data['product'] = $product;
 
         return view('vendor.products.edit', $data);
-    }
-
-    public function update(ProductRequest $request, Product $product)
-    {
-        $this->authorize('update', $product);
-        $data = $request->validated();
-
-        // Merge translations (arrays) into *_translations JSON columns, then collapse to base
-        $this->mergeVendorTranslations($request, $data, $product);
-        $data = $this->collapsePrimaryTextFields($data, $product);
-
-        // update slug if name changed
-        $defaultName = $data['name'] ?? $product->name;
-        $slug = Str::slug(
-            is_array($defaultName)
-                ? (array_values(array_filter($defaultName))[0] ?? '')
-                : $defaultName
-        );
-        $base = $slug;
-        $i = 1;
-        while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
-            $slug = $base . '-' . $i;
-            $i++;
-        }
-        $data['slug'] = $slug;
-        if (isset($data['gallery'])) {
-            $data['gallery'] = $this->cleanGalleryValue($data['gallery']);
-        }
-
-        $product->fill($data);
-        $product->active = false;
-        $product->save();
-        $product->tags()->sync($request->input('tag_ids', []));
-        if ($product->type === 'variable') {
-            $this->syncVariations($product, $request);
-        }
-
-        $this->notifyAdminsOfProductUpdate($product);
-
-        return redirect()->route('vendor.products.index')
-            ->with('success', __('Product updated and resubmitted for review.'));
     }
 
     public function destroy(Product $product)
@@ -280,57 +315,43 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Collapse array-based multilingual fields into single base string values.
-     * Picks first non-empty value. Leaves original array in *_translations columns if added later.
-     */
     public function collapsePrimaryTextFields(array $data, ?Product $existing = null): array
     {
-        foreach (
-            [
-                'name',
-                'short_description',
-                'description',
-                'seo_title',
-                'seo_description',
-                'seo_keywords'
-            ] as $field
-        ) {
+        foreach ($this->getTranslatableFields() as $field) {
             if (isset($data[$field]) && is_array($data[$field])) {
-                // choose first non-empty value
-                $first = null;
-                foreach ($data[$field] as $val) {
-                    if (is_string($val) && trim($val) !== '') {
-                        $first = $val;
-                        break;
-                    }
-                }
-                if ($first === null) { // fallback to existing or empty string
-                    $first = (string) ($existing?->$field ?? '');
-                }
-                $data[$field] = $first;
+                $data[$field] = $this->extractFirstNonEmptyValue($data[$field], $existing, $field);
             }
         }
 
         return $data;
     }
 
+    private function extractFirstNonEmptyValue(array $values, ?Product $existing, string $field): string
+    {
+        foreach ($values as $val) {
+            if (is_string($val) && trim($val) !== '') {
+                return $val;
+            }
+        }
+
+        return (string) ($existing?->$field ?? '');
+    }
+
     public function cleanGalleryValue($raw)
     {
-        $arr = [];
         if (is_array($raw)) {
-            $arr = $raw;
+            $gallery = $raw;
         } elseif (is_string($raw) && trim($raw) !== '') {
-            $candidate = json_decode($raw, true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($candidate)) {
-                $arr = $candidate;
-            }
+            $decoded = json_decode($raw, true);
+            $gallery = json_last_error() === JSON_ERROR_NONE ? $decoded : [];
+        } else {
+            $gallery = [];
         }
 
         return array_values(
             array_filter(
-                array_map(fn ($v) => is_string($v) ? trim($v) : '', $arr),
-                fn ($v) => $v !== ''
+                array_map(fn ($path) => is_string($path) ? trim($path) : '', $gallery),
+                fn ($path) => $path !== ''
             )
         );
     }
