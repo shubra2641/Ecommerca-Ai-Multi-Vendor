@@ -264,9 +264,9 @@
                                 @foreach($payment->attachments as $att)
                                 <div class="admin-attachment-item">
                                     @if(str_starts_with($att->mime, 'image/'))
-                                    <img src="{{ asset('storage/'.$att->path) }}" alt="Payment proof">
+                                    <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($att->path) }}" alt="Payment proof">
                                     @else
-                                    <a href="{{ asset('storage/'.$att->path) }}" target="_blank" class="admin-attachment-link">
+                                    <a href="{{ \App\Helpers\GlobalHelper::storageImageUrl($att->path) }}" target="_blank" class="admin-attachment-link">
                                         <i class="fas fa-paperclip"></i>
                                         {{ basename($att->path) }}
                                     </a>

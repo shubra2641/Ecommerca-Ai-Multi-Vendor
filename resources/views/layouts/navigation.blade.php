@@ -3,7 +3,7 @@
     <div class="sidebar-header">
         <div class="brand">
             @if($logoPath && file_exists(public_path('storage/' . $logoPath)))
-            <img src="{{ asset('storage/' . $logoPath) }}" alt="{{ $siteName }}" class="brand-logo">
+            <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($logoPath) }}" alt="{{ $siteName }}" class="brand-logo">
             @else
             <i class="fas fa-cube brand-icon"></i>
             @endif

@@ -109,12 +109,12 @@
         <label class="form-label small fw-semibold">{{ __('Featured Image') }}</label>
         <div class="border rounded p-2 text-center h-120 position-relative bg-light" id="featPreview">
           @if(isset($post) && $post->featured_image)
-          <img src="{{ asset('storage/'.$post->featured_image) }}" class="obj-cover w-100 h-100">
+          <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($post->featured_image) }}" class="obj-cover w-100 h-100">
           @else
           <div class="small text-muted pt-4">{{ __('Choose Image') }}</div>
           @endif
         </div>
-        <input type="hidden" name="featured_image_path" id="featured_image_path" value="{{ isset($post)&&$post->featured_image ? asset('storage/'.$post->featured_image) : '' }}">
+        <input type="hidden" name="featured_image_path" id="featured_image_path" value="{{ isset($post)&&$post->featured_image ? \App\Helpers\GlobalHelper::storageImageUrl($post->featured_image) : '' }}">
         <small class="text-muted d-block mt-1">{{ __('Click box to pick / upload') }}</small>
       </div>
     </div>

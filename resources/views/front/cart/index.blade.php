@@ -25,7 +25,7 @@
                             <div class="cart-thumb">
                                 <a href="{{ route('products.show',$it['product']->slug) }}">
                                     @if($it['product']->main_image)
-                                    <img src="{{ asset($it['product']->main_image) }}" alt="{{ $it['product']->name }}">
+                                    <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($it['product']->main_image) ?: asset('images/placeholder.png') }}" alt="{{ $it['product']->name }}">
                                     @else
                                     <div class="no-image">No Image</div>
                                     @endif

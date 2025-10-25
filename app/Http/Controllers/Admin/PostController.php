@@ -199,7 +199,7 @@ class PostController extends Controller
 
         // Handle featured image
         if (! empty($data['featured_image_path'])) {
-            $payload['featured_image'] = trim(str_replace(asset('storage/'), '', $data['featured_image_path']), ' /');
+            $payload['featured_image'] = trim(str_replace(\App\Helpers\GlobalHelper::storageImageUrl(''), '', $data['featured_image_path']), ' /');
         }
 
         return $payload;

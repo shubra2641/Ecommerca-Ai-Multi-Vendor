@@ -77,4 +77,9 @@ class Post extends Model
     {
         return $this->belongsToMany(Tag::class, 'post_tag');
     }
+
+    public function getFeaturedImageUrlAttribute()
+    {
+        return $this->featured_image ? \App\Helpers\GlobalHelper::storageImageUrl($this->featured_image) : asset('images/placeholder.png');
+    }
 }

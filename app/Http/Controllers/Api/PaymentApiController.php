@@ -26,11 +26,11 @@ class PaymentApiController extends Controller
                 ->select(['id', 'name', 'slug', 'logo', 'description'])
                 ->orderBy('name')
                 ->get()
-                ->map(fn ($g) => [
+                ->map(fn($g) => [
                     'id' => $g->id,
                     'name' => $g->name,
                     'slug' => $g->slug,
-                    'logo' => $g->logo ? asset('storage/'.$g->logo) : null,
+                    'logo' => $g->logo ? \App\Helpers\GlobalHelper::storageImageUrl($g->logo) : null,
                     'description' => $g->description,
                     'is_available' => (bool) $g->enabled,
                 ]);

@@ -328,8 +328,8 @@ final class HomeController extends Controller
     {
         return $items->map(function ($p) use ($sk, $currentCurrency, $defaultCurrency) {
             $image = $p->main_image
-                ? asset('storage/' . $p->main_image)
-                : asset('images/placeholder.svg');
+                ? GlobalHelper::storageImageUrl($p->main_image)
+                : asset('images/placeholder.png');
             $p->mini_image_url = $image;
             $p->mini_image_is_placeholder = ! $p->main_image;
             $name = $p->name;

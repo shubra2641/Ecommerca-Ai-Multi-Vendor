@@ -3106,6 +3106,19 @@ button[type="submit"] {
     flex-shrink: 0;
 }
 
+.item-img {
+    width: 72px;
+    height: 72px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+}
+
 .item-img-placeholder {
     width: 72px;
     height: 72px;
@@ -8084,7 +8097,7 @@ body[dir="rtl"] .timeline-item:last-child::after,
 /* Cap placeholder img inside empty image containers so it doesn't overscale */
 .product-card .product-image.is-empty img {
     width    : auto;
-    max-width: 72px;
+    max-width: auto;
     height   : auto;
     opacity  : .7;
 }
@@ -8374,7 +8387,7 @@ body[dir="rtl"] .timeline-item:last-child::after,
   @keyframes shimmer { to { background-position:-200% 0; } }
   
   /* Apply skeleton to images until loaded (JS toggles .is-loaded) */
-  .thumb-wrapper:not(.is-loaded), .product-card .product-image:not(.is-loaded) { background:#f2f2f2; }
+  .thumb-wrapper:not(.is-loaded), .product-card .product-image:not(.is-loaded) { background:#FFFFFF; }
   .thumb-wrapper:not(.is-loaded)::after, .product-card .product-image:not(.is-loaded)::after { content:""; position:absolute; inset:0; background: linear-gradient(110deg,#f3f3f3 8%, #e7e7e7 18%, #f3f3f3 33%); background-size:200% 100%; animation: shimmer 1.1s linear infinite; }
   .thumb-wrapper.is-loaded::after, .product-card .product-image.is-loaded::after { display:none; }
   

@@ -103,7 +103,7 @@
             </div>
             <div class="admin-card-body">
                 <div class="text-center">
-                    <img src="{{ asset('storage/'.$payout->proof_path) }}" alt="proof" class="img-fluid">
+                    <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($payout->proof_path) }}" alt="proof" class="img-fluid">
                 </div>
             </div>
         </div>

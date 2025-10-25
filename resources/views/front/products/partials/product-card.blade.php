@@ -2,7 +2,7 @@
 <div class="product-card" role="group" aria-label="Product card">
     <div class="product-image {{ empty($product->main_image) ? 'is-empty' : '' }}">
         <a href="{{ route('products.show',$product->slug) }}" class="product-image-link" aria-label="View {{ $product->name }}">
-            <img src="{{ $cardImageUrl }}" alt="{{ $product->name }}" loading="lazy" decoding="async" class="product-image-media {{ empty($product->main_image)?'product-placeholder-img':'' }}">
+            <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($product->main_image) ?: asset('images/placeholder.png') }}" alt="{{ $product->name }}" loading="lazy" decoding="async" class="product-image-media {{ empty($product->main_image)?'product-placeholder-img':'' }}">
         </a>
 
         <div class="badges-inline" aria-hidden="true">

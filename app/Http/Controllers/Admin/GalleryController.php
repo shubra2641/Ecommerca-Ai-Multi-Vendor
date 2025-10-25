@@ -124,7 +124,7 @@ class GalleryController extends Controller
                 $stored[] = [
                     'id' => null, // No gallery entry for non-images
                     'path' => $path,
-                    'url' => asset('storage/' . $path),
+                    'url' => \App\Helpers\GlobalHelper::storageImageUrl($path),
                     'thumbnail' => null,
                     'title' => $meta['title'] ?: $file->getClientOriginalName(),
                     'alt' => $meta['alt'] ?: $file->getClientOriginalName(),
@@ -273,8 +273,8 @@ class GalleryController extends Controller
         return [
             'id' => $image->id,
             'path' => $image->original_path,
-            'url' => asset('storage/' . $image->original_path),
-            'thumbnail' => $image->thumbnail_path ? asset('storage/' . $image->thumbnail_path) : null,
+            'url' => \App\Helpers\GlobalHelper::storageImageUrl($image->original_path),
+            'thumbnail' => $image->thumbnail_path ? \App\Helpers\GlobalHelper::storageImageUrl($image->thumbnail_path) : null,
             'title' => $image->title,
             'alt' => $image->alt,
         ];

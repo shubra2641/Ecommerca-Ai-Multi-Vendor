@@ -36,7 +36,7 @@
                     </div>
                     <div class="admin-card-body">
                         <div class="ratio ratio-1x1 bg-light rounded">
-                            <img src="{{ $image->webp_path ? asset('storage/'.$image->webp_path) : asset('storage/'.$image->original_path) }}"
+                            <img src="{{ $image->webp_path ? \App\Helpers\GlobalHelper::storageImageUrl($image->webp_path) : \App\Helpers\GlobalHelper::storageImageUrl($image->original_path) }}"
                                 class="img-fluid rounded obj-cover"
                                 alt="{{ $image->alt }}">
                         </div>

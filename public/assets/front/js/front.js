@@ -180,6 +180,26 @@
         updateAvailableOptions({});
     }
 
+    // Image loading handler for shimmer effect
+    function initImageLoading() {
+        // Handle images in product cards and thumbnails
+        $$('.thumb-wrapper img, .product-card .product-image img').forEach(img => {
+            if (img.complete && img.naturalHeight !== 0) {
+                // Image already loaded
+                img.closest('.thumb-wrapper, .product-image')?.classList.add('is-loaded');
+            } else {
+                // Image not loaded yet, add load event listener
+                img.addEventListener('load', function() {
+                    this.closest('.thumb-wrapper, .product-image')?.classList.add('is-loaded');
+                });
+                // Handle error case
+                img.addEventListener('error', function() {
+                    this.closest('.thumb-wrapper, .product-image')?.classList.add('is-loaded');
+                });
+            }
+        });
+    }
+
     // Shipping / Checkout - Unified functions
     function clearSelect(select, placeholder) {
         if (!select) return;
@@ -261,10 +281,10 @@
     // Initialize all
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-            initDropdowns(); initCurrencySwitch(); initCompareBadge(); initLoader(); initHeroSlider(); initQuantitySelector(); initProductVariations(); initCheckoutShipping(); initAddressSelection();
+            initDropdowns(); initCurrencySwitch(); initCompareBadge(); initLoader(); initHeroSlider(); initQuantitySelector(); initProductVariations(); initCheckoutShipping(); initAddressSelection(); initImageLoading();
         });
     } else {
-        initDropdowns(); initCurrencySwitch(); initCompareBadge(); initLoader(); initHeroSlider(); initQuantitySelector(); initProductVariations(); initCheckoutShipping(); initAddressSelection();
+        initDropdowns(); initCurrencySwitch(); initCompareBadge(); initLoader(); initHeroSlider(); initQuantitySelector(); initProductVariations(); initCheckoutShipping(); initAddressSelection(); initImageLoading();
     }
 }());
 

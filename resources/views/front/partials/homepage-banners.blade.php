@@ -5,7 +5,7 @@
         <div class="banners-grid">
             @foreach($group as $bn)
             <a @if($bn->link_url) href="{{ $bn->link_url }}" @endif class="banner-item" aria-label="{{ $bn->alt_text ?? __('Banner') }}">
-                <img loading="lazy" src="{{ $bn->image ? asset('storage/'.$bn->image) : asset('images/placeholder.svg') }}" alt="{{ $bn->alt_text ?? '' }}" class="banner-img">
+                <img loading="lazy" src="{{ $bn->image ? \App\Helpers\GlobalHelper::storageImageUrl($bn->image) : asset('images/placeholder.svg') }}" alt="{{ $bn->alt_text ?? '' }}" class="banner-img">
             </a>
             @endforeach
         </div>

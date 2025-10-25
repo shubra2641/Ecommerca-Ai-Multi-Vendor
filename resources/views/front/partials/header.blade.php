@@ -5,7 +5,7 @@
         <div class="noon-left">
             <a href="/" class="noon-logo" aria-label="{{ $siteName }}">
                 @if($logoPath && file_exists(public_path('storage/'.$logoPath)))
-                <img src="{{ asset('storage/'.$logoPath) }}" alt="{{ $siteName }}">
+                <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($logoPath) }}" alt="{{ $siteName }}">
                 @else
                 <span class="txt">{{ $siteName }}</span>
                 @endif

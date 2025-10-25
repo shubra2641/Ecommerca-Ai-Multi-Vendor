@@ -139,7 +139,7 @@
                                     <label class="admin-form-label">{{ __('Badge Image (max 180x54 suggested)') }}</label>
                                     @if(!empty($link['image']))
                                     <div class="admin-mb-half">
-                                        <img src="{{ asset('storage/'.$link['image']) }}" alt="badge" class="img-badge-thumb">
+                                        <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($link['image']) }}" alt="badge" class="img-badge-thumb">
                                     </div>
                                     <input type="hidden" name="app_links[{{ $platform }}][existing_image]" value="{{ $link['image'] }}">
                                     @endif

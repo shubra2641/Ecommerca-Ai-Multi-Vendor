@@ -38,7 +38,7 @@
                   @foreach($items as $p)
                   <td class="compare-td">
                      @if($p->main_image)
-                     <img src="{{ asset($p->main_image) }}" alt="{{ $p->name }}" class="compare-img">
+                     <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($p->main_image) ?: asset('images/placeholder.png') }}" alt="{{ $p->name }}" class="compare-img">
                      @else
                      <span class="compare-no-image">No Image</span>
                      @endif

@@ -211,7 +211,7 @@
                                     @endif
                                 </div>
                                 <div class="small-muted">{{ $it['qty'] }} ×
-                                    {{ $currency_symbol }}{{ number_format($it['display_original_price'] ?? $it['price'],2) }}
+                                    {{ $it['qty'] }} x {{ \App\Helpers\GlobalHelper::formatPrice($it['price'] ?? 0) }}
                                 </div>
                             </div>
                             <div class="order-item-price">

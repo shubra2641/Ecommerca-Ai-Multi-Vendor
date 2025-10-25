@@ -3,7 +3,7 @@
     @if($product->isOnSale())<span class="badge bg-danger position-absolute badge-sale">Sale</span>@endif
     @if($product->main_image)
     <div class="product-image">
-        <img src="{{ asset($product->main_image) }}" alt="{{ $product->name }}">
+        <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($product->main_image) ?: asset('images/placeholder.png') }}" alt="{{ $product->name }}">
     </div>
     @endif
     <h6 class="fw-semibold mb-1"><a href="{{ route('products.show',$product->slug) }}"

@@ -94,7 +94,7 @@
                         <div class="admin-item-card">
                             <div class="admin-item-main">
                                 <div class="ratio ratio-1x1 bg-light rounded">
-                                    <img src="{{ $img->thumbnail_path ? asset('storage/'.$img->thumbnail_path) : ($img->webp_path ? asset('storage/'.$img->webp_path) : asset('storage/'.$img->original_path)) }}"
+                                    <img src="{{ $img->thumbnail_path ? \App\Helpers\GlobalHelper::storageImageUrl($img->thumbnail_path) : ($img->webp_path ? \App\Helpers\GlobalHelper::storageImageUrl($img->webp_path) : \App\Helpers\GlobalHelper::storageImageUrl($img->original_path)) }}"
                                         alt="{{ $img->alt }}"
                                         class="img-fluid rounded obj-cover">
                                 </div>

@@ -569,10 +569,13 @@ final class ProductCatalogController extends Controller
             $images = $images->merge($variationImages);
         }
         if ($images->isEmpty()) {
-            $images->push('front/images/default-product.png');
+            // Return placeholder directly instead of trying to process a non-storage path
+            $gallery = collect([['raw' => 'placeholder', 'url' => asset('images/placeholder.png')]]);
+            $mainImage = $gallery->first();
+            return compact('gallery', 'mainImage');
         }
 
-        $gallery = $images->unique()->map(fn($p) => ['raw' => $p, 'url' => asset($p)]);
+        $gallery = $images->unique()->map(fn($p) => ['raw' => $p, 'url' => \App\Helpers\GlobalHelper::storageImageUrl($p) ?: asset('images/placeholder.png')]);
         $mainImage = $gallery->first();
 
         return compact('gallery', 'mainImage');

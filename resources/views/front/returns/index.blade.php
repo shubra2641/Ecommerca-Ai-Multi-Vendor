@@ -60,7 +60,7 @@
                                 <p class="item-variant-modern">
                                     {{ __('order') }}
                                     <a href="{{ route('orders.show', $item['order']) }}" class="order-link">#{{ $item['order_id'] }}</a>
-                                    · {{ $item['qty'] }} x {{ format_price($item['price'] ?? 0) }}
+                                    · {{ $item['qty'] }} x {{ \App\Helpers\GlobalHelper::formatPrice($item['price'] ?? 0) }}
                                 </p>
                                 <div class="item-meta-modern">
                                     <span class="meta-item">

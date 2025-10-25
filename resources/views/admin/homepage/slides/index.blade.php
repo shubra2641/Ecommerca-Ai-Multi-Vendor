@@ -52,7 +52,7 @@
                     <td>
                       @if($slide->image)
                       <div class="admin-item-placeholder">
-                        <img src="{{ asset('storage/'.$slide->image) }}"
+                        <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($slide->image) }}"
                           class="img-fluid rounded"
                           alt="slide">
                       </div>

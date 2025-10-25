@@ -51,7 +51,7 @@
                                     <input type="file" name="logo" class="admin-form-input">
                                     @if(!empty($setting->logo))
                                     <div class="admin-mt-half">
-                                        <img src="{{ asset('storage/'.$setting->logo) }}" alt="Logo" class="img-thumbnail">
+                                        <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($setting->logo) }}" alt="Logo" class="img-thumbnail">
                                         <div class="admin-text-muted small">{{ __('Current logo will be replaced when you upload a new one.') }}</div>
                                     </div>
                                     @endif

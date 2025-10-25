@@ -20,7 +20,8 @@ class CheckoutViewBuilder
                     $img = null;
                 }
             }
-            $img = $img ? $img : asset('images/placeholder.svg');
+            // Use unified image logic with GlobalHelper
+            $img = $img ? \App\Helpers\GlobalHelper::storageImageUrl($img) : asset('images/placeholder.png');
 
             $variantLabel = self::variantLabel($it);
 
@@ -61,7 +62,7 @@ class CheckoutViewBuilder
         }
         if (! empty($variant->attribute_data)) {
             return collect($variant->attribute_data)
-                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
                 ->join(', ');
         }
@@ -73,7 +74,7 @@ class CheckoutViewBuilder
         $parsed = json_decode($variant, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data'])) {
             return collect($parsed['attribute_data'])
-                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
                 ->join(', ');
         }

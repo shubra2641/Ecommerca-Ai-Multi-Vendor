@@ -56,7 +56,7 @@
                                         <td>
                                             @if($banner->image)
                                             <div class="admin-item-placeholder">
-                                                <img src="{{ asset('storage/'.$banner->image) }}"
+                                                <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($banner->image) }}"
                                                     class="img-fluid rounded"
                                                     alt="banner">
                                             </div>
@@ -197,7 +197,7 @@
                         <div class="admin-card-footer">
                             <div class="admin-flex-end">
                                 <button type="submit" class="admin-btn admin-btn-primary">
-                                <i class="fas fa-plus"></i>
+                                    <i class="fas fa-plus"></i>
                                     {{ __('Create Banner') }}
                                 </button>
                             </div>

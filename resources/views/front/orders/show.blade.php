@@ -166,7 +166,7 @@
                         </div>
                         <div class="attachments-list-modern">
                             @foreach($ovbAttachments as $att)
-                            <a href="{{ asset('storage/' . $att['path']) }}" target="_blank" class="attachment-card-modern">
+                            <a href="{{ \App\Helpers\GlobalHelper::storageImageUrl($att['path']) }}" target="_blank" class="attachment-card-modern">
                                 <div class="attachment-icon-modern">📄</div>
                                 <div class="attachment-info-modern">
                                     <div class="attachment-name-modern">{{ __('Payment Document') }} #{{ $att['id'] ?? '' }}</div>
