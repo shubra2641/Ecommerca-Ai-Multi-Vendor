@@ -57,7 +57,7 @@ class ProductController extends Controller
 
     public function store(ProductRequest $request)
     {
-        $data = $this->prepareProductData($request->validated(), $sanitizer);
+        $data = $this->prepareProductData($request->validated());
         $product = Product::create($data);
         $this->syncProductRelations($product, $request);
         $this->handleNotifications($product);

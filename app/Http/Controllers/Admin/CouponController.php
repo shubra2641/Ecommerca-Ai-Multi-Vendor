@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Coupon;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 
 class CouponController extends Controller
@@ -23,7 +22,7 @@ class CouponController extends Controller
         return view('admin.coupons.create');
     }
 
-    public function store(Request $request, HtmlSanitizer $sanitizer)
+    public function store(Request $request)
     {
         $data = $request->validate([
             'code' => 'required|string|unique:coupons,code',
@@ -37,7 +36,7 @@ class CouponController extends Controller
             'min_order_total' => 'nullable|numeric|min:0',
         ]);
         if (isset($data['code']) && is_string($data['code'])) {
-            $data['code'] = strtoupper($sanitizer->clean($data['code']));
+            $data['code'] = strtoupper($data['code']);
         }
         $data['active'] = $request->has('active');
         Coupon::create($data);
@@ -50,10 +49,10 @@ class CouponController extends Controller
         return view('admin.coupons.edit', compact('coupon'));
     }
 
-    public function update(Request $request, Coupon $coupon, HtmlSanitizer $sanitizer)
+    public function update(Request $request, Coupon $coupon)
     {
         $data = $request->validate([
-            'code' => 'required|string|unique:coupons,code,'.$coupon->id,
+            'code' => 'required|string|unique:coupons,code,' . $coupon->id,
             'type' => 'required|in:fixed,percent',
             'value' => 'required|numeric|min:0',
             'uses_total' => 'nullable|integer|min:1',
@@ -64,7 +63,7 @@ class CouponController extends Controller
             'min_order_total' => 'nullable|numeric|min:0',
         ]);
         if (isset($data['code']) && is_string($data['code'])) {
-            $data['code'] = strtoupper($sanitizer->clean($data['code']));
+            $data['code'] = strtoupper($data['code']);
         }
         $data['active'] = $request->has('active');
         $coupon->update($data);

@@ -9,7 +9,6 @@ use App\Models\City;
 use App\Models\Country;
 use App\Models\Governorate;
 use App\Models\ShippingZone;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 
 class ShippingZoneController extends Controller
@@ -28,12 +27,14 @@ class ShippingZoneController extends Controller
 
     public function create(Request $request)
     {
-        $countries = Country::where('active', 1)->with(['governorates' => function ($query): void {
-            $query->where('active', 1)->with(['cities' => function ($q): void {
-                $q->where('active', 1);
+        $countries = Country::where('active', 1)->with([
+            'governorates' => function ($query): void {
+                $query->where('active', 1)->with([
+                    'cities' => function ($q): void {
+                        $q->where('active', 1);
+                    },
+                ]);
             },
-            ]);
-        },
         ])->get();
 
         return view('admin.shipping_zones.create', [
@@ -41,7 +42,7 @@ class ShippingZoneController extends Controller
         ]);
     }
 
-    public function store(Request $request, HtmlSanitizer $sanitizer)
+    public function store(Request $request)
     {
         $data = $request->validate([
             'name' => 'required|string|max:191',
@@ -55,12 +56,6 @@ class ShippingZoneController extends Controller
             'rules.*.estimated_days' => 'required_with:rules|integer|min:1',
             'rules.*.active' => 'sometimes|boolean',
         ]);
-        if (isset($data['name']) && is_string($data['name'])) {
-            $data['name'] = $sanitizer->clean($data['name']);
-        }
-        if (isset($data['code']) && is_string($data['code'])) {
-            $data['code'] = $sanitizer->clean($data['code']);
-        }
 
         $zone = ShippingZone::create([
             'name' => $data['name'],
@@ -74,12 +69,14 @@ class ShippingZoneController extends Controller
 
     public function edit(ShippingZone $shipping_zone, Request $request)
     {
-        $countries = Country::where('active', 1)->with(['governorates' => function ($query): void {
-            $query->where('active', 1)->with(['cities' => function ($q): void {
-                $q->where('active', 1);
+        $countries = Country::where('active', 1)->with([
+            'governorates' => function ($query): void {
+                $query->where('active', 1)->with([
+                    'cities' => function ($q): void {
+                        $q->where('active', 1);
+                    },
+                ]);
             },
-            ]);
-        },
         ])->get();
         $rules = $shipping_zone->rules()->get();
 
@@ -103,7 +100,7 @@ class ShippingZoneController extends Controller
         ]);
     }
 
-    public function update(Request $request, ShippingZone $shipping_zone, HtmlSanitizer $sanitizer)
+    public function update(Request $request, ShippingZone $shipping_zone)
     {
         $data = $request->validate([
             'name' => 'required|string|max:191',
@@ -117,12 +114,6 @@ class ShippingZoneController extends Controller
             'rules.*.estimated_days' => 'required_with:rules|integer|min:1',
             'rules.*.active' => 'sometimes|boolean',
         ]);
-        if (isset($data['name']) && is_string($data['name'])) {
-            $data['name'] = $sanitizer->clean($data['name']);
-        }
-        if (isset($data['code']) && is_string($data['code'])) {
-            $data['code'] = $sanitizer->clean($data['code']);
-        }
 
         $shipping_zone->update([
             'name' => $data['name'],

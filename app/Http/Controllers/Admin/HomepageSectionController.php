@@ -110,7 +110,7 @@ class HomepageSectionController extends Controller
         return view('admin.homepage.sections.index', compact('sections', 'activeLanguages'));
     }
 
-    public function updateBulk(Request $request, \App\Services\HtmlSanitizer $sanitizer): RedirectResponse
+    public function updateBulk(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'sections' => ['required', 'array'],
@@ -158,23 +158,14 @@ class HomepageSectionController extends Controller
             };
             if (array_key_exists('title', $secData)) {
                 $merged = $merge($section->title_i18n, $secData['title']);
-                foreach ($merged as $lc => $v) {
-                    $merged[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-                }
                 $section->title_i18n = $merged;
             }
             if (array_key_exists('subtitle', $secData)) {
                 $merged = $merge($section->subtitle_i18n, $secData['subtitle']);
-                foreach ($merged as $lc => $v) {
-                    $merged[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-                }
                 $section->subtitle_i18n = $merged;
             }
             if (array_key_exists('cta_label', $secData)) {
                 $merged = $merge($section->cta_label_i18n, $secData['cta_label']);
-                foreach ($merged as $lc => $v) {
-                    $merged[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-                }
                 $section->cta_label_i18n = $merged;
             }
             $section->save();

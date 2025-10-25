@@ -10,7 +10,6 @@ use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\Currency;
 use App\Models\User;
 use App\Services\BalanceService;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -38,9 +37,9 @@ class UserController extends BaseAdminController
         return view('admin.users.form', ['user' => new User()]);
     }
 
-    public function store(StoreUserRequest $request, HtmlSanitizer $sanitizer)
+    public function store(StoreUserRequest $request)
     {
-        User::create($this->prepareUserData($request->validated(), $sanitizer));
+        User::create($this->prepareUserData($request->validated()));
 
         return redirect()->route('admin.users.index')->with('success', __('User created successfully.'));
     }
@@ -55,9 +54,9 @@ class UserController extends BaseAdminController
         return view('admin.users.form', compact('user'));
     }
 
-    public function update(UpdateUserRequest $request, User $user, HtmlSanitizer $sanitizer)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $user->update($this->prepareUserData($request->validated(), $sanitizer, $user));
+        $user->update($this->prepareUserData($request->validated(), $user));
 
         return redirect()->route('admin.users.index')->with('success', __('User updated successfully.'));
     }
@@ -269,10 +268,8 @@ class UserController extends BaseAdminController
         return $query->paginate(15);
     }
 
-    protected function prepareUserData(array $validated, HtmlSanitizer $sanitizer, ?User $user = null)
+    protected function prepareUserData(array $validated, ?User $user = null)
     {
-        $this->sanitizeUserData($validated, $sanitizer);
-
         $data = [
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -288,15 +285,5 @@ class UserController extends BaseAdminController
         }
 
         return $data;
-    }
-
-    protected function sanitizeUserData(array &$data, HtmlSanitizer $sanitizer): void
-    {
-        if (isset($data['name']) && is_string($data['name'])) {
-            $data['name'] = $sanitizer->clean($data['name']);
-        }
-        if (isset($data['email']) && is_string($data['email'])) {
-            $data['email'] = $sanitizer->clean($data['email']);
-        }
     }
 }

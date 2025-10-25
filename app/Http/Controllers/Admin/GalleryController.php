@@ -66,7 +66,7 @@ class GalleryController extends Controller
         $request->validate($rules);
 
         $files = $isMultiple ? $request->file('images') : [$request->file('image')];
-        $meta = $this->sanitizeMeta($request->only('title', 'description', 'alt', 'tags'), $sanitizer);
+        $meta = $request->only('title', 'description', 'alt', 'tags');
         $count = 0;
 
         foreach ($files as $file) {

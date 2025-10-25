@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\OrderItem;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 
 class ReturnsController extends Controller
@@ -28,8 +27,7 @@ class ReturnsController extends Controller
 
     public function update(
         Request $request,
-        OrderItem $item,
-        HtmlSanitizer $sanitizer
+        OrderItem $item
     ) {
         $data = $request->validate([
             'return_status' => 'required|string|in:received,in_repair,shipped_back,delivered,completed,cancelled,pending,rejected,approved',
@@ -44,9 +42,6 @@ class ReturnsController extends Controller
         }
         $meta['history'] = $meta['history'] ?? [];
         $note = $data['admin_note'] ?? null;
-        if (is_string($note) && $note !== '') {
-            $note = $sanitizer->clean($note);
-        }
 
         $meta['history'][] = [
             'when' => now()->toDateTimeString(),

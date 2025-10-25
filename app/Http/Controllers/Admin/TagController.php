@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tag;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -19,7 +18,7 @@ class TagController extends Controller
         return view('admin.blog.tags.index', compact('tags'));
     }
 
-    public function store(Request $request, HtmlSanitizer $sanitizer)
+    public function store(Request $request)
     {
         $data = $request->validate([
             'name' => 'required|string|max:120',
@@ -28,29 +27,17 @@ class TagController extends Controller
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
         }
-        // sanitize string inputs
-        foreach ($data as $k => $v) {
-            if (is_string($v)) {
-                $data[$k] = $sanitizer->clean($v);
-            }
-        }
         Tag::create($data);
 
         return back()->with('success', __('Tag created'));
     }
 
-    public function update(Request $request, Tag $tag, HtmlSanitizer $sanitizer)
+    public function update(Request $request, Tag $tag)
     {
         $data = $request->validate([
             'name' => 'required|string|max:120',
-            'slug' => 'required|string|max:120|unique:tags,slug,'.$tag->id,
+            'slug' => 'required|string|max:120|unique:tags,slug,' . $tag->id,
         ]);
-        // Sanitize incoming string values
-        foreach ($data as $k => $v) {
-            if (is_string($v)) {
-                $data[$k] = $sanitizer->clean($v);
-            }
-        }
 
         $tag->update($data);
 

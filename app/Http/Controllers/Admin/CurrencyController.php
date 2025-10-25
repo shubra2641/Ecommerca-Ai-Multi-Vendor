@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Currency;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -26,7 +25,7 @@ class CurrencyController extends Controller
         return view('admin.currencies.create');
     }
 
-    public function store(Request $request, HtmlSanitizer $sanitizer)
+    public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -37,23 +36,13 @@ class CurrencyController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        DB::transaction(function () use ($request, $sanitizer): void {
+        DB::transaction(function () use ($request): void {
             // If setting as default, remove default from others
             if ($request->is_default) {
                 Currency::where('is_default', true)->update(['is_default' => false]);
             }
 
             $data = $request->all();
-            if (isset($data['name']) && is_string($data['name'])) {
-                $data['name'] = $sanitizer->clean($data['name']);
-            }
-            if (isset($data['code']) && is_string($data['code'])) {
-                $data['code'] = $sanitizer->clean($data['code']);
-            }
-            if (isset($data['symbol']) && is_string($data['symbol'])) {
-                $data['symbol'] = $sanitizer->clean($data['symbol']);
-            }
-
             Currency::create($data);
         });
 
@@ -71,7 +60,7 @@ class CurrencyController extends Controller
         return view('admin.currencies.edit', compact('currency'));
     }
 
-    public function update(Request $request, Currency $currency, HtmlSanitizer $sanitizer)
+    public function update(Request $request, Currency $currency)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -82,23 +71,13 @@ class CurrencyController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        DB::transaction(function () use ($request, $currency, $sanitizer): void {
+        DB::transaction(function () use ($request, $currency): void {
             // If setting as default, remove default from others
             if ($request->is_default && ! $currency->is_default) {
                 Currency::where('is_default', true)->update(['is_default' => false]);
             }
 
             $data = $request->all();
-            if (isset($data['name']) && is_string($data['name'])) {
-                $data['name'] = $sanitizer->clean($data['name']);
-            }
-            if (isset($data['code']) && is_string($data['code'])) {
-                $data['code'] = $sanitizer->clean($data['code']);
-            }
-            if (isset($data['symbol']) && is_string($data['symbol'])) {
-                $data['symbol'] = $sanitizer->clean($data['symbol']);
-            }
-
             $currency->update($data);
         });
 

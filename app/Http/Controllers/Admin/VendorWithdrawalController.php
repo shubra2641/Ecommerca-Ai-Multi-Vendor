@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Models\BalanceHistory;
 use App\Models\Payout;
 use App\Models\VendorWithdrawal;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 
 class VendorWithdrawalController extends Controller
@@ -30,17 +29,13 @@ class VendorWithdrawalController extends Controller
         return view('admin.vendors.withdrawals.show', compact('withdrawal'));
     }
 
-    public function store(Request $request, HtmlSanitizer $sanitizer)
+    public function store(Request $request)
     {
         $data = $request->validate([
             'vendor_id' => 'required|integer|exists:users,id',
             'amount' => 'required|numeric|min:0.01',
             'note' => 'nullable|string',
         ]);
-
-        if (isset($data['note']) && is_string($data['note'])) {
-            $data['note'] = $sanitizer->clean($data['note']);
-        }
 
         VendorWithdrawal::create($data);
 

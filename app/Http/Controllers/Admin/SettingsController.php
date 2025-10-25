@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingsRequest;
 use App\Models\Setting;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -118,12 +117,9 @@ class SettingsController extends Controller
      *
      * @throws ValidationException
      */
-    public function update(UpdateSettingsRequest $request, HtmlSanitizer $sanitizer): RedirectResponse
+    public function update(UpdateSettingsRequest $request): RedirectResponse
     {
         $data = $request->validated();
-
-        // Sanitize text inputs to prevent XSS (use central sanitizer when available)
-        $data = $this->sanitizeInputs($data, $sanitizer);
 
         // Normalize maintenance message array to JSON string for storage
         if (isset($data['maintenance_message']) && is_array($data['maintenance_message'])) {
@@ -235,37 +231,6 @@ class SettingsController extends Controller
                 break;
             }
         }
-    }
-
-    /**
-     * Sanitize input data to prevent XSS attacks.
-     */
-    private function sanitizeInputs(array $data, ?HtmlSanitizer $sanitizer = null): array
-    {
-        $textFields = ['site_name', 'seo_description'];
-
-        foreach ($textFields as $field) {
-            if (isset($data[$field]) && is_string($data[$field])) {
-                if ($sanitizer) {
-                    $data[$field] = $sanitizer->clean($data[$field]);
-                } else {
-                    $data[$field] = strip_tags($data[$field]);
-                    $data[$field] = htmlspecialchars($data[$field], ENT_QUOTES, 'UTF-8');
-                }
-            }
-        }
-
-        if (isset($data['maintenance_message']) && is_array($data['maintenance_message'])) {
-            foreach ($data['maintenance_message'] as $k => $v) {
-                if (is_string($v)) {
-                    $data['maintenance_message'][$k] = $sanitizer
-                        ? $sanitizer->clean($v)
-                        : htmlspecialchars(strip_tags($v), ENT_QUOTES, 'UTF-8');
-                }
-            }
-        }
-
-        return $data;
     }
 
     /**
