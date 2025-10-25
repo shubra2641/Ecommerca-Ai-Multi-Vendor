@@ -235,12 +235,12 @@ class DashboardController extends Controller
     /**
      * Get vendor registration data for chart
      */
-    private function getVendorRegistrationData($months)
+    private function getVendorRegistrationData($months): array
     {
         $data = [];
 
-        for ($i = 5; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
+        for ($monthIndex = 5; $monthIndex >= 0; $monthIndex--) {
+            $date = now()->subMonths($monthIndex);
             $count = User::where('role', 'vendor')
                 ->whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
@@ -254,12 +254,12 @@ class DashboardController extends Controller
     /**
      * Get admin registration data for chart
      */
-    private function getAdminRegistrationData($months)
+    private function getAdminRegistrationData($months): array
     {
         $data = [];
 
-        for ($i = 5; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
+        for ($monthIndex = 5; $monthIndex >= 0; $monthIndex--) {
+            $date = now()->subMonths($monthIndex);
             $count = User::where('role', 'admin')
                 ->whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)

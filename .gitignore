@@ -30,6 +30,9 @@ easy.zip
 # Database files and directories
 database/factories/
 database/seeders/
+database/migrations/
+database/migrations/disabled/
+database/*.sqlite
 *.sqlite*
 
 # Node modules and build files
