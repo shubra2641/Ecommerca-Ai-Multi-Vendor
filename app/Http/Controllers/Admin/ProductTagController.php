@@ -41,7 +41,7 @@ class ProductTagController extends Controller
 
     public function update(Request $r, ProductTag $productTag)
     {
-        $data = $r->validate(['name' => 'required', 'slug' => 'nullable|unique:product_tags,slug,'.$productTag->id]);
+        $data = $r->validate(['name' => 'required', 'slug' => 'nullable|unique:product_tags,slug,' . $productTag->id]);
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
         }

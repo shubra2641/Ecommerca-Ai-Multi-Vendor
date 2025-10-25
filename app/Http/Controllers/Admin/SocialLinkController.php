@@ -101,7 +101,7 @@ class SocialLinkController extends Controller
             'platform' => ['required', 'string', 'max:50'],
             'label' => ['nullable', 'string', 'max:100'],
             'url' => ['required', 'url', 'max:255'],
-            'icon' => ['required', 'string', 'in:'.implode(',', $this->allowedIcons)],
+            'icon' => ['required', 'string', 'in:' . implode(',', $this->allowedIcons)],
             'order' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'is_active' => ['sometimes', 'boolean'],
         ]);
