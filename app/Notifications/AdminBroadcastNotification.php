@@ -53,7 +53,7 @@ class AdminBroadcastNotification extends Notification
 
     private function getFirstNonEmpty(array $translations): ?string
     {
-        return collect($translations)->first(fn ($v) => ! empty($v));
+        return collect($translations)->first(fn($v) => ! empty($v));
     }
 
     private function ensureDefaultTranslation(array $translations, string $default): array
