@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\DB;
 
 class UpdateFooterSettingsRequest extends FormRequest
 {
@@ -18,7 +19,7 @@ class UpdateFooterSettingsRequest extends FormRequest
     {
         $langs = cache()->remember('active_lang_codes', 3600, function () {
             try {
-                return \DB::table('languages')->where('is_active', 1)->pluck('code')->all();
+                return DB::table('languages')->where('is_active', 1)->pluck('code')->all();
             } catch (\Throwable $e) {
                 return ['en'];
             }
@@ -81,7 +82,7 @@ class UpdateFooterSettingsRequest extends FormRequest
             if (! empty($row['url']) && is_string($row['url'])) {
                 $u = trim($row['url']);
                 if ($u !== '' && ! preg_match('~^https?://~i', $u)) {
-                    $appLinks[$k]['url'] = 'https://'.$u;
+                    $appLinks[$k]['url'] = 'https://' . $u;
                     $changed = true;
                 }
             }
