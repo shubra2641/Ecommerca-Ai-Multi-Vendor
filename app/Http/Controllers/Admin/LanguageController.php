@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Language;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -27,16 +26,14 @@ final class LanguageController extends Controller
         return view('admin.languages.create');
     }
 
-    public function store(Request $request, HtmlSanitizer $sanitizer)
+    public function store(Request $request)
     {
         $this->validateLanguageData($request, null);
-        $clean = $this->sanitizeLanguageData($request, $sanitizer);
 
-        DB::transaction(function () use ($request, $clean): void {
+        DB::transaction(function () use ($request): void {
             $this->handleDefaultLanguage($request->is_default);
 
-            $payload = array_merge($request->all(), $clean);
-            $language = Language::create($payload);
+            $language = Language::create($request->all());
 
             // Create translation file
             $this->createTranslationFile($language->code);
@@ -51,18 +48,17 @@ final class LanguageController extends Controller
         return view('admin.languages.edit', compact('language'));
     }
 
-    public function update(Request $request, Language $language, HtmlSanitizer $sanitizer)
+    public function update(Request $request, Language $language)
     {
         $this->validateLanguageData($request, $language);
-        $clean = $this->sanitizeLanguageData($request, $sanitizer);
 
-        DB::transaction(function () use ($request, $language, $clean): void {
+        DB::transaction(function () use ($request, $language): void {
             // If setting as default, remove default from others
             if ($request->is_default && ! $language->is_default) {
                 $this->handleDefaultLanguage(true);
             }
 
-            $language->update(array_merge($request->all(), $clean));
+            $language->update($request->all());
         });
 
         return redirect()->route('admin.languages.index')

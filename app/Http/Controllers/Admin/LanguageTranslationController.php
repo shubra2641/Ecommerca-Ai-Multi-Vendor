@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Language;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
@@ -19,7 +18,7 @@ final class LanguageTranslationController extends Controller
         return view('admin.languages.translations', compact('language', 'translations'));
     }
 
-    public function updateTranslations(Request $request, Language $language, HtmlSanitizer $sanitizer): \Illuminate\Http\RedirectResponse
+    public function updateTranslations(Request $request, Language $language): \Illuminate\Http\RedirectResponse
     {
         $translations = $request->input('translations', []);
 
@@ -28,8 +27,6 @@ final class LanguageTranslationController extends Controller
             return redirect()->back()->with('error', __('Invalid translation data'));
         }
 
-        // Sanitize all translation values to avoid HTML/JS injection
-        $this->sanitizeTranslations($translations, $sanitizer);
         $this->saveTranslations($language->code, $translations);
 
         return redirect()->route('admin.languages.translations', $language)
@@ -44,9 +41,8 @@ final class LanguageTranslationController extends Controller
         ]);
 
         $translations = $this->getTranslations($language->code);
-        // Sanitize the added value
-        $translations[$request->key] = is_string($request->value) ?
-            (new HtmlSanitizer())->clean($request->value) : $request->value;
+        // Add the translation value directly
+        $translations[$request->key] = $request->value;
 
         $this->saveTranslations($language->code, $translations);
 
@@ -92,22 +88,5 @@ final class LanguageTranslationController extends Controller
         $options = JSON_PRETTY_PRINT |
             JSON_UNESCAPED_UNICODE;
         File::put($path, json_encode($translations, $options));
-    }
-
-    /**
-     * @param array<string, string> &$translations
-     */
-    private function sanitizeTranslations(array &$translations, HtmlSanitizer $sanitizer): void
-    {
-        $sanitizeValue = function (&$value) use ($sanitizer): void {
-            if (is_string($value)) {
-                $value = $sanitizer->clean($value);
-            }
-        };
-
-        array_walk_recursive(
-            $translations,
-            $sanitizeValue
-        );
     }
 }
