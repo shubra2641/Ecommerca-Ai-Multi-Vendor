@@ -127,10 +127,8 @@ class OrderController extends Controller
         return view('admin.orders.payments', compact('payments'));
     }
 
-    public function updateStatus(
-        \App\Http\Requests\Admin\UpdateOrderStatusRequest $request,
-        $orderId
-    ) {
+    public function updateStatus(\App\Http\Requests\Admin\UpdateOrderStatusRequest $request, $orderId)
+    {
         $order = Order::findOrFail($orderId);
         $data = $request->validated();
 
@@ -273,3 +271,4 @@ class OrderController extends Controller
 
         return $offlinePayments;
     }
+}

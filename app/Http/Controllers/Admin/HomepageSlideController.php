@@ -129,3 +129,11 @@ class HomepageSlideController extends Controller
 
         return $existing;
     }
+
+    private function activeLanguages()
+    {
+        return Cache::remember('active_languages_full', 3600, function () {
+            return \App\Models\Language::where('is_active', 1)->orderByDesc('is_default')->get();
+        });
+    }
+}

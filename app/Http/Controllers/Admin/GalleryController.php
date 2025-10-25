@@ -279,3 +279,17 @@ class GalleryController extends Controller
             'alt' => $image->alt,
         ];
     }
+
+    private function deleteImageFiles(GalleryImage $image): void
+    {
+        if ($image->original_path && Storage::disk('public')->exists($image->original_path)) {
+            Storage::disk('public')->delete($image->original_path);
+        }
+        if ($image->webp_path && Storage::disk('public')->exists($image->webp_path)) {
+            Storage::disk('public')->delete($image->webp_path);
+        }
+        if ($image->thumbnail_path && Storage::disk('public')->exists($image->thumbnail_path)) {
+            Storage::disk('public')->delete($image->thumbnail_path);
+        }
+    }
+}
