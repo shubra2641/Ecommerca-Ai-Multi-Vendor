@@ -144,12 +144,12 @@ class ProductController extends Controller
             ->with('ai_locale', $locale);
     }
 
-    protected function applyFilters($query, Request $request): void
+    protected function applyFilters(\Illuminate\Database\Eloquent\Builder $query, Request $request): void
     {
         $searchTerm = $request->input('q');
         if ($searchTerm) {
-            $query->where(function ($q) use ($searchTerm): void {
-                $q->where('name', 'like', "%{$searchTerm}%")->orWhere('sku', 'like', "%{$searchTerm}%");
+            $query->where(function (\Illuminate\Database\Eloquent\Builder $subQuery) use ($searchTerm): void {
+                $subQuery->where('name', 'like', "%{$searchTerm}%")->orWhere('sku', 'like', "%{$searchTerm}%");
             });
         }
 
