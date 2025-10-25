@@ -1,4 +1,4 @@
-/* Noon-inspired theme overrides */
+/* Easy-inspired theme overrides */
 :root {
     --brand-yellow       : #ffe500;
     --brand-yellow-dark  : #f5d400;
@@ -8,7 +8,7 @@
     --primary-600        : var(--brand-yellow-dark);
     --primary-700        : #e4c700;
 
-    /* Semantic surface/text tokens for Noon layer */
+    /* Semantic surface/text tokens for Easy layer */
     --noon-surface       : #ffffff;
     --noon-surface-alt   : #f5f5f5;
     --noon-text          : #111111;
@@ -156,7 +156,7 @@
     --brand-black: #111111;
 }
 
-/* --- Noon style header overhaul --- */
+/* --- Easy style header overhaul --- */
 .noon-header {
     background: var(--brand-yellow);
     color     : #000;
@@ -662,7 +662,7 @@
     }
 }
 
-/* --- End Noon style header overhaul --- */
+/* --- End Easy style header overhaul --- */
 
 /* Promo strip */
 .promo-strip {
@@ -5022,7 +5022,7 @@ button[type="submit"] {
 .summary-break .line.total { display:flex; justify-content:space-between; font-weight:700; margin-top:10px; font-size:1.1rem; }
 .summary-break .line.shipping span { color:#6b7280; }
 
-/* Checkout CTA styled like Noon (blue checkout in screenshot) */
+/* Checkout CTA styled like Easy (blue checkout in screenshot) */
 .summary-box .btn-primary { background:#2b6cb0; text-align: center; color:#fff; padding:.75rem 1rem; border-radius:8px; border:0; display:block; font-weight:700; }
 .summary-box .btn-primary:hover{ filter:brightness(.98); }
 

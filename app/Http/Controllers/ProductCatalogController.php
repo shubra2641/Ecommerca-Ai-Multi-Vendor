@@ -610,11 +610,12 @@ final class ProductCatalogController extends Controller
             $activeVars = $product->variations->where('active', true);
             $prices = $activeVars->map(fn($v) => $v->effectivePrice())->filter();
             if ($prices->count()) {
-                $minP = $prices->min();
-                $maxP = $prices->max();
+                $minP = GlobalHelper::convertCurrency($prices->min());
+                $maxP = GlobalHelper::convertCurrency($prices->max());
             }
             $activeVars = $activeVars->map(function ($v) {
-                $v->effective_price = $v->effectivePrice();
+                $v->effective_price = GlobalHelper::convertCurrency($v->effectivePrice());
+                $v->display_price = $v->effective_price; // For compatibility with view
                 $v->stock_qty = $v->stock_qty ?? 0;
                 $v->reserved_qty = $v->reserved_qty ?? 0;
                 $v->manage_stock = $v->manage_stock ?? false;

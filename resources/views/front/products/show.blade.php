@@ -23,7 +23,7 @@
             <div class="product-gallery">
                 {{-- Use prepared $gallery (first element main) --}}
                 <div class="main-image" role="group" aria-label="Product images">
-                    <img id="productMainImage" src="{{ $mainImage['url'] ?? asset('front/images/default-product.png') }}" alt="{{ $product->name }}" loading="lazy">
+                    <img id="productMainImage" src="{{ $mainImage['url'] ?? asset('images/placeholder.png') }}" alt="{{ $product->name }}" loading="lazy">
                 </div>
                 @if((count($gallery ?? []) > 1))
                 <div class="thumbnail-gallery" aria-label="Product thumbnails">
