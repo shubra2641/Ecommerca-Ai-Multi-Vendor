@@ -7,11 +7,16 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\ProductRequest;
 use App\Mail\ProductPendingForReview;
+use App\Models\Language;
 use App\Models\Product;
 use App\Models\ProductAttribute;
 use App\Models\ProductCategory;
 use App\Models\ProductTag;
+use App\Models\ProductVariation;
+use App\Models\User;
+use App\Notifications\AdminProductPendingReviewNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -31,17 +36,9 @@ class ProductController extends Controller
 
     public function create()
     {
-        $categories = \Illuminate\Support\Facades\Cache::remember('product_categories_ordered', 3600, function () {
-            return ProductCategory::orderBy('name')->get();
-        });
-        $tags = \Illuminate\Support\Facades\Cache::remember('product_tags_ordered', 3600, function () {
-            return ProductTag::orderBy('name')->get();
-        });
-        $attributes = \Illuminate\Support\Facades\Cache::remember('product_attributes_with_values', 3600, function () {
-            return ProductAttribute::with('values')->orderBy('name')->get();
-        });
+        $data = $this->loadProductFormData();
 
-        return view('vendor.products.create', compact('categories', 'tags', 'attributes'));
+        return view('vendor.products.create', $data);
     }
 
     public function store(ProductRequest $request)
@@ -83,19 +80,7 @@ class ProductController extends Controller
         }
 
         // notify admins
-        try {
-            $admins = \App\Models\User::where('role', 'admin')->get();
-            foreach ($admins as $admin) {
-                Mail::to($admin->email)->queue(new ProductPendingForReview($product));
-                try {
-                    $admin->notify(new \App\Notifications\AdminProductPendingReviewNotification($product));
-                } catch (\Throwable $e) {
-                    logger()->warning('Failed to send product notification: ' . $e->getMessage());
-                }
-            }
-        } catch (\Exception $e) {
-            logger()->warning('Failed to send product review emails: ' . $e->getMessage());
-        }
+        $this->notifyAdminsOfProductSubmission($product);
 
         return redirect()->route('vendor.products.index')->with('success', __('Product submitted for review.'));
     }
@@ -103,17 +88,10 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $this->authorize('update', $product);
-        $categories = \Illuminate\Support\Facades\Cache::remember('product_categories_ordered', 3600, function () {
-            return ProductCategory::orderBy('name')->get();
-        });
-        $tags = \Illuminate\Support\Facades\Cache::remember('product_tags_ordered', 3600, function () {
-            return ProductTag::orderBy('name')->get();
-        });
-        $attributes = \Illuminate\Support\Facades\Cache::remember('product_attributes_with_values', 3600, function () {
-            return ProductAttribute::with('values')->orderBy('name')->get();
-        });
+        $data = $this->loadProductFormData();
+        $data['product'] = $product;
 
-        return view('vendor.products.edit', compact('product', 'categories', 'tags', 'attributes'));
+        return view('vendor.products.edit', $data);
     }
 
     public function update(ProductRequest $request, Product $product)
@@ -151,14 +129,7 @@ class ProductController extends Controller
             $this->syncVariations($product, $request);
         }
 
-        try {
-            $admins = \App\Models\User::where('role', 'admin')->get();
-            foreach ($admins as $admin) {
-                Mail::to($admin->email)->queue(new ProductPendingForReview($product));
-            }
-        } catch (\Exception $e) {
-            logger()->warning('Failed to send product update emails: ' . $e->getMessage());
-        }
+        $this->notifyAdminsOfProductUpdate($product);
 
         return redirect()->route('vendor.products.index')
             ->with('success', __('Product updated and resubmitted for review.'));
@@ -172,7 +143,49 @@ class ProductController extends Controller
         return back()->with('success', __('Product deleted.'));
     }
 
-    // validateVendorData removed: validation moved to FormRequest Vendor\ProductRequest
+    private function loadProductFormData(): array
+    {
+        $categories = Cache::remember('product_categories_ordered', 3600, function () {
+            return ProductCategory::orderBy('name')->get();
+        });
+        $tags = Cache::remember('product_tags_ordered', 3600, function () {
+            return ProductTag::orderBy('name')->get();
+        });
+        $attributes = Cache::remember('product_attributes_with_values', 3600, function () {
+            return ProductAttribute::with('values')->orderBy('name')->get();
+        });
+
+        return compact('categories', 'tags', 'attributes');
+    }
+
+    private function notifyAdminsOfProductSubmission(Product $product): void
+    {
+        try {
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                Mail::to($admin->email)->queue(new ProductPendingForReview($product));
+                try {
+                    $admin->notify(new AdminProductPendingReviewNotification($product));
+                } catch (\Throwable $e) {
+                    logger()->warning('Failed to send product notification: ' . $e->getMessage());
+                }
+            }
+        } catch (\Exception $e) {
+            logger()->warning('Failed to send product review emails: ' . $e->getMessage());
+        }
+    }
+
+    private function notifyAdminsOfProductUpdate(Product $product): void
+    {
+        try {
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                Mail::to($admin->email)->queue(new ProductPendingForReview($product));
+            }
+        } catch (\Exception $e) {
+            logger()->warning('Failed to send product update emails: ' . $e->getMessage());
+        }
+    }
 
     /**
      * Merge vendor submitted multilingual inputs into translation JSON arrays.
@@ -181,46 +194,89 @@ class ProductController extends Controller
     public function mergeVendorTranslations(Request $r, array &$data, ?Product $existing = null): void
     {
         try {
-            $languages = \App\Models\Language::where('is_active', 1)->orderByDesc('is_default')->get();
+            $languages = $this->getActiveLanguages();
             if ($languages->isEmpty()) {
                 return;
             }
-            $defaultLang = $languages->firstWhere('is_default', 1) ?? $languages->first();
-            $defaultCode = $defaultLang->code;
-            foreach (
-                ['name', 'short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords'] as $field
-            ) {
+
+            $defaultCode = $this->getDefaultLanguageCode($languages);
+
+            foreach ($this->getTranslatableFields() as $field) {
                 if ($r->has($field) && is_array($r->input($field))) {
-                    $incoming = $r->input($field);
-                    // pick default value
-                    $defaultVal = $incoming[$defaultCode] ??
-                        collect($incoming)->first(
-                            fn ($v) => trim((string) $v) !== ''
-                        );
-                    if ($defaultVal === null) {
-                        $defaultVal = $existing?->$field; // fallback
-                    }
-                    // normalize blanks -> default
-                    foreach ($languages as $lang) {
-                        $code = $lang->code;
-                        if (! isset($incoming[$code]) || trim((string) $incoming[$code]) === '') {
-                            $incoming[$code] = $defaultVal;
-                        }
-                    }
-                    $data[$field . '_translations'] = $incoming;
-                    // base column will be set later by collapsePrimaryTextFields
+                    $this->processFieldTranslations($r, $data, $field, $defaultCode, $existing);
                 }
             }
-            // slug translations auto from name_translations if present
-            if (! empty($data['name_translations'])) {
-                $slugTranslations = [];
-                foreach ($data['name_translations'] as $lc => $nm) {
-                    $slugTranslations[$lc] = Str::slug($nm ?? '');
-                }
-                $data['slug_translations'] = $slugTranslations;
-            }
+
+            $this->generateSlugTranslations($data);
         } catch (\Throwable $e) {
             logger()->warning('Failed to merge vendor translations: ' . $e->getMessage());
+        }
+    }
+
+    private function getActiveLanguages()
+    {
+        return Language::where('is_active', 1)->orderByDesc('is_default')->get();
+    }
+
+    private function getDefaultLanguageCode($languages): string
+    {
+        $defaultLang = $languages->firstWhere('is_default', 1) ?? $languages->first();
+        return $defaultLang->code;
+    }
+
+    private function getTranslatableFields(): array
+    {
+        return [
+            'name',
+            'short_description',
+            'description',
+            'seo_title',
+            'seo_description',
+            'seo_keywords'
+        ];
+    }
+
+    private function processFieldTranslations(Request $r, array &$data, string $field, string $defaultCode, ?Product $existing): void
+    {
+        $incoming = $r->input($field);
+        $defaultVal = $this->getDefaultValue($incoming, $defaultCode, $existing, $field);
+        $normalizedIncoming = $this->normalizeIncomingTranslations($incoming, $defaultVal);
+
+        $data[$field . '_translations'] = $normalizedIncoming;
+    }
+
+    private function getDefaultValue(array $incoming, string $defaultCode, ?Product $existing, string $field)
+    {
+        $defaultVal = $incoming[$defaultCode] ??
+            collect($incoming)->first(
+                fn ($v) => trim((string) $v) !== ''
+            );
+
+        return $defaultVal ?? $existing?->$field;
+    }
+
+    private function normalizeIncomingTranslations(array $incoming, $defaultVal): array
+    {
+        $languages = $this->getActiveLanguages();
+
+        foreach ($languages as $lang) {
+            $code = $lang->code;
+            if (! isset($incoming[$code]) || trim((string) $incoming[$code]) === '') {
+                $incoming[$code] = $defaultVal;
+            }
+        }
+
+        return $incoming;
+    }
+
+    private function generateSlugTranslations(array &$data): void
+    {
+        if (! empty($data['name_translations'])) {
+            $slugTranslations = [];
+            foreach ($data['name_translations'] as $lc => $nm) {
+                $slugTranslations[$lc] = Str::slug($nm ?? '');
+            }
+            $data['slug_translations'] = $slugTranslations;
         }
     }
 
@@ -231,7 +287,14 @@ class ProductController extends Controller
     public function collapsePrimaryTextFields(array $data, ?Product $existing = null): array
     {
         foreach (
-            ['name', 'short_description', 'description', 'seo_title', 'seo_description', 'seo_keywords'] as $field
+            [
+                'name',
+                'short_description',
+                'description',
+                'seo_title',
+                'seo_description',
+                'seo_keywords'
+            ] as $field
         ) {
             if (isset($data[$field]) && is_array($data[$field])) {
                 // choose first non-empty value
@@ -276,83 +339,94 @@ class ProductController extends Controller
     {
         $payload = $r->input('variations', []);
         $ids = [];
+
         foreach ($payload as $v) {
             if (! isset($v['price']) || $v['price'] === '') {
                 continue;
             }
-            $id = $v['id'] ?? null;
-            $attrRaw = $v['attributes'] ?? [];
-            if (is_string($attrRaw)) {
-                $decoded = json_decode($attrRaw, true);
-                $attrRaw = json_last_error() === JSON_ERROR_NONE ? $decoded : [];
-            }
-            $data = [
-                'name' => is_array($v['name'] ?? null) ? null : ($v['name'] ?? null),
-                'sku' => $v['sku'] ?? null,
-                'price' => $v['price'],
-                'sale_price' => $v['sale_price'] ?? null,
-                'sale_start' => $v['sale_start'] ?? null,
-                'sale_end' => $v['sale_end'] ?? null,
-                'manage_stock' => ! empty($v['manage_stock']),
-                'stock_qty' => $v['stock_qty'] ?? 0,
-                'reserved_qty' => $v['reserved_qty'] ?? 0,
-                'backorder' => ! empty($v['backorder']),
-                'image' => $v['image'] ?? null,
-                'attribute_data' => $attrRaw,
-                'active' => ! empty($v['active']),
-            ];
-            // Variation name translations (optional)
-            if (! empty($v['name']) && is_array($v['name'])) {
-                try {
-                    $languages = \App\Models\Language::where('is_active', 1)->orderByDesc('is_default')->get();
-                    if ($languages->count()) {
-                        $default = optional($languages->firstWhere('is_default', 1))->code ?? $languages->first()->code;
-                        $translations = $v['name'];
-                        $defaultVal = $translations[$default] ??
-                            collect($translations)->first(
-                                fn ($val) => trim((string) $val) !== ''
-                            );
-                        foreach ($languages as $lang) {
-                            $code = $lang->code;
-                            if (! isset($translations[$code]) || trim((string) $translations[$code]) === '') {
-                                $translations[$code] = $defaultVal;
-                            }
-                        }
-                        $data['name_translations'] = $translations;
-                        $data['name'] = $defaultVal;
-                    }
-                } catch (\Throwable $e) {
-                    logger()->warning('Failed to process variation translations: ' . $e->getMessage());
-                }
-            }
+
+            $variationData = $this->prepareVariationData($v);
+            $id = $this->saveVariation($product, $variationData, $v['id'] ?? null);
             if ($id) {
-                $variation = \App\Models\ProductVariation::where('product_id', $product->id)
-                    ->where('id', $id)
-                    ->first();
-                if ($variation) {
-                    $variation->update($data);
-                    $ids[] = $variation->id;
-                }
-            } else {
-                $ids[] = $product->variations()->create($data)->id;
+                $ids[] = $id;
             }
         }
+
         $product->variations()->whereNotIn('id', $ids)->delete();
     }
 
-    protected function syncSerials(Product $product, array $serials): void
+    private function prepareVariationData(array $v): array
     {
-        foreach ($serials as $s) {
-            $s = trim($s);
-            if ($s === '') {
-                continue;
-            }
-            $exists = \App\Models\ProductSerial::where('product_id', $product->id)
-                ->where('serial', $s)
-                ->first();
-            if (! $exists) {
-                \App\Models\ProductSerial::create(['product_id' => $product->id, 'serial' => $s]);
-            }
+        $attrRaw = $v['attributes'] ?? [];
+        if (is_string($attrRaw)) {
+            $decoded = json_decode($attrRaw, true);
+            $attrRaw = json_last_error() === JSON_ERROR_NONE ? $decoded : [];
         }
+
+        $data = [
+            'name' => is_array($v['name'] ?? null) ? null : ($v['name'] ?? null),
+            'sku' => $v['sku'] ?? null,
+            'price' => $v['price'],
+            'sale_price' => $v['sale_price'] ?? null,
+            'sale_start' => $v['sale_start'] ?? null,
+            'sale_end' => $v['sale_end'] ?? null,
+            'manage_stock' => ! empty($v['manage_stock']),
+            'stock_qty' => $v['stock_qty'] ?? 0,
+            'reserved_qty' => $v['reserved_qty'] ?? 0,
+            'backorder' => ! empty($v['backorder']),
+            'image' => $v['image'] ?? null,
+            'attribute_data' => $attrRaw,
+            'active' => ! empty($v['active']),
+        ];
+
+        if (! empty($v['name']) && is_array($v['name'])) {
+            $this->processVariationNameTranslations($data, $v['name']);
+        }
+
+        return $data;
+    }
+
+    private function processVariationNameTranslations(array &$data, array $nameTranslations): void
+    {
+        try {
+            $languages = Language::where('is_active', 1)->orderByDesc('is_default')->get();
+            if ($languages->count()) {
+                $default = optional($languages->firstWhere('is_default', 1))->code ?? $languages->first()->code;
+                $translations = $nameTranslations;
+                $defaultVal = $translations[$default] ??
+                    collect($translations)->first(
+                        fn ($val) => trim((string) $val) !== ''
+                    );
+
+                foreach ($languages as $lang) {
+                    $code = $lang->code;
+                    if (! isset($translations[$code]) || trim((string) $translations[$code]) === '') {
+                        $translations[$code] = $defaultVal;
+                    }
+                }
+
+                $data['name_translations'] = $translations;
+                $data['name'] = $defaultVal;
+            }
+        } catch (\Throwable $e) {
+            logger()->warning('Failed to process variation translations: ' . $e->getMessage());
+        }
+    }
+
+    private function saveVariation(Product $product, array $data, $id): ?int
+    {
+        if ($id) {
+            $variation = ProductVariation::where('product_id', $product->id)
+                ->where('id', $id)
+                ->first();
+            if ($variation) {
+                $variation->update($data);
+                return $variation->id;
+            }
+        } else {
+            return $product->variations()->create($data)->id;
+        }
+
+        return null;
     }
 }
