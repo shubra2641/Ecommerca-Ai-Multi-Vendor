@@ -74,11 +74,11 @@
                         </h2>
                         @if(count($translations) > 0)
                         <div class="admin-card-actions">
-                            <button type="button" class="admin-btn admin-btn-small admin-btn-outline" id="expandAll">
+                            <button type="button" class="admin-btn admin-btn-small admin-btn" id="expandAll">
                                 <i class="fas fa-expand-arrows-alt"></i>
                                 {{ __('Expand All') }}
                             </button>
-                            <button type="button" class="admin-btn admin-btn-small admin-btn-outline" id="collapseAll">
+                            <button type="button" class="admin-btn admin-btn-small admin-btn" id="collapseAll">
                                 <i class="fas fa-compress-arrows-alt"></i>
                                 {{ __('Collapse All') }}
                             </button>

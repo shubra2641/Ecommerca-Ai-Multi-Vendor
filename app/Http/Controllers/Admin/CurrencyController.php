@@ -130,15 +130,6 @@ class CurrencyController extends Controller
             ->with('success', __('Default currency updated successfully'));
     }
 
-    public function refreshRates()
-    {
-        // Here you would implement API call to update exchange rates
-        return response()->json([
-            'success' => true,
-            'message' => __('Exchange rates refreshed successfully'),
-        ]);
-    }
-
     public function updateRates()
     {
         // Here you would implement API call to update exchange rates

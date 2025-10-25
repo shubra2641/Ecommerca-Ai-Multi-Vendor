@@ -130,7 +130,7 @@
                                 <th>{{ __('ID') }}</th>
                                 <th>{{ __('SKU') }}</th>
                                 <th>{{ __('Name') }}</th>
-                                <th class="d-none d-md-table-cell">{{ __('Stock Management') }}</th>
+                                <th class="d-none d-lg-table-cell">{{ __('Stock Management') }}</th>
                                 <th class="d-none d-lg-table-cell">{{ __('Available Stock') }}</th>
                                 <th class="d-none d-lg-table-cell">{{ __('Serials') }}</th>
                                 <th class="d-none d-xl-table-cell">{{ __('Unsold Serials') }}</th>
@@ -190,7 +190,7 @@
                                 </td>
                                 <td>
                                     @if(!empty($p['variations']) && $p['variations']->count() > 0)
-                                    <button class="admin-btn admin-btn-small admin-btn-outline" data-bs-toggle="collapse" data-bs-target="#vars-{{ $p['id'] }}">
+                                    <button class="admin-btn admin-btn-small admin-btn" data-bs-toggle="collapse" data-bs-target="#vars-{{ $p['id'] }}">
                                         <i class="fas fa-chevron-right"></i>
                                         {{ $p['variations']->count() }} {{ __('Variations') }}
                                     </button>

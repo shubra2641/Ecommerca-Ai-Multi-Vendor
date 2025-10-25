@@ -192,17 +192,6 @@ class LanguageController extends Controller
             ->with('success', __('Translation deleted successfully'));
     }
 
-    public function refreshCache()
-    {
-        // Clear translation cache
-        cache()->forget('translations');
-
-        return response()->json([
-            'success' => true,
-            'message' => __('Translation cache refreshed successfully'),
-        ]);
-    }
-
     public function activate(Language $language)
     {
         $language->update(['is_active' => true]);

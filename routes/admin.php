@@ -70,7 +70,6 @@ Route::middleware([
         Route::get('/financial', [ReportsController::class, 'financialReport'])->name('financial');
         Route::get('/system', [ReportsController::class, 'systemReport'])->name('system');
         Route::get('/inventory', [ReportsController::class, 'inventoryReport'])->name('inventory');
-        Route::post('/refresh', [ReportsController::class, 'refresh'])->name('refresh');
     });
 
     // Notify interests management
@@ -132,7 +131,6 @@ Route::middleware([
             ->name('deduct-balance');
         Route::get('/{user}/balance/stats', [UserController::class, 'getBalanceStats'])->name('balance.stats');
         Route::get('/{user}/balance/history', [UserController::class, 'getBalanceHistory'])->name('balance.history');
-        Route::post('/{user}/balance/refresh', [UserController::class, 'refreshBalance'])->name('balance.refresh');
     });
 
     // Languages management
@@ -157,7 +155,6 @@ Route::middleware([
         Route::delete('/{language}/translations/delete', [AdminLanguageController::class, 'deleteTranslation'])
             ->name('translations.delete');
         Route::post('/{language}/set-default', [AdminLanguageController::class, 'setDefault'])->name('set-default');
-        Route::post('/refresh-cache', [AdminLanguageController::class, 'refreshCache'])->name('refresh-cache');
     });
 
     // Currencies management
@@ -171,7 +168,6 @@ Route::middleware([
         Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('destroy');
         Route::post('/{currency}/set-default', [CurrencyController::class, 'setDefault'])->name('set-default');
         Route::post('/{currency}/toggle-status', [CurrencyController::class, 'toggleStatus'])->name('toggle-status');
-        Route::post('/refresh-rates', [CurrencyController::class, 'refreshRates'])->name('refresh-rates');
         Route::post('/rates/update', [CurrencyController::class, 'updateRates'])->name('rates.update');
         Route::post('/bulk-activate', [CurrencyController::class, 'bulkActivate'])->name('bulk-activate');
         Route::post('/bulk-deactivate', [CurrencyController::class, 'bulkDeactivate'])->name('bulk-deactivate');
@@ -250,7 +246,6 @@ Route::middleware([
 
     // Dashboard AJAX routes
     Route::prefix('dashboard')->name('admin.dashboard.')->group(function (): void {
-        Route::post('/refresh', [AdminDashboardController::class, 'refresh'])->name('refresh');
         Route::get('/chart-data', [AdminDashboardController::class, 'getChartData'])->name('chart-data');
         Route::get('/stats', [AdminDashboardController::class, 'getStats'])->name('stats');
     });
@@ -299,7 +294,6 @@ Route::middleware([
 
     // Language routes additions
     Route::prefix('languages')->name('admin.languages.')->group(function (): void {
-        Route::post('/refresh-cache', [AdminLanguageController::class, 'refreshCache'])->name('refresh-cache');
         Route::post('/bulk-activate', [AdminLanguageController::class, 'bulkActivate'])->name('bulk-activate');
         Route::post('/bulk-deactivate', [AdminLanguageController::class, 'bulkDeactivate'])->name('bulk-deactivate');
         Route::delete('/bulk-delete', [AdminLanguageController::class, 'bulkDelete'])->name('bulk-delete');
@@ -403,6 +397,7 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
             ->name('products.reject');
         // Product serials management
 
+        Route::get('serials', [ProductSerialController::class, 'allSerials'])->name('products.serials.all');
         Route::get('products/{product}/serials', [ProductSerialController::class, 'index'])
             ->name('products.serials.index');
 
@@ -452,7 +447,6 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
         Route::prefix('users/{user}')->group(function (): void {
             Route::get('balance/stats', [UserController::class, 'getBalanceStats'])->name('users.balance.stats');
             Route::get('balance/history', [UserController::class, 'getBalanceHistory'])->name('users.balance.history');
-            Route::post('balance/refresh', [UserController::class, 'refreshBalance'])->name('users.balance.refresh');
             Route::post('balance/bulk', [UserController::class, 'bulkBalanceOperation'])->name('users.balance.bulk');
         });
 

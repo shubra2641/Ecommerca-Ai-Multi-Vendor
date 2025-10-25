@@ -141,7 +141,7 @@ class ReportsController extends Controller
                     'manage_stock' => (bool) $p->manage_stock,
                     'available_stock' => $p->availableStock(),
                     'has_serials' => (bool) $p->has_serials,
-                    'unsold_serials' => $p->unsold_serials_count,
+                    'unsold_serials' => $p->unsold_serials_count ?? 0,
                     'variations' => $variations,
                 ];
             });

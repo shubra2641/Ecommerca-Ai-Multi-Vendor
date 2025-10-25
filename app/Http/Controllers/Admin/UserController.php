@@ -161,23 +161,6 @@ class UserController extends BaseAdminController
         ]);
     }
 
-    public function refreshBalance(User $user)
-    {
-        $user->refresh();
-
-        return response()->json([
-            'success' => true,
-            'message' => __('Balance refreshed successfully'),
-            'balance' => ['current' => $user->balance, 'formatted' => number_format($user->balance, 2)],
-            'user' => [
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-                'last_updated' => $user->updated_at->format('Y-m-d H:i:s'),
-            ],
-        ]);
-    }
-
     public function getBalanceStats(User $user)
     {
         return $this->successResponse(__('Balance statistics retrieved'), $this->balanceService->getStats($user));

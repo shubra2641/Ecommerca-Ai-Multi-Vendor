@@ -19,13 +19,6 @@ class DashboardController extends Controller
     {
         // Get period from request, default to 6m
         $period = $request->get('period', '6m');
-        // Check if refresh was requested
-        $refresh = $request->get('refresh', false);
-
-        // If refresh is requested, clear cache
-        if ($refresh) {
-            Cache::forget('dashboard_stats');
-        }
 
         $stats = Cache::remember('dashboard_stats', 60, function () {
             $dbInfo = [
@@ -70,7 +63,6 @@ class DashboardController extends Controller
                 'totalAdmins' => User::where('role', 'admin')->count(),
                 'totalCustomers' => User::where('role', 'user')->count(),
                 'approvedUsers' => User::whereNotNull('approved_at')->count(),
-                'systemHealth' => $this->getSystemHealth(),
             ];
 
             // Orders & sales stats (not heavy aggregation, cached together)
@@ -94,9 +86,6 @@ class DashboardController extends Controller
         // Get top active users
         $topUsers = $this->getTopActiveUsers();
 
-        // Get system health data
-        $systemHealth = $this->getSystemHealth();
-
         return view('admin.dashboard', compact(
             'stats',
             'chartData',
@@ -104,7 +93,6 @@ class DashboardController extends Controller
             'orderStatusChartData',
             'topStats',
             'topUsers',
-            'systemHealth',
             'period'
         ));
     }
@@ -190,37 +178,6 @@ class DashboardController extends Controller
             return redirect()->back()->with('success', __('System optimized successfully'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', __('Failed to optimize system: ') . $e->getMessage());
-        }
-    }
-
-    /**
-     * Refresh dashboard data (AJAX endpoint)
-     */
-    public function refresh()
-    {
-        try {
-            // Clear dashboard cache
-            Cache::forget('dashboard_stats');
-
-            // Build fresh payload so frontend can update without a full page reload
-            $stats = $this->buildFreshStats();
-            $chartData = $this->getRegistrationChartData();
-            $salesChartData = $this->getSalesChartData();
-
-            return response()->json([
-                'success' => true,
-                'message' => __('Dashboard refreshed successfully'),
-                'data' => [
-                    'stats' => $stats,
-                    'charts' => $chartData,
-                    'salesChart' => $salesChartData,
-                ],
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __('Failed to refresh dashboard'),
-            ], 500);
         }
     }
 
@@ -339,35 +296,6 @@ class DashboardController extends Controller
         }
 
         return $data;
-    }
-
-    /**
-     * Get system health status
-     */
-    private function getSystemHealth()
-    {
-        $health = [];
-
-        // Check database connection
-        try {
-            DB::connection()->getPdo();
-            $health['database'] = ['status' => 'healthy'];
-        } catch (\Exception $e) {
-            $health['database'] = ['status' => 'error'];
-        }
-
-        // Check cache
-        try {
-            Cache::put('health_check', 'ok', 60);
-            $health['cache'] = ['status' => Cache::get('health_check') === 'ok' ? 'healthy' : 'warning'];
-        } catch (\Exception $e) {
-            $health['cache'] = ['status' => 'error'];
-        }
-
-        // Check storage
-        $health['storage'] = ['status' => is_writable(storage_path()) ? 'healthy' : 'warning'];
-
-        return $health;
     }
 
     /**
@@ -628,7 +556,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Build the stats array used by both getStats() and refresh()
+     * Build the stats array used by getStats()
      */
     private function buildFreshStats()
     {

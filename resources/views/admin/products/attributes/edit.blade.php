@@ -116,7 +116,7 @@
                                                     <input name="value" value="{{ $val->value }}" class="admin-form-input admin-form-input-sm max-w-100" placeholder="{{ __('Value') }}">
                                                     <input name="slug" value="{{ $val->slug }}" class="admin-form-input admin-form-input-sm d-none d-lg-inline max-w-90" placeholder="{{ __('Slug') }}" readonly>
                                                 </div>
-                                                <button type="submit" class="admin-btn admin-btn-small admin-btn-outline" title="{{ __('Update') }}">
+                                                <button type="submit" class="admin-btn admin-btn-small admin-btn" title="{{ __('Update') }}">
                                                     <i class="fas fa-save"></i>
                                                 </button>
                                             </form>

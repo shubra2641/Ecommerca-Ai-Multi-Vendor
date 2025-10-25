@@ -1,4 +1,4 @@
-<button type="submit" form="category-form" formaction="{{ route('admin.product-categories.ai.suggest') }}?target=base" formmethod="get" class="admin-btn admin-btn-small admin-btn-outline">
+<button type="submit" form="category-form" formaction="{{ route('admin.product-categories.ai.suggest') }}?target=base" formmethod="get" class="admin-btn admin-btn-small admin-btn">
     <i class="fas fa-lightbulb"></i>
     {{ __('AI Generate') }}
 </button>

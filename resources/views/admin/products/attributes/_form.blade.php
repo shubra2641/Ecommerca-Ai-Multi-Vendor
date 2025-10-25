@@ -2,11 +2,11 @@
     <div class="d-flex flex-wrap gap-2 align-items-center">
         <div class="admin-text-muted small fw-semibold">{{ __('Attribute Form') }}</div>
         <div class="ms-auto d-flex gap-2">
-            <button type="button" class="admin-btn admin-btn-small admin-btn-outline" data-collapse-all>
+            <button type="button" class="admin-btn admin-btn-small admin-btn" data-collapse-all>
                 <i class="fas fa-compress d-sm-none"></i>
                 <span class="d-none d-sm-inline">{{ __('Collapse All') }}</span>
             </button>
-            <button type="button" class="admin-btn admin-btn-small admin-btn-outline" data-expand-all>
+            <button type="button" class="admin-btn admin-btn-small admin-btn" data-expand-all>
                 <i class="fas fa-compress d-sm-none"></i>
                 <span class="d-none d-sm-inline">{{ __('Expand All') }}</span>
             </button>

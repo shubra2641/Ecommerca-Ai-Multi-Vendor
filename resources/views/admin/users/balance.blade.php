@@ -42,12 +42,6 @@
                     {{ __('Current Balance') }}
                 </h2>
                 <div class="admin-balance-actions">
-                    <a href="{{ route('admin.users.balance', $user) }}" class="admin-btn admin-btn-small admin-btn-secondary">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        {{ __('Refresh') }}
-                    </a>
                     <a href="{{ route('admin.users.balance.history', $user) }}" class="admin-btn admin-btn-small admin-btn-primary">
                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -377,7 +371,6 @@
     'deduct' => route('admin.users.deduct-balance', $user),
     'stats' => route('admin.users.balance.stats', $user),
     'history' => route('admin.users.balance.history', $user),
-    'refresh' => route('admin.users.balance.refresh', $user),
     ],
     'currency' => [
     'code' => $defaultCurrency?->code ?? 'USD',
@@ -391,13 +384,10 @@
     'balance_invalid_add' => __('Please enter a valid amount and a reason'),
     'balance_invalid_deduct' => __('Please enter a valid amount and a reason'),
     'balance_exceeds' => __('Amount exceeds current balance'),
-    'balance_refreshed' => __('Data refreshed successfully'),
-    'loading_refresh' => __('Refreshing data...'),
     'loading_history' => __('Loading history...'),
     'error' => __('Error'),
     'error_add' => __('Error while adding balance'),
     'error_deduct' => __('Error while deducting balance'),
-    'error_refresh' => __('Error while refreshing data'),
     'error_history' => __('Failed to load balance history'),
     'error_server' => __('Server communication error'),
     'no_history' => __('No history'),

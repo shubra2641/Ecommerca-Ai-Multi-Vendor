@@ -12,6 +12,13 @@ use Illuminate\Http\Request;
 
 class ProductSerialController extends Controller
 {
+    public function allSerials()
+    {
+        $serials = ProductSerial::with('product')->orderBy('id', 'desc')->paginate(50);
+
+        return view('admin.products.serials.all', compact('serials'));
+    }
+
     public function index(Product $product)
     {
         $serials = $product->serials()->orderBy('id', 'desc')->paginate(50);

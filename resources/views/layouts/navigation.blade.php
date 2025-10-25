@@ -202,6 +202,7 @@
                         <li><a href="{{ route('admin.reviews.index') }}"
                                 class="dropdown-item {{ request()->routeIs('admin.reviews*')? 'active':'' }}"><i
                                     class="fas fa-star"></i> {{ __('Reviews') }}</a></li>
+                        <li><a href="{{ route('admin.products.serials.all') }}" class="dropdown-item"><i class="fas fa-list-ol"></i> {{ __('Serials') }}</a></li>
                     </ul>
                 </div>
             </div>

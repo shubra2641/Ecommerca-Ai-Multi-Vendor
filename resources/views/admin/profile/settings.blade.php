@@ -19,10 +19,6 @@
                 </div>
             </div>
             <div class="header-actions">
-                <a href="{{ route('admin.settings.index', ['refresh' => '1']) }}" class="admin-btn admin-btn-secondary">
-                    <i class="fas fa-sync-alt"></i>
-                    {{ __('Refresh Info') }}
-                </a>
             </div>
         </div>
 

@@ -46,21 +46,21 @@
                                 role="tabpanel">
                                 <div class="admin-form-group">
                                     <label class="admin-form-label">{{ __('Name') }}</label>
-                                    <input name="name[{{ $lang->code }}]" value="{{ $pfLangMeta[$lang->code]['name_val'] }}" class="admin-form-input" @if($lang->code===$defaultLocale) required @endif placeholder="{{ $pfLangMeta[$lang->code]['ph_name'] }}">
+                                    <input name="name[{{ $lang->code }}]" value="{{ $pfLangMeta[$lang->code]['name_val'] }}" class="admin-form-input" @if($lang->code===$defaultLocale) required @endif>
                                 </div>
                                 <div class="admin-form-group">
                                     <label class="admin-form-label">{{ __('Short Description') }}</label>
-                                    <textarea name="short_description[{{ $lang->code }}]" class="admin-form-input" rows="3" placeholder="{{ $pfLangMeta[$lang->code]['ph_short'] }}">{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['short_description']) ? session('ai_result')['short_description'] : $pfLangMeta[$lang->code]['short_val'] }}</textarea>
+                                    <textarea name="short_description[{{ $lang->code }}]" class="admin-form-input" rows="3">{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['short_description']) ? session('ai_result')['short_description'] : $pfLangMeta[$lang->code]['short_val'] }}</textarea>
                                 </div>
                                 <div class="admin-form-group">
                                     <label class="admin-form-label d-flex justify-content-between align-items-center">
                                         <span>{{ __('Description') }}</span>
-                                        <button type="submit" form="product-form" formaction="{{ route('admin.products.ai.suggest') }}?target=description&locale={{ $lang->code }}" formmethod="get" class="admin-btn admin-btn-small admin-btn-outline">
+                                        <button type="submit" form="product-form" formaction="{{ route('admin.products.ai.suggest') }}?target=description&locale={{ $lang->code }}" formmethod="get" class="admin-btn admin-btn-small admin-btn">
                                             <i class="fas fa-lightbulb"></i>
                                             {{ __('AI Generate') }}
                                         </button>
                                     </label>
-                                    <textarea name="description[{{ $lang->code }}]" class="admin-form-input js-ai-description" rows="6" placeholder="{{ $pfLangMeta[$lang->code]['ph_desc'] }}">{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['description']) ? session('ai_result')['description'] : $pfLangMeta[$lang->code]['desc_val'] }}</textarea>
+                                    <textarea name="description[{{ $lang->code }}]" class="admin-form-input js-ai-description" rows="6">{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['description']) ? session('ai_result')['description'] : $pfLangMeta[$lang->code]['desc_val'] }}</textarea>
                                 </div>
                             </div>
                             @endforeach
@@ -291,23 +291,23 @@
                         <div class="admin-form-grid">
                             <div class="admin-form-group">
                                 <label class="admin-form-label">{{ __('SEO Title') }}</label>
-                                <input name="seo_title[{{ $lang->code }}]" value="{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['seo_title']) ? session('ai_result')['seo_title'] : $pfLangMeta[$lang->code]['seo_title'] }}" class="admin-form-input" placeholder="{{ $pfLangMeta[$lang->code]['ph_seo_title'] }}">
+                                <input name="seo_title[{{ $lang->code }}]" value="{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['seo_title']) ? session('ai_result')['seo_title'] : $pfLangMeta[$lang->code]['seo_title'] }}" class="admin-form-input">
                             </div>
                             <div class="admin-form-group">
                                 <label class="admin-form-label">{{ __('SEO Keywords') }}</label>
-                                <input name="seo_keywords[{{ $lang->code }}]" value="{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['seo_tags']) ? session('ai_result')['seo_tags'] : $pfLangMeta[$lang->code]['seo_keywords'] }}" class="admin-form-input" placeholder="{{ $pfLangMeta[$lang->code]['ph_seo_keywords'] }}">
+                                <input name="seo_keywords[{{ $lang->code }}]" value="{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['seo_tags']) ? session('ai_result')['seo_tags'] : $pfLangMeta[$lang->code]['seo_keywords'] }}" class="admin-form-input">
                             </div>
                             <div class="admin-form-group admin-form-group-wide">
                                 <label class="admin-form-label d-flex justify-content-between align-items-center">
                                     <span>{{ __('SEO Description') }}</span>
-                                    <button type="submit" form="product-form" formaction="{{ route('admin.products.ai.suggest') }}?target=seo&locale={{ $lang->code }}" formmethod="get" class="admin-btn admin-btn-small admin-btn-outline">
+                                    <button type="submit" form="product-form" formaction="{{ route('admin.products.ai.suggest') }}?target=seo&locale={{ $lang->code }}" formmethod="get" class="admin-btn admin-btn-small admin-btn">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                         </svg>
                                         {{ __('AI Generate') }}
                                     </button>
                                 </label>
-                                <textarea name="seo_description[{{ $lang->code }}]" class="admin-form-input js-ai-seo-description" rows="3" placeholder="{{ $pfLangMeta[$lang->code]['ph_seo_description'] }}">{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['seo_description']) ? session('ai_result')['seo_description'] : $pfLangMeta[$lang->code]['seo_description'] }}</textarea>
+                                <textarea name="seo_description[{{ $lang->code }}]" class="admin-form-input js-ai-seo-description" rows="3">{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['seo_description']) ? session('ai_result')['seo_description'] : $pfLangMeta[$lang->code]['seo_description'] }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -353,7 +353,7 @@
                 <div class="admin-form-group">
                     <label class="admin-form-label">{{ __('Gallery') }}</label>
                     <div id="gallery-manager" class="d-flex flex-wrap gap-2 mb-2" data-empty-text="{{ __('No gallery images yet.') }}"></div>
-                    <button type="button" class="admin-btn admin-btn-small admin-btn-outline" id="add-gallery-image" data-open-media="1" data-media-target="#gallery-input" data-media-mode="gallery" data-media-accept="image/*" data-media-label="{{ __('Gallery Images') }}">
+                    <button type="button" class="admin-btn admin-btn-small admin-btn" id="add-gallery-image" data-open-media="1" data-media-target="#gallery-input" data-media-mode="gallery" data-media-accept="image/*" data-media-label="{{ __('Gallery Images') }}">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>

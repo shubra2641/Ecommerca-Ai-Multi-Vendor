@@ -20,11 +20,6 @@
                 </div>
             </div>
             <div class="header-actions">
-                <button type="button" class="admin-btn admin-btn-secondary" id="refreshDashboardBtn"
-                    data-bs-toggle="tooltip" title="{{ __('Refresh dashboard data') }}">
-                    <i class="fas fa-sync-alt"></i>
-                    {{ __('Refresh') }}
-                </button>
                 <div class="dropdown d-inline-block">
                     <button class="admin-btn admin-btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                         <i class="fas fa-plus"></i>
@@ -541,11 +536,6 @@
                                 </p>
                             </div>
                             <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
-                                <a href="{{ route('admin.dashboard', ['refresh' => '1']) }}" class="admin-btn admin-btn-outline" data-bs-toggle="tooltip"
-                                    title="{{ __('Refresh dashboard data') }}">
-                                    <i class="fas fa-sync-alt"></i>
-                                    <span class="d-none d-md-inline ms-1">{{ __('Refresh') }}</span>
-                                </a>
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a href="{{ route('admin.dashboard', ['period' => '6m']) }}"
                                         class="admin-btn admin-btn-outline {{ $period === '6m' ? 'active' : '' }}">6M</a>

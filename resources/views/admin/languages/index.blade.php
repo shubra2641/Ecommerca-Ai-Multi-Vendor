@@ -23,10 +23,6 @@
                     <i class="fas fa-plus"></i>
                     {{ __('Add New Language') }}
                 </a>
-                <button type="button" class="admin-btn admin-btn-secondary" data-action="refresh-translations">
-                    <i class="fas fa-sync-alt"></i>
-                    {{ __('Refresh Cache') }}
-                </button>
             </div>
         </div>
 
