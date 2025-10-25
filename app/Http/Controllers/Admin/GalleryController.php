@@ -19,26 +19,26 @@ class GalleryController extends Controller
 {
     public function index(Request $request)
     {
-        $q = trim($request->get('q', ''));
-        $tag = trim($request->get('tag', ''));
+        $searchTerm = trim($request->get('q', ''));
+        $tagFilter = trim($request->get('tag', ''));
         $query = GalleryImage::query();
-        if ($q !== '') {
-            $query->where(function ($qq) use ($q): void {
-                $qq->where('title', 'like', "%{$q}%")
-                    ->orWhere('description', 'like', "%{$q}%")
-                    ->orWhere('alt', 'like', "%{$q}%")
-                    ->orWhere('tags', 'like', "%{$q}%");
+        if ($searchTerm !== '') {
+            $query->where(function ($searchQuery) use ($searchTerm): void {
+                $searchQuery->where('title', 'like', "%{$searchTerm}%")
+                    ->orWhere('description', 'like', "%{$searchTerm}%")
+                    ->orWhere('alt', 'like', "%{$searchTerm}%")
+                    ->orWhere('tags', 'like', "%{$searchTerm}%");
             });
         }
-        if ($tag !== '') {
-            $query->where('tags', 'like', "%{$tag}%");
+        if ($tagFilter !== '') {
+            $query->where('tags', 'like', "%{$tagFilter}%");
         }
-        $images = $query->latest()->paginate(30)->appends(['q' => $q, 'tag' => $tag]);
+        $images = $query->latest()->paginate(30)->appends(['q' => $searchTerm, 'tag' => $tagFilter]);
         $distinctTags = GalleryImage::select('tags')->whereNotNull('tags')->pluck('tags')->flatMap(function ($row) {
             return array_filter(array_map('trim', explode(',', $row)));
         })->unique()->sort()->values();
 
-        return view('admin.gallery.index', compact('images', 'q', 'tag', 'distinctTags'));
+        return view('admin.gallery.index', compact('images', 'searchTerm', 'tagFilter', 'distinctTags'));
     }
 
     public function create()

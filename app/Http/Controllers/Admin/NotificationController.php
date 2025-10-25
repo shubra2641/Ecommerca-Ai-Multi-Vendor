@@ -47,11 +47,11 @@ class NotificationController extends BaseAdminController
         return view('admin.notifications.index', compact('notifications'));
     }
 
-    public function markReadOld(Request $request, $id)
+    public function markReadOld(Request $request, $notificationId)
     {
-        $n = $request->user()->notifications()->where('id', $id)->first();
-        if ($n) {
-            $n->markAsRead();
+        $notification = $request->user()->notifications()->where('id', $notificationId)->first();
+        if ($notification) {
+            $notification->markAsRead();
         }
 
         return response()->json(['ok' => true]);
@@ -81,10 +81,10 @@ class NotificationController extends BaseAdminController
     /**
      * Mark notification as read (improved)
      */
-    public function markRead(Request $request, $id)
+    public function markRead(Request $request, $notificationId)
     {
         $user = $this->getCurrentUser($request);
-        $success = $this->notificationService->markAsRead($user, $id);
+        $success = $this->notificationService->markAsRead($user, $notificationId);
 
         if (! $success) {
             return $this->errorResponse(__('Notification not found'), null, 404);
@@ -115,10 +115,10 @@ class NotificationController extends BaseAdminController
     /**
      * Delete notification
      */
-    public function delete(Request $request, $id)
+    public function delete(Request $request, $notificationId)
     {
         $user = $this->getCurrentUser($request);
-        $success = $this->notificationService->delete($user, $id);
+        $success = $this->notificationService->delete($user, $notificationId);
 
         if (! $success) {
             return $this->errorResponse(__('Notification not found'), null, 404);

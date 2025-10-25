@@ -501,8 +501,8 @@ class ProductController extends Controller
         $soon = config('catalog.stock_soon_threshold', 10);
 
         match ($stock) {
-            'na' => $query->where(function ($q): void {
-                $q->where('manage_stock', 0)->orWhereNull('manage_stock');
+            'na' => $query->where(function ($stockQuery): void {
+                $stockQuery->where('manage_stock', 0)->orWhereNull('manage_stock');
             }),
             'low' => $query->where('manage_stock', 1)->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low]),
             'soon' => $query->where('manage_stock', 1)->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ? AND (stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low, $soon]),
