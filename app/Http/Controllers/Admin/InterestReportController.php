@@ -95,14 +95,14 @@ class InterestReportController extends Controller
                 $sma[$i] = round($slice->avg(), 2);
             }
             // EMA
-            $k = 2 / ($window + 1);
+            $smoothingFactor = 2 / ($window + 1);
             for ($i = 0; $i < $pricesCount; $i++) {
                 if ($i === 0) {
                     $ema[$i] = round($prices[$i], 2);
 
                     continue;
                 }
-                $ema[$i] = round($prices[$i] * $k + $ema[$i - 1] * (1 - $k), 2);
+                $ema[$i] = round($prices[$i] * $smoothingFactor + $ema[$i - 1] * (1 - $smoothingFactor), 2);
             }
         }
         // Largest absolute drop in money value
@@ -146,7 +146,7 @@ class InterestReportController extends Controller
             'maxIncrease',
             'interestSeries',
             'from',
-            'to',
+            'endDate',
             'window',
             'sma',
             'ema',

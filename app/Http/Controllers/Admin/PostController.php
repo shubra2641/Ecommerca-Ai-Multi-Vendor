@@ -18,12 +18,12 @@ class PostController extends Controller
     {
         $query = Post::with('category', 'author');
 
-        $q = $request->get('q');
-        if ($q) {
-            $query->where(function ($qq) use ($q): void {
-                $qq->where('title', 'like', "%{$q}%")
-                    ->orWhere('excerpt', 'like', "%{$q}%")
-                    ->orWhere('body', 'like', "%{$q}%");
+        $searchTerm = $request->get('q');
+        if ($searchTerm) {
+            $query->where(function ($searchQuery) use ($searchTerm): void {
+                $searchQuery->where('title', 'like', "%{$searchTerm}%")
+                    ->orWhere('excerpt', 'like', "%{$searchTerm}%")
+                    ->orWhere('body', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -42,7 +42,7 @@ class PostController extends Controller
         $posts = $query->orderByDesc('published_at')->paginate(20);
         $categories = PostCategory::orderBy('name')->get();
 
-        return view('admin.blog.posts.index', compact('posts', 'q', 'categories', 'categoryId', 'published'));
+        return view('admin.blog.posts.index', compact('posts', 'searchTerm', 'categories', 'categoryId', 'published'));
     }
 
     public function create()
@@ -107,7 +107,7 @@ class PostController extends Controller
         return back()->with('success', __('Status updated'));
     }
 
-    public function aiSuggest(Request $request, SimpleAIService $ai)
+    public function aiSuggest(Request $request, SimpleAIService $aiService)
     {
         // Get name from array or string
         $nameInput = $request->input('title');
@@ -131,7 +131,7 @@ class PostController extends Controller
             return back()->with('error', __('Please enter a name first'));
         }
 
-        $result = $ai->generate($title, 'blog', $locale);
+        $result = $aiService->generate($title, 'blog', $locale);
 
         if (isset($result['error'])) {
             return back()->with('error', $result['error'])->withInput();
@@ -221,11 +221,11 @@ class PostController extends Controller
     {
         $slug = Str::slug($title);
         $base = $slug;
-        $i = 1;
+        $counter = 1;
 
         while (Post::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
-            $slug = $base . '-' . $i;
-            $i++;
+            $slug = $base . '-' . $counter;
+            $counter++;
         }
 
         return $slug;
