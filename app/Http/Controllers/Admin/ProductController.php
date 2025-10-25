@@ -107,7 +107,7 @@ class ProductController extends Controller
         return redirect()->back()->with('success', __("Product {$status} successfully."));
     }
 
-    public function aiSuggest(Request $request, SimpleAIService $ai)
+    public function aiSuggest(Request $request, SimpleAIService $aiService)
     {
         // Get name from array or string
         $nameInput = $request->input('name');
@@ -131,7 +131,7 @@ class ProductController extends Controller
             return back()->with('error', __('Please enter a name first'));
         }
 
-        $result = $ai->generate($title, 'product', $locale);
+        $result = $aiService->generate($title, 'product', $locale);
 
         if (isset($result['error'])) {
             return back()->with('error', $result['error'])->withInput();
@@ -146,10 +146,10 @@ class ProductController extends Controller
 
     protected function applyFilters($query, Request $request): void
     {
-        $search = $request->input('q');
-        if ($search) {
-            $query->where(function ($q) use ($search): void {
-                $q->where('name', 'like', "%{$search}%")->orWhere('sku', 'like', "%{$search}%");
+        $searchTerm = $request->input('q');
+        if ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm): void {
+                $q->where('name', 'like', "%{$searchTerm}%")->orWhere('sku', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -157,9 +157,9 @@ class ProductController extends Controller
             $query->where('product_category_id', $request->input('category'));
         }
 
-        $type = $request->input('type');
-        if ($type) {
-            $query->where('type', $type);
+        $productType = $request->input('type');
+        if ($productType) {
+            $query->where('type', $productType);
         }
 
         $flag = $request->input('flag');
@@ -171,9 +171,9 @@ class ProductController extends Controller
             };
         }
 
-        $stock = $request->input('stock');
-        if ($stock) {
-            $this->applyStockFilter($query, $stock);
+        $stockFilter = $request->input('stock');
+        if ($stockFilter) {
+            $this->applyStockFilter($query, $stockFilter);
         }
     }
 
@@ -189,10 +189,10 @@ class ProductController extends Controller
     protected function prepareProductData(array $validated)
     {
         [$name, $nameTranslations] = $this->separateTranslatedField($validated['name'] ?? null);
-        [$shortDescription, $shortDescriptionTranslations] = $this->separateTranslatedField($validated['short_description'] ?? null);
-        [$description, $descriptionTranslations] = $this->separateTranslatedField($validated['description'] ?? null);
+        [$shortDesc, $shortDescTranslations] = $this->separateTranslatedField($validated['short_description'] ?? null);
+        [$description, $descTranslations] = $this->separateTranslatedField($validated['description'] ?? null);
         [$seoTitle, $seoTitleTranslations] = $this->separateTranslatedField($validated['seo_title'] ?? null);
-        [$seoDescription, $seoDescriptionTranslations] = $this->separateTranslatedField($validated['seo_description'] ?? null);
+        [$seoDesc, $seoDescTranslations] = $this->separateTranslatedField($validated['seo_description'] ?? null);
         [$seoKeywords, $seoKeywordsTranslations] = $this->separateTranslatedField($validated['seo_keywords'] ?? null);
 
         $slugSource = $name ?? ($nameTranslations ? $this->extractPrimaryTextFromArray($nameTranslations) : '');
@@ -206,9 +206,9 @@ class ProductController extends Controller
             'slug_translations' => $slugTranslations,
             'sku' => $validated['sku'] ?? null,
             'description' => $description,
-            'description_translations' => $descriptionTranslations,
-            'short_description' => $shortDescription,
-            'short_description_translations' => $shortDescriptionTranslations,
+            'description_translations' => $descTranslations,
+            'short_description' => $shortDesc,
+            'short_description_translations' => $shortDescTranslations,
             'price' => $validated['price'] ?? null,
             'sale_price' => $validated['sale_price'] ?? null,
             'sale_start' => $validated['sale_start'] ?? null,
@@ -231,8 +231,8 @@ class ProductController extends Controller
             'active' => ! empty($validated['active']),
             'seo_title' => $seoTitle,
             'seo_title_translations' => $seoTitleTranslations,
-            'seo_description' => $seoDescription,
-            'seo_description_translations' => $seoDescriptionTranslations,
+            'seo_description' => $seoDesc,
+            'seo_description_translations' => $seoDescTranslations,
             'seo_keywords' => $seoKeywords,
             'seo_keywords_translations' => $seoKeywordsTranslations,
             'refund_days' => $validated['refund_days'] ?? null,
@@ -447,9 +447,9 @@ class ProductController extends Controller
     protected function normalizeVariationAttributes($attributes): array
     {
         if (is_string($attributes)) {
-            $decoded = json_decode($attributes, true);
+            $decodedAttributes = json_decode($attributes, true);
             if (json_last_error() === JSON_ERROR_NONE) {
-                $attributes = $decoded;
+                $attributes = $decodedAttributes;
             }
         }
 
@@ -457,7 +457,7 @@ class ProductController extends Controller
             return [[], null];
         }
 
-        $normalized = [];
+        $normalizedAttributes = [];
         foreach ($attributes as $slug => $value) {
             if (is_array($value)) {
                 $value = $value['value'] ?? null;
@@ -473,17 +473,17 @@ class ProductController extends Controller
             if ($value === '') {
                 continue;
             }
-            $normalized[$slug] = $value;
+            $normalizedAttributes[$slug] = $value;
         }
 
-        if (empty($normalized)) {
+        if (empty($normalizedAttributes)) {
             return [[], null];
         }
 
-        ksort($normalized);
-        $hash = hash('sha256', json_encode($normalized));
+        ksort($normalizedAttributes);
+        $attributeHash = hash('sha256', json_encode($normalizedAttributes));
 
-        return [$normalized, $hash];
+        return [$normalizedAttributes, $attributeHash];
     }
 
     protected function cleanGallery($gallery)
@@ -492,7 +492,7 @@ class ProductController extends Controller
             $gallery = json_decode($gallery, true) ? json_decode($gallery, true) : [];
         }
 
-        return array_values(array_filter(array_map('trim', $gallery), fn($v) => ! empty($v)));
+        return array_values(array_filter(array_map('trim', $gallery), fn($galleryItem) => ! empty($galleryItem)));
     }
 
     protected function applyStockFilter($query, string $stock): void

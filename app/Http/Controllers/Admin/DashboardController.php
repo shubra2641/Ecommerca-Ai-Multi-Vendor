@@ -226,40 +226,12 @@ class DashboardController extends Controller
     }
 
     /**
-     * Get registration chart data for the last 6 months
-     */
-    private function getRegistrationChartData()
-    {
-        $months = [];
-        $data = [];
-
-        for ($i = 5; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $months[] = $date->format('M Y');
-
-            $count = User::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-
-            $data[] = $count;
-        }
-
-        return [
-            'labels' => $months,
-            'data' => $data,
-            'vendorData' => $this->getVendorRegistrationData($months),
-            'adminData' => $this->getAdminRegistrationData($months),
-        ];
-    }
-
-    /**
      * Get registration chart data based on period
      */
     private function getRegistrationChartDataByPeriod($period)
     {
         return $this->getChartDataByPeriod($period);
     }
-
     /**
      * Get vendor registration data for chart
      */
@@ -337,10 +309,10 @@ class DashboardController extends Controller
             $productQ = Product::query();
             $totalProducts = $productQ->count();
             $lowStock = $productQ->where('manage_stock', 1)->get()
-                ->filter(fn ($p) => ($p->availableStock() ?? 0) > 0 &&
+                ->filter(fn($p) => ($p->availableStock() ?? 0) > 0 &&
                     ($p->availableStock() ?? 0) <= 5)->count();
             $outOfStock = $productQ->where('manage_stock', 1)->get()
-                ->filter(fn ($p) => ($p->availableStock() ?? 0) <= 0)->count();
+                ->filter(fn($p) => ($p->availableStock() ?? 0) <= 0)->count();
             $onSale = Product::whereNotNull('sale_price')->whereColumn('sale_price', '<', 'price')->count();
 
             // Payment metrics

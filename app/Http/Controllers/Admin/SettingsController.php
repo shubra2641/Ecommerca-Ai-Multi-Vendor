@@ -200,72 +200,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Validate custom CSS/JS code for potential security issues.
-     */
-    private function validateCustomCode(\Illuminate\Validation\Validator $validator, ?string $code, string $field): void
-    {
-        if ($code === null || $code === '') {
-            return;
-        }
-
-        // Check for potentially dangerous patterns
-        $dangerousPatterns = [
-            '/<script[^>]*>.*?<\/script>/is',
-            '/javascript:/i',
-            '/vbscript:/i',
-            '/onload=/i',
-            '/onerror=/i',
-            '/onclick=/i',
-            '/onmouseover=/i',
-            '/eval\s*\(/i',
-            '/document\.write/i',
-            '/innerHTML/i',
-        ];
-
-        foreach ($dangerousPatterns as $pattern) {
-            if (preg_match($pattern, $code)) {
-                $validator->errors()->add(
-                    $field,
-                    __('The :attribute contains potentially dangerous code.', ['attribute' => $field])
-                );
-                break;
-            }
-        }
-    }
-
-    /**
-     * Handle logo upload with security checks.
-     */
-    private function handleLogoUpload(\Illuminate\Http\UploadedFile $file, ?string $oldLogo): ?string
-    {
-        try {
-            // Additional security checks
-            $allowedMimes = ['image/jpeg', 'image/png', 'image/svg+xml'];
-            if (! in_array($file->getMimeType(), $allowedMimes, true)) {
-                return null;
-            }
-
-            // Generate secure filename
-            $extension = $file->getClientOriginalExtension();
-            $filename = 'logo_' . time() . '_' . uniqid() . '.' . $extension;
-
-            // Store file
-            $path = $file->storeAs('uploads', $filename, 'public');
-
-            // Delete old logo if exists
-            if ($oldLogo && Storage::disk('public')->exists($oldLogo)) {
-                Storage::disk('public')->delete($oldLogo);
-            }
-
-            return $path;
-        } catch (\Exception $e) {
-            // Log error and return null
-
-            return null;
-        }
-    }
-
-    /**
      * Normalize withdrawal gateways from mixed legacy formats to a clean string[] list.
      * Accepts: newline separated string, comma separated, JSON array string, double-encoded JSON, or already array.
      */
@@ -315,8 +249,8 @@ class SettingsController extends Controller
         return [];
     }
 
-    private function looksLikeJsonArray(string $v): bool
+    private function looksLikeJsonArray(string $value): bool
     {
-        return str_starts_with($v, '[') && str_ends_with($v, ']');
+        return str_starts_with($value, '[') && str_ends_with($value, ']');
     }
 }

@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $query = Order::query()->with(['user', 'items'])->latest();
         $orders = $query->paginate(25);
@@ -67,7 +67,7 @@ class OrderController extends Controller
     }
 
     // Mark a payment as accepted (admin verifies transfer)
-    public function acceptPayment(Request $request, $paymentId)
+    public function acceptPayment($paymentId)
     {
         $payment = Payment::findOrFail($paymentId);
         $payment->status = 'completed';
@@ -102,7 +102,7 @@ class OrderController extends Controller
         return redirect()->back()->with('success', __('Payment accepted'));
     }
 
-    public function rejectPayment(Request $request, $paymentId)
+    public function rejectPayment($paymentId)
     {
         $payment = Payment::findOrFail($paymentId);
         $payment->status = 'rejected';
@@ -133,7 +133,7 @@ class OrderController extends Controller
         return redirect()->back()->with('success', __('Payment rejected and order cancelled'));
     }
 
-    public function retryAssignSerials(Request $request, $orderId)
+    public function retryAssignSerials($orderId)
     {
         $order = Order::findOrFail($orderId);
         try {
@@ -145,7 +145,7 @@ class OrderController extends Controller
         }
     }
 
-    public function payments(Request $request)
+    public function payments()
     {
         $payments = Payment::with('order', 'user')->latest()->paginate(25);
 
@@ -221,7 +221,7 @@ class OrderController extends Controller
     }
 
     // Admin: cancel a backorder for a specific order item (release reserved stock)
-    public function cancelBackorderItem(Request $request, $orderId, $itemId)
+    public function cancelBackorderItem($orderId, $itemId)
     {
         $order = Order::findOrFail($orderId);
         $item = OrderItem::where('order_id', $order->id)->where('id', $itemId)->firstOrFail();
