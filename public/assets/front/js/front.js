@@ -160,7 +160,7 @@
         function updatePrice(selectedAttrs) {
             const priceElement = $('#productPrice'); const priceMaxElement = $('#productPriceMax'); const priceRangeSep = $('.price-range-sep');
             if (!selectedAttrs || Object.keys(selectedAttrs).length === 0) { if (priceElement && priceMaxElement && priceRangeSep) { priceElement.style.display = 'inline'; priceRangeSep.style.display = 'inline'; priceMaxElement.style.display = 'inline'; } return; }
-            const matchingVariation = variations.find(v => { const attrData = v.attribute_data || {}; return Object.keys(selectedAttrs).every(attr => attrData[attr] === testAttrs[attr]); });
+            const matchingVariation = variations.find(v => { const attrData = v.attribute_data || {}; return Object.keys(selectedAttrs).every(attr => attrData[attr] === selectedAttrs[attr]); });
             if (matchingVariation) {
                 const displayPrice = matchingVariation.effective_price; if (priceElement) priceElement.textContent = currencySymbol + ' ' + displayPrice.toFixed(2); if (priceMaxElement) priceMaxElement.style.display = 'none'; if (priceRangeSep) priceRangeSep.style.display = 'none';
                 const priceInput = $('#selectedPrice'); if (priceInput) priceInput.value = displayPrice; const variationInput = $('#selectedVariationId'); if (variationInput) variationInput.value = matchingVariation.id;

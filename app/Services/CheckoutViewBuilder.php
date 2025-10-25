@@ -17,7 +17,7 @@ class CheckoutViewBuilder
         [$items, $total] = $this->processCartItems($cart);
         [$currentCurrency, $defaultCurrency, $currency_symbol, $displayTotal] = $this->prepareCurrenciesAndTotals($currencyId, $total);
         $this->convertCurrency($items, $currentCurrency, $defaultCurrency);
-        [$coupon, $discount, $discounted_total, $displayDiscountedTotal] = $this->applyCoupon($appliedCouponId, $total, $displayTotal, $currentCurrency, $defaultCurrency);
+        [$coupon, $discount, $discounted_total, $displayDiscountedTotal, $displayDiscount] = $this->applyCoupon($appliedCouponId, $total, $displayTotal, $currentCurrency, $defaultCurrency);
         $addresses = collect();
         if ($user) {
             try {
@@ -58,6 +58,7 @@ class CheckoutViewBuilder
             'discount',
             'discounted_total',
             'displayDiscountedTotal',
+            'displayDiscount',
             'defaultAddress',
             'addresses',
             'checkoutConfig'
@@ -94,12 +95,12 @@ class CheckoutViewBuilder
     private function applyCoupon(?int $appliedCouponId, float $total, float $displayTotal, $currentCurrency, $defaultCurrency): array
     {
         if (! $appliedCouponId) {
-            return [null, 0, $total, $displayTotal];
+            return [null, 0, $total, $displayTotal, 0];
         }
 
         $coupon = Coupon::find($appliedCouponId);
         if (! $coupon || ! $coupon->isValidForTotal($total)) {
-            return [null, 0, $total, $displayTotal];
+            return [null, 0, $total, $displayTotal, 0];
         }
 
         $discounted_total = $coupon->applyTo($total);
@@ -110,7 +111,13 @@ class CheckoutViewBuilder
             $displayDiscountedTotal = $discounted_total;
         }
 
-        return [$coupon, $discount, $discounted_total, $displayDiscountedTotal];
+        $displayDiscount = $discount;
+        try {
+            $displayDiscount = $defaultCurrency->convertTo((float) $discount, $currentCurrency, 2);
+        } catch (\Throwable $e) {
+        }
+
+        return [$coupon, $discount, $discounted_total, $displayDiscountedTotal, $displayDiscount];
     }
 
     private function convertCurrency(array &$items, $currentCurrency, $defaultCurrency): void
@@ -147,10 +154,10 @@ class CheckoutViewBuilder
             return null;
         }
         return match (true) {
-            is_object($variant) => ! empty($variant->name) ? $variant->name : (! empty($variant->attribute_data) ? collect($variant->attribute_data)->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ') : null),
+            is_object($variant) => ! empty($variant->name) ? $variant->name : (! empty($variant->attribute_data) ? collect($variant->attribute_data)->map(fn($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ') : null),
             is_string($variant) => (function ($v) {
                 $parsed = json_decode($v, true);
-                return json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data']) ? collect($parsed['attribute_data'])->map(fn ($val, $key) => ucfirst($key) . ': ' . $val)->values()->join(', ') : $v;
+                return json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data']) ? collect($parsed['attribute_data'])->map(fn($val, $key) => ucfirst($key) . ': ' . $val)->values()->join(', ') : $v;
             })($variant),
             ! empty($attributes) => implode(', ', $attributes),
             default => null,
@@ -173,8 +180,9 @@ class CheckoutViewBuilder
 
     private function prepareCurrenciesAndTotals(?int $currencyId, float $total): array
     {
-        $currentCurrency = $currencyId ? Currency::find($currencyId) : Currency::getDefault();
-        $defaultCurrency = Currency::getDefault();
+        $currencyContext = \App\Helpers\GlobalHelper::getCurrencyContext();
+        $currentCurrency = $currencyId ? Currency::find($currencyId) : $currencyContext['defaultCurrency'];
+        $defaultCurrency = $currencyContext['defaultCurrency'];
         $currency_symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
         $displayTotal = $total;
 

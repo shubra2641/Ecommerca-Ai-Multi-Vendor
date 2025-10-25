@@ -46,10 +46,10 @@
                         {{ __('Order Timeline') }}
                     </h3>
                     <div class="timeline-container">
-                        @foreach($ovbShipmentStages['stages'] as $key=>$label)
-                        <div class="timeline-item {{ in_array($key,$ovbShipmentStages['reached']) ? 'completed' : '' }} {{ $key === $ovbShipmentStages['current'] ? 'active' : '' }}">
+                        @foreach($stages as $key=>$label)
+                        <div class="timeline-item {{ in_array($key,$reached) ? 'completed' : '' }} {{ $key === $current ? 'active' : '' }}">
                             <div class="timeline-marker">
-                                @if(in_array($key,$ovbShipmentStages['reached']))
+                                @if(in_array($key,$reached))
                                 <i class="fas fa-check"></i>
                                 @else
                                 <span class="marker-dot"></span>
@@ -57,7 +57,7 @@
                             </div>
                             <div class="timeline-content">
                                 <h4 class="timeline-title">{{ $label }}</h4>
-                                @if($key === $ovbShipmentStages['current'])
+                                @if($key === $current)
                                 <p class="timeline-date">{{ $order->updated_at->format('M j, g:i A') }}</p>
                                 @endif
                             </div>
@@ -82,31 +82,31 @@
                                 <span class="badge-count">{{ $order->items->count() }} {{ __('items') }}</span>
                             </div>
                             <div class="items-list-modern">
-                                @foreach($order->items as $it)
+                                @foreach($itemRows as $it)
                                 <div class="item-card-modern">
                                     <div class="item-img-wrapper">
                                         <div class="item-img-placeholder">
-                                            {{ strtoupper(substr($it->name,0,2)) }}
+                                            {{ strtoupper(substr($it['name'],0,2)) }}
                                         </div>
                                     </div>
                                     <div class="item-info-modern">
-                                        <h4 class="item-name-modern">{{ $it->name }}</h4>
-                                        @if($vl = ($ovbVariantLabels[$it->id] ?? null))
-                                        <p class="item-variant-modern">{{ $vl }}</p>
+                                        <h4 class="item-name-modern">{{ $it['name'] }}</h4>
+                                        @if($it['variant_label'])
+                                        <p class="item-variant-modern">{{ $it['variant_label'] }}</p>
                                         @endif
                                         <div class="item-meta-modern">
                                             <span class="meta-item">
                                                 <i class="fas fa-box"></i>
-                                                {{ __('Qty') }}: <strong>{{ $it->qty }}</strong>
+                                                {{ __('Qty') }}: <strong>{{ $it['qty'] }}</strong>
                                             </span>
                                             <span class="meta-item price-tag">
-                                                {{ number_format($it->price,2) }} {{ $order->currency }}
+                                                {{ number_format($it['price'],2) }} {{ $currency_symbol }}
                                             </span>
                                         </div>
                                     </div>
                                     <div class="item-total-modern">
-                                        {{ number_format($it->price * $it->qty, 2) }}<br>
-                                        <small>{{ $order->currency }}</small>
+                                        {{ number_format($it['price'] * $it['qty'], 2) }}<br>
+                                        <small>{{ $currency_symbol }}</small>
                                     </div>
                                 </div>
                                 @endforeach
@@ -125,7 +125,7 @@
                                 <div class="address-icon-modern">
                                     <i class="fas fa-home"></i>
                                 </div>
-                                <div class="address-text-modern">{!! nl2br(e($ovbAddressText)) !!}</div>
+                                <div class="address-text-modern">{!! nl2br(e($addrText)) !!}</div>
                             </div>
                         </div>
 
@@ -145,24 +145,24 @@
                             <div class="summary-lines-modern">
                                 <div class="summary-line-modern">
                                     <span>{{ __('Subtotal') }}</span>
-                                    <strong>{{ number_format($order->subtotal ?? ($order->total - ($order->shipping_price??0)),2) }} {{ $order->currency }}</strong>
+                                    <strong>{{ number_format($subtotal,2) }} {{ $currency_symbol }}</strong>
                                 </div>
                                 @if($order->shipping_price)
                                 <div class="summary-line-modern">
                                     <span>{{ __('Shipping') }}</span>
-                                    <strong>{{ number_format($order->shipping_price,2) }} {{ $order->currency }}</strong>
+                                    <strong>{{ number_format($shipping_price,2) }} {{ $currency_symbol }}</strong>
                                 </div>
                                 @endif
                                 @if($order->tax_amount)
                                 <div class="summary-line-modern">
                                     <span>{{ __('Tax') }}</span>
-                                    <strong>{{ number_format($order->tax_amount,2) }} {{ $order->currency }}</strong>
+                                    <strong>{{ number_format($tax_amount,2) }} {{ $currency_symbol }}</strong>
                                 </div>
                                 @endif
                                 <div class="summary-divider-modern"></div>
                                 <div class="summary-line-modern total-line">
                                     <span>{{ __('Total Amount') }}</span>
-                                    <strong class="total-amount">{{ number_format($order->total,2) }} {{ $order->currency }}</strong>
+                                    <strong class="total-amount">{{ number_format($total,2) }} {{ $currency_symbol }}</strong>
                                 </div>
                             </div>
                         </div>

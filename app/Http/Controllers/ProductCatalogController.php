@@ -85,7 +85,7 @@ final class ProductCatalogController extends Controller
             $slugMap = Cache::remember(
                 'product_category_slug_id_map',
                 600,
-                fn () => ProductCategory::pluck('id', 'slug')->all()
+                fn() => ProductCategory::pluck('id', 'slug')->all()
             );
             $id = $slugMap[$cat] ?? null;
             if ($id) {
@@ -100,7 +100,7 @@ final class ProductCatalogController extends Controller
         // Tag filter
         $tag = $request->get('tag');
         if ($tag) {
-            $query->whereHas('tags', fn ($t) => $t->where('slug', $tag));
+            $query->whereHas('tags', fn($t) => $t->where('slug', $tag));
         }
 
         $data = $this->handleListing($request, $query, ['selectedBrands' => (array) $request->get('brand', [])]);
@@ -178,6 +178,15 @@ final class ProductCatalogController extends Controller
 
         // Convert price
         $this->convertPrices(collect([$product]));
+        if ($product->variations) {
+            $this->convertPrices($product->variations);
+        }
+
+        // Convert original price if on sale
+        if ($product->isOnSale()) {
+            $product->display_original_price = GlobalHelper::convertCurrency($product->price);
+            $product->display_sale_price = GlobalHelper::convertCurrency($product->sale_price);
+        }
 
         $currentCurrency = $this->resolveCurrentCurrency();
 
@@ -190,8 +199,8 @@ final class ProductCatalogController extends Controller
 
         // Pricing
         $onSale = $product->isOnSale();
-        $basePrice = $product->display_price ?? $product->effectivePrice();
-        $origPrice = $product->display_price ?? $product->price;
+        $basePrice = GlobalHelper::convertCurrency($product->effectivePrice());
+        $origPrice = $onSale ? GlobalHelper::convertCurrency($product->price) : null;
         $discountPercent = $onSale && $origPrice && $origPrice > 0
             ? (int) round(($origPrice - $basePrice) / $origPrice * 100)
             : null;
@@ -291,7 +300,7 @@ final class ProductCatalogController extends Controller
         return Cache::remember(
             'category_children_ids_' . $categoryId,
             600,
-            fn () => ProductCategory::where('parent_id', $categoryId)->pluck('id')->all()
+            fn() => ProductCategory::where('parent_id', $categoryId)->pluck('id')->all()
         );
     }
 
@@ -421,7 +430,7 @@ final class ProductCatalogController extends Controller
     protected function convertPrices($products): void
     {
         foreach ($products as $p) {
-            $p->display_price = GlobalHelper::convertCurrency($p->price);
+            $p->display_price = GlobalHelper::convertCurrency($p->effectivePrice());
         }
     }
 
@@ -515,12 +524,8 @@ final class ProductCatalogController extends Controller
             return $cached;
         }
 
-        $cid = session('currency_id');
-        if ($cid) {
-            $cached = Currency::find($cid) ?: Currency::getDefault();
-        } else {
-            $cached = Currency::getDefault();
-        }
+        $currencyContext = GlobalHelper::getCurrencyContext();
+        $cached = $currencyContext['current'];
 
         return $cached;
     }
@@ -561,7 +566,7 @@ final class ProductCatalogController extends Controller
             $images->push('front/images/default-product.png');
         }
 
-        $gallery = $images->unique()->map(fn ($p) => ['raw' => $p, 'url' => asset($p)]);
+        $gallery = $images->unique()->map(fn($p) => ['raw' => $p, 'url' => asset($p)]);
         $mainImage = $gallery->first();
 
         return compact('gallery', 'mainImage');
@@ -594,7 +599,7 @@ final class ProductCatalogController extends Controller
         $activeVars = collect();
         if ($product->type === 'variable') {
             $activeVars = $product->variations->where('active', true);
-            $prices = $activeVars->map(fn ($v) => $v->effectivePrice())->filter();
+            $prices = $activeVars->map(fn($v) => $v->effectivePrice())->filter();
             if ($prices->count()) {
                 $minP = $prices->min();
                 $maxP = $prices->max();

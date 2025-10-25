@@ -136,7 +136,9 @@
     <nav class="noon-cats" aria-label="Main categories">
         <ul class="cat-list">
             @foreach($rootCats as $cat)
-            <li><a href="{{ route('products.category',$cat->slug) }}">{{ $cat->name }}</a></li>
+            <li>
+                <a href="{{ route('products.category',$cat->slug) }}">{{ $cat->name }}</a>
+            </li>
             @endforeach
             <li class="more"><button type="button" aria-label="More">›</button></li>
         </ul>

@@ -48,13 +48,13 @@ class CompareController extends Controller
         if (! empty($ids)) {
             $items = Product::with(['category', 'brand'])->whereIn('id', $ids)->get();
         }
-        $currency_symbol = GlobalHelper::getCurrentCurrencySymbol();
+        $currencyContext = GlobalHelper::getCurrencyContext();
 
         return view('front.products.compare', [
             'items' => $items,
             'compareIds' => $ids,
             'wishlistIds' => session('wishlist', []),
-            'currency_symbol' => $currency_symbol,
+            'currency_symbol' => $currencyContext['currencySymbol'],
         ]);
     }
 

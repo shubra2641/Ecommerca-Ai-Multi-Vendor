@@ -78,8 +78,8 @@
               </div>
               <div class="item-total-modern">
                 <div class="total-amount-wrapper">
-                  {{ number_format($o->total, 2) }}<br>
-                  <small>{{ $o->currency }}</small>
+                  {{ number_format($o->display_total, 2) }}<br>
+                  <small>{{ $currencySymbol }}</small>
                 </div>
                 <a href="{{ route('user.orders.show',$o) }}" class="badge-count">
                   <i class="fas fa-eye" aria-hidden="true"></i>

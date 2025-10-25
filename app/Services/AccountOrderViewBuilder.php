@@ -4,19 +4,25 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\City;
-use App\Models\Country;
-use App\Models\Governorate;
-use App\Models\Order;
+use App\Helpers\GlobalHelper;
+use App\Models\Currency;
 
 class AccountOrderViewBuilder
 {
-    public function build(Order $order): array
+    public function build(\App\Models\Order $order): array
     {
         $addrText = $this->buildAddressText($order);
         $shipmentData = $this->buildShipmentStages($order);
         $itemRows = $this->buildItemRows($order);
         $subtotal = $order->subtotal ?? $order->total - ($order->shipping_price ?? 0);
+        $currencyContext = GlobalHelper::getCurrencyContext();
+        $currentCurrency = $currencyContext['currentCurrency'];
+        $defaultCurrency = $currencyContext['defaultCurrency'];
+        $currencySymbol = $currencyContext['currencySymbol'];
+        $displaySubtotal = GlobalHelper::convertCurrency($subtotal, $defaultCurrency, $currentCurrency, 2);
+        $displayTotal = GlobalHelper::convertCurrency($order->total, $defaultCurrency, $currentCurrency, 2);
+        $displayShipping = $order->shipping_price ? GlobalHelper::convertCurrency($order->shipping_price, $defaultCurrency, $currentCurrency, 2) : null;
+        $displayTax = $order->tax_amount ? GlobalHelper::convertCurrency($order->tax_amount, $defaultCurrency, $currentCurrency, 2) : null;
 
         return [
             'addrText' => $addrText,
@@ -24,11 +30,15 @@ class AccountOrderViewBuilder
             'current' => $shipmentData['current'],
             'reached' => $shipmentData['reached'],
             'itemRows' => $itemRows,
-            'subtotal' => $subtotal,
+            'subtotal' => $displaySubtotal,
+            'total' => $displayTotal,
+            'shipping_price' => $displayShipping,
+            'tax_amount' => $displayTax,
+            'currency_symbol' => $currencySymbol,
         ];
     }
 
-    private function buildAddressText(Order $order): string
+    private function buildAddressText(\App\Models\Order $order): string
     {
         $addrSource = $order->shipping_address ?? $order->billing_address ?? $order->address;
         if (! is_array($addrSource)) {
@@ -56,12 +66,12 @@ class AccountOrderViewBuilder
             'phone',
         ];
         $parts = collect($orderedKeys)
-            ->filter(fn ($k) => ! empty($addrSource[$k]))
-            ->map(fn ($k) => $addrSource[$k])
+            ->filter(fn($k) => ! empty($addrSource[$k]))
+            ->map(fn($k) => $addrSource[$k])
             ->toArray();
 
         $extraParts = collect($addrSource)
-            ->filter(fn ($v) => is_scalar($v) && ! in_array($v, $parts, true))
+            ->filter(fn($v) => is_scalar($v) && ! in_array($v, $parts, true))
             ->values()
             ->toArray();
 
@@ -74,7 +84,7 @@ class AccountOrderViewBuilder
         if (! $countryId || ! is_numeric($countryId)) {
             return;
         }
-        $c = Country::find($countryId);
+        $c = \App\Models\Country::find($countryId);
         if (! $c) {
             return;
         }
@@ -88,7 +98,7 @@ class AccountOrderViewBuilder
         if (! $govId || ! is_numeric($govId)) {
             return;
         }
-        $g = Governorate::find($govId);
+        $g = \App\Models\Governorate::find($govId);
         if (! $g) {
             return;
         }
@@ -102,7 +112,7 @@ class AccountOrderViewBuilder
         if (! $cityId || ! is_numeric($cityId)) {
             return;
         }
-        $ci = City::find($cityId);
+        $ci = \App\Models\City::find($cityId);
         if (! $ci) {
             return;
         }
@@ -110,7 +120,7 @@ class AccountOrderViewBuilder
         $addrSource['city_id'] = $cityId;
     }
 
-    private function buildShipmentStages(Order $order): array
+    private function buildShipmentStages(\App\Models\Order $order): array
     {
         $stages = [
             'pending' => __('Pending'),
@@ -135,16 +145,20 @@ class AccountOrderViewBuilder
         return compact('stages', 'current', 'reached');
     }
 
-    private function buildItemRows(Order $order): array
+    private function buildItemRows(\App\Models\Order $order): array
     {
         $itemRows = [];
+        $currencyContext = GlobalHelper::getCurrencyContext();
+        $currentCurrency = $currencyContext['currentCurrency'];
+        $defaultCurrency = $currencyContext['defaultCurrency'];
         foreach ($order->items as $it) {
             $variantLabel = $this->buildItemVariantLabel($it);
+            $displayPrice = GlobalHelper::convertCurrency($it->price, $defaultCurrency, $currentCurrency, 2);
             $itemRows[] = [
                 'name' => $it->name,
                 'variant_label' => $variantLabel,
                 'qty' => $it->qty,
-                'price' => $it->price,
+                'price' => $displayPrice,
             ];
         }
 
@@ -163,7 +177,7 @@ class AccountOrderViewBuilder
 
         if (! empty($it->meta['attribute_data']) && is_array($it->meta['attribute_data'])) {
             return collect($it->meta['attribute_data'])
-                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
                 ->join(', ');
         }

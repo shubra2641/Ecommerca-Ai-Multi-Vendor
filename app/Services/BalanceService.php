@@ -20,7 +20,8 @@ class BalanceService
         $lastTransaction = $user->balanceHistories()->latest()->first();
 
         // Format values with currency symbol
-        $defaultCurrency = \App\Models\Currency::getDefault();
+        $currencyContext = \App\Helpers\GlobalHelper::getCurrencyContext();
+        $defaultCurrency = $currencyContext['defaultCurrency'];
         $symbol = $defaultCurrency ? $defaultCurrency->symbol : '$';
 
         return [
@@ -31,10 +32,10 @@ class BalanceService
             'transaction_count' => $transactionCount,
             'last_transaction' => $lastTransaction ? $lastTransaction->created_at->format('Y-m-d H:i:s') : null,
             'formatted' => [
-                'balance' => number_format($user->balance, 2).' '.$symbol,
-                'total_added' => number_format($totalAdded, 2).' '.$symbol,
-                'total_deducted' => number_format($totalDeducted, 2).' '.$symbol,
-                'net_change' => number_format($totalAdded - $totalDeducted, 2).' '.$symbol,
+                'balance' => number_format($user->balance, 2) . ' ' . $symbol,
+                'total_added' => number_format($totalAdded, 2) . ' ' . $symbol,
+                'total_deducted' => number_format($totalDeducted, 2) . ' ' . $symbol,
+                'net_change' => number_format($totalAdded - $totalDeducted, 2) . ' ' . $symbol,
             ],
         ];
     }

@@ -95,7 +95,7 @@
                                 </div>
                                 <div class="dash-stats">
                                     <div class="big">{{ number_format($stats['payments_completed'],2) }}</div>
-                                    <div class="small muted">{{ __('Spent') }}</div>
+                                    <div class="small muted">{{ __('Spent') }} ({{ $currencySymbol }})</div>
                                 </div>
                             </div>
                         </div>
@@ -150,7 +150,7 @@
                                         <div class="item-meta-modern">
                                             <span class="meta-item">
                                                 <i class="fas fa-dollar-sign" aria-hidden="true"></i>
-                                                {{ number_format($o->total,2) }} {{ $o->currency }}
+                                                {{ number_format($o->display_total,2) }} {{ $currencySymbol }}
                                             </span>
                                             <span class="payment-badge-modern status-{{ $o->status }}">
                                                 {{ ucfirst($o->status) }}
@@ -216,7 +216,7 @@
                                                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                                 </svg>
-                                                {{ number_format($p->amount,2) }} {{ $p->currency }}
+                                                {{ number_format($p->display_amount,2) }} {{ $currencySymbol }}
                                             </span>
                                             <span class="payment-badge-modern status-{{ $p->status }}">
                                                 {{ ucfirst($p->status) }}

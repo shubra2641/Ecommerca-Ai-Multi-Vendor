@@ -72,7 +72,7 @@
                 @if($product->type === 'variable')
                 @php
                 $variations = $product->variations;
-                $prices = $variations->pluck('price')->filter()->values();
+                $prices = $variations->pluck('display_price')->filter()->values();
                 $minP = $prices->min();
                 $maxP = $prices->max();
                 @endphp
@@ -86,9 +86,9 @@
                 @endif
                 @endif
                 @else
-                <span class="price-current" id="productPrice">{{ $currency_symbol ?? '$' }} {{ number_format($product->effectivePrice(),2) }}</span>
+                <span class="price-current" id="productPrice">{{ $currency_symbol ?? '$' }} {{ number_format($basePrice,2) }}</span>
                 @if($product->isOnSale())
-                <span class="price-original">{{ $currency_symbol ?? '$' }} {{ number_format($product->price,2) }}</span>
+                <span class="price-original">{{ $currency_symbol ?? '$' }} {{ number_format($origPrice,2) }}</span>
                 @php
                 $discountPercent = round((($product->price - $product->sale_price) / $product->price) * 100);
                 @endphp

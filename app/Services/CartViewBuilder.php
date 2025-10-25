@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Helpers\GlobalHelper;
+
 class CartViewBuilder
 {
     public function build(array $rawItems, string $currencySymbol = '$'): array
@@ -34,6 +36,7 @@ class CartViewBuilder
             'line_total' => $it['line_total'],
             'display_price' => $it['display_price'] ?? $it['price'],
             'display_line_total' => $it['display_line_total'] ?? $it['line_total'],
+            'display_original_price' => $it['display_original_price'] ?? GlobalHelper::convertCurrency($p->price),
             'cart_key' => $it['cart_key'],
             'variant_label' => $variantLabel,
             'available' => $available,
@@ -95,7 +98,7 @@ class CartViewBuilder
     private function buildAttributeLabel(array $attributeData): string
     {
         return collect($attributeData)
-            ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+            ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
             ->values()
             ->join(', ');
     }

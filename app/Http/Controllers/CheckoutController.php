@@ -27,7 +27,7 @@ class CheckoutController extends Controller
         }
         $vm = app(CheckoutViewBuilder::class)->build(
             $cart,
-            session('currency_id'),
+            GlobalHelper::getCurrencyContext()['current']->id,
             session('applied_coupon_id'),
             auth()->user()
         );

@@ -241,7 +241,6 @@ class GalleryController extends Controller
             $thumbPath = $thumbRelative;
         } catch (\Throwable $e) {
             // leave optional derivatives empty if processing fails
-            null;
         }
 
         return GalleryImage::create([
@@ -269,12 +268,14 @@ class GalleryController extends Controller
         $setting->save();
     }
 
-    private function deleteImageFiles(GalleryImage $image): void
+    private function formatGalleryResponse(GalleryImage $image): array
     {
-        if ($image->original_path && Storage::disk('public')->exists($image->original_path)) {
-            Storage::disk('public')->delete($image->original_path);
-        }
-        if ($image->webp_path && Storage::disk('public')->exists($image->webp_path)) {
-            Storage::disk('public')->delete($image->webp_path);
-        }
+        return [
+            'id' => $image->id,
+            'path' => $image->original_path,
+            'url' => asset('storage/' . $image->original_path),
+            'thumbnail' => $image->thumbnail_path ? asset('storage/' . $image->thumbnail_path) : null,
+            'title' => $image->title,
+            'alt' => $image->alt,
+        ];
     }

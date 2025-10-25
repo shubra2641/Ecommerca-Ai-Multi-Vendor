@@ -120,7 +120,7 @@ class UserController extends BaseAdminController
     {
         return view('admin.users.balance', [
             'user' => $user,
-            'defaultCurrency' => Currency::getDefault(),
+            'defaultCurrency' => \App\Helpers\GlobalHelper::getCurrencyContext()['defaultCurrency'],
         ]);
     }
 

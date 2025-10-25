@@ -261,8 +261,9 @@ final class CartController extends Controller
         foreach ($cart as $row) {
             $total += $row['price'] * $row['qty'];
         }
-        $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
-        $defaultCurrency = Currency::getDefault();
+        $currencyContext = GlobalHelper::getCurrencyContext();
+        $currentCurrency = $currencyContext['currentCurrency'];
+        $defaultCurrency = $currencyContext['defaultCurrency'];
         $displayTotal = GlobalHelper::convertCurrency($total, $defaultCurrency, $currentCurrency, 2);
 
         if ($request->wantsJson()) {
@@ -272,7 +273,7 @@ final class CartController extends Controller
                 'displayTotal' => $displayTotal,
                 'discountedTotal' => $displayTotal,
                 'discount' => 0,
-                'currency_symbol' => GlobalHelper::getCurrentCurrencySymbol(),
+                'currency_symbol' => $currencyContext['currencySymbol'],
             ]);
         }
 
@@ -368,6 +369,7 @@ final class CartController extends Controller
                 'on_sale' => $onSale,
                 'sale_percent' => $salePercent,
                 'original_price' => $product->price,
+                'display_original_price' => GlobalHelper::convertCurrency($product->price),
                 'stock_display' => ($product->stock_qty ?? null) !== null ?
                     (($product->stock_qty ?? 0) > 0 ? $product->stock_qty . ' in stock' : 'Out of stock') : null,
                 'seller_name' => method_exists($product, 'seller') && $product->seller ? $product->seller->name : null,
@@ -387,7 +389,7 @@ final class CartController extends Controller
         if (! $variantLabel && ! empty($variation->attribute_data)) {
             try {
                 $variantLabel = collect($variation->attribute_data)
-                    ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                    ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                     ->values()
                     ->join(', ');
             } catch (\Throwable $e) {
@@ -431,9 +433,10 @@ final class CartController extends Controller
 
     private function handleCurrencyConversion($items, $total, $discount): array
     {
-        $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
-        $defaultCurrency = Currency::getDefault();
-        $currency_symbol = GlobalHelper::getCurrentCurrencySymbol();
+        $currencyContext = GlobalHelper::getCurrencyContext();
+        $currentCurrency = $currencyContext['currentCurrency'];
+        $defaultCurrency = $currencyContext['defaultCurrency'];
+        $currency_symbol = $currencyContext['currencySymbol'];
 
         try {
             $displayTotal = GlobalHelper::convertCurrency($total, $defaultCurrency, $currentCurrency, 2);
@@ -449,7 +452,7 @@ final class CartController extends Controller
             }
         }
 
-        $displayDiscount = $discount;
+        $displayDiscount = GlobalHelper::convertCurrency($discount, $defaultCurrency, $currentCurrency, 2);
 
         return [$displayTotal, $displayDiscount, $currency_symbol, $currentCurrency];
     }
@@ -479,9 +482,10 @@ final class CartController extends Controller
 
     private function calculateDisplayTotals($total, $coupon)
     {
-        $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
-        $defaultCurrency = Currency::getDefault();
-        $currency_symbol = GlobalHelper::getCurrentCurrencySymbol();
+        $currencyContext = GlobalHelper::getCurrencyContext();
+        $currentCurrency = $currencyContext['currentCurrency'];
+        $defaultCurrency = $currencyContext['defaultCurrency'];
+        $currency_symbol = $currencyContext['currencySymbol'];
 
         try {
             $displayTotal = GlobalHelper::convertCurrency($total, $defaultCurrency, $currentCurrency, 2);

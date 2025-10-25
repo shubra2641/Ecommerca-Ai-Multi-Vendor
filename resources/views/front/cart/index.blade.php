@@ -80,22 +80,18 @@
                                         </button>
                                     </form>
 
-                                    <span class="line-price">{{ $currency_symbol ?? '$' }}{{ number_format($it['display_price'],2) }}</span>
-                                    @if(!empty($it['on_sale']))
-                                    <div class="sale-flag">{{ $it['sale_percent'] }}% OFF</div>
-                                    @endif
                                 </div>
                             </div>
 
                             <div class="cart-price">
                                 <div data-cart-line-price>
                                     {{ $currency_symbol ?? '$' }}
-                                    {{ number_format($it['display_price'] ?? ($price ?? 0),2) }}
+                                    {{ number_format($it['display_line_total'],2) }}
                                 </div>
                                 @if(!empty($it['cart_on_sale']))
                                 <div class="original-price">
                                     {{ $currency_symbol ?? '$' }}
-                                    {{ number_format($it['display_line_total'] ? ($it['product']->price) : ($it['product']->price),2) }}
+                                    {{ number_format($it['display_original_price'],2) }}
                                 </div>
                                 <div class="sale-badge">
                                     {{ $it['cart_sale_percent'] }}% OFF
@@ -108,16 +104,16 @@
 
                     <aside class="checkout-right">
                         <div class="summary-box panel-card">
-                            <h3>Order Summary</h3>
+                            <h3>{{ __('Order Summary') }}</h3>
                             @if(isset($coupon) && $coupon)
                             <div class="coupon-applied">
                                 <div class="row">
                                     <div>
                                         <strong>{{ $coupon->code }}</strong>
-                                        <div class="applied-label">Applied</div>
+                                        <div class="applied-label">{{ __('Applied') }}</div>
                                     </div>
                                     <form action="{{ route('cart.removeCoupon') }}" method="post" class="m-0">@csrf
-                                        <button class="btn btn-sm btn-outline-secondary">Remove</button>
+                                        <button class="btn btn-sm btn-outline-secondary">{{ __('Remove') }}</button>
                                     </form>
                                 </div>
                             </div>
@@ -126,7 +122,7 @@
                                 @csrf
                                 <div class="coupon-form-row">
                                     <input type="text" name="coupon" placeholder="Coupon Code">
-                                    <button class="btn btn-primary" type="submit">APPLY</button>
+                                    <button class="btn btn-primary" type="submit">{{ __('APPLY') }}</button>
                                 </div>
                             </form>
                             @endif
@@ -147,8 +143,8 @@
                                         @endif
                                     </span>
                                 </div>
-                                <div class="line shipping">Shipping Fee: <span>__{{ __('Calculated at checkout') }}</span></div>
-                                <div class="line total">Total: <span class="total-amount">{{ $currency_symbol ?? '$' }}
+                                <div class="line shipping">Shipping Fee: <span>{{ __('Calculated at checkout') }}</span></div>
+                                <div class="line total">{{ __('Total') }}: <span class="total-amount">{{ $currency_symbol ?? '$' }}
                                         {{ number_format(($discounted_total ?? false) ? (($displayTotal ?? $total ?? 0) - ($discount ?? 0)) : ($displayTotal ?? $total ?? 0),2) }}</span>
                                 </div>
                             </div>
@@ -164,5 +160,3 @@
     </div>
 </section>
 @endsection
-
-{{-- JavaScript removed - cart now works without JS --}}

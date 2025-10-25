@@ -143,6 +143,7 @@ final class HomeController extends Controller
 
             return ProductCategory::whereNull('parent_id')
                 ->where('active', true)
+                ->with('children')
                 ->orderBy('position')
                 ->orderBy('name')
                 ->take($limit)
@@ -289,7 +290,7 @@ final class HomeController extends Controller
                         ->orderByDesc('approved_reviews_count')
                         ->take($limit)->get(),
                     'showcase_brands' => Brand::active()
-                        ->withCount(['products' => fn ($q) => $q->active()])
+                        ->withCount(['products' => fn($q) => $q->active()])
                         ->orderByDesc('products_count')
                         ->take($limit)->get(),
                     default => collect(),
@@ -310,7 +311,7 @@ final class HomeController extends Controller
             ]);
         }
         $showcaseSections = $showcaseSections->sortBy(
-            fn ($s) => optional($sectionsIndex->get($s['key']))->sort_order ?? 9999
+            fn($s) => optional($sectionsIndex->get($s['key']))->sort_order ?? 9999
         )->values();
         $brandSec = $showcaseSections->firstWhere('type', 'brands');
         $showcaseSectionsActiveCount = $showcaseSections->where('type', '!=', 'brands')->count();

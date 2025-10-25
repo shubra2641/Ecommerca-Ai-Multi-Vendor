@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\User;
 
+use App\Helpers\GlobalHelper;
 use App\Http\Controllers\Controller;
+use App\Models\Currency;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,7 +16,17 @@ class OrdersController extends Controller
     {
         $orders = Order::with('items')->where('user_id', Auth::id())->latest()->paginate(12);
 
-        return view('front.account.orders', compact('orders'));
+        $currencyContext = GlobalHelper::getCurrencyContext();
+        $currentCurrency = $currencyContext['currentCurrency'];
+        $defaultCurrency = $currencyContext['defaultCurrency'];
+        $currencySymbol = $currencyContext['currencySymbol'];
+
+        // Convert order totals to current currency
+        foreach ($orders as $order) {
+            $order->display_total = GlobalHelper::convertCurrency($order->total, $defaultCurrency, $currentCurrency, 2);
+        }
+
+        return view('front.account.orders', compact('orders', 'currencySymbol'));
     }
 
     public function show(Order $order)

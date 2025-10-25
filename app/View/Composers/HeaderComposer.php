@@ -45,9 +45,10 @@ final class HeaderComposer
     {
         try {
             $symbol = $currentCurrency?->symbol ?? Currency::defaultSymbol();
+            $currencyContext = \App\Helpers\GlobalHelper::getCurrencyContext();
             return [
                 'currency_symbol' => $symbol ?? '$',
-                'defaultCurrency' => Currency::getDefault(),
+                'defaultCurrency' => $currencyContext['defaultCurrency'],
                 'currentCurrency' => $currentCurrency,
             ];
         } catch (\Throwable $e) {
@@ -78,12 +79,12 @@ final class HeaderComposer
             return $current;
         }
 
-        $sc = Currency::find($sessionCurrencyId);
-        if (! $sc || ! $currencies->contains('id', $sc->id)) {
+        $sessionCurrency = Currency::find($sessionCurrencyId);
+        if (! $sessionCurrency || ! $currencies->contains('id', $sessionCurrency->id)) {
             return $current;
         }
 
-        return $sc;
+        return $sessionCurrency;
     }
 
     private function getRootCategories()
@@ -91,7 +92,13 @@ final class HeaderComposer
         return Cache::remember('header_root_categories', 1800, function () {
             if (Schema::hasTable('product_categories')) {
                 try {
-                    return \App\Models\ProductCategory::where('parent_id', null)->active()->get();
+                    return \App\Models\ProductCategory::where('parent_id', null)
+                        ->where('active', true)
+                        ->with(['children' => function ($query) {
+                            $query->where('active', true)->orderBy('name');
+                        }])
+                        ->orderBy('name')
+                        ->get();
                 } catch (\Throwable $e) {
                     return collect();
                 }

@@ -22,10 +22,14 @@ class GlobalHelper
      */
     public static function getCurrentCurrencySymbol(): string
     {
-        return session('currency_symbol') ??
-            config('app.currency_symbol') ??
-            Currency::defaultSymbol() ??
-            '$';
+        $cid = session('currency_id');
+        if ($cid) {
+            $cur = \App\Models\Currency::find($cid);
+            if ($cur) {
+                return $cur->symbol;
+            }
+        }
+        return config('app.currency_symbol') ?? \App\Models\Currency::defaultSymbol() ?? '$';
     }
 
     /**
@@ -87,10 +91,18 @@ class GlobalHelper
     }
 
     /**
-     * Backwards compatibility alias.
+     * Get current currency context for consistent usage across controllers
      */
-    public static function currencyFormat($amount, $decimals = 2): string
+    public static function getCurrencyContext(): array
     {
-        return self::formatPrice($amount, $decimals);
+        $currentCurrency = session('currency_id') ? Currency::find(session('currency_id')) : Currency::getDefault();
+        $defaultCurrency = Currency::getDefault();
+        $currencySymbol = self::getCurrentCurrencySymbol();
+
+        return [
+            'currentCurrency' => $currentCurrency,
+            'defaultCurrency' => $defaultCurrency,
+            'currencySymbol' => $currencySymbol,
+        ];
     }
 }

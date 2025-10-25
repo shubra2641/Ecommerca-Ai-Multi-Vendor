@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\View\Composers;
 
+use App\Helpers\GlobalHelper;
 use App\Models\Product;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -75,6 +76,12 @@ final class ProductCardComposer
         $cardDisplaySalePrice = $cardOnSale ? ($product->display_sale_price ?? (float) $salePrice) : null;
         $effectivePrice = $price > 0 ? $price : ($product->effectivePrice() ?? 0);
         $cardDisplayPrice = $product->display_price ?? $effectivePrice;
+
+        // Convert prices to current browsing currency
+        $cardDisplayPrice = GlobalHelper::convertCurrency($cardDisplayPrice);
+        if ($cardDisplaySalePrice !== null) {
+            $cardDisplaySalePrice = GlobalHelper::convertCurrency($cardDisplaySalePrice);
+        }
 
         return [
             'cardOnSale' => $cardOnSale,

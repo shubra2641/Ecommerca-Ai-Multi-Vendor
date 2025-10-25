@@ -24,13 +24,13 @@ class WishlistController extends Controller
             return $this->convertProductPrices($product);
         });
 
-        $currency_symbol = GlobalHelper::getCurrentCurrencySymbol();
+        $currencyContext = GlobalHelper::getCurrencyContext();
 
         return view('front.products.wishlist', [
             'items' => $items,
             'wishlistIds' => $ids,
             'compareIds' => [],
-            'currency_symbol' => $currency_symbol,
+            'currency_symbol' => $currencyContext['currencySymbol'],
         ]);
     }
 
