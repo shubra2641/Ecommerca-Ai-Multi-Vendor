@@ -207,7 +207,7 @@ class OrderController extends Controller
                 }
                 $itemsByVendor[$vendorId][] = $orderItem;
             }
-            foreach ($itemsByVendor as $vendorId => $items) {
+            foreach (array_keys($itemsByVendor) as $vendorId) {
                 $vendor = User::find($vendorId);
                 if ($vendor) {
                     $vendor->notify(new \App\Notifications\VendorOrderStatusUpdated($order, $data['status']));

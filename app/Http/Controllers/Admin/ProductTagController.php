@@ -23,9 +23,9 @@ class ProductTagController extends Controller
         return view('admin.products.tags.create');
     }
 
-    public function store(Request $r)
+    public function store(Request $request)
     {
-        $data = $r->validate(['name' => 'required', 'slug' => 'nullable|unique:product_tags,slug']);
+        $data = $request->validate(['name' => 'required', 'slug' => 'nullable|unique:product_tags,slug']);
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
         }
@@ -39,9 +39,9 @@ class ProductTagController extends Controller
         return view('admin.products.tags.edit', compact('productTag'));
     }
 
-    public function update(Request $r, ProductTag $productTag)
+    public function update(Request $request, ProductTag $productTag)
     {
-        $data = $r->validate(['name' => 'required', 'slug' => 'nullable|unique:product_tags,slug,' . $productTag->id]);
+        $data = $request->validate(['name' => 'required', 'slug' => 'nullable|unique:product_tags,slug,' . $productTag->id]);
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
         }

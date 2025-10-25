@@ -268,7 +268,10 @@ class UserController extends BaseAdminController
         return $query->paginate(15);
     }
 
-    protected function prepareUserData(array $validated, ?User $user = null)
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    protected function prepareUserData(array $validated, ?User $_user = null)
     {
         $data = [
             'name' => $validated['name'],

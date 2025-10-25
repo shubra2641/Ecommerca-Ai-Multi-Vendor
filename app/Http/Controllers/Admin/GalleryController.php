@@ -191,7 +191,7 @@ class GalleryController extends Controller
         return back()->with('success', __('Image deleted.'));
     }
 
-    public function deleteLogo(Request $request): RedirectResponse
+    public function deleteLogo(): RedirectResponse
     {
         $setting = \App\Models\Setting::first();
         if ($setting && $setting->logo && Storage::disk('public')->exists($setting->logo)) {

@@ -70,7 +70,7 @@ class SocialLinkController extends Controller
 
     public function update(Request $request, SocialLink $social): RedirectResponse
     {
-        $data = $this->validateData($request, $social->id);
+        $data = $this->validateData($request);
         $social->update($data);
 
         return redirect()->route('admin.social.index')->with('success', __('Social link updated.'));
@@ -88,14 +88,14 @@ class SocialLinkController extends Controller
         $request->validate([
             'orders' => ['required', 'array'],
         ]);
-        foreach ($request->orders as $id => $order) {
-            SocialLink::where('id', $id)->update(['order' => (int) $order]);
+        foreach ($request->orders as $linkId => $order) {
+            SocialLink::where('id', $linkId)->update(['order' => (int) $order]);
         }
 
         return back()->with('success', __('Order updated.'));
     }
 
-    private function validateData(Request $request, ?int $id = null): array
+    private function validateData(Request $request): array
     {
         $validated = $request->validate([
             'platform' => ['required', 'string', 'max:50'],

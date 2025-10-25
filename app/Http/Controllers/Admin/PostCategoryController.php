@@ -55,10 +55,10 @@ class PostCategoryController extends Controller
             $baseSlug = Str::random(8);
         }
         $unique = $baseSlug;
-        $i = 1;
+        $counter = 1;
         while (PostCategory::where('slug', $unique)->exists()) {
-            $unique = $baseSlug . '-' . $i;
-            $i++;
+            $unique = $baseSlug . '-' . $counter;
+            $counter++;
         }
         $payload = [
             'name' => $defaultName,
@@ -71,7 +71,7 @@ class PostCategoryController extends Controller
             if (isset($data[$f]) && is_array($data[$f])) {
                 $payload[$f . '_translations'] = array_filter($data[$f]);
                 $payload[$f] = $payload[$f . '_translations'][$fallback] ??
-                    collect($payload[$f . '_translations'])->first(fn($v) => ! empty($v));
+                    collect($payload[$f . '_translations'])->first(fn($value) => ! empty($value));
             }
         }
         PostCategory::create($payload);
@@ -105,12 +105,12 @@ class PostCategoryController extends Controller
         ]);
         $fallback = config('app.fallback_locale');
         $defaultName = $data['name'][$fallback] ??
-            collect($data['name'])->first(fn($v) => ! empty($v)) ??
+            collect($data['name'])->first(fn($value) => ! empty($value)) ??
             $category->getRawOriginal('name');
         $slugTranslations = $data['slug'] ?? ($category->slug_translations ?? []);
-        foreach ($data['name'] as $loc => $v) {
+        foreach ($data['name'] as $loc => $value) {
             if (! isset($slugTranslations[$loc]) || $slugTranslations[$loc] === '') {
-                $slugTranslations[$loc] = Str::slug($v ?? $defaultName ?? '');
+                $slugTranslations[$loc] = Str::slug($value ?? $defaultName ?? '');
             }
         }
         $payload = [
@@ -125,7 +125,7 @@ class PostCategoryController extends Controller
             if (isset($data[$f]) && is_array($data[$f])) {
                 $payload[$f . '_translations'] = array_filter($data[$f]);
                 $payload[$f] = $payload[$f . '_translations'][$fallback] ??
-                    collect($payload[$f . '_translations'])->first(fn($v) => ! empty($v));
+                    collect($payload[$f . '_translations'])->first(fn($value) => ! empty($value));
             }
         }
         $category->update($payload);
@@ -141,7 +141,7 @@ class PostCategoryController extends Controller
     }
 
     // AI suggestion for blog category description & SEO
-    public function aiSuggest(Request $request, \App\Services\AI\SimpleAIService $ai)
+    public function aiSuggest(Request $request, \App\Services\AI\SimpleAIService $aiService)
     {
         // Get name from array or string
         $nameInput = $request->input('name');
@@ -165,7 +165,7 @@ class PostCategoryController extends Controller
             return back()->with('error', __('Please enter a name first'));
         }
 
-        $result = $ai->generate($title, 'category', $locale);
+        $result = $aiService->generate($title, 'category', $locale);
 
         if (isset($result['error'])) {
             return back()->with('error', $result['error'])->withInput();

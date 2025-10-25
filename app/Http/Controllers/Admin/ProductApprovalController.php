@@ -79,11 +79,11 @@ class ProductApprovalController extends Controller
         return back()->with('success', __('Product approved'));
     }
 
-    public function reject(Request $r, Product $product)
+    public function reject(Request $request, Product $product)
     {
         $this->authorize('access-admin');
-        $action = $r->input('mode', 'reject'); // reject | delete
-        $reason = trim((string) $r->input('reason'));
+        $action = $request->input('mode', 'reject'); // reject | delete
+        $reason = trim((string) $request->input('reason'));
         if ($action === 'reject') {
             if ($reason === '') {
                 return back()->withErrors(['reason' => __('Reason is required for rejection')]);

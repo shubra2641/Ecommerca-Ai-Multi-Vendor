@@ -24,9 +24,9 @@ class ProductAttributeController extends Controller
         return view('admin.products.attributes.create');
     }
 
-    public function store(Request $r)
+    public function store(Request $request)
     {
-        $data = $r->validate(['name' => 'required', 'slug' => 'nullable|unique:product_attributes,slug']);
+        $data = $request->validate(['name' => 'required', 'slug' => 'nullable|unique:product_attributes,slug']);
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
         }
@@ -43,9 +43,9 @@ class ProductAttributeController extends Controller
         return view('admin.products.attributes.edit', compact('productAttribute'));
     }
 
-    public function update(Request $r, ProductAttribute $productAttribute)
+    public function update(Request $request, ProductAttribute $productAttribute)
     {
-        $data = $r->validate([
+        $data = $request->validate([
             'name' => 'required',
             'slug' => 'nullable|unique:product_attributes,slug,' . $productAttribute->id,
         ]);
@@ -58,9 +58,9 @@ class ProductAttributeController extends Controller
         return back()->with('success', __('Updated'));
     }
 
-    public function storeValue(Request $r, ProductAttribute $productAttribute)
+    public function storeValue(Request $request, ProductAttribute $productAttribute)
     {
-        $data = $r->validate(['value' => 'required', 'slug' => 'nullable|unique:product_attribute_values,slug']);
+        $data = $request->validate(['value' => 'required', 'slug' => 'nullable|unique:product_attribute_values,slug']);
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['value']);
         }
@@ -70,12 +70,15 @@ class ProductAttributeController extends Controller
         return back()->with('success', __('Value added'));
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function updateValue(
-        Request $r,
-        ProductAttribute $productAttribute,
+        Request $request,
+        ProductAttribute $_productAttribute,
         ProductAttributeValue $value
     ) {
-        $data = $r->validate([
+        $data = $request->validate([
             'value' => 'required',
             'slug' => 'nullable|unique:product_attribute_values,slug,' . $value->id,
         ]);
@@ -88,7 +91,10 @@ class ProductAttributeController extends Controller
         return back()->with('success', __('Value updated'));
     }
 
-    public function deleteValue(ProductAttribute $productAttribute, ProductAttributeValue $value)
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function deleteValue(ProductAttribute $_productAttribute, ProductAttributeValue $value)
     {
         $value->delete();
 

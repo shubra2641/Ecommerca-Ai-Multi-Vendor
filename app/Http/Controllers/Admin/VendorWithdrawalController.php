@@ -42,13 +42,13 @@ class VendorWithdrawalController extends Controller
         return back()->with('success', __('Withdrawal created'));
     }
 
-    public function approve(Request $r, VendorWithdrawal $withdrawal)
+    public function approve(Request $request, VendorWithdrawal $withdrawal)
     {
         if ($withdrawal->status !== 'pending') {
             return back()->with('error', __('Already processed'));
         }
         $user = $withdrawal->user;
-        $r->validate([
+        $request->validate([
             'admin_note' => 'nullable|string|max:1000',
             'proof' => 'nullable|image|max:5120',
         ]);
@@ -59,15 +59,15 @@ class VendorWithdrawalController extends Controller
             'amount' => $withdrawal->amount,
             'currency' => $withdrawal->currency,
             'status' => 'pending',
-            'admin_note' => $r->input('admin_note'),
+            'admin_note' => $request->input('admin_note'),
         ]);
         // store proof if provided
-        if ($r->hasFile('proof')) {
-            $path = $r->file('proof')->store('withdrawals/proofs', 'public');
+        if ($request->hasFile('proof')) {
+            $path = $request->file('proof')->store('withdrawals/proofs', 'public');
             $payout->update(['proof_path' => $path]);
         }
 
-        $withdrawal->update(['status' => 'approved', 'approved_at' => now(), 'admin_note' => $r->input('admin_note')]);
+        $withdrawal->update(['status' => 'approved', 'approved_at' => now(), 'admin_note' => $request->input('admin_note')]);
 
         // Credit commission immediately to admin (user id 1) if commission exists
         if ($withdrawal->commission_amount > 0) {
@@ -125,16 +125,16 @@ class VendorWithdrawalController extends Controller
         return back()->with('success', __('Withdrawal approved and payout created'));
     }
 
-    public function reject(Request $r, VendorWithdrawal $withdrawal)
+    public function reject(Request $request, VendorWithdrawal $withdrawal)
     {
         if ($withdrawal->status !== 'pending') {
             return back()->with('error', __('Already processed'));
         }
-        $r->validate([
+        $request->validate([
             'admin_note' => 'nullable|string|max:1000',
             'proof' => 'nullable|image|max:5120',
         ]);
-        $withdrawal->update(['status' => 'rejected', 'admin_note' => $r->input('admin_note')]);
+        $withdrawal->update(['status' => 'rejected', 'admin_note' => $request->input('admin_note')]);
         // Refund held net amount back to vendor balance
         $vendor = $withdrawal->user;
         if ($vendor) {
@@ -160,7 +160,7 @@ class VendorWithdrawalController extends Controller
         return back()->with('success', __('Withdrawal rejected'));
     }
 
-    public function execute(Request $r, Payout $payout)
+    public function execute(Request $request, Payout $payout)
     {
         if ($payout->status !== 'pending') {
             return back()->with('error', __('Payout already processed'));
@@ -169,11 +169,11 @@ class VendorWithdrawalController extends Controller
         // At execution, we assume funds held; just validate that the withdrawal still exists
         $previous = (float) $user->balance; // current balance shouldn't decrease now
         $new = $previous; // unchanged
-        $payout->update(['status' => 'executed', 'executed_at' => now(), 'admin_note' => $r->input('admin_note')]);
-        $r->validate(['admin_note' => 'nullable|string|max:1000', 'proof' => 'nullable|image|max:5120']);
+        $payout->update(['status' => 'executed', 'executed_at' => now(), 'admin_note' => $request->input('admin_note')]);
+        $request->validate(['admin_note' => 'nullable|string|max:1000', 'proof' => 'nullable|image|max:5120']);
 
-        if ($r->hasFile('proof')) {
-            $path = $r->file('proof')->store('withdrawals/proofs', 'public');
+        if ($request->hasFile('proof')) {
+            $path = $request->file('proof')->store('withdrawals/proofs', 'public');
             $payout->update(['proof_path' => $path]);
         }
         try {

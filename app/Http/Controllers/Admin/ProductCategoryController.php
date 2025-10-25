@@ -26,9 +26,9 @@ final class ProductCategoryController extends Controller
         return view('admin.products.categories.create', compact('parents'));
     }
 
-    public function store(Request $r)
+    public function store(Request $request)
     {
-        $data = $r->validate([
+        $data = $request->validate([
             'parent_id' => 'nullable|exists:product_categories,id',
             'name' => 'required',
             'slug' => 'nullable|unique:product_categories,slug',
@@ -44,7 +44,7 @@ final class ProductCategoryController extends Controller
             'description_i18n' => 'array',
         ]);
 
-        $this->processTranslationsAndSlug($data, $r);
+        $this->processTranslationsAndSlug($data, $request);
 
         ProductCategory::create($data);
 
@@ -60,9 +60,9 @@ final class ProductCategoryController extends Controller
         return view('admin.products.categories.edit', compact('productCategory', 'parents'));
     }
 
-    public function update(Request $r, ProductCategory $productCategory)
+    public function update(Request $request, ProductCategory $productCategory)
     {
-        $data = $r->validate([
+        $data = $request->validate([
             'parent_id' => 'nullable|exists:product_categories,id',
             'name' => 'required',
             'slug' => 'nullable|unique:product_categories,slug,' . $productCategory->id,
@@ -78,7 +78,7 @@ final class ProductCategoryController extends Controller
             'description_i18n' => 'array',
         ]);
 
-        $this->processTranslationsAndSlug($data, $r);
+        $this->processTranslationsAndSlug($data, $request);
 
         $productCategory->update($data);
 
@@ -92,7 +92,7 @@ final class ProductCategoryController extends Controller
         return back()->with('success', __('Deleted'));
     }
 
-    public function aiSuggest(Request $request, SimpleAIService $ai)
+    public function aiSuggest(Request $request, SimpleAIService $aiService)
     {
         $title = $request->input('name') ? $request->input('name') : $request->input('title');
         $locale = $request->input('locale');
@@ -102,7 +102,7 @@ final class ProductCategoryController extends Controller
             return back()->with('error', __('Please enter a name first'));
         }
 
-        $result = $ai->generate($title, 'category', $locale);
+        $result = $aiService->generate($title, 'category', $locale);
 
         if (isset($result['error'])) {
             return back()->with('error', $result['error'])->withInput();
@@ -124,7 +124,7 @@ final class ProductCategoryController extends Controller
             'seo_description' => $result['seo_description'] ?? null,
             'seo_keywords' => $result['seo_tags'] ?? null,
             'seo_title' => $result['seo_title'] ?? null,
-        ], fn($v) => ! empty($v));
+        ], fn($value) => ! empty($value));
 
         // Fill translations only for the requested language
         if ($locale && ! empty($result['description'])) {
@@ -135,13 +135,13 @@ final class ProductCategoryController extends Controller
         return $merge;
     }
 
-    private function processTranslationsAndSlug(array &$data, Request $r): void
+    private function processTranslationsAndSlug(array &$data, Request $request): void
     {
         $defaultLocale = cache()->remember('default_locale_code', 3600, function () {
             return optional(\App\Models\Language::where('is_default', 1)->first())->code ?? 'en';
         });
-        $nameTranslations = $r->input('name_i18n', []);
-        $descTranslations = $r->input('description_i18n', []);
+        $nameTranslations = $request->input('name_i18n', []);
+        $descTranslations = $request->input('description_i18n', []);
         if (! empty($nameTranslations)) {
             $data['name_translations'] = array_filter($nameTranslations);
         }

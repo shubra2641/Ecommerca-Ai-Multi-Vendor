@@ -25,32 +25,32 @@ class ProductSerialController extends Controller
         return view('admin.products.serials.index', compact('product', 'serials'));
     }
 
-    public function import(Request $r, Product $product)
+    public function import(Request $request, Product $product)
     {
-        $r->validate(['file' => 'nullable|file', 'serials' => 'nullable|string']);
+        $request->validate(['file' => 'nullable|file', 'serials' => 'nullable|string']);
         $list = [];
-        if ($r->hasFile('file')) {
-            $content = file_get_contents($r->file('file')->getRealPath());
+        if ($request->hasFile('file')) {
+            $content = file_get_contents($request->file('file')->getRealPath());
             $lines = preg_split('/\r?\n/', $content);
-            foreach ($lines as $l) {
-                $val = trim($l);
+            foreach ($lines as $line) {
+                $val = trim($line);
                 if ($val !== '') {
                     $list[] = $val;
                 }
             }
         } else {
-            $raw = $r->input('serials', '');
+            $raw = $request->input('serials', '');
             $lines = preg_split('/\r?\n/', $raw);
-            foreach ($lines as $l) {
-                $val = trim($l);
+            foreach ($lines as $line) {
+                $val = trim($line);
                 if ($val !== '') {
                     $list[] = $val;
                 }
             }
         }
-        foreach ($list as $s) {
-            if (! ProductSerial::where('product_id', $product->id)->where('serial', $s)->exists()) {
-                ProductSerial::create(['product_id' => $product->id, 'serial' => $s]);
+        foreach ($list as $serialNumber) {
+            if (! ProductSerial::where('product_id', $product->id)->where('serial', $serialNumber)->exists()) {
+                ProductSerial::create(['product_id' => $product->id, 'serial' => $serialNumber]);
             }
         }
 

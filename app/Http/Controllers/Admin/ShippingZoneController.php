@@ -25,7 +25,7 @@ class ShippingZoneController extends Controller
         return view('admin.shipping_zones.index', compact('zones'));
     }
 
-    public function create(Request $request)
+    public function create()
     {
         $countries = Country::where('active', 1)->with([
             'governorates' => function ($query): void {
@@ -135,21 +135,21 @@ class ShippingZoneController extends Controller
 
     private function persistRules(ShippingZone $zone, array $rules): void
     {
-        foreach ($rules as $r) {
-            $clean = $this->cleanRule($r);
+        foreach ($rules as $rule) {
+            $clean = $this->cleanRule($rule);
             if ($clean) {
                 $zone->rules()->create($clean);
             }
         }
     }
 
-    private function cleanRule(array $r): ?array
+    private function cleanRule(array $ruleData): ?array
     {
-        $country = $r['country_id'] ?? null;
-        $gov = $r['governorate_id'] ?? null;
-        $city = $r['city_id'] ?? null;
-        $price = $r['price'] ?? null;
-        $days = $r['estimated_days'] ?? null;
+        $country = $ruleData['country_id'] ?? null;
+        $gov = $ruleData['governorate_id'] ?? null;
+        $city = $ruleData['city_id'] ?? null;
+        $price = $ruleData['price'] ?? null;
+        $days = $ruleData['estimated_days'] ?? null;
         if (! $country) {
             return null; // require at least country
         }
@@ -175,7 +175,7 @@ class ShippingZoneController extends Controller
             'city_id' => $city,
             'price' => is_numeric($price) ? $price : null,
             'estimated_days' => is_numeric($days) ? (int) $days : null,
-            'active' => isset($r['active']) ? (bool) $r['active'] : true,
+            'active' => isset($ruleData['active']) ? (bool) $ruleData['active'] : true,
         ];
     }
 }

@@ -32,10 +32,6 @@ class PaymentGatewayController extends Controller
         $gateway = new PaymentGateway();
         $this->fillGateway($gateway, $data);
 
-        // Capture any dynamic driver-specific fields that are not part of the validated set
-        // and persist them into the gateway config for this specific gateway only.
-        $this->mergeDynamicConfigFromRequest($gateway, $request);
-
         $gateway->save();
 
         return redirect()->route('admin.payment-gateways.index')->with('success', __('Gateway created'));
@@ -53,9 +49,6 @@ class PaymentGatewayController extends Controller
             $data['slug'] = Str::slug($data['name']);
         }
         $this->fillGateway($paymentGateway, $data);
-
-        // Persist dynamic config keys submitted in the form (if any)
-        $this->mergeDynamicConfigFromRequest($paymentGateway, $request);
 
         $paymentGateway->save();
 
@@ -232,10 +225,5 @@ class PaymentGatewayController extends Controller
         if (!empty($data['payeer_secret_key']) && $data['payeer_secret_key'] !== '********') {
             $cfg['payeer_secret_key'] = $data['payeer_secret_key'];
         }
-    }
-
-    protected function mergeDynamicConfigFromRequest(PaymentGateway $gateway, \Illuminate\Http\Request $request): void
-    {
-        // intentionally left empty (legacy stub)
     }
 }
