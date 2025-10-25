@@ -20,7 +20,7 @@
                     <div class="cart-items-col">
                         <h2 class="panel-title">Cart ({{ count($items) }} item{{ count($items)>1?'s':'' }})</h2>
 
-                        @foreach(($cartItemsPrepared ?? $items) as $it)
+                        @foreach($items as $it)
                         <div class="cart-item">
                             <div class="cart-thumb">
                                 <a href="{{ route('products.show',$it['product']->slug) }}">
@@ -85,16 +85,12 @@
 
                             <div class="cart-price">
                                 <div data-cart-line-price>
-                                    {{ $currency_symbol ?? '$' }}
-                                    {{ number_format($it['display_line_total'],2) }}
-                                </div>
-                                @if(!empty($it['cart_on_sale']))
-                                <div class="original-price">
-                                    {{ $currency_symbol ?? '$' }}
+                                    {{ $currency_symbol }}
                                     {{ number_format($it['display_original_price'],2) }}
                                 </div>
+                                @if(!empty($it['on_sale']))
                                 <div class="sale-badge">
-                                    {{ $it['cart_sale_percent'] }}% OFF
+                                    {{ $it['sale_percent'] }}% OFF
                                 </div>
                                 @endif
                             </div>
@@ -130,21 +126,21 @@
                             <div class="summary-break">
                                 <div class="line subtotal">
                                     Subtotal ({{ count($items) }} item): <span
-                                        class="subtotal-amount">{{ $currency_symbol ?? '$' }}
+                                        class="subtotal-amount">{{ $currency_symbol }}
                                         {{ number_format($displayTotal ?? $total,2) }}</span>
                                 </div>
                                 <div class="line discount">
                                     Discount:
                                     <span class="discount-amount coupon-discount-value">
                                         @if($displayDiscount > 0)
-                                        - {{ $currency_symbol ?? '$' }} {{ number_format($displayDiscount,2) }}
+                                        - {{ $currency_symbol }} {{ number_format($displayDiscount,2) }}
                                         @else
-                                        {{ $currency_symbol ?? '$' }} {{ number_format(0,2) }}
+                                        {{ $currency_symbol }} {{ number_format(0,2) }}
                                         @endif
                                     </span>
                                 </div>
                                 <div class="line shipping">Shipping Fee: <span>{{ __('Calculated at checkout') }}</span></div>
-                                <div class="line total">{{ __('Total') }}: <span class="total-amount">{{ $currency_symbol ?? '$' }}
+                                <div class="line total">{{ __('Total') }}: <span class="total-amount">{{ $currency_symbol }}
                                         {{ number_format(($discounted_total ?? false) ? (($displayTotal ?? $total ?? 0) - ($discount ?? 0)) : ($displayTotal ?? $total ?? 0),2) }}</span>
                                 </div>
                             </div>

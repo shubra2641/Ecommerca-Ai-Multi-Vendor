@@ -211,11 +211,11 @@
                                     @endif
                                 </div>
                                 <div class="small-muted">{{ $it['qty'] }} ×
-                                    {{ $currency_symbol ?? '$' }}{{ number_format($it['display_price'] ?? $it['price'],2) }}
+                                    {{ $currency_symbol }}{{ number_format($it['display_original_price'] ?? $it['price'],2) }}
                                 </div>
                             </div>
                             <div class="order-item-price">
-                                {{ $currency_symbol ?? '$' }}{{ number_format($it['display_lineTotal'] ?? $it['lineTotal'],2) }}
+                                {{ $currency_symbol }}{{ number_format($it['display_lineTotal'] ?? $it['lineTotal'],2) }}
                             </div>
                         </div>
                         @endforeach
@@ -268,7 +268,7 @@
                                     <span class="product-meta">{{ $it['variant_label'] }}</span>
                                     @endif
                                 </span>
-                                <span>{{ $currency_symbol ?? '$' }}{{ number_format($it['display_lineTotal'] ?? $it['lineTotal'],2) }}</span>
+                                <span>{{ $currency_symbol }}{{ number_format($it['display_lineTotal'] ?? $it['lineTotal'],2) }}</span>
                             </li>
                             @endforeach
                             <li class="summary-line">
@@ -278,12 +278,12 @@
                             <li class="summary-line">
                                 <span>{{ __('Coupon') }} (<strong>{{ $coupon->code }}</strong>)</span>
                                 <span
-                                    class="coupon-discount-amount">-{{ $currency_symbol ?? '$' }}{{ number_format($displayDiscount ?? $discount,2) }}</span>
+                                    class="coupon-discount-amount">-{{ $currency_symbol }}{{ number_format($displayDiscount ?? $discount,2) }}</span>
                             </li>
                             @endif
                             <li class="summary-total">
                                 <span>{{ __('Total Incl. VAT') }}</span><span
-                                    class="order-total">{{ $currency_symbol ?? '$' }}{{ number_format($displayDiscountedTotal ?? $total,2) }}</span>
+                                    class="order-total">{{ $currency_symbol }}{{ number_format($displayDiscountedTotal ?? $total,2) }}</span>
                             </li>
                         </ul>
                         <div class="mt-2">

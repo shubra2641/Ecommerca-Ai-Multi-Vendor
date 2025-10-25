@@ -27,7 +27,7 @@ class CheckoutController extends Controller
         }
         $vm = app(CheckoutViewBuilder::class)->build(
             $cart,
-            GlobalHelper::getCurrencyContext()['current']->id,
+            GlobalHelper::getCurrencyContext()['currentCurrency']->id,
             session('applied_coupon_id'),
             auth()->user()
         );
@@ -90,12 +90,16 @@ class CheckoutController extends Controller
         }
 
         return DB::transaction(function () use ($user, $data, $total, $items) {
+            $currencyContext = GlobalHelper::getCurrencyContext();
+            $currentCurrency = $currencyContext['currentCurrency'];
+            $orderCurrency = $currentCurrency ? $currentCurrency->code : config('app.currency', 'USD');
+
             $order = Order::create([
                 'user_id' => $user ? $user->id : null,
                 'status' => 'pending',
                 'total' => $total,
                 'items_subtotal' => $total,
-                'currency' => config('app.currency', 'USD'),
+                'currency' => $orderCurrency,
                 'payment_method' => $data['payment_method'],
                 'payment_status' => 'pending',
             ]);

@@ -11,7 +11,6 @@ use App\Http\Requests\Cart\RemoveFromCartRequest;
 use App\Http\Requests\Cart\UpdateCartRequest;
 use App\Http\Requests\ProductIdRequest;
 use App\Models\Coupon;
-use App\Models\Currency;
 use App\Models\Product;
 use App\Models\ProductVariation;
 use App\Models\WishlistItem;

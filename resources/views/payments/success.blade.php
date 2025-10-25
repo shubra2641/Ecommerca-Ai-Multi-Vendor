@@ -20,8 +20,8 @@
                     @if(isset($order))
                     <div class="alert alert-success">
                         <strong>{{ __('Order Number:') }}</strong> #{{ $order->id }}<br>
-                        <strong>{{ __('Amount:') }}</strong> {{ number_format($order->total, 2) }}
-                        {{ $order->currency }}
+                        <strong>{{ __('Amount:') }}</strong> {{ number_format($order->display_total ?? $order->total, 2) }}
+                        {{ $currencySymbol ?? $order->currency }}
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-center">

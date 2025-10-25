@@ -70,8 +70,8 @@
                 </div>
               </div>
               <div class="item-total-modern">
-                {{ number_format($p->amount, 2) }}<br>
-                <small>{{ $p->currency }}</small>
+                {{ number_format($p->display_amount ?? $p->amount, 2) }}<br>
+                <small>{{ $currencySymbol ?? $p->currency }}</small>
               </div>
             </div>
             @endforeach

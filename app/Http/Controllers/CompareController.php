@@ -49,6 +49,14 @@ class CompareController extends Controller
             $items = Product::with(['category', 'brand'])->whereIn('id', $ids)->get();
         }
         $currencyContext = GlobalHelper::getCurrencyContext();
+        $currentCurrency = $currencyContext['currentCurrency'];
+        $defaultCurrency = $currencyContext['defaultCurrency'];
+
+        // Convert product prices to current currency
+        $items->transform(function ($product) use ($currentCurrency, $defaultCurrency) {
+            $product->display_price = GlobalHelper::convertCurrency($product->effectivePrice(), $defaultCurrency, $currentCurrency, 2);
+            return $product;
+        });
 
         return view('front.products.compare', [
             'items' => $items,

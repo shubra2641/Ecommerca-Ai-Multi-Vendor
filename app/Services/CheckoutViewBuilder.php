@@ -106,14 +106,14 @@ class CheckoutViewBuilder
         $discounted_total = $coupon->applyTo($total);
         $discount = round($total - $discounted_total, 2);
         try {
-            $displayDiscountedTotal = $defaultCurrency->convertTo((float) $discounted_total, $currentCurrency, 2);
+            $displayDiscountedTotal = \App\Helpers\GlobalHelper::convertCurrency((float) $discounted_total);
         } catch (\Throwable $e) {
             $displayDiscountedTotal = $discounted_total;
         }
 
         $displayDiscount = $discount;
         try {
-            $displayDiscount = $defaultCurrency->convertTo((float) $discount, $currentCurrency, 2);
+            $displayDiscount = \App\Helpers\GlobalHelper::convertCurrency((float) $discount);
         } catch (\Throwable $e) {
         }
 
@@ -122,19 +122,31 @@ class CheckoutViewBuilder
 
     private function convertCurrency(array &$items, $currentCurrency, $defaultCurrency): void
     {
-        if (! $currentCurrency || ! $defaultCurrency || $currentCurrency->id === $defaultCurrency->id) {
-            return;
-        }
         collect($items)->each(function (&$it) use ($defaultCurrency, $currentCurrency): void {
+            // Set default values first
+            $it['display_price'] = $it['price'];
+            $it['display_lineTotal'] = $it['lineTotal'];
+            $it['display_original_price'] = $it['product']->price;
+
+            // Only convert if currencies are different
+            if (! $currentCurrency || ! $defaultCurrency || $currentCurrency->id === $defaultCurrency->id) {
+                return;
+            }
+
             try {
-                $it['display_price'] = $defaultCurrency->convertTo((float) $it['price'], $currentCurrency, 2);
+                $it['display_price'] = \App\Helpers\GlobalHelper::convertCurrency($it['price']);
             } catch (\Throwable $e) {
                 $it['display_price'] = $it['price'];
             }
             try {
-                $it['display_lineTotal'] = $defaultCurrency->convertTo((float) $it['lineTotal'], $currentCurrency, 2);
+                $it['display_lineTotal'] = $it['display_price'] * $it['qty'];
             } catch (\Throwable $e) {
                 $it['display_lineTotal'] = $it['lineTotal'];
+            }
+            try {
+                $it['display_original_price'] = \App\Helpers\GlobalHelper::convertCurrency($it['product']->price);
+            } catch (\Throwable $e) {
+                $it['display_original_price'] = $it['product']->price;
             }
         });
     }
@@ -205,7 +217,7 @@ class CheckoutViewBuilder
     {
         $displayTotal = $total;
         try {
-            $displayTotal = $defaultCurrency->convertTo((float) $total, $currentCurrency, 2);
+            $displayTotal = \App\Helpers\GlobalHelper::convertCurrency((float) $total);
         } catch (\Throwable $e) {
         }
         return [$currentCurrency, $defaultCurrency, $currency_symbol, $displayTotal];

@@ -265,6 +265,11 @@ final class HomeController extends Controller
     private function buildShowcaseSections($sectionsIndex, $sectionTitles): array
     {
         $showcaseSections = collect();
+
+        // Get currency context for price conversion
+        $currencyContext = GlobalHelper::getCurrencyContext();
+        $currentCurrency = $currencyContext['currentCurrency'];
+        $defaultCurrency = $currencyContext['defaultCurrency'];
         foreach (
             [
                 'showcase_latest',
@@ -301,7 +306,7 @@ final class HomeController extends Controller
             }
             $type = $sk === 'showcase_brands' ? 'brands' : 'products';
             if ($type === 'products') {
-                $items = $this->mapProductItems($items, $sk);
+                $items = $this->mapProductItems($items, $sk, $currentCurrency, $defaultCurrency);
             }
             $showcaseSections->push([
                 'key' => $sk,
@@ -319,9 +324,9 @@ final class HomeController extends Controller
         return compact('showcaseSections', 'brandSec', 'showcaseSectionsActiveCount');
     }
 
-    private function mapProductItems($items, $sk)
+    private function mapProductItems($items, $sk, $currentCurrency, $defaultCurrency)
     {
-        return $items->map(function ($p) use ($sk) {
+        return $items->map(function ($p) use ($sk, $currentCurrency, $defaultCurrency) {
             $image = $p->main_image
                 ? asset('storage/' . $p->main_image)
                 : asset('images/placeholder.svg');
@@ -332,12 +337,17 @@ final class HomeController extends Controller
                 $name = mb_substr($name, 0, 40) . '…';
             }
             $p->mini_trunc_name = $name;
-            $priceHtml = GlobalHelper::currencyFormat($p->effectivePrice());
+
+            // Convert prices to current currency before formatting
+            $effectivePrice = GlobalHelper::convertCurrency($p->effectivePrice(), $defaultCurrency, $currentCurrency, 2);
+            $priceHtml = GlobalHelper::formatPrice($effectivePrice);
             $p->mini_price_html = $priceHtml;
+
             $extra = '';
             if ($sk === 'showcase_discount' && $p->effectivePrice() < $p->price) {
+                $originalPrice = GlobalHelper::convertCurrency($p->price, $defaultCurrency, $currentCurrency, 2);
                 $extra .= '<span class="mini-old">' .
-                    e(GlobalHelper::currencyFormat($p->price)) . '</span>';
+                    e(GlobalHelper::formatPrice($originalPrice)) . '</span>';
             }
             if ($sk === 'showcase_most_rated' && $p->approved_reviews_avg) {
                 $extra .= '<span class="mini-rating">★ ' .

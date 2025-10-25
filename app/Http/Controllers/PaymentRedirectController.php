@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Helpers\GlobalHelper;
 use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Request;
@@ -153,8 +154,20 @@ class PaymentRedirectController extends Controller
                 $order->save();
             }
 
+            // Get currency context for display
+            $currencyContext = GlobalHelper::getCurrencyContext();
+            $currentCurrency = $currencyContext['currentCurrency'];
+            $defaultCurrency = $currencyContext['defaultCurrency'];
+            $currencySymbol = $currencyContext['currencySymbol'];
+
+            // Convert amounts to current browsing currency
+            $displayAmount = GlobalHelper::convertCurrency($payment->amount, $defaultCurrency, $currentCurrency, 2);
+            if ($order) {
+                $order->display_total = GlobalHelper::convertCurrency($order->total, $defaultCurrency, $currentCurrency, 2);
+            }
+
             // Redirect to success page
-            return view('payments.success', compact('payment'))
+            return view('payments.success', compact('payment', 'order', 'currencySymbol', 'displayAmount'))
                 ->with('order', $order);
         }
 
@@ -164,7 +177,16 @@ class PaymentRedirectController extends Controller
             $payment->payload = array_merge($payment->payload ?? [], ['gateway_payload' => $payload]);
             $payment->save();
 
-            return view('payments.processing', compact('payment'))
+            // Get currency context for display
+            $currencyContext = GlobalHelper::getCurrencyContext();
+            $currentCurrency = $currencyContext['currentCurrency'];
+            $defaultCurrency = $currencyContext['defaultCurrency'];
+            $currencySymbol = $currencyContext['currencySymbol'];
+
+            // Convert amounts to current browsing currency
+            $displayAmount = GlobalHelper::convertCurrency($payment->amount, $defaultCurrency, $currentCurrency, 2);
+
+            return view('payments.processing', compact('payment', 'order', 'currencySymbol', 'displayAmount'))
                 ->with('order', $order);
         }
 
@@ -187,7 +209,19 @@ class PaymentRedirectController extends Controller
 
         $errorMessage = $payment->failure_reason ?? __('Payment failed or cancelled');
 
-        return view('payments.failure', compact('payment'))
+        // Get currency context for display
+        $currencyContext = GlobalHelper::getCurrencyContext();
+        $currentCurrency = $currencyContext['currentCurrency'];
+        $defaultCurrency = $currencyContext['defaultCurrency'];
+        $currencySymbol = $currencyContext['currencySymbol'];
+
+        // Convert amounts to current browsing currency
+        $displayAmount = GlobalHelper::convertCurrency($payment->amount, $defaultCurrency, $currentCurrency, 2);
+        if ($order) {
+            $order->display_total = GlobalHelper::convertCurrency($order->total, $defaultCurrency, $currentCurrency, 2);
+        }
+
+        return view('payments.failure', compact('payment', 'order', 'error_message', 'currencySymbol', 'displayAmount'))
             ->with('order', $order)
             ->with('error_message', $errorMessage);
     }

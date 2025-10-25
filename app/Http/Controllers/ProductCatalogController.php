@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Helpers\GlobalHelper;
 use App\Models\Brand;
-use App\Models\Currency;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductTag;
@@ -466,7 +465,14 @@ final class ProductCatalogController extends Controller
         $compareIds = session('compare', []);
         $currentCurrency = $this->resolveCurrentCurrency();
 
-        return compact('categories', 'brandList', 'wishlistIds', 'compareIds', 'currentCurrency');
+        // Price range defaults in current currency
+        $priceRangeDefaults = [
+            'min_price_default' => 0,
+            'max_price_default' => GlobalHelper::convertCurrency(1000), // Convert 1000 from default currency
+            'max_price_limit' => GlobalHelper::convertCurrency(10000), // Higher limit for max attribute
+        ];
+
+        return compact('categories', 'brandList', 'wishlistIds', 'compareIds', 'currentCurrency') + $priceRangeDefaults;
     }
 
     /**
@@ -525,7 +531,7 @@ final class ProductCatalogController extends Controller
         }
 
         $currencyContext = GlobalHelper::getCurrencyContext();
-        $cached = $currencyContext['current'];
+        $cached = $currencyContext['currentCurrency'];
 
         return $cached;
     }

@@ -6,7 +6,6 @@ namespace App\Http\Controllers\User;
 
 use App\Helpers\GlobalHelper;
 use App\Http\Controllers\Controller;
-use App\Models\Currency;
 use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;

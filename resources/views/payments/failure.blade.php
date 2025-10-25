@@ -20,8 +20,8 @@
                     @if(isset($order))
                     <div class="alert alert-warning">
                         <strong>{{ __('Order Number:') }}</strong> #{{ $order->id }}<br>
-                        <strong>{{ __('Amount:') }}</strong> {{ number_format($order->total, 2) }}
-                        {{ $order->currency }}<br>
+                        <strong>{{ __('Amount:') }}</strong> {{ number_format($order->display_total ?? $order->total, 2) }}
+                        {{ $currencySymbol ?? $order->currency }}<br>
                         <small
                             class="text-muted">{{ __('Your order is still pending. You can retry payment from your order details.') }}</small>
                     </div>

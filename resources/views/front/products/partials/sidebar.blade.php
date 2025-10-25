@@ -3,25 +3,25 @@
         <h4>{{ __('Price') }}</h4>
         <form method="GET" action="{{ request()->url() }}" class="filter-form">
             @foreach(request()->except(['min_price', 'max_price']) as $key => $value)
-                @if(is_array($value))
-                    @foreach($value as $val)
-                        <input type="hidden" name="{{ $key }}[]" value="{{ $val }}">
-                    @endforeach
-                @else
-                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                @endif
+            @if(is_array($value))
+            @foreach($value as $val)
+            <input type="hidden" name="{{ $key }}[]" value="{{ $val }}">
+            @endforeach
+            @else
+            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endif
             @endforeach
             <div class="price-range">
                 <div class="value-row">
-                    <span>{{ __('Min') }}: <strong>{{ request('min_price') ?: 0 }}</strong></span>
-                    <span>{{ __('Max') }}: <strong>{{ request('max_price') ?: 1000 }}</strong></span>
+                    <span>{{ __('Min') }}: <strong>{{ request('min_price') ?: $min_price_default ?? 0 }}</strong></span>
+                    <span>{{ __('Max') }}: <strong>{{ request('max_price') ?: $max_price_default ?? 1000 }}</strong></span>
                 </div>
                 <div class="price-inputs">
-                    <input type="number" name="min_price" min="0" max="1000" step="10" 
-                           value="{{ request('min_price') ?: 0 }}" placeholder="{{ __('Min') }}" class="price-input">
+                    <input type="number" name="min_price" min="0" max="{{ $max_price_limit ?? 10000 }}" step="10"
+                        value="{{ request('min_price') ?: $min_price_default ?? 0 }}" placeholder="{{ __('Min') }}" class="price-input">
                     <span class="price-separator">-</span>
-                    <input type="number" name="max_price" min="0" max="1000" step="10" 
-                           value="{{ request('max_price') ?: 1000 }}" placeholder="{{ __('Max') }}" class="price-input">
+                    <input type="number" name="max_price" min="0" max="{{ $max_price_limit ?? 10000 }}" step="10"
+                        value="{{ request('max_price') ?: $max_price_default ?? 1000 }}" placeholder="{{ __('Max') }}" class="price-input">
                 </div>
             </div>
             <button type="submit" class="btn btn-primary btn-sm filter-apply-btn">{{ __('Apply') }}</button>
@@ -48,13 +48,13 @@
         <h4>{{ __('Brand') }}</h4>
         <form method="GET" action="{{ request()->url() }}" class="filter-form">
             @foreach(request()->except(['brand']) as $key => $value)
-                @if(is_array($value))
-                    @foreach($value as $val)
-                        <input type="hidden" name="{{ $key }}[]" value="{{ $val }}">
-                    @endforeach
-                @else
-                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                @endif
+            @if(is_array($value))
+            @foreach($value as $val)
+            <input type="hidden" name="{{ $key }}[]" value="{{ $val }}">
+            @endforeach
+            @else
+            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endif
             @endforeach
             <div class="brand-search">
                 <input type="search" name="brand_search" placeholder="{{ __('Search') }}" value="{{ request('brand_search') }}">
