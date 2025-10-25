@@ -9,16 +9,16 @@
     --primary-700        : #e4c700;
 
     /* Semantic surface/text tokens for Easy layer */
-    --noon-surface       : #ffffff;
-    --noon-surface-alt   : #f5f5f5;
-    --noon-text          : #111111;
-    --noon-text-secondary: #444444;
-    --noon-border        : #e5e5e5;
+    --easy-surface       : #ffffff;
+    --easy-surface-alt   : #f5f5f5;
+    --easy-text          : #111111;
+    --easy-text-secondary: #444444;
+    --easy-border        : #e5e5e5;
     --bg-primary         : #ffffff;    /* fallback integrates with front.css */
     --bg-secondary       : var(--brand-gray);
-    --text-primary       : var(--noon-text);
-    --text-secondary     : var(--noon-text-secondary);
-    --border-primary     : var(--noon-border);
+    --text-primary       : var(--easy-text);
+    --text-secondary     : var(--easy-text-secondary);
+    --border-primary     : var(--easy-border);
     --focus-ring         : 0 0 0 3px rgb(255, 229, 0, 0.45);
 
     /* Neutral Colors */
@@ -157,7 +157,7 @@
 }
 
 /* --- Easy style header overhaul --- */
-.noon-header {
+.easy-header {
     background: var(--brand-yellow);
     color     : #000;
     font-size : 13px;
@@ -166,12 +166,12 @@
     z-index   : 60;
 }
 
-.noon-header a {
+.easy-header a {
     color          : #000;
     text-decoration: none;
 }
 
-.noon-header-bar {
+.easy-header-bar {
     max-width  : 1400px;
     margin     : 0 auto;
     display    : flex;
@@ -180,26 +180,26 @@
     padding    : .55rem 1rem;
 }
 
-.noon-left {
+.easy-left {
     display    : flex;
     align-items: center;
     gap        : 1rem;
     min-width  : 220px;
 }
 
-.noon-logo img {
+.easy-logo img {
     height : 32px;
     width  : auto;
     display: block;
 }
 
-.noon-logo .txt {
+.easy-logo .txt {
     font-weight   : 800;
     font-size     : 1.35rem;
     letter-spacing: .5px;
 }
 
-.noon-ship {
+.easy-ship {
     display    : flex;
     align-items: center;
     gap        : .4rem;
@@ -208,11 +208,11 @@
     line-height: 1.1;
 }
 
-.noon-ship .flag {
+.easy-ship .flag {
     font-size: 1.1rem;
 }
 
-.noon-ship .ship-dest {
+.easy-ship .ship-dest {
     background     : none;
     border         : 0;
     font-weight    : 700;
@@ -222,43 +222,43 @@
     padding        : 0;
 }
 
-.noon-search {
+.easy-search {
     flex: 1;
 }
 
-.noon-search form {
+.easy-search form {
     display      : flex;
-    background   : var(--noon-surface);
+    background   : var(--easy-surface);
     border-radius: 4px;
     overflow     : hidden;
-    box-shadow   : 0 0 0 2px var(--noon-text) inset;
+    box-shadow   : 0 0 0 2px var(--easy-text) inset;
 }
 
-.noon-search input {
+.easy-search input {
     flex     : 1;
     border   : 0;
     padding  : .55rem .75rem;
     font-size: .8rem;
 }
 
-.noon-search button {
-    background : var(--noon-surface);
+.easy-search button {
+    background : var(--easy-surface);
     border     : 0;
     width      : 50px;
     display    : grid;
     place-items: center;
     cursor     : pointer;
     font-size  : 1rem;
-    color      : var(--noon-text);
+    color      : var(--easy-text);
 }
 
-.noon-actions {
+.easy-actions {
     display    : flex;
     align-items: center;
     gap        : .9rem;
 }
 
-.noon-actions .act {
+.easy-actions .act {
     position   : relative;
     display    : flex;
     align-items: center;
@@ -266,7 +266,7 @@
 
 .dropdown-trigger {
     background   : transparent;
-    color        : var(--noon-text);
+    color        : var(--easy-text);
     border       : 0;
     display      : inline-flex;
     align-items  : center;
@@ -288,11 +288,11 @@
     position          : absolute;
     top               : calc(100% + 8px);
     inset-inline-start: 0;
-    background        : var(--noon-surface);
-    color             : var(--noon-text);
+    background        : var(--easy-surface);
+    color             : var(--easy-text);
     min-width         : 200px;
     padding           : .75rem .85rem;
-    border            : 1px solid var(--noon-border);
+    border            : 1px solid var(--easy-border);
     border-radius     : 10px;
     box-shadow        : 0 12px 32px -8px rgb(0, 0, 0, .18);
     display           : none;
@@ -593,13 +593,13 @@
     font-weight: 700;
 }
 
-.noon-cats {
+.easy-cats {
     background: #fff;
     border-top: 1px solid rgb(0, 0, 0, .08);
     box-shadow: 0 1px 2px rgb(0, 0, 0, .04);
 }
 
-.noon-cats .cat-list {
+.easy-cats .cat-list {
     max-width      : 1400px;
     margin         : 0 auto;
     padding        : 0 .75rem;
@@ -611,11 +611,11 @@
     scrollbar-width: none;
 }
 
-.noon-cats .cat-list::-webkit-scrollbar {
+.easy-cats .cat-list::-webkit-scrollbar {
     display: none;
 }
 
-.noon-cats a {
+.easy-cats a {
     display       : inline-block;
     padding       : .65rem 0;
     font-weight   : 900;
@@ -624,12 +624,12 @@
     letter-spacing: .1px;
 }
 
-.noon-cats a:hover {
+.easy-cats a:hover {
     color          : #000;
     text-decoration: underline;
 }
 
-.noon-cats .more button {
+.easy-cats .more button {
     background: none;
     border    : 0;
     font-size : 1.2rem;
@@ -638,26 +638,26 @@
 }
 
 @media (max-width:900px) {
-    .noon-header-bar {
+    .easy-header-bar {
         flex-wrap: wrap;
     }
 
-    .noon-left {
+    .easy-left {
         order: 1;
     }
 
-    .noon-search {
+    .easy-search {
         order: 3;
         width: 100%;
     }
 
-    .noon-actions {
+    .easy-actions {
         order          : 2;
         flex           : 1;
         justify-content: flex-end;
     }
 
-    .noon-cats .cat-list {
+    .easy-cats .cat-list {
         gap: .8rem;
     }
 }
@@ -4458,8 +4458,8 @@ button[type="submit"] {
         border-radius: 4px;
         padding      : 0.5rem .65rem;
         font-size    : .85rem;
-        background   : var(--noon-surface);
-        color        : var(--noon-text);
+        background   : var(--easy-surface);
+        color        : var(--easy-text);
     }
 
     .form-input:focus,
@@ -8043,7 +8043,7 @@ body[dir="rtl"] .timeline-item:last-child::after,
 
 /* Ensure badges and controls don't overlap */
 
-/* Prevent duplicate rules: rely on variables from noon.css where available */
+/* Prevent duplicate rules: rely on variables from easy.css where available */
 
 /* Small product card sale badge positioning */
 .product-card-small .badge-sale {
@@ -8133,7 +8133,7 @@ body[dir="rtl"] .timeline-item:last-child::after,
     object-fit: cover;
 }
 
-/* Strong override: force badges to stack vertically even if noon.css forces row layout */
+/* Strong override: force badges to stack vertically even if easy.css forces row layout */
 
 /* Duplicate removed - merged with line 1796 */
 

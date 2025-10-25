@@ -1,9 +1,9 @@
 {{-- All header presentation variables are now provided by HeaderComposer (no inline PHP) --}}
 
-<header class="noon-header" role="banner">
-    <div class="noon-header-bar">
-        <div class="noon-left">
-            <a href="/" class="noon-logo" aria-label="{{ $siteName }}">
+<header class="easy-header" role="banner">
+    <div class="easy-header-bar">
+        <div class="easy-left">
+            <a href="/" class="easy-logo" aria-label="{{ $siteName }}">
                 @if($logoPath && file_exists(public_path('storage/'.$logoPath)))
                 <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($logoPath) }}" alt="{{ $siteName }}">
                 @else
@@ -11,7 +11,7 @@
                 @endif
             </a>
             {{-- Additional pages dropdown (replaces delivery/ship widget) --}}
-            <div class="noon-pages" aria-label="Pages">
+            <div class="easy-pages" aria-label="Pages">
                 <div class="act act-pages" data-dropdown>
                     <button class="dropdown-trigger" aria-haspopup="true" aria-expanded="false">
                         <span class="txt">{{ __('Pages') }}</span>
@@ -22,14 +22,14 @@
                 </div>
             </div>
         </div>
-        <div class="noon-search">
+        <div class="easy-search">
             <form action="{{ route('products.index') }}" method="GET" role="search" aria-label="Site search">
                 <input type="text" name="q" value="{{ request('q') }}"
                     placeholder="{{ __('What are you looking for?') }}" />
                 <button type="submit" aria-label="{{ __('Search') }}">🔍</button>
             </form>
         </div>
-        <div class="noon-actions" aria-label="User tools">
+        <div class="easy-actions" aria-label="User tools">
             <!-- Language & Currency -->
             <div class="act act-lang-curr" data-dropdown>
                 <button class="dropdown-trigger" aria-haspopup="true" aria-expanded="false">
@@ -133,7 +133,7 @@
             <div id="wishlist-config" hidden></div>
         </div>
     </div>
-    <nav class="noon-cats" aria-label="Main categories">
+    <nav class="easy-cats" aria-label="Main categories">
         <ul class="cat-list">
             @foreach($rootCats as $cat)
             <li>
