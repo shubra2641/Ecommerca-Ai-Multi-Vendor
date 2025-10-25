@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Helpers\GlobalHelper;
 use App\Http\Requests\CheckoutRequest;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
 use App\Services\Checkout\CheckoutProcessor;
+use App\Services\CheckoutViewBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use App\Services\CheckoutViewBuilder;
-use App\Helpers\GlobalHelper;
 
 class CheckoutController extends Controller
 {
@@ -434,7 +433,7 @@ class CheckoutController extends Controller
             ->orderBy('id')
             ->first();
 
-        $amount = GlobalHelper::fromCents($session['amount_total'] ?? ($order->total * 100));
+        $amount = GlobalHelper::fromCents($session['amount_total'] ?? $order->total * 100);
         $currency = strtolower($session['currency'] ?? $order->currency);
         $tx = $session['payment_intent'] ?? ($session['id'] ?? null);
 

@@ -33,7 +33,6 @@ use App\Http\Controllers\User\InvoicePdfController;
 use App\Http\Controllers\User\InvoicesController;
 use App\Http\Controllers\User\OrdersController;
 use App\Http\Controllers\User\ReturnsController;
-use App\Http\Controllers\Vendor\OrderController as VendorOrderController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;

@@ -73,32 +73,6 @@ final class ProductCatalogController extends Controller
     ];
 
     /**
-     * Get category children IDs with caching
-     */
-    protected function getCategoryChildrenIds($categoryId): array
-    {
-        return Cache::remember(
-            'category_children_ids_' . $categoryId,
-            600,
-            fn() => ProductCategory::where('parent_id', $categoryId)->pluck('id')->all()
-        );
-    }
-
-    /**
-     * Common listing logic for index/category/tag pages
-     */
-    protected function handleListing(Request $request, $query = null, array $extraData = [])
-    {
-        $query ??= $this->baseQuery();
-        $query = $this->applyFilters($query, $request);
-        $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
-
-        $commonData = $this->getCommonData($request);
-
-        return array_merge($commonData, compact('products'), $extraData);
-    }
-
-    /**
      * Main catalog index
      */
     public function index(Request $request)
@@ -111,7 +85,7 @@ final class ProductCatalogController extends Controller
             $slugMap = Cache::remember(
                 'product_category_slug_id_map',
                 600,
-                fn() => ProductCategory::pluck('id', 'slug')->all()
+                fn () => ProductCategory::pluck('id', 'slug')->all()
             );
             $id = $slugMap[$cat] ?? null;
             if ($id) {
@@ -126,7 +100,7 @@ final class ProductCatalogController extends Controller
         // Tag filter
         $tag = $request->get('tag');
         if ($tag) {
-            $query->whereHas('tags', fn($t) => $t->where('slug', $tag));
+            $query->whereHas('tags', fn ($t) => $t->where('slug', $tag));
         }
 
         $data = $this->handleListing($request, $query, ['selectedBrands' => (array) $request->get('brand', [])]);
@@ -307,6 +281,32 @@ final class ProductCatalogController extends Controller
             'inCart',
             'activeVars'
         ));
+    }
+
+    /**
+     * Get category children IDs with caching
+     */
+    protected function getCategoryChildrenIds($categoryId): array
+    {
+        return Cache::remember(
+            'category_children_ids_' . $categoryId,
+            600,
+            fn () => ProductCategory::where('parent_id', $categoryId)->pluck('id')->all()
+        );
+    }
+
+    /**
+     * Common listing logic for index/category/tag pages
+     */
+    protected function handleListing(Request $request, $query = null, array $extraData = [])
+    {
+        $query ??= $this->baseQuery();
+        $query = $this->applyFilters($query, $request);
+        $products = $this->processProducts($query->simplePaginate(24)->withQueryString());
+
+        $commonData = $this->getCommonData($request);
+
+        return array_merge($commonData, compact('products'), $extraData);
     }
 
     /**
@@ -561,7 +561,7 @@ final class ProductCatalogController extends Controller
             $images->push('front/images/default-product.png');
         }
 
-        $gallery = $images->unique()->map(fn($p) => ['raw' => $p, 'url' => asset($p)]);
+        $gallery = $images->unique()->map(fn ($p) => ['raw' => $p, 'url' => asset($p)]);
         $mainImage = $gallery->first();
 
         return compact('gallery', 'mainImage');
@@ -594,7 +594,7 @@ final class ProductCatalogController extends Controller
         $activeVars = collect();
         if ($product->type === 'variable') {
             $activeVars = $product->variations->where('active', true);
-            $prices = $activeVars->map(fn($v) => $v->effectivePrice())->filter();
+            $prices = $activeVars->map(fn ($v) => $v->effectivePrice())->filter();
             if ($prices->count()) {
                 $minP = $prices->min();
                 $maxP = $prices->max();

@@ -147,10 +147,10 @@ class CheckoutViewBuilder
             return null;
         }
         return match (true) {
-            is_object($variant) => ! empty($variant->name) ? $variant->name : (! empty($variant->attribute_data) ? collect($variant->attribute_data)->map(fn($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ') : null),
+            is_object($variant) => ! empty($variant->name) ? $variant->name : (! empty($variant->attribute_data) ? collect($variant->attribute_data)->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ') : null),
             is_string($variant) => (function ($v) {
                 $parsed = json_decode($v, true);
-                return json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data']) ? collect($parsed['attribute_data'])->map(fn($val, $key) => ucfirst($key) . ': ' . $val)->values()->join(', ') : $v;
+                return json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data']) ? collect($parsed['attribute_data'])->map(fn ($val, $key) => ucfirst($key) . ': ' . $val)->values()->join(', ') : $v;
             })($variant),
             ! empty($attributes) => implode(', ', $attributes),
             default => null,

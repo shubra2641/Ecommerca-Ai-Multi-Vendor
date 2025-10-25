@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendInterestConfirmationJob;
 use App\Models\ProductInterest;
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Notifications\AdminProductInterestNotification;
-use App\Jobs\SendInterestConfirmationJob;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 
 class NotifyController extends Controller

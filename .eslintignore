@@ -1,8 +1,0 @@
-node_modules/
-vendor/
-public/vendor/
-public/build/
-storage/
-bootstrap/cache/
-*.min.js
-*.bundle.js

@@ -52,6 +52,99 @@ class ProductController extends Controller
         return $this->handleProductSave($request, $product);
     }
 
+    public function edit(Product $product)
+    {
+        $this->authorize('update', $product);
+        $data = $this->loadProductFormData();
+        $data['product'] = $product;
+
+        return view('vendor.products.edit', $data);
+    }
+
+    public function destroy(Product $product)
+    {
+        $this->authorize('delete', $product);
+        $product->delete();
+
+        return back()->with('success', __('Product deleted.'));
+    }
+
+    /**
+     * Merge vendor submitted multilingual inputs into translation JSON arrays.
+     * Similar to admin merge but simplified: we trust active languages table.
+     */
+    public function mergeVendorTranslations(Request $r, array &$data, ?Product $existing = null): void
+    {
+        try {
+            $languages = $this->getActiveLanguages();
+            if ($languages->isEmpty()) {
+                return;
+            }
+
+            $defaultCode = $this->getDefaultLanguageCode($languages);
+
+            foreach ($this->getTranslatableFields() as $field) {
+                if ($r->has($field) && is_array($r->input($field))) {
+                    $this->processFieldTranslations($r, $data, $field, $defaultCode, $existing);
+                }
+            }
+
+            $this->generateSlugTranslations($data);
+        } catch (\Throwable $e) {
+            logger()->warning('Failed to merge vendor translations: ' . $e->getMessage());
+        }
+    }
+
+    public function collapsePrimaryTextFields(array $data, ?Product $existing = null): array
+    {
+        foreach ($this->getTranslatableFields() as $field) {
+            if (isset($data[$field]) && is_array($data[$field])) {
+                $data[$field] = $this->extractFirstNonEmptyValue($data[$field], $existing, $field);
+            }
+        }
+
+        return $data;
+    }
+
+    public function cleanGalleryValue($raw)
+    {
+        if (is_array($raw)) {
+            $gallery = $raw;
+        } elseif (is_string($raw) && trim($raw) !== '') {
+            $decoded = json_decode($raw, true);
+            $gallery = json_last_error() === JSON_ERROR_NONE ? $decoded : [];
+        } else {
+            $gallery = [];
+        }
+
+        return array_values(
+            array_filter(
+                array_map(fn ($path) => is_string($path) ? trim($path) : '', $gallery),
+                fn ($path) => $path !== ''
+            )
+        );
+    }
+
+    public function syncVariations($product, Request $r): void
+    {
+        $payload = $r->input('variations', []);
+        $ids = [];
+
+        foreach ($payload as $v) {
+            if (! isset($v['price']) || $v['price'] === '') {
+                continue;
+            }
+
+            $variationData = $this->prepareVariationData($v);
+            $id = $this->saveVariation($product, $variationData, $v['id'] ?? null);
+            if ($id) {
+                $ids[] = $id;
+            }
+        }
+
+        $product->variations()->whereNotIn('id', $ids)->delete();
+    }
+
     private function handleProductSave(ProductRequest $request, ?Product $product): \Illuminate\Http\RedirectResponse
     {
         $data = $request->validated();
@@ -119,7 +212,7 @@ class ProductController extends Controller
         $name = $this->extractProductName($data, $product);
         $baseSlug = Str::slug($name);
 
-        if (!$this->slugExists($baseSlug, $product?->id)) {
+        if (! $this->slugExists($baseSlug, $product?->id)) {
             return $baseSlug;
         }
 
@@ -159,23 +252,6 @@ class ProductController extends Controller
         }
 
         return $slug;
-    }
-
-    public function edit(Product $product)
-    {
-        $this->authorize('update', $product);
-        $data = $this->loadProductFormData();
-        $data['product'] = $product;
-
-        return view('vendor.products.edit', $data);
-    }
-
-    public function destroy(Product $product)
-    {
-        $this->authorize('delete', $product);
-        $product->delete();
-
-        return back()->with('success', __('Product deleted.'));
     }
 
     private function loadProductFormData(): array
@@ -222,32 +298,6 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Merge vendor submitted multilingual inputs into translation JSON arrays.
-     * Similar to admin merge but simplified: we trust active languages table.
-     */
-    public function mergeVendorTranslations(Request $r, array &$data, ?Product $existing = null): void
-    {
-        try {
-            $languages = $this->getActiveLanguages();
-            if ($languages->isEmpty()) {
-                return;
-            }
-
-            $defaultCode = $this->getDefaultLanguageCode($languages);
-
-            foreach ($this->getTranslatableFields() as $field) {
-                if ($r->has($field) && is_array($r->input($field))) {
-                    $this->processFieldTranslations($r, $data, $field, $defaultCode, $existing);
-                }
-            }
-
-            $this->generateSlugTranslations($data);
-        } catch (\Throwable $e) {
-            logger()->warning('Failed to merge vendor translations: ' . $e->getMessage());
-        }
-    }
-
     private function getActiveLanguages()
     {
         return Language::where('is_active', 1)->orderByDesc('is_default')->get();
@@ -267,7 +317,7 @@ class ProductController extends Controller
             'description',
             'seo_title',
             'seo_description',
-            'seo_keywords'
+            'seo_keywords',
         ];
     }
 
@@ -284,7 +334,7 @@ class ProductController extends Controller
     {
         $defaultVal = $incoming[$defaultCode] ??
             collect($incoming)->first(
-                fn($v) => trim((string) $v) !== ''
+                fn ($v) => trim((string) $v) !== ''
             );
 
         return $defaultVal ?? $existing?->$field;
@@ -315,17 +365,6 @@ class ProductController extends Controller
         }
     }
 
-    public function collapsePrimaryTextFields(array $data, ?Product $existing = null): array
-    {
-        foreach ($this->getTranslatableFields() as $field) {
-            if (isset($data[$field]) && is_array($data[$field])) {
-                $data[$field] = $this->extractFirstNonEmptyValue($data[$field], $existing, $field);
-            }
-        }
-
-        return $data;
-    }
-
     private function extractFirstNonEmptyValue(array $values, ?Product $existing, string $field): string
     {
         foreach ($values as $val) {
@@ -335,45 +374,6 @@ class ProductController extends Controller
         }
 
         return (string) ($existing?->$field ?? '');
-    }
-
-    public function cleanGalleryValue($raw)
-    {
-        if (is_array($raw)) {
-            $gallery = $raw;
-        } elseif (is_string($raw) && trim($raw) !== '') {
-            $decoded = json_decode($raw, true);
-            $gallery = json_last_error() === JSON_ERROR_NONE ? $decoded : [];
-        } else {
-            $gallery = [];
-        }
-
-        return array_values(
-            array_filter(
-                array_map(fn($path) => is_string($path) ? trim($path) : '', $gallery),
-                fn($path) => $path !== ''
-            )
-        );
-    }
-
-    public function syncVariations($product, Request $r): void
-    {
-        $payload = $r->input('variations', []);
-        $ids = [];
-
-        foreach ($payload as $v) {
-            if (! isset($v['price']) || $v['price'] === '') {
-                continue;
-            }
-
-            $variationData = $this->prepareVariationData($v);
-            $id = $this->saveVariation($product, $variationData, $v['id'] ?? null);
-            if ($id) {
-                $ids[] = $id;
-            }
-        }
-
-        $product->variations()->whereNotIn('id', $ids)->delete();
     }
 
     private function prepareVariationData(array $v): array
@@ -416,7 +416,7 @@ class ProductController extends Controller
                 $translations = $nameTranslations;
                 $defaultVal = $translations[$default] ??
                     collect($translations)->first(
-                        fn($val) => trim((string) $val) !== ''
+                        fn ($val) => trim((string) $val) !== ''
                     );
 
                 foreach ($languages as $lang) {

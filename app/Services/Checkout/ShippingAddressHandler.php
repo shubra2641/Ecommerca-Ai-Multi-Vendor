@@ -9,9 +9,6 @@ use App\Models\Order;
 
 final class ShippingAddressHandler
 {
-    /**
-     * @param array $checkoutData
-     */
     public function handleShippingAddress(Order $order, array $checkoutData): void
     {
         $selectedAddressId = $checkoutData['selected_address_id'] ?? null;
@@ -21,9 +18,6 @@ final class ShippingAddressHandler
         }
     }
 
-    /**
-     * @param array $checkoutData
-     */
     private function createAndAttachShippingAddress(Order $order, array $checkoutData): void
     {
         try {
@@ -40,9 +34,6 @@ final class ShippingAddressHandler
         }
     }
 
-    /**
-     * @param array $checkoutData
-     */
     private function createShippingAddress(array $checkoutData): ?Address
     {
         $addrData = $checkoutData['shipping_address'] ?? [];

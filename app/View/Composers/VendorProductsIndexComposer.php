@@ -17,10 +17,7 @@ final class VendorProductsIndexComposer
         $view->with('vendorProductStocks', $this->calculateProductStocks($data));
     }
 
-    /**
-     * @return \Illuminate\Support\Collection
-     */
-    private function getProductCategories()
+    private function getProductCategories(): \Illuminate\Support\Collection
     {
         try {
             return ProductCategory::orderBy('name')->get();
@@ -29,10 +26,6 @@ final class VendorProductsIndexComposer
         }
     }
 
-    /**
-     * @param array $data
-     * @return array
-     */
     private function calculateProductStocks(array $data): array
     {
         if (! isset($data['products'])) {

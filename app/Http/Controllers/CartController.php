@@ -387,7 +387,7 @@ final class CartController extends Controller
         if (! $variantLabel && ! empty($variation->attribute_data)) {
             try {
                 $variantLabel = collect($variation->attribute_data)
-                    ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                    ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                     ->values()
                     ->join(', ');
             } catch (\Throwable $e) {

@@ -107,7 +107,7 @@ final class AdminProductFormComposer
                     'name' => $a->name,
                     'slug' => $a->slug,
                     'values' => $a->values
-                        ->map(fn($v) => [
+                        ->map(fn ($v) => [
                             'id' => $v->id,
                             'value' => $v->value,
                             'slug' => $v->slug,

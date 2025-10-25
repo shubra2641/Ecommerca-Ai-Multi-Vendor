@@ -13,13 +13,13 @@ class OrdersController extends Controller
     public function index(Request $r)
     {
         $q = OrderItem::with(['order.user', 'product'])
-            ->whereHas('product', fn($qq) => $qq->where('vendor_id', $r->user()->id));
+            ->whereHas('product', fn ($qq) => $qq->where('vendor_id', $r->user()->id));
 
         if ($r->filled('q')) {
-            $q->whereHas('order', fn($qo) => $qo->where('id', 'like', '%' . $r->input('q') . '%'));
+            $q->whereHas('order', fn ($qo) => $qo->where('id', 'like', '%' . $r->input('q') . '%'));
         }
         if ($r->filled('status')) {
-            $q->whereHas('order', fn($qo) => $qo->where('status', $r->input('status')));
+            $q->whereHas('order', fn ($qo) => $qo->where('status', $r->input('status')));
         }
 
         $items = $q->latest()->paginate(30);
@@ -49,7 +49,7 @@ class OrdersController extends Controller
     {
         $item = OrderItem::with(['order.user', 'product'])
             ->where('id', $id)
-            ->whereHas('product', fn($qq) => $qq->where('vendor_id', $r->user()->id))
+            ->whereHas('product', fn ($qq) => $qq->where('vendor_id', $r->user()->id))
             ->firstOrFail();
 
         // Transform the data to match frontend expectations
@@ -90,7 +90,7 @@ class OrdersController extends Controller
 
         $item = OrderItem::with(['order', 'product'])
             ->where('id', $id)
-            ->whereHas('product', fn($qq) => $qq->where('vendor_id', $r->user()->id))
+            ->whereHas('product', fn ($qq) => $qq->where('vendor_id', $r->user()->id))
             ->firstOrFail();
 
         $order = $item->order;

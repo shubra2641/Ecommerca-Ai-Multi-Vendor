@@ -26,6 +26,13 @@ class ProductRequest extends FormRequest
         );
     }
 
+    public function messages(): array
+    {
+        return [
+            'sale_end.after_or_equal' => __('End date must be after or equal to start date'),
+        ];
+    }
+
     private function getProductId(): ?int
     {
         return $this->route('product')?->id;
@@ -41,7 +48,7 @@ class ProductRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:255',
-                Rule::unique('products', 'sku')->ignore($productId)
+                Rule::unique('products', 'sku')->ignore($productId),
             ],
             'name' => ['required'],
             'price' => ['required_if:type,simple', 'numeric'],
@@ -83,13 +90,6 @@ class ProductRequest extends FormRequest
             'length' => ['nullable', 'numeric'],
             'width' => ['nullable', 'numeric'],
             'height' => ['nullable', 'numeric'],
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'sale_end.after_or_equal' => __('End date must be after or equal to start date'),
         ];
     }
 }

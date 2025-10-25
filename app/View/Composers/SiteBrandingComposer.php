@@ -25,9 +25,6 @@ final class SiteBrandingComposer
         return $cached;
     }
 
-    /**
-     * @return array
-     */
     private function buildDefaultData(): array
     {
         return [
@@ -38,9 +35,6 @@ final class SiteBrandingComposer
         ];
     }
 
-    /**
-     * @param array $cached
-     */
     private function loadSettingsIntoCache(array &$cached): void
     {
         try {

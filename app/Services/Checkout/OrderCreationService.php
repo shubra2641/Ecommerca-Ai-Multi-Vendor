@@ -45,11 +45,9 @@ final class OrderCreationService
             'payment_status' => 'pending',
             'shipping_price' => $checkoutData['shipping_price'] ?? 0,
             'shipping_zone_id' => $checkoutData['shipping_zone_id'] ?? null,
-            'shipping_estimated_days' =>
-            $checkoutData['shipping_estimated_days'] ?? null,
+            'shipping_estimated_days' => $checkoutData['shipping_estimated_days'] ?? null,
             'shipping_address' => $checkoutData['shipping_address'] ?? null,
-            'shipping_address_id' =>
-            $checkoutData['selected_address_id'] ?? null,
+            'shipping_address_id' => $checkoutData['selected_address_id'] ?? null,
         ];
     }
 }

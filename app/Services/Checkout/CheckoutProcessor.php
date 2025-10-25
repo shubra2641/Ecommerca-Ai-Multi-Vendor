@@ -19,8 +19,10 @@ final class CheckoutProcessor
 
     /**
      * Process checkout - simple version
+     *
      * @param array<int|string, mixed> $cart
      * @param array<string, mixed> $validatedData
+     *
      * @return array<string, mixed>
      */
     public function processCheckout(Request $request, array $cart, array $validatedData, float $discount = 0): array
@@ -48,6 +50,7 @@ final class CheckoutProcessor
 
     /**
      * Create simple order
+     *
      * @param array<string, mixed> $checkoutData
      */
     public function createOrder(array $checkoutData): Order
@@ -57,6 +60,7 @@ final class CheckoutProcessor
 
     /**
      * Handle payment - simple version
+     *
      * @return array<string, string>
      */
     public function processPayment(Order $order, PaymentGateway $gateway, Request $request): array
@@ -80,6 +84,7 @@ final class CheckoutProcessor
 
     /**
      * @param array<int|string, mixed> $cart
+     *
      * @return array{0: array<int, array<string, mixed>>, 1: float}
      */
     private function mapCartItems(array $cart): array
@@ -121,6 +126,7 @@ final class CheckoutProcessor
 
     /**
      * @param array<string, mixed> $validatedData
+     *
      * @return array<string, mixed>
      */
     private function buildShippingAddress(array $validatedData): array
@@ -141,6 +147,7 @@ final class CheckoutProcessor
      * @param array<int, array<string, mixed>> $items
      * @param array<string, mixed> $shippingAddress
      * @param array<string, mixed> $validatedData
+     *
      * @return array<string, mixed>
      */
     private function buildCheckoutPayload(
