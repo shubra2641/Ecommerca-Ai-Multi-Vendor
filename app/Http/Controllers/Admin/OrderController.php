@@ -200,12 +200,12 @@ class OrderController extends Controller
         try {
             $order->load('items.product');
             $itemsByVendor = [];
-            foreach ($order->items as $it) {
-                $vendorId = $it->product?->vendor_id;
+            foreach ($order->items as $orderItem) {
+                $vendorId = $orderItem->product?->vendor_id;
                 if (! $vendorId) {
                     continue;
                 }
-                $itemsByVendor[$vendorId][] = $it;
+                $itemsByVendor[$vendorId][] = $orderItem;
             }
             foreach ($itemsByVendor as $vendorId => $items) {
                 $vendor = User::find($vendorId);

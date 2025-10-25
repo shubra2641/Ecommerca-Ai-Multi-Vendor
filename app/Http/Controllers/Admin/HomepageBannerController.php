@@ -63,20 +63,20 @@ class HomepageBannerController extends Controller
             $data['image'] = $request->file('image')->store('uploads/homepage/banners', 'public');
         }
         $data['enabled'] = (bool) ($data['enabled'] ?? false);
-        $merge = function ($e, $i) {
-            $e = $e ? $e : [];
-            foreach (($i ? $i : []) as $k => $v) {
-                if ($v === '') {
-                    unset($e[$k]);
+        $merge = function ($existing, $incoming) {
+            $existing = $existing ? $existing : [];
+            foreach (($incoming ? $incoming : []) as $key => $value) {
+                if ($value === '') {
+                    unset($existing[$key]);
 
                     continue;
                 }
-                if ($v !== null) {
-                    $e[$k] = $v;
+                if ($value !== null) {
+                    $existing[$key] = $value;
                 }
             }
 
-            return $e;
+            return $existing;
         };
         if (isset($data['alt_text_i18n'])) {
             $data['alt_text_i18n'] = $merge(

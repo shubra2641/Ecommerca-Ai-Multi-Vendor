@@ -50,14 +50,14 @@ class InterestReportController extends Controller
         $saved = session('price_chart.filters', []);
         $submitted = $request->hasAny(['from', 'to', 'ma', 'ma_type', 'thr', 'show_sma', 'show_ema']);
         $from = $submitted ? $request->get('from') : ($saved['from'] ?? null);
-        $to = $submitted ? $request->get('to') : ($saved['to'] ?? null);
+        $endDate = $submitted ? $request->get('to') : ($saved['to'] ?? null);
         $query = PriceChange::where('product_id', $product->id);
         if ($from) {
             // use whereDate to avoid string concatenation and ensure correct date handling
             $query->whereDate('created_at', '>=', $from);
         }
-        if ($to) {
-            $query->whereDate('created_at', '<=', $to);
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
         }
         $changes = $query->orderBy('created_at')->get();
         // Basic metrics
@@ -117,22 +117,23 @@ class InterestReportController extends Controller
         }
         // Threshold selection
         $threshold = (float) ($submitted ?
-            $request->get('thr', config('interest.price_drop_min_percent', 5)) :
-            ($saved['thr'] ?? config('interest.price_drop_min_percent', 5)));
+            $request->get('thr', config('interest.price_drop_min_percent', 5)) : ($saved['thr'] ?? config('interest.price_drop_min_percent', 5)));
         if ($threshold < 1) {
             $threshold = 1;
-        } if ($threshold > 90) {
+        }
+        if ($threshold > 90) {
             $threshold = 90;
         }
         // Persist filters
-        session(['price_chart.filters' => [
-            'from' => $from,
-            'to' => $to,
-            'ma' => $window,
-            'show_sma' => $showSma,
-            'show_ema' => $showEma,
-            'thr' => $threshold,
-        ],
+        session([
+            'price_chart.filters' => [
+                'from' => $from,
+                'to' => $endDate,
+                'ma' => $window,
+                'show_sma' => $showSma,
+                'show_ema' => $showEma,
+                'thr' => $threshold,
+            ],
         ]);
 
         return view('admin.notify.price-chart', compact(

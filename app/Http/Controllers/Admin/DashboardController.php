@@ -232,43 +232,6 @@ class DashboardController extends Controller
     {
         return $this->getChartDataByPeriod($period);
     }
-    /**
-     * Get vendor registration data for chart
-     */
-    private function getVendorRegistrationData($months): array
-    {
-        $data = [];
-
-        for ($monthIndex = 5; $monthIndex >= 0; $monthIndex--) {
-            $date = now()->subMonths($monthIndex);
-            $count = User::where('role', 'vendor')
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-            $data[] = $count;
-        }
-
-        return $data;
-    }
-
-    /**
-     * Get admin registration data for chart
-     */
-    private function getAdminRegistrationData($months): array
-    {
-        $data = [];
-
-        for ($monthIndex = 5; $monthIndex >= 0; $monthIndex--) {
-            $date = now()->subMonths($monthIndex);
-            $count = User::where('role', 'admin')
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-            $data[] = $count;
-        }
-
-        return $data;
-    }
 
     /**
      * Aggregate orders / sales metrics
@@ -364,10 +327,10 @@ class DashboardController extends Controller
         $ordersData = [];
         $revenueData = [];
         for ($i = 29; $i >= 0; $i--) {
-            $d = now()->subDays($i)->format('Y-m-d');
+            $date = now()->subDays($i)->format('Y-m-d');
             $labels[] = now()->subDays($i)->format('d M');
-            $ordersData[] = (int) ($raw[$d]->orders ?? 0);
-            $revenueData[] = (float) ($raw[$d]->revenue ?? 0);
+            $ordersData[] = (int) ($raw[$date]->orders ?? 0);
+            $revenueData[] = (float) ($raw[$date]->revenue ?? 0);
         }
 
         return [

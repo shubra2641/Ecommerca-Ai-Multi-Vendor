@@ -189,11 +189,11 @@ class ProductController extends Controller
     protected function prepareProductData(array $validated): array
     {
         [$name, $nameTranslations] = $this->separateTranslatedField($validated['name'] ?? null);
-        [$shortDesc, $shortDescTranslations] = $this->separateTranslatedField($validated['short_description'] ?? null);
+        [$shortDescription, $shortDescTrans] = $this->separateTranslatedField($validated['short_description'] ?? null);
         [$description, $descTranslations] = $this->separateTranslatedField($validated['description'] ?? null);
-        [$seoTitle, $seoTitleTranslations] = $this->separateTranslatedField($validated['seo_title'] ?? null);
+        [$seoTitle, $seoTitleTrans] = $this->separateTranslatedField($validated['seo_title'] ?? null);
         [$seoDesc, $seoDescTranslations] = $this->separateTranslatedField($validated['seo_description'] ?? null);
-        [$seoKeywords, $seoKeywordsTranslations] = $this->separateTranslatedField($validated['seo_keywords'] ?? null);
+        [$seoKeywords, $seoKeywordsTrans] = $this->separateTranslatedField($validated['seo_keywords'] ?? null);
 
         $slugSource = $name ?? ($nameTranslations ? $this->extractPrimaryTextFromArray($nameTranslations) : '');
         $slug = Str::slug($slugSource ?? '');
@@ -207,8 +207,8 @@ class ProductController extends Controller
             'sku' => $validated['sku'] ?? null,
             'description' => $description,
             'description_translations' => $descTranslations,
-            'short_description' => $shortDesc,
-            'short_description_translations' => $shortDescTranslations,
+            'short_description' => $shortDescription,
+            'short_description_translations' => $shortDescTrans,
             'price' => $validated['price'] ?? null,
             'sale_price' => $validated['sale_price'] ?? null,
             'sale_start' => $validated['sale_start'] ?? null,
@@ -230,11 +230,11 @@ class ProductController extends Controller
             'is_best_seller' => ! empty($validated['is_best_seller']),
             'active' => ! empty($validated['active']),
             'seo_title' => $seoTitle,
-            'seo_title_translations' => $seoTitleTranslations,
+            'seo_title_translations' => $seoTitleTrans,
             'seo_description' => $seoDesc,
             'seo_description_translations' => $seoDescTranslations,
             'seo_keywords' => $seoKeywords,
-            'seo_keywords_translations' => $seoKeywordsTranslations,
+            'seo_keywords_translations' => $seoKeywordsTrans,
             'refund_days' => $validated['refund_days'] ?? null,
             'used_attributes' => $validated['used_attributes'] ?? [],
         ];
@@ -457,7 +457,7 @@ class ProductController extends Controller
             return [[], null];
         }
 
-        $normalizedAttributes = [];
+        $normalizedAttrs = [];
         foreach ($attributes as $slug => $value) {
             if (is_array($value)) {
                 $value = $value['value'] ?? null;
@@ -473,17 +473,17 @@ class ProductController extends Controller
             if ($value === '') {
                 continue;
             }
-            $normalizedAttributes[$slug] = $value;
+            $normalizedAttrs[$slug] = $value;
         }
 
-        if (empty($normalizedAttributes)) {
+        if (empty($normalizedAttrs)) {
             return [[], null];
         }
 
-        ksort($normalizedAttributes);
-        $attributeHash = hash('sha256', json_encode($normalizedAttributes));
+        ksort($normalizedAttrs);
+        $attrHash = hash('sha256', json_encode($normalizedAttrs));
 
-        return [$normalizedAttributes, $attributeHash];
+        return [$normalizedAttrs, $attrHash];
     }
 
     protected function cleanGallery($gallery)
@@ -492,7 +492,7 @@ class ProductController extends Controller
             $gallery = json_decode($gallery, true) ? json_decode($gallery, true) : [];
         }
 
-        return array_values(array_filter(array_map('trim', $gallery), fn($galleryItem) => ! empty($galleryItem)));
+        return array_values(array_filter(array_map('trim', $gallery), fn($item) => ! empty($item)));
     }
 
     protected function applyStockFilter($query, string $stock): void
