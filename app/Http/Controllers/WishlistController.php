@@ -15,18 +15,23 @@ class WishlistController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $ids = $this->getUserListIds($user) ? $this->getUserListIds($user) : $this->getSessionList();
+        if ($user) {
+            $ids = $this->getUserListIds($user);
+        } else {
+            $ids = $this->getSessionList();
+        }
         $items = Product::with('category')->whereIn('id', (array) $ids)->get()->map(function ($product) {
-            $product->display_price = GlobalHelper::convertCurrency($product->price);
-            if ($product->sale_price) {
-                $product->display_sale_price = GlobalHelper::convertCurrency($product->sale_price);
-            }
-            return $product;
+            return $this->convertProductPrices($product);
         });
 
         $currency_symbol = GlobalHelper::getCurrentCurrencySymbol();
 
-        return view('front.products.wishlist', ['items' => $items, 'wishlistIds' => $ids, 'compareIds' => [], 'currency_symbol' => $currency_symbol]);
+        return view('front.products.wishlist', [
+            'items' => $items,
+            'wishlistIds' => $ids,
+            'compareIds' => [],
+            'currency_symbol' => $currency_symbol,
+        ]);
     }
 
     public function toggle(ProductIdRequest $r)
@@ -36,12 +41,17 @@ class WishlistController extends Controller
         $sessionList = $this->getSessionList();
         $state = 'added';
         if ($user) {
-            $item = WishlistItem::where('user_id', $user->id)->where('product_id', $data['product_id'])->first();
+            $item = WishlistItem::where('user_id', $user->id)
+                ->where('product_id', $data['product_id'])
+                ->first();
             if ($item) {
                 $item->delete();
                 $state = 'removed';
             } else {
-                WishlistItem::create(['user_id' => $user->id, 'product_id' => $data['product_id']]);
+                WishlistItem::create([
+                    'user_id' => $user->id,
+                    'product_id' => $data['product_id'],
+                ]);
             }
             $count = WishlistItem::where('user_id', $user->id)->count();
         } else {
@@ -59,7 +69,9 @@ class WishlistController extends Controller
                 'success' => true,
                 'in_wishlist' => $state === 'added',
                 'state' => $state,
-                'message' => $state === 'added' ? __('Added to wishlist') : __('Removed from wishlist'),
+                'message' => $state === 'added'
+                    ? __('Added to wishlist')
+                    : __('Removed from wishlist'),
                 'count' => $count,
             ]);
         }
@@ -84,5 +96,14 @@ class WishlistController extends Controller
         }
 
         return WishlistItem::where('user_id', $user->id)->pluck('product_id')->all();
+    }
+
+    private function convertProductPrices(Product $product): Product
+    {
+        $product->display_price = GlobalHelper::convertCurrency($product->price);
+        if ($product->sale_price) {
+            $product->display_sale_price = GlobalHelper::convertCurrency($product->sale_price);
+        }
+        return $product;
     }
 }
