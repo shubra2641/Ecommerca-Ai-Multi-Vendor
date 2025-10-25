@@ -181,8 +181,38 @@
     }
 
     // Shipping / Checkout - Unified functions
-    function clearSelect(select, placeholder) { if (!select) return; select.innerHTML = `<option value="">${placeholder}</option>`; }
-    function populateSelect(select, options, selectedValue = null) { if (!select) return; const firstText = select.querySelector('option')?.textContent || ''; select.innerHTML = `<option value="">${firstText}</option>`; (options || []).forEach(option => { const opt = doc.createElement('option'); opt.value = option.id; opt.textContent = option.name; if (selectedValue && option.id == selectedValue) opt.selected = true; select.appendChild(opt); }); }
+    function clearSelect(select, placeholder) {
+        if (!select) return;
+        // Clear existing options
+        select.innerHTML = '';
+        // Create new option element safely to prevent XSS
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = placeholder;
+        select.appendChild(option);
+    }
+    function populateSelect(select, options, selectedValue = null) {
+        if (!select) return;
+        const firstText = select.querySelector('option')?.textContent || '';
+
+        // Clear existing options safely
+        select.innerHTML = '';
+
+        // Create first option element safely to prevent XSS
+        const firstOption = document.createElement('option');
+        firstOption.value = '';
+        firstOption.textContent = firstText;
+        select.appendChild(firstOption);
+
+        // Add other options safely
+        (options || []).forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option.id;
+            opt.textContent = option.name;
+            if (selectedValue && option.id == selectedValue) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
 
     function initCheckoutShipping() {
         const checkoutRoot = $('#checkout-root'); if (!checkoutRoot) return;
