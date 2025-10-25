@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Language;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
 class LanguageController extends Controller
@@ -28,27 +29,11 @@ class LanguageController extends Controller
 
     public function store(Request $request, HtmlSanitizer $sanitizer)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|size:2|unique:languages,code',
-            'flag' => 'nullable|string|max:10',
-            'is_default' => 'boolean',
-            'is_active' => 'boolean',
-        ]);
+        $validated = $this->validateLanguageData($request, null);
+        $clean = $this->sanitizeLanguageData($request, $sanitizer);
 
-        // sanitize inputs
-        $clean = [];
-        foreach (['name', 'code', 'flag'] as $k) {
-            if ($request->has($k) && is_string($request->input($k))) {
-                $clean[$k] = $sanitizer->clean($request->input($k));
-            }
-        }
-
-        \DB::transaction(function () use ($request, $clean): void {
-            // If setting as default, remove default from others
-            if ($request->is_default) {
-                Language::where('is_default', true)->update(['is_default' => false]);
-            }
+        DB::transaction(function () use ($request, $clean): void {
+            $this->handleDefaultLanguage($request->is_default);
 
             $payload = array_merge($request->all(), $clean);
             $language = Language::create($payload);
@@ -68,26 +53,13 @@ class LanguageController extends Controller
 
     public function update(Request $request, Language $language, HtmlSanitizer $sanitizer)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|size:2|unique:languages,code,' . $language->id,
-            'flag' => 'nullable|string|max:10',
-            'is_default' => 'boolean',
-            'is_active' => 'boolean',
-        ]);
+        $validated = $this->validateLanguageData($request, $language);
+        $clean = $this->sanitizeLanguageData($request, $sanitizer);
 
-        // sanitize inputs
-        $clean = [];
-        foreach (['name', 'code', 'flag'] as $k) {
-            if ($request->has($k) && is_string($request->input($k))) {
-                $clean[$k] = $sanitizer->clean($request->input($k));
-            }
-        }
-
-        \DB::transaction(function () use ($request, $language, $clean): void {
+        DB::transaction(function () use ($request, $language, $clean): void {
             // If setting as default, remove default from others
             if ($request->is_default && ! $language->is_default) {
-                Language::where('is_default', true)->update(['is_default' => false]);
+                $this->handleDefaultLanguage(true);
             }
 
             $language->update(array_merge($request->all(), $clean));
@@ -133,14 +105,8 @@ class LanguageController extends Controller
         }
 
         // Sanitize all translation values to avoid HTML/JS injection
-        array_walk_recursive($translations, function (&$value) use ($sanitizer): void {
-            if (is_string($value)) {
-                $value = $sanitizer->clean($value);
-            }
-        });
-
-        $path = resource_path("lang/{$language->code}.json");
-        File::put($path, json_encode($translations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $this->sanitizeTranslations($translations, $sanitizer);
+        $this->saveTranslations($language->code, $translations);
 
         return redirect()->route('admin.languages.translations', $language)
             ->with('success', __('Translations updated successfully'));
@@ -148,8 +114,8 @@ class LanguageController extends Controller
 
     public function makeDefault(Language $language)
     {
-        \DB::transaction(function () use ($language): void {
-            Language::where('is_default', true)->update(['is_default' => false]);
+        DB::transaction(function () use ($language): void {
+            $this->handleDefaultLanguage(true);
             $language->update(['is_default' => true]);
         });
 
@@ -169,8 +135,7 @@ class LanguageController extends Controller
         $translations[$request->key] = is_string($request->value) ?
             (new HtmlSanitizer())->clean($request->value) : $request->value;
 
-        $path = resource_path("lang/{$language->code}.json");
-        File::put($path, json_encode($translations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $this->saveTranslations($language->code, $translations);
 
         return redirect()->route('admin.languages.translations', $language)
             ->with('success', __('Translation added successfully'));
@@ -183,39 +148,46 @@ class LanguageController extends Controller
 
         if (isset($translations[$key])) {
             unset($translations[$key]);
-
-            $path = resource_path("lang/{$language->code}.json");
-            File::put($path, json_encode($translations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            $this->saveTranslations($language->code, $translations);
         }
 
         return redirect()->route('admin.languages.translations', $language)
             ->with('success', __('Translation deleted successfully'));
     }
 
-    public function activate(Language $language)
+    public function toggleActive(Language $language, bool $activate)
     {
-        $language->update(['is_active' => true]);
+        if ($activate && ! $language->is_active) {
+            $language->update(['is_active' => true]);
+            $message = __('Language activated successfully');
+        } elseif (! $activate && $language->is_active) {
+            if ($language->is_default) {
+                return redirect()->route('admin.languages.edit', $language)
+                    ->with('error', __('Cannot deactivate default language'));
+            }
+            $language->update(['is_active' => false]);
+            $message = __('Language deactivated successfully');
+        } else {
+            $message = $activate ? __('Language is already active') : __('Language is already inactive');
+        }
 
         return redirect()->route('admin.languages.edit', $language)
-            ->with('success', __('Language activated successfully'));
+            ->with('success', $message);
+    }
+
+    public function activate(Language $language)
+    {
+        return $this->toggleActive($language, true);
     }
 
     public function deactivate(Language $language)
     {
-        if ($language->is_default) {
-            return redirect()->route('admin.languages.edit', $language)
-                ->with('error', __('Cannot deactivate default language'));
-        }
-
-        $language->update(['is_active' => false]);
-
-        return redirect()->route('admin.languages.edit', $language)
-            ->with('success', __('Language deactivated successfully'));
+        return $this->toggleActive($language, false);
     }
 
     public function bulkActivate(Request $request)
     {
-        $ids = $request->input('ids', []);
+        $ids = $this->validateBulkIds($request);
         Language::whereIn('id', $ids)->update(['is_active' => true]);
 
         return redirect()->back()->with('success', __('Languages activated successfully'));
@@ -223,16 +195,18 @@ class LanguageController extends Controller
 
     public function bulkDeactivate(Request $request)
     {
-        $ids = $request->input('ids', []);
-        Language::whereIn('id', $ids)->where('is_default', false)->update(['is_active' => false]);
+        $ids = $this->validateBulkIds($request);
+        $nonDefaultIds = $this->getNonDefaultLanguageIds($ids);
+        Language::whereIn('id', $nonDefaultIds)->update(['is_active' => false]);
 
         return redirect()->back()->with('success', __('Languages deactivated successfully'));
     }
 
     public function bulkDelete(Request $request)
     {
-        $ids = $request->input('ids', []);
-        Language::whereIn('id', $ids)->where('is_default', false)->delete();
+        $ids = $this->validateBulkIds($request);
+        $nonDefaultIds = $this->getNonDefaultLanguageIds($ids);
+        Language::whereIn('id', $nonDefaultIds)->delete();
 
         return redirect()->back()->with('success', __('Languages deleted successfully'));
     }
@@ -254,56 +228,63 @@ class LanguageController extends Controller
         $defaultTranslations = [
             'Welcome' => 'Welcome',
             'Dashboard' => 'Dashboard',
-            'Users Management' => 'Users Management',
-            'All Users' => 'All Users',
-            'Add User' => 'Add User',
-            'Edit User' => 'Edit User',
-            'Languages' => 'Languages',
-            'Languages Management' => 'Languages Management',
-            'Add Language' => 'Add Language',
-            'Edit Language' => 'Edit Language',
-            'Manage Translations' => 'Manage Translations',
-            'Currencies' => 'Currencies',
-            'Currencies Management' => 'Currencies Management',
-            'Add Currency' => 'Add Currency',
-            'Edit Currency' => 'Edit Currency',
-            'Exchange Rate' => 'Exchange Rate',
-            'Default Currency' => 'Default Currency',
-            'Settings' => 'Settings',
-            'Profile' => 'Profile',
-            'Logout' => 'Logout',
-            'Name' => 'Name',
-            'Code' => 'Code',
-            'Flag' => 'Flag',
-            'Symbol' => 'Symbol',
-            'Actions' => 'Actions',
-            'Edit' => 'Edit',
-            'Delete' => 'Delete',
-            'Create' => 'Create',
-            'Update' => 'Update',
-            'Cancel' => 'Cancel',
-            'Save' => 'Save',
-            'Active' => 'Active',
-            'Default' => 'Default',
-            'Status' => 'Status',
-            'Yes' => 'Yes',
-            'No' => 'No',
-            'Email' => 'Email',
-            'Phone' => 'Phone',
-            'Role' => 'Role',
-            'Balance' => 'Balance',
-            'Created At' => 'Created At',
-            'Updated At' => 'Updated At',
-            'Are you sure?' => 'Are you sure?',
-            'This action cannot be undone' => 'This action cannot be undone',
-            'Confirm' => 'Confirm',
-            'Success' => 'Success',
-            'Error' => 'Error',
-            'Warning' => 'Warning',
-            'Info' => 'Info',
         ];
 
         $path = resource_path("lang/{$langCode}.json");
         File::put($path, json_encode($defaultTranslations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    private function validateLanguageData(Request $request, ?Language $language = null): array
+    {
+        $rules = [
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|size:2',
+            'flag' => 'nullable|string|max:10',
+            'is_default' => 'boolean',
+            'is_active' => 'boolean',
+        ];
+
+        if ($language) {
+            $rules['code'] .= ',code,' . $language->id;
+        } else {
+            $rules['code'] .= '|unique:languages,code';
+        }
+
+        return $request->validate($rules);
+    }
+
+    private function sanitizeLanguageData(Request $request, HtmlSanitizer $sanitizer): array
+    {
+        $clean = [];
+        foreach (['name', 'code', 'flag'] as $key) {
+            if ($request->has($key) && is_string($request->input($key))) {
+                $clean[$key] = $sanitizer->clean($request->input($key));
+            }
+        }
+
+        return $clean;
+    }
+
+    private function validateBulkIds(Request $request): array
+    {
+        return $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'required|integer|exists:languages,id',
+        ])['ids'];
+    }
+
+    private function saveTranslations(string $langCode, array $translations): void
+    {
+        $path = resource_path("lang/{$langCode}.json");
+        File::put($path, json_encode($translations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    private function sanitizeTranslations(array &$translations, HtmlSanitizer $sanitizer): void
+    {
+        array_walk_recursive($translations, function (&$value) use ($sanitizer): void {
+            if (is_string($value)) {
+                $value = $sanitizer->clean($value);
+            }
+        });
     }
 }
