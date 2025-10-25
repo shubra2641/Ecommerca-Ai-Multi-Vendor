@@ -177,7 +177,7 @@ class ProductController extends Controller
         }
     }
 
-    protected function getFormData()
+    protected function getFormData(): array
     {
         return [
             'categories' => Cache::remember('product_categories_ordered', 3600, fn() => ProductCategory::orderBy('name')->get()),
@@ -186,7 +186,7 @@ class ProductController extends Controller
         ];
     }
 
-    protected function prepareProductData(array $validated)
+    protected function prepareProductData(array $validated): array
     {
         [$name, $nameTranslations] = $this->separateTranslatedField($validated['name'] ?? null);
         [$shortDesc, $shortDescTranslations] = $this->separateTranslatedField($validated['short_description'] ?? null);
@@ -314,7 +314,7 @@ class ProductController extends Controller
         }
     }
 
-    protected function prepareVariationData(array $data, ?Product $product = null)
+    protected function prepareVariationData(array $data, ?Product $product = null): array
     {
         [$attributes, $hash] = $this->normalizeVariationAttributes($data['attributes'] ?? []);
 
