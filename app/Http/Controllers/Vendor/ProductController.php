@@ -284,7 +284,7 @@ class ProductController extends Controller
     {
         $defaultVal = $incoming[$defaultCode] ??
             collect($incoming)->first(
-                fn ($v) => trim((string) $v) !== ''
+                fn($v) => trim((string) $v) !== ''
             );
 
         return $defaultVal ?? $existing?->$field;
@@ -350,8 +350,8 @@ class ProductController extends Controller
 
         return array_values(
             array_filter(
-                array_map(fn ($path) => is_string($path) ? trim($path) : '', $gallery),
-                fn ($path) => $path !== ''
+                array_map(fn($path) => is_string($path) ? trim($path) : '', $gallery),
+                fn($path) => $path !== ''
             )
         );
     }
@@ -416,7 +416,7 @@ class ProductController extends Controller
                 $translations = $nameTranslations;
                 $defaultVal = $translations[$default] ??
                     collect($translations)->first(
-                        fn ($val) => trim((string) $val) !== ''
+                        fn($val) => trim((string) $val) !== ''
                     );
 
                 foreach ($languages as $lang) {
