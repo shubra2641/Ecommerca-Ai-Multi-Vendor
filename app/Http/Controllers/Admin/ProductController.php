@@ -18,7 +18,6 @@ use App\Models\ProductVariation;
 use App\Models\User;
 use App\Notifications\AdminStockLowNotification;
 use App\Services\AI\SimpleAIService;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
@@ -56,7 +55,7 @@ class ProductController extends Controller
         return view('admin.products.products.create', $this->getFormData());
     }
 
-    public function store(ProductRequest $request, HtmlSanitizer $sanitizer)
+    public function store(ProductRequest $request)
     {
         $data = $this->prepareProductData($request->validated(), $sanitizer);
         $product = Product::create($data);
@@ -74,10 +73,10 @@ class ProductController extends Controller
         return view('admin.products.products.edit', $data);
     }
 
-    public function update(ProductRequest $request, Product $product, HtmlSanitizer $sanitizer)
+    public function update(ProductRequest $request, Product $product)
     {
         $oldActive = $product->active;
-        $data = $this->prepareProductData($request->validated(), $sanitizer);
+        $data = $this->prepareProductData($request->validated());
         $product->update($data);
         $this->syncProductRelations($product, $request);
         $this->handleNotifications($product, $oldActive);
@@ -187,10 +186,8 @@ class ProductController extends Controller
         ];
     }
 
-    protected function prepareProductData(array $validated, HtmlSanitizer $sanitizer)
+    protected function prepareProductData(array $validated)
     {
-        $this->sanitizeData($validated, $sanitizer);
-
         [$name, $nameTranslations] = $this->separateTranslatedField($validated['name'] ?? null);
         [$shortDescription, $shortDescriptionTranslations] = $this->separateTranslatedField($validated['short_description'] ?? null);
         [$description, $descriptionTranslations] = $this->separateTranslatedField($validated['description'] ?? null);
@@ -511,16 +508,6 @@ class ProductController extends Controller
             'soon' => $query->where('manage_stock', 1)->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ? AND (stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low, $soon]),
             'in' => $query->where('manage_stock', 1)->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ?', [$soon]),
         };
-    }
-
-    protected function sanitizeData(array &$data, HtmlSanitizer $sanitizer): void
-    {
-        $fields = ['name', 'description', 'short_description', 'seo_title', 'seo_description'];
-        foreach ($fields as $field) {
-            if (isset($data[$field]) && is_string($data[$field])) {
-                $data[$field] = $sanitizer->clean($data[$field]);
-            }
-        }
     }
 
     protected function handleNotifications(Product $product, ?bool $oldActive = null): void

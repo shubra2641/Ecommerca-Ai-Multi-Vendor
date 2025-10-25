@@ -10,7 +10,6 @@ use App\Models\Country;
 use App\Models\Governorate;
 use App\Models\ShippingGroup;
 use App\Models\ShippingGroupLocation;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 
 class ShippingGroupController extends Controller
@@ -27,7 +26,7 @@ class ShippingGroupController extends Controller
         return view('admin.shipping.create', ['countries' => Country::where('active', 1)->get()]);
     }
 
-    public function store(Request $request, HtmlSanitizer $sanitizer)
+    public function store(Request $request)
     {
         $data = $request->validate([
             'name' => 'required|string|max:191',
@@ -36,10 +35,6 @@ class ShippingGroupController extends Controller
             'active' => 'sometimes|boolean',
             'locations' => 'nullable|array',
         ]);
-
-        if (isset($data['name']) && is_string($data['name'])) {
-            $data['name'] = $sanitizer->clean($data['name']);
-        }
 
         $group = ShippingGroup::create($data + ['active' => (bool) ($data['active'] ?? true)]);
 
@@ -83,7 +78,7 @@ class ShippingGroupController extends Controller
         return view('admin.shipping.edit', compact('shipping', 'countries', 'locations'));
     }
 
-    public function update(Request $request, ShippingGroup $shipping, HtmlSanitizer $sanitizer)
+    public function update(Request $request, ShippingGroup $shipping)
     {
         $data = $request->validate([
             'name' => 'required|string|max:191',
@@ -92,10 +87,6 @@ class ShippingGroupController extends Controller
             'active' => 'sometimes|boolean',
             'locations' => 'nullable|array',
         ]);
-
-        if (isset($data['name']) && is_string($data['name'])) {
-            $data['name'] = $sanitizer->clean($data['name']);
-        }
 
         $shipping->update($data + ['active' => (bool) ($data['active'] ?? $shipping->active)]);
 

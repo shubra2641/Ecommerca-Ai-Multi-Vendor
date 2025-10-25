@@ -26,7 +26,7 @@ final class ProductCategoryController extends Controller
         return view('admin.products.categories.create', compact('parents'));
     }
 
-    public function store(Request $r, \App\Services\HtmlSanitizer $sanitizer)
+    public function store(Request $r)
     {
         $data = $r->validate([
             'parent_id' => 'nullable|exists:product_categories,id',
@@ -44,7 +44,7 @@ final class ProductCategoryController extends Controller
             'description_i18n' => 'array',
         ]);
 
-        $this->processTranslationsAndSlug($data, $r, $sanitizer);
+        $this->processTranslationsAndSlug($data, $r);
 
         ProductCategory::create($data);
 
@@ -60,7 +60,7 @@ final class ProductCategoryController extends Controller
         return view('admin.products.categories.edit', compact('productCategory', 'parents'));
     }
 
-    public function update(Request $r, ProductCategory $productCategory, \App\Services\HtmlSanitizer $sanitizer)
+    public function update(Request $r, ProductCategory $productCategory)
     {
         $data = $r->validate([
             'parent_id' => 'nullable|exists:product_categories,id',
@@ -78,7 +78,7 @@ final class ProductCategoryController extends Controller
             'description_i18n' => 'array',
         ]);
 
-        $this->processTranslationsAndSlug($data, $r, $sanitizer);
+        $this->processTranslationsAndSlug($data, $r);
 
         $productCategory->update($data);
 
@@ -124,7 +124,7 @@ final class ProductCategoryController extends Controller
             'seo_description' => $result['seo_description'] ?? null,
             'seo_keywords' => $result['seo_tags'] ?? null,
             'seo_title' => $result['seo_title'] ?? null,
-        ], fn ($v) => ! empty($v));
+        ], fn($v) => ! empty($v));
 
         // Fill translations only for the requested language
         if ($locale && ! empty($result['description'])) {
@@ -135,16 +135,7 @@ final class ProductCategoryController extends Controller
         return $merge;
     }
 
-    private function cleanTranslations(array $translations, \App\Services\HtmlSanitizer $sanitizer): array
-    {
-        $clean = [];
-        foreach ($translations as $lc => $v) {
-            $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-        }
-        return array_filter($clean, fn ($v) => $v !== null && $v !== '');
-    }
-
-    private function processTranslationsAndSlug(array &$data, Request $r, \App\Services\HtmlSanitizer $sanitizer): void
+    private function processTranslationsAndSlug(array &$data, Request $r): void
     {
         $defaultLocale = cache()->remember('default_locale_code', 3600, function () {
             return optional(\App\Models\Language::where('is_default', 1)->first())->code ?? 'en';
@@ -152,10 +143,10 @@ final class ProductCategoryController extends Controller
         $nameTranslations = $r->input('name_i18n', []);
         $descTranslations = $r->input('description_i18n', []);
         if (! empty($nameTranslations)) {
-            $data['name_translations'] = $this->cleanTranslations($nameTranslations, $sanitizer);
+            $data['name_translations'] = array_filter($nameTranslations);
         }
         if (! empty($descTranslations)) {
-            $data['description_translations'] = $this->cleanTranslations($descTranslations, $sanitizer);
+            $data['description_translations'] = array_filter($descTranslations);
         }
         if (isset($data['name_translations'][$defaultLocale])) {
             $data['name'] = $data['name_translations'][$defaultLocale];

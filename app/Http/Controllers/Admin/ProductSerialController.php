@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductSerial;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 
 class ProductSerialController extends Controller
@@ -26,7 +25,7 @@ class ProductSerialController extends Controller
         return view('admin.products.serials.index', compact('product', 'serials'));
     }
 
-    public function import(Request $r, Product $product, HtmlSanitizer $sanitizer)
+    public function import(Request $r, Product $product)
     {
         $r->validate(['file' => 'nullable|file', 'serials' => 'nullable|string']);
         $list = [];
@@ -36,7 +35,7 @@ class ProductSerialController extends Controller
             foreach ($lines as $l) {
                 $val = trim($l);
                 if ($val !== '') {
-                    $list[] = $sanitizer->clean($val);
+                    $list[] = $val;
                 }
             }
         } else {
@@ -45,7 +44,7 @@ class ProductSerialController extends Controller
             foreach ($lines as $l) {
                 $val = trim($l);
                 if ($val !== '') {
-                    $list[] = $sanitizer->clean($val);
+                    $list[] = $val;
                 }
             }
         }

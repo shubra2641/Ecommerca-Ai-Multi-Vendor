@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PaymentGatewayRequest;
 use App\Models\PaymentGateway;
-use App\Services\HtmlSanitizer;
 use Illuminate\Support\Str;
 
 class PaymentGatewayController extends Controller
@@ -24,7 +23,7 @@ class PaymentGatewayController extends Controller
         return view('admin.payment_gateways.form', ['gateway' => new PaymentGateway()]);
     }
 
-    public function store(PaymentGatewayRequest $request, HtmlSanitizer $sanitizer)
+    public function store(PaymentGatewayRequest $request)
     {
         $data = $request->validated();
         if (empty($data['slug'])) {
@@ -47,7 +46,7 @@ class PaymentGatewayController extends Controller
         return view('admin.payment_gateways.form', ['gateway' => $paymentGateway]);
     }
 
-    public function update(PaymentGatewayRequest $request, PaymentGateway $paymentGateway, HtmlSanitizer $sanitizer)
+    public function update(PaymentGatewayRequest $request, PaymentGateway $paymentGateway)
     {
         $data = $request->validated();
         if (empty($data['slug'])) {
@@ -107,7 +106,7 @@ class PaymentGatewayController extends Controller
         // Offline gateway logic
         if ($data['driver'] === 'offline') {
             $gateway->transfer_instructions = isset($data['transfer_instructions'])
-                ? $sanitizer->clean($data['transfer_instructions'] ?? '')
+                ? $data['transfer_instructions']
                 : null;
             $gateway->requires_transfer_image = ! empty($data['requires_transfer_image']);
             // Remove other driver configurations when switching

@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\UpdateFooterSettingsRequest;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class FooterSettingsController extends Controller
@@ -46,8 +47,7 @@ class FooterSettingsController extends Controller
     }
 
     public function update(
-        UpdateFooterSettingsRequest $request,
-        \App\Services\HtmlSanitizer $sanitizer
+        UpdateFooterSettingsRequest $request
     ): RedirectResponse {
         $setting = Setting::first() ?? new Setting();
         $data = $request->validated();
@@ -69,7 +69,7 @@ class FooterSettingsController extends Controller
 
         // Sections visibility (explicit each submit)
         $sections = collect(['support_bar', 'apps', 'social', 'pages', 'payments'])
-            ->mapWithKeys(fn ($sec) => [
+            ->mapWithKeys(fn($sec) => [
                 $sec => (bool) ($data['sections'][$sec] ?? false),
             ])
             ->toArray();
@@ -85,19 +85,11 @@ class FooterSettingsController extends Controller
             $data['footer_support_subheading'] ?? []
         );
         $payload['rights_i18n'] = $this->mergeLang($setting->rights_i18n, $data['rights_i18n'] ?? []);
-        // sanitize rights translations
-        foreach ($payload['rights_i18n'] as $lc => $v) {
-            $payload['rights_i18n'][$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-        }
 
         if (array_key_exists('footer_labels', $data)) {
             $existingLabels = $setting->footer_labels ?? [];
             foreach ($data['footer_labels'] as $labelKey => $langs) {
                 $existingLabels[$labelKey] = $this->mergeLang($existingLabels[$labelKey] ?? [], $langs ?? []);
-                // sanitize label translations
-                foreach ($existingLabels[$labelKey] as $lc => $v) {
-                    $existingLabels[$labelKey][$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-                }
             }
             $payload['footer_labels'] = $existingLabels;
         }
@@ -110,7 +102,7 @@ class FooterSettingsController extends Controller
         }
 
         // Update rights plain field from default language if available
-        $defaultLang = \DB::table('languages')->where('is_default', 1)->value('code');
+        $defaultLang = DB::table('languages')->where('is_default', 1)->value('code');
         if ($defaultLang && isset($payload['rights_i18n'][$defaultLang])) {
             $payload['rights'] = $payload['rights_i18n'][$defaultLang];
         }
@@ -137,7 +129,7 @@ class FooterSettingsController extends Controller
     {
         return Cache::remember('active_languages_full', 3600, function () {
             try {
-                return \DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
+                return DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
             } catch (\Throwable $e) {
                 return collect([(object) ['code' => 'en', 'is_default' => 1]]);
             }
@@ -179,8 +171,8 @@ class FooterSettingsController extends Controller
         foreach ($result as $key => &$link) {
             if ($request->hasFile("app_links.{$key}.image")) {
                 $file = $request->file("app_links.{$key}.image");
-                $filename = 'app_badge_'.$key.'_'.time().'_'.
-                    uniqid().'.'.$file->getClientOriginalExtension();
+                $filename = 'app_badge_' . $key . '_' . time() . '_' .
+                    uniqid() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('uploads/footer', $filename, 'public');
                 $link['image'] = $path;
             } else {

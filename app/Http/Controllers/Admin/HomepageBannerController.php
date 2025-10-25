@@ -9,6 +9,7 @@ use App\Models\HomepageBanner;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -22,7 +23,7 @@ class HomepageBannerController extends Controller
         return view('admin.homepage.banners.index', compact('banners', 'activeLanguages'));
     }
 
-    public function store(Request $request, \App\Services\HtmlSanitizer $sanitizer): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'placement_key' => ['nullable', 'string', 'max:64'],
@@ -34,22 +35,8 @@ class HomepageBannerController extends Controller
         ]);
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('uploads/homepage/banners', 'public');
-        } $data['enabled'] = (bool) ($data['enabled'] ?? false);
-        // sanitize alt text translations
-        if (isset($data['alt_text_i18n']) && is_array($data['alt_text_i18n'])) {
-            foreach ($data['alt_text_i18n'] as $lc => $v) {
-                if ($v === null) {
-                    unset($data['alt_text_i18n'][$lc]);
-
-                    continue;
-                }
-                $data['alt_text_i18n'][$lc] = is_string($v) ?
-                $sanitizer->clean($v) : $v;
-            }
-            if (empty($data['alt_text_i18n'])) {
-                unset($data['alt_text_i18n']);
-            }
         }
+        $data['enabled'] = (bool) ($data['enabled'] ?? false);
         $defaultLocale = config('app.locale', 'en');
         $data['alt_text'] = $data['alt_text_i18n'][$defaultLocale] ??
             null;
@@ -59,11 +46,8 @@ class HomepageBannerController extends Controller
         return back()->with('success', __('Banner created.'));
     }
 
-    public function update(
-        Request $request,
-        HomepageBanner $banner,
-        \App\Services\HtmlSanitizer $sanitizer
-    ): RedirectResponse {
+    public function update(Request $request, HomepageBanner $banner): RedirectResponse
+    {
         $data = $request->validate([
             'placement_key' => ['nullable', 'string', 'max:64'],
             'image' => ['nullable', 'image', 'max:2048'],
@@ -75,8 +59,10 @@ class HomepageBannerController extends Controller
         if ($request->hasFile('image')) {
             if ($banner->image && Storage::disk('public')->exists($banner->image)) {
                 Storage::disk('public')->delete($banner->image);
-            } $data['image'] = $request->file('image')->store('uploads/homepage/banners', 'public');
-        } $data['enabled'] = (bool) ($data['enabled'] ?? false);
+            }
+            $data['image'] = $request->file('image')->store('uploads/homepage/banners', 'public');
+        }
+        $data['enabled'] = (bool) ($data['enabled'] ?? false);
         $merge = function ($e, $i) {
             $e = $e ? $e : [];
             foreach (($i ? $i : []) as $k => $v) {
@@ -97,10 +83,6 @@ class HomepageBannerController extends Controller
                 $banner->alt_text_i18n,
                 $data['alt_text_i18n']
             );
-            // sanitize merged translations
-            foreach ($data['alt_text_i18n'] as $lc => $v) {
-                $data['alt_text_i18n'][$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-            }
         }
         $defaultLocale = config('app.locale', 'en');
         $data['alt_text'] = $data['alt_text_i18n'][$defaultLocale] ??
@@ -115,7 +97,8 @@ class HomepageBannerController extends Controller
     {
         if ($banner->image && Storage::disk('public')->exists($banner->image)) {
             Storage::disk('public')->delete($banner->image);
-        } $banner->delete();
+        }
+        $banner->delete();
         Cache::forget('homepage_banners_enabled');
 
         return back()->with('success', __('Banner deleted.'));
@@ -125,7 +108,7 @@ class HomepageBannerController extends Controller
     {
         return Cache::remember('active_languages_full', 3600, function () {
             try {
-                return \DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
+                return DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
             } catch (\Throwable $e) {
                 return collect([
                     (object) [

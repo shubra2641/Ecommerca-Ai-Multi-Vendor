@@ -55,7 +55,7 @@ class MaintenanceSettingsController extends Controller
         ]);
     }
 
-    public function update(Request $request, \App\Services\HtmlSanitizer $sanitizer): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'maintenance_enabled' => ['nullable', 'boolean'],
@@ -69,10 +69,6 @@ class MaintenanceSettingsController extends Controller
         $setting->maintenance_enabled = (bool) ($data['maintenance_enabled'] ?? false);
         $setting->maintenance_reopen_at = $data['maintenance_reopen_at'] ?? null;
         if (isset($data['maintenance_message']) && is_array($data['maintenance_message'])) {
-            // sanitize each message value
-            foreach ($data['maintenance_message'] as $lc => $v) {
-                $data['maintenance_message'][$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-            }
             // Keep same storage format as original SettingsController
             $setting->maintenance_message = $data['maintenance_message'];
         }

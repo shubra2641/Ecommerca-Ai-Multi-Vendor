@@ -25,7 +25,7 @@ class PostCategoryController extends Controller
         return view('admin.blog.categories.create', compact('parents'));
     }
 
-    public function store(Request $request, \App\Services\HtmlSanitizer $sanitizer)
+    public function store(Request $request)
     {
         $data = $request->validate([
             'name' => 'required|array',
@@ -69,12 +69,7 @@ class PostCategoryController extends Controller
         ];
         foreach (['description', 'seo_title', 'seo_description', 'seo_tags'] as $f) {
             if (isset($data[$f]) && is_array($data[$f])) {
-                // sanitize incoming translations
-                $clean = [];
-                foreach ($data[$f] as $lc => $v) {
-                    $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-                }
-                $payload[$f . '_translations'] = array_filter($clean);
+                $payload[$f . '_translations'] = array_filter($data[$f]);
                 $payload[$f] = $payload[$f . '_translations'][$fallback] ??
                     collect($payload[$f . '_translations'])->first(fn ($v) => ! empty($v));
             }
@@ -91,7 +86,7 @@ class PostCategoryController extends Controller
         return view('admin.blog.categories.edit', compact('category', 'parents'));
     }
 
-    public function update(Request $request, PostCategory $category, \App\Services\HtmlSanitizer $sanitizer)
+    public function update(Request $request, PostCategory $category)
     {
         $data = $request->validate([
             'name' => 'required|array',
@@ -128,11 +123,7 @@ class PostCategoryController extends Controller
         $payload['slug'] = $category->getRawOriginal('slug');
         foreach (['description', 'seo_title', 'seo_description', 'seo_tags'] as $f) {
             if (isset($data[$f]) && is_array($data[$f])) {
-                $clean = [];
-                foreach ($data[$f] as $lc => $v) {
-                    $clean[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-                }
-                $payload[$f . '_translations'] = array_filter($clean);
+                $payload[$f . '_translations'] = array_filter($data[$f]);
                 $payload[$f] = $payload[$f . '_translations'][$fallback] ??
                     collect($payload[$f . '_translations'])->first(fn ($v) => ! empty($v));
             }

@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SocialLink;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -53,16 +52,9 @@ class SocialLinkController extends Controller
         return view('admin.social.form', compact('link'));
     }
 
-    public function store(Request $request, HtmlSanitizer $sanitizer): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $data = $this->validateData($request);
-        // sanitize label and url
-        if (isset($data['label']) && is_string($data['label'])) {
-            $data['label'] = $sanitizer->clean($data['label']);
-        }
-        if (isset($data['url']) && is_string($data['url'])) {
-            $data['url'] = $sanitizer->clean($data['url']);
-        }
         $data['order'] = $data['order'] ?? SocialLink::max('order') + 1;
         SocialLink::create($data);
 
@@ -76,15 +68,9 @@ class SocialLinkController extends Controller
         return view('admin.social.form', compact('link'));
     }
 
-    public function update(Request $request, SocialLink $social, HtmlSanitizer $sanitizer): RedirectResponse
+    public function update(Request $request, SocialLink $social): RedirectResponse
     {
         $data = $this->validateData($request, $social->id);
-        if (isset($data['label']) && is_string($data['label'])) {
-            $data['label'] = $sanitizer->clean($data['label']);
-        }
-        if (isset($data['url']) && is_string($data['url'])) {
-            $data['url'] = $sanitizer->clean($data['url']);
-        }
         $social->update($data);
 
         return redirect()->route('admin.social.index')->with('success', __('Social link updated.'));

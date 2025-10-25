@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Country;
 use App\Models\Governorate;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 
 class GovernorateController extends Controller
@@ -37,19 +36,13 @@ class GovernorateController extends Controller
         return view('admin.locations.governorates.create', compact('countries'));
     }
 
-    public function store(Request $request, HtmlSanitizer $sanitizer)
+    public function store(Request $request)
     {
         $data = $request->validate([
             'country_id' => 'required|exists:countries,id',
             'name' => 'required|string|max:255',
         ]);
         $data['active'] = $request->has('active') ? 1 : 0;
-        // sanitize string inputs
-        foreach ($data as $k => $v) {
-            if (is_string($v)) {
-                $data[$k] = $sanitizer->clean($v);
-            }
-        }
         Governorate::create($data);
 
         return redirect()->route('admin.governorates.index')->with('success', __('Governorate created'));
@@ -62,19 +55,13 @@ class GovernorateController extends Controller
         return view('admin.locations.governorates.edit', compact('governorate', 'countries'));
     }
 
-    public function update(Request $request, Governorate $governorate, HtmlSanitizer $sanitizer)
+    public function update(Request $request, Governorate $governorate)
     {
         $data = $request->validate([
             'country_id' => 'required|exists:countries,id',
             'name' => 'required|string|max:255',
         ]);
         $data['active'] = $request->has('active') ? 1 : 0;
-        // sanitize string inputs
-        foreach ($data as $k => $v) {
-            if (is_string($v)) {
-                $data[$k] = $sanitizer->clean($v);
-            }
-        }
         $governorate->update($data);
 
         return redirect()->route('admin.governorates.index')->with('success', __('Governorate updated'));

@@ -9,7 +9,6 @@ use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Tag;
 use App\Services\AI\SimpleAIService;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -54,10 +53,10 @@ class PostController extends Controller
         ]);
     }
 
-    public function store(Request $request, HtmlSanitizer $sanitizer)
+    public function store(Request $request)
     {
         $data = $this->validatePostData($request);
-        $payload = $this->buildPostPayload($data, $sanitizer);
+        $payload = $this->buildPostPayload($data);
 
         $post = Post::create($payload);
         $post->tags()->sync($data['tags'] ?? []);
@@ -76,10 +75,10 @@ class PostController extends Controller
         ]);
     }
 
-    public function update(Request $request, Post $post, HtmlSanitizer $sanitizer)
+    public function update(Request $request, Post $post)
     {
         $data = $this->validatePostData($request);
-        $payload = $this->buildPostPayload($data, $sanitizer, $post);
+        $payload = $this->buildPostPayload($data, $post);
 
         $post->update($payload);
         $post->tags()->sync($data['tags'] ?? []);
@@ -169,10 +168,10 @@ class PostController extends Controller
         ]);
     }
 
-    private function buildPostPayload(array $data, HtmlSanitizer $sanitizer, ?Post $post = null): array
+    private function buildPostPayload(array $data, ?Post $post = null): array
     {
         $fallback = config('app.fallback_locale');
-        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn ($v) => ! empty($v)) ?? '';
+        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn($v) => ! empty($v)) ?? '';
 
         $payload = [
             'title' => $defaultTitle,
@@ -193,11 +192,8 @@ class PostController extends Controller
         foreach (['excerpt', 'body', 'seo_title', 'seo_description', 'seo_tags'] as $field) {
             if (isset($data[$field]) && is_array($data[$field])) {
                 $translations = array_filter($data[$field]);
-                foreach ($translations as $locale => $value) {
-                    $translations[$locale] = $sanitizer->clean($value);
-                }
                 $payload[$field . '_translations'] = $translations;
-                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn ($v) => ! empty($v));
+                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn($v) => ! empty($v));
             }
         }
 
@@ -227,7 +223,7 @@ class PostController extends Controller
         $base = $slug;
         $i = 1;
 
-        while (Post::where('slug', $slug)->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))->exists()) {
+        while (Post::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
             $slug = $base . '-' . $i;
             $i++;
         }

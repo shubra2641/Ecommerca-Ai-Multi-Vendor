@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GalleryImage;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -47,7 +46,7 @@ class GalleryController extends Controller
         return view('admin.gallery.upload');
     }
 
-    public function store(Request $request, HtmlSanitizer $sanitizer): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         // Support single or multiple uploads: image or images[]
         $isMultiple = $request->hasFile('images');
@@ -82,7 +81,7 @@ class GalleryController extends Controller
         return redirect()->route('admin.gallery.index')->with('success', __(':n image(s) uploaded.', ['n' => $count]));
     }
 
-    public function quickStore(Request $request, HtmlSanitizer $sanitizer)
+    public function quickStore(Request $request)
     {
         $allowAnyFile = $request->boolean('allow_any_file', false);
 
@@ -115,7 +114,7 @@ class GalleryController extends Controller
             ], 422);
         }
 
-        $meta = $this->sanitizeMeta($request->only('title', 'description', 'alt', 'tags'), $sanitizer);
+        $meta = $request->only('title', 'description', 'alt', 'tags');
         $stored = [];
 
         foreach ($files as $file) {
@@ -148,7 +147,7 @@ class GalleryController extends Controller
         return view('admin.gallery.edit', compact('image'));
     }
 
-    public function update(Request $request, GalleryImage $image, HtmlSanitizer $sanitizer): RedirectResponse
+    public function update(Request $request, GalleryImage $image): RedirectResponse
     {
         $request->validate([
             'title' => ['nullable', 'string', 'max:150'],
@@ -157,26 +156,6 @@ class GalleryController extends Controller
             'tags' => ['nullable', 'string', 'max:255'],
         ]);
         $payload = $request->only('title', 'description', 'alt', 'tags');
-        if (isset($payload['title']) && is_string($payload['title']) && $payload['title'] !== '') {
-            $payload['title'] = $sanitizer->clean($payload['title']);
-        }
-        if (isset($payload['description']) && is_string($payload['description']) && $payload['description'] !== '') {
-            $payload['description'] = $sanitizer->clean($payload['description']);
-        }
-        if (isset($payload['alt']) && is_string($payload['alt']) && $payload['alt'] !== '') {
-            $payload['alt'] = $sanitizer->clean($payload['alt']);
-        }
-        if (isset($payload['tags']) && is_string($payload['tags']) && $payload['tags'] !== '') {
-            $parts = array_map('trim', explode(',', $payload['tags']));
-            $clean = [];
-            foreach ($parts as $p) {
-                if ($p === '') {
-                    continue;
-                }
-                $clean[] = $sanitizer->clean($p);
-            }
-            $payload['tags'] = implode(',', $clean);
-        }
         $image->update($payload);
 
         return back()->with('success', __('Updated.'));
@@ -242,47 +221,6 @@ class GalleryController extends Controller
         $setting->save();
 
         return redirect()->route('admin.settings.index')->with('success', __('Logo updated from gallery.'));
-    }
-
-    private function sanitizeMeta(array $meta, HtmlSanitizer $sanitizer): array
-    {
-        $clean = [
-            'title' => null,
-            'description' => null,
-            'alt' => null,
-            'tags' => null,
-        ];
-
-        if (! empty($meta['title']) && is_string($meta['title'])) {
-            $clean['title'] = $sanitizer->clean($meta['title']);
-        }
-
-        if (! empty($meta['description']) && is_string($meta['description'])) {
-            $clean['description'] = $sanitizer->clean($meta['description']);
-        }
-
-        if (! empty($meta['alt']) && is_string($meta['alt'])) {
-            $clean['alt'] = $sanitizer->clean($meta['alt']);
-        }
-
-        if (! empty($meta['tags']) && is_string($meta['tags'])) {
-            $parts = array_map('trim', explode(',', $meta['tags']));
-            $cleanParts = [];
-
-            foreach ($parts as $part) {
-                if ($part === '') {
-                    continue;
-                }
-
-                $cleanParts[] = $sanitizer->clean($part);
-            }
-
-            if ($cleanParts) {
-                $clean['tags'] = implode(',', $cleanParts);
-            }
-        }
-
-        return $clean;
     }
 
     private function persistGalleryUpload(UploadedFile $file, array $meta): GalleryImage

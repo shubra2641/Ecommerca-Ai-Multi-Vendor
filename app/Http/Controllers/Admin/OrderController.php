@@ -154,8 +154,7 @@ class OrderController extends Controller
 
     public function updateStatus(
         \App\Http\Requests\Admin\UpdateOrderStatusRequest $request,
-        $orderId,
-        \App\Services\HtmlSanitizer $sanitizer
+        $orderId
     ) {
         $order = Order::findOrFail($orderId);
         $data = $request->validated();
@@ -164,9 +163,6 @@ class OrderController extends Controller
         $order->save();
 
         $note = $data['note'] ?? null;
-        if (is_string($note) && $note !== '') {
-            $note = $sanitizer->clean($note);
-        }
         $order->statusHistory()->create([
             'status' => $data['status'],
             'note' => $note,

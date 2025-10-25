@@ -18,7 +18,7 @@ class SendNotificationController extends Controller
         return view('admin.notifications.send', compact('languages'));
     }
 
-    public function store(Request $request, \App\Services\HtmlSanitizer $sanitizer)
+    public function store(Request $request)
     {
         $request->validate([
             'role' => 'required|in:user,vendor',
@@ -31,14 +31,6 @@ class SendNotificationController extends Controller
         $title = $request->input('title', []);
         $message = $request->input('message', []);
         $url = $request->input('url');
-
-        // sanitize translations to avoid injecting HTML/JS into notifications
-        foreach ($title as $lc => $v) {
-            $title[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-        }
-        foreach ($message as $lc => $v) {
-            $message[$lc] = is_string($v) ? $sanitizer->clean($v) : $v;
-        }
 
         // Narrow target: all users with role
         $users = User::where('role', $role)->get();

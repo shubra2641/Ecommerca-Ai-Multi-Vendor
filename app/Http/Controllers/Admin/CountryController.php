@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Country;
-use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 
 class CountryController extends Controller
@@ -28,19 +27,12 @@ class CountryController extends Controller
         return view('admin.locations.countries.create');
     }
 
-    public function store(Request $request, HtmlSanitizer $sanitizer)
+    public function store(Request $request)
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'iso_code' => 'nullable|string|max:5',
         ]);
-        // sanitize
-        if (isset($data['name']) && is_string($data['name'])) {
-            $data['name'] = $sanitizer->clean($data['name']);
-        }
-        if (isset($data['iso_code']) && is_string($data['iso_code'])) {
-            $data['iso_code'] = $sanitizer->clean($data['iso_code']);
-        }
 
         $data['active'] = $request->has('active') ? 1 : 0;
         Country::create($data);
@@ -53,18 +45,12 @@ class CountryController extends Controller
         return view('admin.locations.countries.edit', compact('country'));
     }
 
-    public function update(Request $request, Country $country, HtmlSanitizer $sanitizer)
+    public function update(Request $request, Country $country)
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'iso_code' => 'nullable|string|max:5',
         ]);
-        if (isset($data['name']) && is_string($data['name'])) {
-            $data['name'] = $sanitizer->clean($data['name']);
-        }
-        if (isset($data['iso_code']) && is_string($data['iso_code'])) {
-            $data['iso_code'] = $sanitizer->clean($data['iso_code']);
-        }
 
         $data['active'] = $request->has('active') ? 1 : 0;
         $country->update($data);
