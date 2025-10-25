@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Notifications;
 
+use App\Models\Language;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -31,7 +32,7 @@ class AdminBroadcastNotification extends Notification
 
     public function toArray(object $notifiable): array
     {
-        $default = '\App\Models\Language'::where('is_default', true)->value('code') ?? 'en';
+        $default = Language::where('is_default', true)->value('code') ?? 'en';
 
         $titles = $this->ensureDefaultTranslation($this->titleTranslations, $default);
         $messages = $this->ensureDefaultTranslation($this->messageTranslations, $default);
