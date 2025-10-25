@@ -26,44 +26,19 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         $order->load('items.product', 'payments.attachments', 'user', 'shippingAddress', 'shippingZone');
-        $customerStats = null;
-        if ($order->user) {
-            $customerStats = [
-                'orders_count' => Order::where('user_id', $order->user_id)->count(),
-                'orders_total' => Order::where('user_id', $order->user_id)->sum('total'),
-                'first_order_at' => Order::where('user_id', $order->user_id)->orderBy('id')->value('created_at'),
-            ];
-        }
 
-        // Compute address text
-        $aovAddressText = '';
-        if ($order->shippingAddress) {
-            $addr = $order->shippingAddress;
-            $aovAddressText = ($addr->line1 ? $addr->line1 . ', ' : '') .
-                ($addr->line2 ? $addr->line2 . ', ' : '') .
-                ($addr->city ? $addr->city->name . ', ' : '') .
-                ($addr->governorate ? $addr->governorate->name . ', ' : '') .
-                ($addr->country ? $addr->country->name : '');
-        } elseif ($order->shipping_address && is_array($order->shipping_address)) {
-            $addr = $order->shipping_address;
-            $aovAddressText = ($addr['customer_address'] ?? '') . ', ' .
-                ($addr['city'] ?? '') . ', ' .
-                ($addr['governorate'] ?? '') . ', ' .
-                ($addr['country'] ?? '');
-        }
+        $customerStats = $this->getCustomerStats($order);
+        $addressText = $this->getAddressText($order);
+        $offlinePayments = $this->getOfflinePayments($order);
+        $firstPaymentNote = $order->payments->first()?->note ?? null;
 
-        // Offline payments for actions
-        $aovOfflinePayments = [];
-        foreach ($order->payments as $payment) {
-            if ($payment->method === 'offline') {
-                $aovOfflinePayments[$payment->id] = true;
-            }
-        }
-
-        // First payment note
-        $aovFirstPaymentNote = $order->payments->first()?->note ?? null;
-
-        return view('admin.orders.show', compact('order', 'customerStats', 'aovAddressText', 'aovOfflinePayments', 'aovFirstPaymentNote'));
+        return view('admin.orders.show', [
+            'order' => $order,
+            'customerStats' => $customerStats,
+            'aovAddressText' => $addressText,
+            'aovOfflinePayments' => $offlinePayments,
+            'aovFirstPaymentNote' => $firstPaymentNote,
+        ]);
     }
 
     // Mark a payment as accepted (admin verifies transfer)
@@ -220,44 +195,81 @@ class OrderController extends Controller
         return redirect()->back()->with('success', __('Order status updated'));
     }
 
-    // Admin: cancel a backorder for a specific order item (release reserved stock)
-    public function cancelBackorderItem($orderId, $itemId)
+    private function getCustomerStats(Order $order): ?array
     {
-        $order = Order::findOrFail($orderId);
-        $item = OrderItem::where('order_id', $order->id)->where('id', $itemId)->firstOrFail();
-
-        if (! $item->is_backorder) {
-            return redirect()->back()->with('info', __('Item is not a backorder'));
+        if (! $order->user) {
+            return null;
         }
 
-        // Release reserved qty
-        try {
-            $product = $item->product;
-            $qty = (int) $item->qty;
-            if ($item->meta && is_array($item->meta) && ! empty($item->meta['variant_id'])) {
-                $variation = ProductVariation::find($item->meta['variant_id']);
-                if ($variation) {
-                    StockService::releaseVariation($variation, $qty);
-                }
-            } else {
-                StockService::release($product, $qty);
-            }
-
-            // mark item as no longer backorder and update order flag
-            $item->is_backorder = false;
-            $item->save();
-
-            // If no more items with backorder, clear order flag
-            if (! $order->items()->where('is_backorder', true)->exists()) {
-                $order->has_backorder = false;
-                $order->save();
-            }
-
-            return redirect()->back()->with('success', __('Backorder cancelled and stock released'));
-        } catch (\Exception $e) {
-            logger()->error('Failed cancelling backorder for item ' . $item->id . ': ' . $e->getMessage());
-
-            return redirect()->back()->with('error', __('Failed to cancel backorder: ') . $e->getMessage());
-        }
+        return [
+            'orders_count' => Order::where('user_id', $order->user_id)->count(),
+            'orders_total' => Order::where('user_id', $order->user_id)->sum('total'),
+            'first_order_at' => Order::where('user_id', $order->user_id)->orderBy('id')->value('created_at'),
+        ];
     }
-}
+
+    private function getAddressText(Order $order): string
+    {
+        if ($order->shippingAddress) {
+            return $this->formatShippingAddress($order->shippingAddress);
+        }
+
+        if ($order->shipping_address && is_array($order->shipping_address)) {
+            return $this->formatLegacyAddress($order->shipping_address);
+        }
+
+        return '';
+    }
+
+    private function formatShippingAddress($address): string
+    {
+        $parts = [];
+        if ($address->line1) {
+            $parts[] = $address->line1;
+        }
+        if ($address->line2) {
+            $parts[] = $address->line2;
+        }
+        if ($address->city) {
+            $parts[] = $address->city->name;
+        }
+        if ($address->governorate) {
+            $parts[] = $address->governorate->name;
+        }
+        if ($address->country) {
+            $parts[] = $address->country->name;
+        }
+
+        return implode(', ', $parts);
+    }
+
+    private function formatLegacyAddress(array $address): string
+    {
+        $parts = [];
+        if (! empty($address['customer_address'])) {
+            $parts[] = $address['customer_address'];
+        }
+        if (! empty($address['city'])) {
+            $parts[] = $address['city'];
+        }
+        if (! empty($address['governorate'])) {
+            $parts[] = $address['governorate'];
+        }
+        if (! empty($address['country'])) {
+            $parts[] = $address['country'];
+        }
+
+        return implode(', ', $parts);
+    }
+
+    private function getOfflinePayments(Order $order): array
+    {
+        $offlinePayments = [];
+        foreach ($order->payments as $payment) {
+            if ($payment->method === 'offline') {
+                $offlinePayments[$payment->id] = true;
+            }
+        }
+
+        return $offlinePayments;
+    }

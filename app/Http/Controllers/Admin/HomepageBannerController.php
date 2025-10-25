@@ -56,37 +56,11 @@ class HomepageBannerController extends Controller
             'enabled' => ['nullable', 'boolean'],
             'alt_text_i18n' => ['nullable', 'array'],
         ]);
-        if ($request->hasFile('image')) {
-            if ($banner->image && Storage::disk('public')->exists($banner->image)) {
-                Storage::disk('public')->delete($banner->image);
-            }
-            $data['image'] = $request->file('image')->store('uploads/homepage/banners', 'public');
-        }
+
+        $this->handleImageUpload($request, $banner, $data);
+        $this->handleAltTextI18n($data, $banner);
+
         $data['enabled'] = (bool) ($data['enabled'] ?? false);
-        $merge = function ($existing, $incoming) {
-            $existing = $existing ? $existing : [];
-            foreach (($incoming ? $incoming : []) as $key => $value) {
-                if ($value === '') {
-                    unset($existing[$key]);
-
-                    continue;
-                }
-                if ($value !== null) {
-                    $existing[$key] = $value;
-                }
-            }
-
-            return $existing;
-        };
-        if (isset($data['alt_text_i18n'])) {
-            $data['alt_text_i18n'] = $merge(
-                $banner->alt_text_i18n,
-                $data['alt_text_i18n']
-            );
-        }
-        $defaultLocale = config('app.locale', 'en');
-        $data['alt_text'] = $data['alt_text_i18n'][$defaultLocale] ??
-            $banner->alt_text_i18n[$defaultLocale] ?? $banner->alt_text;
         $banner->update($data);
         Cache::forget('homepage_banners_enabled');
 
@@ -104,20 +78,44 @@ class HomepageBannerController extends Controller
         return back()->with('success', __('Banner deleted.'));
     }
 
-    private function activeLanguages()
+    private function handleImageUpload(Request $request, HomepageBanner $banner, array &$data): void
     {
-        return Cache::remember('active_languages_full', 3600, function () {
-            try {
-                return DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
-            } catch (\Throwable $e) {
-                return collect([
-                    (object) [
-                        'code' => config('app.locale', 'en'),
-                        'is_default' => 1,
-                        'name' => strtoupper(config('app.locale', 'en')),
-                    ],
-                ]);
+        if ($request->hasFile('image')) {
+            if ($banner->image && Storage::disk('public')->exists($banner->image)) {
+                Storage::disk('public')->delete($banner->image);
             }
-        });
+            $data['image'] = $request->file('image')->store('uploads/homepage/banners', 'public');
+        }
     }
-}
+
+    private function handleAltTextI18n(array &$data, HomepageBanner $banner): void
+    {
+        if (isset($data['alt_text_i18n'])) {
+            $data['alt_text_i18n'] = $this->mergeI18nData(
+                $banner->alt_text_i18n,
+                $data['alt_text_i18n']
+            );
+        }
+
+        $defaultLocale = config('app.locale', 'en');
+        $data['alt_text'] = $data['alt_text_i18n'][$defaultLocale] ??
+            $banner->alt_text_i18n[$defaultLocale] ?? $banner->alt_text;
+    }
+
+    private function mergeI18nData(?array $existing, ?array $incoming): array
+    {
+        $existing = $existing ?: [];
+        $incoming = $incoming ?: [];
+
+        foreach ($incoming as $key => $value) {
+            if ($value === '') {
+                unset($existing[$key]);
+                continue;
+            }
+            if ($value !== null) {
+                $existing[$key] = $value;
+            }
+        }
+
+        return $existing;
+    }

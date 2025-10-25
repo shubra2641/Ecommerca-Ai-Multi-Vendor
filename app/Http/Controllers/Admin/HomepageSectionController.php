@@ -112,7 +112,20 @@ class HomepageSectionController extends Controller
 
     public function updateBulk(Request $request): RedirectResponse
     {
-        $data = $request->validate([
+        $data = $this->validateBulkUpdateData($request);
+
+        foreach ($data['sections'] as $secData) {
+            $this->updateSection($secData);
+        }
+
+        Cache::forget('homepage_sections_conf');
+
+        return back()->with('success', __('Homepage sections updated.'));
+    }
+
+    private function validateBulkUpdateData(Request $request): array
+    {
+        return $request->validate([
             'sections' => ['required', 'array'],
             'sections.*.id' => ['required', 'integer', 'exists:homepage_sections,id'],
             'sections.*.enabled' => ['nullable', 'boolean'],
@@ -124,55 +137,73 @@ class HomepageSectionController extends Controller
             'sections.*.cta_url' => ['nullable', 'string', 'max:255'],
             'sections.*.cta_label' => ['nullable', 'array'],
         ]);
-        foreach ($data['sections'] as $secData) {
-            $section = HomepageSection::find($secData['id']);
-            if (! $section) {
+    }
+
+    private function updateSection(array $secData): void
+    {
+        $section = HomepageSection::find($secData['id']);
+        if (! $section) {
+            return;
+        }
+
+        $this->updateSectionBasicFields($section, $secData);
+        $this->updateSectionI18nFields($section, $secData);
+
+        $section->save();
+    }
+
+    private function updateSectionBasicFields(HomepageSection $section, array $secData): void
+    {
+        $section->enabled = (bool) ($secData['enabled'] ?? false);
+
+        if (isset($secData['sort_order'])) {
+            $section->sort_order = (int) $secData['sort_order'];
+        }
+
+        if (isset($secData['item_limit'])) {
+            $section->item_limit = (int) $secData['item_limit'];
+        }
+
+        $section->cta_enabled = (bool) ($secData['cta_enabled'] ?? false);
+
+        if (array_key_exists('cta_url', $secData)) {
+            $section->cta_url = $secData['cta_url'] ?: null;
+        }
+    }
+
+    private function updateSectionI18nFields(HomepageSection $section, array $secData): void
+    {
+        if (array_key_exists('title', $secData)) {
+            $section->title_i18n = $this->mergeI18nData($section->title_i18n, $secData['title']);
+        }
+
+        if (array_key_exists('subtitle', $secData)) {
+            $section->subtitle_i18n = $this->mergeI18nData($section->subtitle_i18n, $secData['subtitle']);
+        }
+
+        if (array_key_exists('cta_label', $secData)) {
+            $section->cta_label_i18n = $this->mergeI18nData($section->cta_label_i18n, $secData['cta_label']);
+        }
+    }
+
+    private function mergeI18nData(?array $existing, ?array $incoming): array
+    {
+        $existing = $existing ?: [];
+
+        foreach (($incoming ?: []) as $lang => $val) {
+            if ($val === null) {
                 continue;
             }
-            $section->enabled = (bool) ($secData['enabled'] ?? false);
-            if (isset($secData['sort_order'])) {
-                $section->sort_order = (int) $secData['sort_order'];
-            }
-            if (isset($secData['item_limit'])) {
-                $section->item_limit = (int) $secData['item_limit'];
-            }
-            $section->cta_enabled = (bool) ($secData['cta_enabled'] ?? false);
-            if (array_key_exists('cta_url', $secData)) {
-                $section->cta_url = $secData['cta_url'] ? $secData['cta_url'] : null;
-            }
-            $merge = function ($existing, $incoming) {
-                $existing = $existing ? $existing : [];
-                foreach (($incoming ? $incoming : []) as $lang => $val) {
-                    if ($val === null) {
-                        continue;
-                    }
-                    if ($val === '') {
-                        unset($existing[$lang]);
 
-                        continue;
-                    }
-                    $existing[$lang] = $val;
-                }
+            if ($val === '') {
+                unset($existing[$lang]);
+                continue;
+            }
 
-                return $existing;
-            };
-            if (array_key_exists('title', $secData)) {
-                $merged = $merge($section->title_i18n, $secData['title']);
-                $section->title_i18n = $merged;
-            }
-            if (array_key_exists('subtitle', $secData)) {
-                $merged = $merge($section->subtitle_i18n, $secData['subtitle']);
-                $section->subtitle_i18n = $merged;
-            }
-            if (array_key_exists('cta_label', $secData)) {
-                $merged = $merge($section->cta_label_i18n, $secData['cta_label']);
-                $section->cta_label_i18n = $merged;
-            }
-            $section->save();
+            $existing[$lang] = $val;
         }
-        Cache::forget('homepage_sections_conf');
 
-        return back()->with('success', __('Homepage sections updated.'));
+        return $existing;
     }
 
     private function ensureDefaults(): void

@@ -164,8 +164,7 @@ class GalleryController extends Controller
     public function destroy(GalleryImage $image): RedirectResponse
     {
         $setting = \App\Models\Setting::first();
-        $inUse = $setting && $setting->logo &&
-            ($setting->logo === $image->webp_path || $setting->logo === $image->original_path);
+        $inUse = $this->isImageUsedAsLogo($image, $setting);
 
         if ($inUse && request()->query('force') !== '1') {
             return back()->with(
@@ -175,17 +174,10 @@ class GalleryController extends Controller
         }
 
         if ($inUse && request()->query('force') === '1') {
-            // Clear logo reference before deleting files
-            $setting->logo = null;
-            $setting->save();
+            $this->clearLogoReference($setting);
         }
 
-        if ($image->original_path && Storage::disk('public')->exists($image->original_path)) {
-            Storage::disk('public')->delete($image->original_path);
-        }
-        if ($image->webp_path && Storage::disk('public')->exists($image->webp_path)) {
-            Storage::disk('public')->delete($image->webp_path);
-        }
+        $this->deleteImageFiles($image);
         $image->delete();
 
         return back()->with('success', __('Image deleted.'));
@@ -265,21 +257,24 @@ class GalleryController extends Controller
         ]);
     }
 
-    private function formatGalleryResponse(GalleryImage $image): array
+    private function isImageUsedAsLogo(GalleryImage $image, ?\App\Models\Setting $setting): bool
     {
-        $path = $image->webp_path ? $image->webp_path : $image->original_path;
-
-        $url = $path ? asset('storage/' . ltrim($path, '/')) : null;
-        $thumbPath = $image->thumbnail_path ? asset('storage/' . ltrim($image->thumbnail_path, '/')) : null;
-        $thumb = $thumbPath ? $thumbPath : $url;
-
-        return [
-            'id' => $image->id,
-            'path' => $path,
-            'url' => $url,
-            'thumbnail' => $thumb,
-            'title' => $image->title,
-            'alt' => $image->alt,
-        ];
+        return $setting && $setting->logo &&
+            ($setting->logo === $image->webp_path || $setting->logo === $image->original_path);
     }
-}
+
+    private function clearLogoReference(\App\Models\Setting $setting): void
+    {
+        $setting->logo = null;
+        $setting->save();
+    }
+
+    private function deleteImageFiles(GalleryImage $image): void
+    {
+        if ($image->original_path && Storage::disk('public')->exists($image->original_path)) {
+            Storage::disk('public')->delete($image->original_path);
+        }
+        if ($image->webp_path && Storage::disk('public')->exists($image->webp_path)) {
+            Storage::disk('public')->delete($image->webp_path);
+        }
+    }

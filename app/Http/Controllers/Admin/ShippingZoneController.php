@@ -148,26 +148,53 @@ class ShippingZoneController extends Controller
         $country = $ruleData['country_id'] ?? null;
         $gov = $ruleData['governorate_id'] ?? null;
         $city = $ruleData['city_id'] ?? null;
-        $price = $ruleData['price'] ?? null;
-        $days = $ruleData['estimated_days'] ?? null;
-        if (! $country) {
-            return null; // require at least country
-        }
-        if ($gov && ! Governorate::where('id', $gov)->where('country_id', $country)->exists()) {
+
+        if (! $this->isValidCountry($country)) {
             return null;
         }
-        if (
-            $city && ! City::where('id', $city)
-                ->whereHas('governorate', function ($q) use ($gov, $country): void {
-                    $q->where('id', $gov)
-                        ->where('country_id', $country);
-                })->exists()
-        ) {
+
+        if (! $this->isValidGovernorate($gov, $country)) {
             return null;
         }
+
+        if (! $this->isValidCity($city, $gov, $country)) {
+            return null;
+        }
+
         if (! $gov) {
             $city = null; // ignore standalone city if governorate missing
         }
+
+        return $this->buildRuleData($ruleData, $country, $gov, $city);
+    }
+
+    private function isValidCountry($country): bool
+    {
+        return ! empty($country);
+    }
+
+    private function isValidGovernorate($gov, $country): bool
+    {
+        return ! $gov || Governorate::where('id', $gov)->where('country_id', $country)->exists();
+    }
+
+    private function isValidCity($city, $gov, $country): bool
+    {
+        if (! $city) {
+            return true;
+        }
+
+        return City::where('id', $city)
+            ->whereHas('governorate', function ($q) use ($gov, $country): void {
+                $q->where('id', $gov)
+                    ->where('country_id', $country);
+            })->exists();
+    }
+
+    private function buildRuleData(array $ruleData, $country, $gov, $city): array
+    {
+        $price = $ruleData['price'] ?? null;
+        $days = $ruleData['estimated_days'] ?? null;
 
         return [
             'country_id' => $country,

@@ -61,50 +61,11 @@ class HomepageSlideController extends Controller
             'subtitle_i18n' => ['nullable', 'array'],
             'button_text_i18n' => ['nullable', 'array'],
         ]);
-        if ($request->hasFile('image')) {
-            if ($slide->image && Storage::disk('public')->exists($slide->image)) {
-                Storage::disk('public')->delete($slide->image);
-            }
-            $data['image'] = $request->file('image')->store('uploads/homepage/slides', 'public');
-        }
+
+        $this->handleImageUpload($request, $slide, $data);
+        $this->handleI18nFields($data, $slide);
+
         $data['enabled'] = (bool) ($data['enabled'] ?? false);
-        $merge = function ($existing, $incoming) {
-            $existing = $existing ? $existing : [];
-            foreach (($incoming ? $incoming : []) as $k => $v) {
-                if ($v === '') {
-                    unset($existing[$k]);
-
-                    continue;
-                }
-                if ($v !== null) {
-                    $existing[$k] = $v;
-                }
-            }
-
-            return $existing;
-        };
-        if (isset($data['title_i18n'])) {
-            $data['title_i18n'] = $merge($slide->title_i18n, $data['title_i18n']);
-        }
-        if (isset($data['subtitle_i18n'])) {
-            $data['subtitle_i18n'] = $merge(
-                $slide->subtitle_i18n,
-                $data['subtitle_i18n']
-            );
-        }
-        if (isset($data['button_text_i18n'])) {
-            $data['button_text_i18n'] = $merge(
-                $slide->button_text_i18n,
-                $data['button_text_i18n']
-            );
-        }
-        $defaultLocale = config('app.locale', 'en');
-        $data['title'] = ($data['title_i18n'][$defaultLocale] ??
-            $slide->title_i18n[$defaultLocale] ?? $slide->title);
-        $data['subtitle'] = ($data['subtitle_i18n'][$defaultLocale] ??
-            $slide->subtitle_i18n[$defaultLocale] ?? $slide->subtitle);
-        $data['button_text'] = ($data['button_text_i18n'][$defaultLocale] ??
-            $slide->button_text_i18n[$defaultLocale] ?? $slide->button_text);
         $slide->update($data);
         Cache::forget('homepage_slides_enabled');
 
@@ -122,20 +83,49 @@ class HomepageSlideController extends Controller
         return back()->with('success', __('Slide deleted.'));
     }
 
-    private function activeLanguages()
+    private function handleImageUpload(Request $request, HomepageSlide $slide, array &$data): void
     {
-        return Cache::remember('active_languages_full', 3600, function () {
-            try {
-                return DB::table('languages')->where('is_active', 1)->orderBy('is_default', 'desc')->get();
-            } catch (\Throwable $e) {
-                return collect([
-                    (object) [
-                        'code' => config('app.locale', 'en'),
-                        'is_default' => 1,
-                        'name' => strtoupper(config('app.locale', 'en')),
-                    ],
-                ]);
+        if ($request->hasFile('image')) {
+            if ($slide->image && Storage::disk('public')->exists($slide->image)) {
+                Storage::disk('public')->delete($slide->image);
             }
-        });
+            $data['image'] = $request->file('image')->store('uploads/homepage/slides', 'public');
+        }
     }
-}
+
+    private function handleI18nFields(array &$data, HomepageSlide $slide): void
+    {
+        $i18nFields = ['title_i18n', 'subtitle_i18n', 'button_text_i18n'];
+        $defaultLocale = config('app.locale', 'en');
+
+        foreach ($i18nFields as $field) {
+            if (isset($data[$field])) {
+                $data[$field] = $this->mergeI18nData(
+                    $slide->{$field},
+                    $data[$field]
+                );
+            }
+
+            $baseField = str_replace('_i18n', '', $field);
+            $data[$baseField] = ($data[$field][$defaultLocale] ??
+                $slide->{$field}[$defaultLocale] ?? $slide->{$baseField});
+        }
+    }
+
+    private function mergeI18nData(?array $existing, ?array $incoming): array
+    {
+        $existing = $existing ?: [];
+        $incoming = $incoming ?: [];
+
+        foreach ($incoming as $key => $value) {
+            if ($value === '') {
+                unset($existing[$key]);
+                continue;
+            }
+            if ($value !== null) {
+                $existing[$key] = $value;
+            }
+        }
+
+        return $existing;
+    }
