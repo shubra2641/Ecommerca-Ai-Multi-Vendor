@@ -11,28 +11,57 @@ class ProductRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Vendor must be authenticated; additional policy checks remain in controller
         return auth()->check();
     }
 
     public function rules(): array
     {
-        $id = null;
-        $product = $this->route('product');
-        if ($product && isset($product->id)) {
-            $id = $product->id;
-        }
+        $productId = $this->getProductId();
+        $productType = $this->input('type', 'simple');
 
-        $type = $this->input('type') ?? 'simple';
-        $rules = [
+        return array_merge(
+            $this->getBasicRules($productId),
+            $this->getTypeSpecificRules($productType),
+            $this->getOptionalRules()
+        );
+    }
+
+    private function getProductId(): ?int
+    {
+        return $this->route('product')?->id;
+    }
+
+    private function getBasicRules(?int $productId): array
+    {
+        return [
             'product_category_id' => ['required', 'exists:product_categories,id'],
             'type' => ['required', Rule::in(['simple', 'variable'])],
             'physical_type' => ['nullable', Rule::in(['physical', 'digital'])],
-            'sku' => ['nullable', 'string', 'max:255', 'unique:products,sku'.($id ? ','.$id : '')],
+            'sku' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique('products', 'sku')->ignore($productId)
+            ],
             'name' => ['required'],
+            'price' => ['required_if:type,simple', 'numeric'],
+        ];
+    }
+
+    private function getTypeSpecificRules(string $type): array
+    {
+        if ($type === 'variable') {
+            return ['variations' => ['sometimes', 'array']];
+        }
+
+        return [];
+    }
+
+    private function getOptionalRules(): array
+    {
+        return [
             'short_description' => ['nullable'],
             'description' => ['nullable'],
-            'price' => ['required_if:type,simple', 'numeric'],
             'sale_price' => ['nullable', 'numeric'],
             'sale_start' => ['nullable', 'date'],
             'sale_end' => ['nullable', 'date', 'after_or_equal:sale_start'],
@@ -55,17 +84,12 @@ class ProductRequest extends FormRequest
             'width' => ['nullable', 'numeric'],
             'height' => ['nullable', 'numeric'],
         ];
-        if ($type === 'variable') {
-            $rules['variations'] = ['sometimes', 'array'];
-        }
-
-        return $rules;
     }
 
     public function messages(): array
     {
         return [
-            'sale_end.after_or_equal' => __('End must be >= start'),
+            'sale_end.after_or_equal' => __('End date must be after or equal to start date'),
         ];
     }
 }
