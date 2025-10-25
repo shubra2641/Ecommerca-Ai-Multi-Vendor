@@ -23,6 +23,7 @@ final class AdminProductFormComposer
         $pfClientVariations = $this->getClientVariations($model);
         $pfHasSerials = $this->getHasSerials($model);
         $pfLangMeta = $this->getLanguageMeta($languages, $model);
+        $pfExistingSerials = $this->getExistingSerials($model);
 
         $formSettings = $this->getFormSettings($data, $languages);
 
@@ -33,7 +34,8 @@ final class AdminProductFormComposer
             'pfUsedAttributes',
             'pfClientVariations',
             'pfHasSerials',
-            'pfLangMeta'
+            'pfLangMeta',
+            'pfExistingSerials'
         ), $formSettings));
     }
 
@@ -49,6 +51,18 @@ final class AdminProductFormComposer
     private function getHasSerials($model): bool
     {
         return (bool) ($model->has_serials ?? old('has_serials', false));
+    }
+
+    private function getExistingSerials($model): string
+    {
+        if (! $model || ! $model->has_serials) {
+            return old('serials', '');
+        }
+
+        // Get unsold serials only
+        $unsoldSerials = $model->serials()->whereNull('sold_at')->pluck('serial')->toArray();
+
+        return implode("\n", $unsoldSerials);
     }
 
     private function getFormSettings(array $data, $languages): array

@@ -374,7 +374,7 @@
                         <div class="input-group">
                             <input name="download_file" value="{{ old('download_file', $m?->download_file) }}"
                                 class="admin-form-input" placeholder="/storage/downloads/file.zip">
-                            <button type="button" class="admin-btn admin-btn-outline">
+                            <button type="button" class="admin-btn admin-btn-outline" data-open-media="1" data-media-target="input[name='download_file']" data-media-mode="single" data-media-accept="*/*" data-media-label="{{ __('Select Download File') }}">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M22 19C22 19.5304 21.7893 20.0391 21.4142 20.4142C21.0391 20.7893 20.5304 21 20 21H4C3.46957 21 2.96086 20.7893 2.58579 20.4142C2.21071 20.0391 2 19.5304 2 19V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H15L22 10V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                     <path d="M15 3V10H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -399,7 +399,7 @@
                     <div class="admin-form-group serials-only {{ $pfHasSerials ? '' : 'envato-hidden' }}">
                         <label class="admin-form-label">{{ __('Serials (one per line)') }}</label>
                         <textarea name="serials" class="admin-form-input" rows="4"
-                            placeholder="SERIAL1\nSERIAL2">{{ old('serials') }}</textarea>
+                            placeholder="SERIAL1&#10;SERIAL2">{{ old('serials', $pfExistingSerials ?? '') }}</textarea>
                         <div class="admin-text-muted">
                             {{ __('Add serial codes here to seed stock; one code per line. When sold each serial is marked sold and won\'t be reused.') }}
                         </div>

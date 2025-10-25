@@ -84,15 +84,24 @@ class GalleryController extends Controller
 
     public function quickStore(Request $request, HtmlSanitizer $sanitizer)
     {
+        $allowAnyFile = $request->boolean('allow_any_file', false);
+
         $rules = [
             'title' => ['nullable', 'string', 'max:150'],
             'description' => ['nullable', 'string', 'max:500'],
             'alt' => ['nullable', 'string', 'max:150'],
             'tags' => ['nullable', 'string', 'max:255'],
-            'image' => ['required_without:images', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-            'images' => ['nullable', 'array', 'max:15'],
-            'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
+
+        if ($allowAnyFile) {
+            $rules['image'] = ['required_without:images', 'file', 'max:51200']; // 50MB max for any file
+            $rules['images'] = ['nullable', 'array', 'max:15'];
+            $rules['images.*'] = ['file', 'max:51200'];
+        } else {
+            $rules['image'] = ['required_without:images', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'];
+            $rules['images'] = ['nullable', 'array', 'max:15'];
+            $rules['images.*'] = ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'];
+        }
 
         $request->validate($rules);
 
@@ -110,8 +119,22 @@ class GalleryController extends Controller
         $stored = [];
 
         foreach ($files as $file) {
-            $image = $this->persistGalleryUpload($file, $meta);
-            $stored[] = $this->formatGalleryResponse($image);
+            if ($allowAnyFile) {
+                // Handle any file type (for digital products)
+                $path = $file->store('downloads', 'public');
+                $stored[] = [
+                    'id' => null, // No gallery entry for non-images
+                    'path' => $path,
+                    'url' => asset('storage/' . $path),
+                    'thumbnail' => null,
+                    'title' => $meta['title'] ?: $file->getClientOriginalName(),
+                    'alt' => $meta['alt'] ?: $file->getClientOriginalName(),
+                ];
+            } else {
+                // Handle images (existing gallery functionality)
+                $image = $this->persistGalleryUpload($file, $meta);
+                $stored[] = $this->formatGalleryResponse($image);
+            }
         }
 
         return response()->json([

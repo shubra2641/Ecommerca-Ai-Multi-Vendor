@@ -26,6 +26,7 @@ const STORAGE_PREFIX = 'storage/';
         this.initDropdowns();
         this.initConfirmations();
         this.initProductForm();
+        this.initSerialsToggle();
         this.initMediaManager();
     };
 
@@ -151,6 +152,30 @@ const STORAGE_PREFIX = 'storage/';
         });
     };
 
+    // Serials toggle functionality
+    AdminPanel.initSerialsToggle = function () {
+        const hasSerialsCheckbox = document.getElementById('has_serials_checkbox');
+        if (!hasSerialsCheckbox) {
+            return;
+        }
+
+        const serialsContainer = hasSerialsCheckbox.closest('.admin-form-group').nextElementSibling;
+        if (!serialsContainer || !serialsContainer.classList.contains('serials-only')) {
+            return;
+        }
+
+        function toggleSerials() {
+            if (hasSerialsCheckbox.checked) {
+                serialsContainer.classList.remove('envato-hidden');
+            } else {
+                serialsContainer.classList.add('envato-hidden');
+            }
+        }
+
+        hasSerialsCheckbox.addEventListener('change', toggleSerials);
+        toggleSerials(); // Initial state
+    };
+
     // Product form management
     AdminPanel.initProductForm = function () {
         const typeSelect = document.getElementById('type-select');
@@ -206,7 +231,15 @@ const STORAGE_PREFIX = 'storage/';
         // Attach listeners and ensure correct initial visibility
         typeSelect.addEventListener('change', toggleSections);
         physicalTypeSelect.addEventListener('change', toggleSections);
-        toggleSections();
+
+        // Ensure initial state is correct after DOM is fully loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(toggleSections, 50);
+            });
+        } else {
+            setTimeout(toggleSections, 50);
+        }
 
         // Helper function to get selected attributes
         function getSelectedAttributes() {
@@ -619,6 +652,11 @@ const STORAGE_PREFIX = 'storage/';
                 const formData = new FormData();
                 const fieldName = fileInput.multiple ? 'images[]' : 'image';
                 files.forEach(file => formData.append(fieldName, file));
+
+                // Allow any file type if accept is not image/*
+                if (currentConfig.accept !== 'image/*' && currentConfig.accept !== 'image') {
+                    formData.append('allow_any_file', '1');
+                }
 
                 if (csrfToken) {
                     formData.append('_token', csrfToken);
