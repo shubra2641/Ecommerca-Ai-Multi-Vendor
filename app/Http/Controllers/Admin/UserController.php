@@ -121,6 +121,7 @@ class UserController extends BaseAdminController
         return view('admin.users.balance', [
             'user' => $user,
             'defaultCurrency' => \App\Helpers\GlobalHelper::getCurrencyContext()['defaultCurrency'],
+            'balanceStats' => $this->balanceService->getStats($user),
         ]);
     }
 
@@ -133,11 +134,7 @@ class UserController extends BaseAdminController
             Auth::id()
         );
 
-        return $this->successResponse(__('Balance added successfully'), [
-            'new_balance' => $result['new_balance'],
-            'formatted_balance' => $result['formatted_balance'],
-            'transaction' => array_merge($result['transaction'], ['admin' => Auth::user()->name]),
-        ]);
+        return redirect()->back()->with('success', __('Balance added successfully'));
     }
 
     public function deductBalance(AdjustBalanceRequest $request, User $user)
@@ -149,15 +146,11 @@ class UserController extends BaseAdminController
             Auth::id()
         );
 
-        if (! $result['success']) {
-            return $this->errorResponse($result['message'], null, 422);
+        if (! $result) {
+            return redirect()->back()->with('error', __('Amount exceeds current balance'));
         }
 
-        return $this->successResponse(__('Balance deducted successfully'), [
-            'new_balance' => $result['new_balance'],
-            'formatted_balance' => $result['formatted_balance'],
-            'transaction' => array_merge($result['transaction'], ['admin' => Auth::user()->name]),
-        ]);
+        return redirect()->back()->with('success', __('Balance deducted successfully'));
     }
 
     public function getBalanceStats(User $user)
@@ -170,45 +163,7 @@ class UserController extends BaseAdminController
         $params = $this->getPaginationParams($request);
         $balanceHistories = $this->balanceService->getHistory($user, $params['per_page'], $params['page']);
 
-        if ($request->ajax()) {
-            return $this->successResponse(__('Balance history retrieved'), [
-                'data' => $balanceHistories->items(),
-                'pagination' => [
-                    'current_page' => $balanceHistories->currentPage(),
-                    'last_page' => $balanceHistories->lastPage(),
-                    'per_page' => $balanceHistories->perPage(),
-                    'total' => $balanceHistories->total(),
-                ],
-            ]);
-        }
-
         return view('admin.users.balance-history', compact('user', 'balanceHistories'));
-    }
-
-    public function bulkBalanceOperation(Request $request)
-    {
-        $request->validate([
-            'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:users,id',
-            'operation' => 'required|in:add,deduct',
-            'amount' => 'required|numeric|min:0.01',
-            'note' => 'nullable|string|max:255',
-        ]);
-
-        $result = $this->balanceService->handleBulkOperation(
-            $request->user_ids,
-            $request->operation,
-            (float) $request->amount,
-            $request->note,
-            Auth::id()
-        );
-
-        return $this->jsonResponse(
-            $result['success'],
-            __('Bulk operation completed'),
-            $result,
-            $result['success'] ? 200 : 400
-        );
     }
 
     protected function getUsers(Request $request)

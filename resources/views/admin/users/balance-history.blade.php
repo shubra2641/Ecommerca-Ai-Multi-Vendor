@@ -120,6 +120,12 @@
                     <p>{{ __('This user has no balance transactions yet.') }}</p>
                 </div>
                 @endif
+
+                @if($balanceHistories->hasPages())
+                <div class="admin-pagination-wrapper">
+                    {{ $balanceHistories->links() }}
+                </div>
+                @endif
             </div>
         </div>
 

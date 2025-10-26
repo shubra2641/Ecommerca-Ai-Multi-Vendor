@@ -39,7 +39,7 @@ class UsersBalanceExport implements FromCollection, WithHeadings, WithMapping
             $user->name,
             $user->email,
             ucfirst($user->role),
-            number_format($user->balance, 2),
+            number_format((float) $user->balance, 2),
         ];
     }
 }

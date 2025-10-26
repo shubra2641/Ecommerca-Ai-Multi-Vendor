@@ -23,7 +23,7 @@
                     </svg>
                     {{ __('Back to User') }}
                 </a>
-                <button type="button" class="admin-btn admin-btn-primary btn-view-history">
+                <button type="button" class="admin-btn admin-btn-primary">
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -42,6 +42,18 @@
                     {{ __('Current Balance') }}
                 </h2>
                 <div class="admin-balance-actions">
+                    <button type="button" class="admin-btn admin-btn-small admin-btn-success" data-bs-toggle="modal" data-bs-target="#addBalanceModal">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        {{ __('Add Balance') }}
+                    </button>
+                    <button type="button" class="admin-btn admin-btn-small admin-btn-warning" data-bs-toggle="modal" data-bs-target="#deductBalanceModal">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M20 12H4" />
+                        </svg>
+                        {{ __('Deduct Balance') }}
+                    </button>
                     <a href="{{ route('admin.users.balance.history', $user) }}" class="admin-btn admin-btn-small admin-btn-primary">
                         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -54,7 +66,7 @@
                 <div class="admin-balance-display">
                     <div class="admin-balance-amount">
                         <span class="admin-balance-value" data-countup data-target="{{ $user->balance ?? 0 }}">
-                            {{ number_format($user->balance ?? 0, 2) }}
+                            {{ number_format((float) ($user->balance ?? 0), 2) }}
                         </span>
                         <span class="admin-balance-currency">{{ $defaultCurrency ? $defaultCurrency->symbol : 'USD' }}</span>
                     </div>
@@ -73,7 +85,7 @@
                         </div>
                         <div class="admin-stat-content">
                             <div class="admin-stat-value" data-countup data-target="{{ $balanceStats['total_added'] ?? 0 }}">
-                                {{ number_format($balanceStats['total_added'] ?? 0, 2) }} {{ $defaultCurrency ? $defaultCurrency->symbol : 'USD' }}
+                                {{ number_format((float) ($balanceStats['total_added'] ?? 0), 2) }} {{ $defaultCurrency ? $defaultCurrency->symbol : 'USD' }}
                             </div>
                             <div class="admin-stat-label">{{ __('Total Added') }}</div>
                         </div>
@@ -86,7 +98,7 @@
                         </div>
                         <div class="admin-stat-content">
                             <div class="admin-stat-value" data-countup data-target="{{ $balanceStats['total_deducted'] ?? 0 }}">
-                                {{ number_format($balanceStats['total_deducted'] ?? 0, 2) }} {{ $defaultCurrency ? $defaultCurrency->symbol : 'USD' }}
+                                {{ number_format((float) ($balanceStats['total_deducted'] ?? 0), 2) }} {{ $defaultCurrency ? $defaultCurrency->symbol : 'USD' }}
                             </div>
                             <div class="admin-stat-label">{{ __('Total Deducted') }}</div>
                         </div>
@@ -99,7 +111,7 @@
                         </div>
                         <div class="admin-stat-content">
                             <div class="admin-stat-value" data-countup data-target="{{ $balanceStats['net_balance_change'] ?? 0 }}">
-                                {{ number_format($balanceStats['net_balance_change'] ?? 0, 2) }} {{ $defaultCurrency ? $defaultCurrency->symbol : 'USD' }}
+                                {{ number_format((float) ($balanceStats['net_balance_change'] ?? 0), 2) }} {{ $defaultCurrency ? $defaultCurrency->symbol : 'USD' }}
                             </div>
                             <div class="admin-stat-label">{{ __('Net Change') }}</div>
                         </div>
@@ -117,7 +129,7 @@
                     </svg>
                     {{ __('Recent Transactions') }}
                 </h2>
-                <button type="button" class="admin-btn admin-btn-small admin-btn-primary btn-view-history">
+                <button type="button" class="admin-btn admin-btn-small admin-btn-primary">
                     {{ __('View All') }}
                 </button>
             </div>
@@ -215,19 +227,19 @@
             </div>
             <div class="admin-card-body">
                 <div class="admin-actions-grid">
-                    <a href="{{ route('admin.users.edit', $user) }}" class="admin-action-btn">
+                    <a href="{{ route('admin.users.edit', $user) }}" class="admin-btn admin-btn-small admin-btn-primary">
                         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                         <span>{{ __('Edit User') }}</span>
                     </a>
-                    <a href="{{ route('admin.users.balance.history', $user) }}" class="admin-action-btn">
+                    <a href="{{ route('admin.users.balance.history', $user) }}" class="admin-btn admin-btn-small admin-btn-primary">
                         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span>{{ __('View Balance History') }}</span>
                     </a>
-                    <a href="{{ route('admin.users.index') }}" class="admin-action-btn">
+                    <a href="{{ route('admin.users.index') }}" class="admin-btn admin-btn-small admin-btn-primary">
                         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                         </svg>
@@ -244,15 +256,15 @@
 <div class="modal fade" id="addBalanceModal" tabindex="-1" aria-labelledby="addBalanceModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addBalanceModalLabel">
-                    <i class="fas fa-plus-circle text-success me-2"></i>
-                    {{ __('Add Balance') }}
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="addBalanceForm">
+            <form action="{{ route('admin.users.add-balance', $user) }}" method="post">
                 @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addBalanceModalLabel">
+                        <i class="fas fa-plus-circle text-success me-2"></i>
+                        {{ __('Add Balance') }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="addAmount">{{ __('Amount') }} <span class="text-danger">*</span></label>
@@ -290,15 +302,15 @@
     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deductBalanceModalLabel">
-                    <i class="fas fa-minus-circle text-warning me-2"></i>
-                    {{ __('Deduct Balance') }}
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="deductBalanceForm">
+            <form action="{{ route('admin.users.deduct-balance', $user) }}" method="post">
                 @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deductBalanceModalLabel">
+                        <i class="fas fa-minus-circle text-warning me-2"></i>
+                        {{ __('Deduct Balance') }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <div class="modal-body">
                     <div class="form-group alert alert-warning mb-3">
                         {{ __('Note: Deducting balance cannot be undone') }}
@@ -314,7 +326,7 @@
                             </div>
                         </div>
                         <small class="form-text text-muted">{{ __('Maximum amount you can deduct') }}:
-                            {{ number_format($user->balance ?? 0, 2) }}
+                            {{ number_format((float) ($user->balance ?? 0), 2) }}
                             {{ $defaultCurrency ? $defaultCurrency->symbol : 'USD' }}</small>
                     </div>
                     <div class="form-group">
@@ -336,63 +348,4 @@
     </div>
 </div>
 
-<!-- Balance History Modal -->
-<div class="modal fade" id="balanceHistoryModal" tabindex="-1" aria-labelledby="balanceHistoryModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="balanceHistoryModalLabel">
-                    <i class="fas fa-history text-info me-2"></i>
-                    {{ __('Balance History') }} - {{ $user->name }}
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="balanceHistoryContainer">
-                    <div class="text-center p-4">
-                        <div class="loading-spinner mx-auto"></div>
-                        <p class="mt-2">{{ __('Loading history...') }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
 @endsection
-
-<template id="user-balance-config">{!! json_encode([
-    'urls' => [
-    'add' => route('admin.users.add-balance', $user),
-    'deduct' => route('admin.users.deduct-balance', $user),
-    'stats' => route('admin.users.balance.stats', $user),
-    'history' => route('admin.users.balance.history', $user),
-    ],
-    'currency' => [
-    'code' => $defaultCurrency?->code ?? 'USD',
-    'symbol' => $defaultCurrency?->symbol ?? '$'
-    ],
-    'i18n' => [
-    'credit' => __('Credit'),
-    'debit' => __('Debit'),
-    'balance_added' => __('Balance added successfully'),
-    'balance_deducted' => __('Balance deducted successfully'),
-    'balance_invalid_add' => __('Please enter a valid amount and a reason'),
-    'balance_invalid_deduct' => __('Please enter a valid amount and a reason'),
-    'balance_exceeds' => __('Amount exceeds current balance'),
-    'loading_history' => __('Loading history...'),
-    'error' => __('Error'),
-    'error_add' => __('Error while adding balance'),
-    'error_deduct' => __('Error while deducting balance'),
-    'error_history' => __('Failed to load balance history'),
-    'error_server' => __('Server communication error'),
-    'no_history' => __('No history'),
-    'no_history_desc' => __('No previous transactions found'),
-    'not_specified' => __('Not specified'),
-    'processing' => __('Processing...'),
-    ]
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</template>
