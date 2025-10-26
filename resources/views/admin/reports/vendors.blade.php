@@ -28,7 +28,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ (int)$stats['total'] }}">{{ number_format($stats['total']) }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ (int)$stats['total'] }}">{{ number_format($stats['total']) }}</div>
                     <div class="admin-stat-label">{{ __('Total Vendors') }}</div>
                     <div class="admin-stat-description">{{ __('All registered vendors') }}</div>
                 </div>
@@ -50,7 +50,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ (int)$stats['active'] }}">{{ number_format($stats['active']) }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ (int)$stats['active'] }}">{{ number_format($stats['active']) }}</div>
                     <div class="admin-stat-label">{{ __('Active Vendors') }}</div>
                     <div class="admin-stat-description">{{ number_format((($stats['active'] / max($stats['total'], 1)) * 100), 1) }}% {{ __('active') }}</div>
                 </div>
@@ -72,7 +72,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ (int)$stats['pending'] }}">{{ number_format($stats['pending']) }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ (int)$stats['pending'] }}">{{ number_format($stats['pending']) }}</div>
                     <div class="admin-stat-label">{{ __('Pending Vendors') }}</div>
                     <div class="admin-stat-description">{{ __('Awaiting approval') }}</div>
                 </div>
@@ -94,7 +94,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ number_format($stats['totalBalance'], 2) }}">${{ number_format($stats['totalBalance'], 2) }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ number_format($stats['totalBalance'], 2) }}">${{ number_format($stats['totalBalance'], 2) }}</div>
                     <div class="admin-stat-label">{{ __('Total Balance') }}</div>
                     <div class="admin-stat-description">{{ __('Vendor earnings') }}</div>
                 </div>

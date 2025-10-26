@@ -38,7 +38,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $attributes->count() }}">{{ $attributes->count() }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $attributes->count() }}">{{ $attributes->count() }}</div>
                     <div class="admin-stat-label">{{ __('Total Attributes') }}</div>
                     <div class="admin-stat-description">{{ __('All attributes in system') }}</div>
                 </div>
@@ -60,7 +60,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $attributes->where('active', true)->count() }}">{{ $attributes->where('active', true)->count() }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $attributes->where('active', true)->count() }}">{{ $attributes->where('active', true)->count() }}</div>
                     <div class="admin-stat-label">{{ __('Active Attributes') }}</div>
                     <div class="admin-stat-description">{{ __('Currently available') }}</div>
                 </div>
@@ -82,7 +82,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $attributes->where('type', 'select')->count() }}">{{ $attributes->where('type', 'select')->count() }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $attributes->where('type', 'select')->count() }}">{{ $attributes->where('type', 'select')->count() }}</div>
                     <div class="admin-stat-label">{{ __('Select Attributes') }}</div>
                     <div class="admin-stat-description">{{ __('Dropdown options') }}</div>
                 </div>
@@ -104,7 +104,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $attributes->where('type', 'color')->count() }}">{{ $attributes->where('type', 'color')->count() }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $attributes->where('type', 'color')->count() }}">{{ $attributes->where('type', 'color')->count() }}</div>
                     <div class="admin-stat-label">{{ __('Color Attributes') }}</div>
                     <div class="admin-stat-description">{{ __('Color pickers') }}</div>
                 </div>

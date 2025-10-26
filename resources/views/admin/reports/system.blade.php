@@ -56,7 +56,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ PHP_VERSION }}">{{ PHP_VERSION }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ PHP_VERSION }}">{{ PHP_VERSION }}</div>
                     <div class="admin-stat-label">{{ __('PHP Version') }}</div>
                     <div class="admin-stat-description">{{ __('Server version') }}</div>
                 </div>
@@ -78,7 +78,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ app()->version() }}">{{ app()->version() }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ app()->version() }}">{{ app()->version() }}</div>
                     <div class="admin-stat-label">{{ __('Laravel Version') }}</div>
                     <div class="admin-stat-description">{{ __('Framework version') }}</div>
                 </div>

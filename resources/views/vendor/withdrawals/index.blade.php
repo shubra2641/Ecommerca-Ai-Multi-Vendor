@@ -54,7 +54,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value">{{ number_format($totalWithdrawn) }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ number_format($totalWithdrawn) }}">{{ number_format($totalWithdrawn) }}</div>
                     <div class="admin-stat-label">{{ __('vendor.withdrawals.total_withdrawn') }}</div>
                     <div class="admin-stat-description">{{ __('Total completed withdrawals') }}</div>
                 </div>
@@ -82,7 +82,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value">{{ number_format($pendingAmount, 2) }} {{ $currency }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ number_format($pendingAmount, 2) }}">{{ number_format($pendingAmount, 2) }} {{ $currency }}</div>
                     <div class="admin-stat-label">{{ __('vendor.withdrawals.pending_amount') }}</div>
                     <div class="admin-stat-description">{{ __('Awaiting approval') }}</div>
                 </div>
@@ -110,7 +110,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value">{{ number_format($approvedThisMonth, 2) }} {{ $currency }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ number_format($approvedThisMonth, 2) }}">{{ number_format($approvedThisMonth, 2) }} {{ $currency }}</div>
                     <div class="admin-stat-label">{{ __('vendor.withdrawals.approved_this_month') }}</div>
                     <div class="admin-stat-description">{{ __('This month approved') }}</div>
                 </div>

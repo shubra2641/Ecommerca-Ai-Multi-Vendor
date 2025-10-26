@@ -38,7 +38,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $aciTotals['total'] }}">{{ $aciTotals['total'] }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $aciTotals['total'] }}">{{ $aciTotals['total'] }}</div>
                     <div class="admin-stat-label">{{ __('Total Categories') }}</div>
                     <div class="admin-stat-description">{{ __('All categories in system') }}</div>
                 </div>
@@ -60,7 +60,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $aciTotals['active'] }}">{{ $aciTotals['active'] }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $aciTotals['active'] }}">{{ $aciTotals['active'] }}</div>
                     <div class="admin-stat-label">{{ __('Active Categories') }}</div>
                     <div class="admin-stat-description">{{ __('Currently available') }}</div>
                 </div>
@@ -82,7 +82,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $aciTotals['parent'] }}">{{ $aciTotals['parent'] }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $aciTotals['parent'] }}">{{ $aciTotals['parent'] }}</div>
                     <div class="admin-stat-label">{{ __('Parent Categories') }}</div>
                     <div class="admin-stat-description">{{ __('Top level categories') }}</div>
                 </div>
@@ -104,7 +104,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $aciTotals['child'] }}">{{ $aciTotals['child'] }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $aciTotals['child'] }}">{{ $aciTotals['child'] }}</div>
                     <div class="admin-stat-label">{{ __('Subcategories') }}</div>
                     <div class="admin-stat-description">{{ __('Child categories') }}</div>
                 </div>

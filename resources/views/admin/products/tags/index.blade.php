@@ -38,7 +38,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $tags->total() }}">{{ $tags->total() }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $tags->total() }}">{{ $tags->total() }}</div>
                     <div class="admin-stat-label">{{ __('Total Tags') }}</div>
                     <div class="admin-stat-description">{{ __('All created tags') }}</div>
                 </div>
@@ -60,7 +60,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $tags->where('products_count', '>', 0)->count() }}">{{ $tags->where('products_count', '>', 0)->count() }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $tags->where('products_count', '>', 0)->count() }}">{{ $tags->where('products_count', '>', 0)->count() }}</div>
                     <div class="admin-stat-label">{{ __('Used Tags') }}</div>
                     <div class="admin-stat-description">{{ __('Tags with products') }}</div>
                 </div>
@@ -82,7 +82,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $tags->where('products_count', 0)->count() }}">{{ $tags->where('products_count', 0)->count() }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $tags->where('products_count', 0)->count() }}">{{ $tags->where('products_count', 0)->count() }}</div>
                     <div class="admin-stat-label">{{ __('Unused Tags') }}</div>
                     <div class="admin-stat-description">{{ __('Tags without products') }}</div>
                 </div>
@@ -104,7 +104,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $tags->where('created_at', '>=', now()->subDays(30))->count() }}">{{ $tags->where('created_at', '>=', now()->subDays(30))->count() }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $tags->where('created_at', '>=', now()->subDays(30))->count() }}">{{ $tags->where('created_at', '>=', now()->subDays(30))->count() }}</div>
                     <div class="admin-stat-label">{{ __('New This Month') }}</div>
                     <div class="admin-stat-description">{{ __('Recently created') }}</div>
                 </div>

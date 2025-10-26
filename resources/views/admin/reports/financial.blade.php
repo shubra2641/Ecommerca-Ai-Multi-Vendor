@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div class="admin-stat-content">
-                <div class="admin-stat-value" data-countup="{{ number_format($financialData['totalBalance'], 2, '.', '') }}">${{ number_format($financialData['totalBalance'], 2) }}</div>
+                <div class="admin-stat-value" data-countup data-target="{{ number_format($financialData['totalBalance'], 2, '.', '') }}">${{ number_format($financialData['totalBalance'], 2) }}</div>
                 <div class="admin-stat-label">{{ __('Total Balance') }}</div>
                 <div class="admin-stat-description">{{ __('System total') }}</div>
             </div>
@@ -51,7 +51,7 @@
                 </div>
             </div>
             <div class="admin-stat-content">
-                <div class="admin-stat-value" data-countup="{{ number_format($financialData['vendorBalance'], 2, '.', '') }}">${{ number_format($financialData['vendorBalance'], 2) }}</div>
+                <div class="admin-stat-value" data-countup data-target="{{ number_format($financialData['vendorBalance'], 2, '.', '') }}">${{ number_format($financialData['vendorBalance'], 2) }}</div>
                 <div class="admin-stat-label">{{ __('Vendor Balance') }}</div>
                 <div class="admin-stat-description">{{ __('Vendor earnings') }}</div>
             </div>
@@ -73,7 +73,7 @@
                 </div>
             </div>
             <div class="admin-stat-content">
-                <div class="admin-stat-value" data-countup="{{ number_format($financialData['customerBalance'], 2, '.', '') }}">${{ number_format($financialData['customerBalance'], 2) }}</div>
+                <div class="admin-stat-value" data-countup data-target="{{ number_format($financialData['customerBalance'], 2, '.', '') }}">${{ number_format($financialData['customerBalance'], 2) }}</div>
                 <div class="admin-stat-label">{{ __('Customer Balance') }}</div>
                 <div class="admin-stat-description">{{ __('Customer deposits') }}</div>
             </div>
@@ -95,7 +95,7 @@
                 </div>
             </div>
             <div class="admin-stat-content">
-                <div class="admin-stat-value" data-countup="{{ number_format($financialData['averageBalance'], 2, '.', '') }}">${{ number_format($financialData['averageBalance'], 2) }}</div>
+                <div class="admin-stat-value" data-countup data-target="{{ number_format($financialData['averageBalance'], 2, '.', '') }}">${{ number_format($financialData['averageBalance'], 2) }}</div>
                 <div class="admin-stat-label">{{ __('Average Balance') }}</div>
                 <div class="admin-stat-description">{{ __('Per account') }}</div>
             </div>

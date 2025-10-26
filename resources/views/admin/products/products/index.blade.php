@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $totalProducts }}">{{ $totalProducts }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $totalProducts }}">{{ $totalProducts }}</div>
                     <div class="admin-stat-label">{{ __('Total Products') }}</div>
                     <div class="admin-stat-description">{{ __('All products in catalog') }}</div>
                 </div>
@@ -73,7 +73,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $activeProducts }}">{{ $activeProducts }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $activeProducts }}">{{ $activeProducts }}</div>
                     <div class="admin-stat-label">{{ __('Active Products') }}</div>
                     <div class="admin-stat-description">{{ __('Currently available') }}</div>
                 </div>
@@ -101,7 +101,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $featuredProducts }}">{{ $featuredProducts }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $featuredProducts }}">{{ $featuredProducts }}</div>
                     <div class="admin-stat-label">{{ __('Featured Products') }}</div>
                     <div class="admin-stat-description">{{ __('Highlighted products') }}</div>
                 </div>
@@ -130,7 +130,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $bestSellers }}">{{ $bestSellers }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ $bestSellers }}">{{ $bestSellers }}</div>
                     <div class="admin-stat-label">{{ __('Best Sellers') }}</div>
                     <div class="admin-stat-description">{{ __('Top performing products') }}</div>
                 </div>
