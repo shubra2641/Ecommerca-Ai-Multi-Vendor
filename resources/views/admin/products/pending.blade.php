@@ -22,39 +22,6 @@
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="admin-modern-card">
-            <div class="admin-card-header">
-                <h3 class="admin-card-title">
-                    <i class="fas fa-filter"></i>
-                    {{ __('Filters') }}
-                </h3>
-            </div>
-            <form method="get" class="admin-card-body">
-                <div class="admin-form-grid">
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('pending_products_filter_vendor') }}</label>
-                        <select name="vendor_id" class="admin-form-input" data-placeholder="{{ __('pending_products_filter_vendor') }}">
-                            <option value="">-- {{ __('pending_products_filter_vendor') }} --</option>
-                            @foreach($vendors ?? [] as $v)
-                            <option value="{{ $v->id }}" @selected((string)$v->id === (string)($selectedVendorId ?? ''))>{{ $v->name }} (#{{ $v->id }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('pending_products_filter_search') }}</label>
-                        <input type="text" name="q" value="{{ request('q') }}" class="admin-form-input" placeholder="{{ __('pending_products_filter_search_ph') }}">
-                    </div>
-                    <div class="admin-form-group">
-                        <div class="admin-flex-end">
-                            <button class="admin-btn admin-btn-primary">{{ __('pending_products_filter_apply') }}</button>
-                            <a href="{{ route('admin.products.pending') }}" class="admin-btn admin-btn-secondary">{{ __('pending_products_filter_reset') }}</a>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-
         <!-- Products Table -->
         <div class="admin-modern-card">
             <div class="admin-card-header">

@@ -18,39 +18,18 @@ class ProductApprovalController extends Controller
         $overallTotal = (clone $baseQuery)->count();
         $query = (clone $baseQuery)->with('vendor');
 
-        // Filter by vendor id
-        $vendorId = null;
-        if ($request->filled('vendor_id')) {
-            $vendorId = $request->integer('vendor_id');
-            $query->where('vendor_id', $vendorId);
-        }
-        // Search by name / id / rejection_reason
-        $search = trim($request->input('q', ''));
-        if ($search) {
-            $query->where(function ($q) use ($search): void {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('id', $search)
-                    ->orWhere('rejection_reason', 'like', "%{$search}%");
-            });
-        }
         $filteredTotal = (clone $query)->count();
-        $products = $query->latest()->paginate(30)->appends($request->only('vendor_id', 'q'));
+        $products = $query->latest()->paginate(30);
 
         // Vendors dropdown (limit for performance)
         $vendors = \App\Models\User::where('role', 'vendor')->orderBy('name')->limit(200)->get(['id', 'name']);
-        if ($vendorId && ! $vendors->firstWhere('id', $vendorId)) {
-            $singleVendor = \App\Models\User::where('role', 'vendor')->where('id', $vendorId)->first(['id', 'name']);
-            if ($singleVendor) {
-                $vendors->push($singleVendor);
-            }
-        }
 
         return view('admin.products.pending', [
             'products' => $products,
             'totalFiltered' => $filteredTotal,
             'totalOverall' => $overallTotal,
             'vendors' => $vendors,
-            'selectedVendorId' => $vendorId,
+            'selectedVendorId' => null,
         ]);
     }
 

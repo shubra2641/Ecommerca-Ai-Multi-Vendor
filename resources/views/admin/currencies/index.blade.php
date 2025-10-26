@@ -237,49 +237,6 @@
         </div>
     </div>
 
-    <!-- Exchange Rate Info -->
-    <div class="admin-modern-card">
-        <div class="admin-card-header">
-            <h2 class="admin-card-title">
-                <i class="fas fa-info-circle"></i>
-                {{ __('Exchange Rate Information') }}
-            </h2>
-        </div>
-        <div class="admin-card-body">
-            <div class="alert alert-info border-0">
-                <i class="fas fa-info-circle me-2"></i>
-                <strong>{{ __('Note:') }}</strong>
-                {{ __('Exchange rates are relative to USD. The default currency serves as the base for all transactions.') }}
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <h6 class="fw-semibold mb-3">{{ __('Currency Conversion Examples') }}</h6>
-                    @if($currencies->count() >= 2)
-                    <div class="conversion-list">
-                        @foreach($currencies->take(3) as $currency)
-                        <div class="conversion-item d-flex justify-content-between align-items-center py-2 border-bottom">
-                            <span class="fw-semibold">1 USD</span>
-                            <span class="text-primary fw-bold">{{ number_format($currency->exchange_rate, 2) }} {{ $currency->code }}</span>
-                        </div>
-                        @endforeach
-                    </div>
-                    @endif
-                </div>
-                <div class="col-md-6">
-                    <h6 class="fw-semibold mb-3">{{ __('Last Update') }}</h6>
-                    <div class="update-info mb-3">
-                        <p class="admin-text-muted mb-2">{{ __('Rates last updated:') }}</p>
-                        <div class="fw-semibold text-dark">{{ $currencies->max('updated_at')?->diffForHumans() ?? __('Never') }}</div>
-                    </div>
-                    <button type="button" class="admin-btn admin-btn-primary" data-action="update-rates">
-                        <i class="fas fa-sync-alt"></i>
-                        {{ __('Update All Rates') }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
     </div>
 </section>
 @endsection

@@ -168,7 +168,6 @@ Route::middleware([
         Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('destroy');
         Route::post('/{currency}/set-default', [CurrencyController::class, 'setDefault'])->name('set-default');
         Route::post('/{currency}/toggle-status', [CurrencyController::class, 'toggleStatus'])->name('toggle-status');
-        Route::post('/rates/update', [CurrencyController::class, 'updateRates'])->name('rates.update');
         Route::post('/bulk-activate', [CurrencyController::class, 'bulkActivate'])->name('bulk-activate');
         Route::post('/bulk-deactivate', [CurrencyController::class, 'bulkDeactivate'])->name('bulk-deactivate');
         Route::delete('/bulk-delete', [CurrencyController::class, 'bulkDelete'])->name('bulk-delete');

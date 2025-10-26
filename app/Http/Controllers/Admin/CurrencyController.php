@@ -109,15 +109,6 @@ class CurrencyController extends Controller
             ->with('success', __('Default currency updated successfully'));
     }
 
-    public function updateRates()
-    {
-        // Here you would implement API call to update exchange rates
-        return response()->json([
-            'success' => true,
-            'message' => __('Exchange rates updated successfully'),
-        ]);
-    }
-
     public function bulkActivate(Request $request)
     {
         $ids = $request->input('ids', []);

@@ -28,50 +28,6 @@
         @include('admin.notify.summary',['breakdown'=>$breakdown])
         @endisset
 
-        <!-- Filters -->
-        <div class="admin-modern-card admin-mb-1-5">
-            <div class="admin-card-header">
-                <i class="fas fa-filter"></i>
-                <h3 class="admin-card-title">{{ __('Filters') }}</h3>
-            </div>
-            <div class="admin-card-body">
-                <form method="get" class="admin-form-grid-auto">
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Email') }}</label>
-                        <input name="email" value="{{ request('email') }}" class="admin-form-input" placeholder="{{ __('Email') }}">
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Product ID') }}</label>
-                        <input name="product" value="{{ request('product') }}" class="admin-form-input" placeholder="{{ __('Product ID') }}">
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Status') }}</label>
-                        <select name="status" class="admin-form-select">
-                            <option value="">{{ __('All Statuses') }}</option>
-                            @foreach(['pending','notified','cancelled'] as $s)
-                            <option value="{{ $s }}" @selected(request('status')===$s)>{{ ucfirst($s) }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Type') }}</label>
-                        <select name="type" class="admin-form-select">
-                            <option value="">{{ __('All Types') }}</option>
-                            @foreach(['stock','back_in_stock','price_drop'] as $t)
-                            <option value="{{ $t }}" @selected(request('type')===$t)>{{ ucfirst(str_replace('_',' ',$t)) }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="admin-form-group admin-flex-end">
-                        <button class="admin-btn admin-btn-primary admin-btn-block">
-                            <i class="fas fa-search"></i>
-                            {{ __('Filter') }}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
         <!-- Notifications List -->
         <div class="admin-modern-card">
             <div class="admin-card-header">

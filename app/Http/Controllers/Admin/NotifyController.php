@@ -12,20 +12,9 @@ class NotifyController extends Controller
 {
     public function index(Request $request)
     {
-        $request->validate([
-            'status' => ['nullable', 'string', 'max:50'],
-            'type' => ['nullable', 'string', 'max:50'],
-            'product' => ['nullable', 'integer', 'exists:products,id'],
-            'email' => ['nullable', 'string', 'max:255'],
-        ]);
+        $query = ProductInterest::with(['product', 'user']);
 
-        $query = ProductInterest::with(['product', 'user'])
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
-            ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
-            ->when($request->filled('product'), fn ($q) => $q->where('product_id', $request->product))
-            ->when($request->filled('email'), fn ($q) => $q->where('email', 'like', '%'.$request->email.'%'));
-
-        $interests = $query->latest()->paginate(30)->withQueryString();
+        $interests = $query->latest()->paginate(30);
         // Breakdown summary (cached briefly to avoid heavy queries)
         $breakdown = cache()->remember('notify_breakdown', 60, function () {
             $types = ProductInterest::selectRaw('type, COUNT(*) as total')
