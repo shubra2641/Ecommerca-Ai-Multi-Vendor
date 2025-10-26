@@ -2096,19 +2096,6 @@ body.dark-mode {
     min-width: 160px;
 }
 
-.dropdown-item {
-    padding: 0.5rem 1rem;
-    color: var(--admin-text-primary);
-    text-decoration: none;
-    display: block;
-    transition: var(--admin-transition);
-}
-
-.dropdown-item:hover {
-    background-color: var(--admin-primary-light);
-    color: var(--admin-primary);
-}
-
 /* Loading States */
 .loading-spinner {
     display: inline-block;
@@ -3768,16 +3755,6 @@ body.dark-mode .modern-card {
     font-weight: 600;
     color: #374151;
     font-size: 0.875rem;
-}
-
-.dropdown-item {
-    padding: 0;
-    border: none;
-    border-radius: 0;
-}
-
-.dropdown-item:hover {
-    background-color: transparent;
 }
 
 /* Mark as read button styling */

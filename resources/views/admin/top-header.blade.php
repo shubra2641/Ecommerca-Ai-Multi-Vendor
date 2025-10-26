@@ -48,7 +48,7 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <a class="dropdown-item text-center"
+                            <a class="btn btn-sm btn-outline-secondary w-100"
                                 href="{{ route('admin.notifications.index') ?? '#' }}">
                                 {{ __('notifications.view_all') }}
                             </a>
