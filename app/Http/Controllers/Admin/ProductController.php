@@ -19,6 +19,7 @@ use App\Models\User;
 use App\Notifications\AdminStockLowNotification;
 use App\Services\AI\SimpleAIService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -28,7 +29,21 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::with(['category', 'variations'])->paginate($request->get('per_page', 10));
+        $user = Auth::user();
+        $isAdmin = $user->role === 'admin';
+
+        $query = Product::with(['category', 'variations']);
+
+        if (!$isAdmin) {
+            $query->where('vendor_id', $user->id);
+        }
+
+        $products = $query->paginate($request->get('per_page', 10));
+
+        $totalProducts = $query->count();
+        $activeProducts = (clone $query)->where('active', true)->count();
+        $featuredProducts = (clone $query)->where('is_featured', true)->count();
+        $bestSellers = (clone $query)->where('is_best_seller', true)->count();
 
         $apiStockProducts = [];
         $apiStockVariations = [];
@@ -40,24 +55,36 @@ class ProductController extends Controller
             }
         }
 
-        return view('admin.products.products.index', compact('products', 'apiStockProducts', 'apiStockVariations'));
+        return view($isAdmin ? 'admin.products.products.index' : 'vendor.products.index', compact('products', 'totalProducts', 'activeProducts', 'featuredProducts', 'bestSellers', 'apiStockProducts', 'apiStockVariations', 'isAdmin'));
     }
 
     public function show(Product $product)
     {
+        $user = Auth::user();
+        $isAdmin = $user->role === 'admin';
+        if (!$isAdmin && $product->vendor_id !== $user->id) {
+            abort(403);
+        }
         $product->load(['tags', 'variations', 'category']);
 
-        return view('admin.products.products.show', compact('product'));
+        return view($isAdmin ? 'admin.products.products.show' : 'vendor.products.show', compact('product'));
     }
 
     public function create()
     {
-        return view('admin.products.products.create', $this->getFormData());
+        $user = Auth::user();
+        $isAdmin = $user->role === 'admin';
+        return view($isAdmin ? 'admin.products.products.create' : 'vendor.products.create', $this->getFormData() + compact('isAdmin'));
     }
 
     public function store(ProductRequest $request)
     {
         $data = $this->prepareProductData($request->validated());
+        $user = Auth::user();
+        $data['vendor_id'] = $user->id;
+        if ($user->role !== 'admin') {
+            $data['active'] = false;
+        }
         $product = Product::create($data);
         $this->syncProductRelations($product, $request);
         $this->handleNotifications($product);
@@ -67,14 +94,24 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
+        $user = Auth::user();
+        $isAdmin = $user->role === 'admin';
+        if (!$isAdmin && $product->vendor_id !== $user->id) {
+            abort(403);
+        }
         $product->load(['tags', 'variations', 'serials']);
-        $data = array_merge($this->getFormData(), compact('product'));
+        $data = array_merge($this->getFormData(), compact('product', 'isAdmin'));
 
-        return view('admin.products.products.edit', $data);
+        return view($isAdmin ? 'admin.products.products.edit' : 'vendor.products.edit', $data);
     }
 
     public function update(ProductRequest $request, Product $product)
     {
+        $user = Auth::user();
+        $isAdmin = $user->role === 'admin';
+        if (!$isAdmin && $product->vendor_id !== $user->id) {
+            abort(403);
+        }
         $oldActive = $product->active;
         $data = $this->prepareProductData($request->validated());
         $product->update($data);
@@ -86,6 +123,11 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        $user = Auth::user();
+        $isAdmin = $user->role === 'admin';
+        if (!$isAdmin && $product->vendor_id !== $user->id) {
+            abort(403);
+        }
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', __('Product deleted successfully.'));
@@ -93,6 +135,10 @@ class ProductController extends Controller
 
     public function toggleStatus(Product $product)
     {
+        $user = Auth::user();
+        if ($user->role !== 'admin') {
+            abort(403);
+        }
         $product->update(['active' => ! $product->active]);
         $status = $product->active ? 'activated' : 'deactivated';
 
@@ -493,5 +539,42 @@ class ProductController extends Controller
                 null;
             }
         }
+    }
+
+    protected function getStockInfo($item): array
+    {
+        if (!$item->manage_stock) {
+            return [
+                'available' => null,
+                'stock_qty' => null,
+                'class' => '',
+                'badge' => null,
+                'backorder' => null,
+            ];
+        }
+
+        $available = (int) $item->stock_qty - (int) ($item->reserved_qty ?? 0);
+        $stockQty = (int) $item->stock_qty;
+        $lowThreshold = (int) config('catalog.stock_low_threshold', 5);
+        $soonThreshold = (int) config('catalog.stock_soon_threshold', 10);
+
+        $class = '';
+        $badge = null;
+
+        if ($available <= $lowThreshold) {
+            $class = 'text-danger';
+            $badge = 'low';
+        } elseif ($available <= $soonThreshold) {
+            $class = 'text-warning';
+            $badge = 'soon';
+        }
+
+        return [
+            'available' => $available,
+            'stock_qty' => $stockQty,
+            'class' => $class,
+            'badge' => $badge,
+            'backorder' => $item->backorder ?? false,
+        ];
     }
 }

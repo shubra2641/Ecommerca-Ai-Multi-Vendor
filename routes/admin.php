@@ -386,6 +386,7 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
             [ProductAttributeController::class, 'deleteValue']
         )->name('product-attributes.values.destroy');
         Route::resource('products', ProductController::class);
+        Route::post('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggleStatus');
         Route::match(['get', 'post'], 'ai/suggest', [ProductController::class, 'aiSuggest'])
             ->name('products.ai.suggest');
         // vendor product approvals (path: /admin/products/pending-review)

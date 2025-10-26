@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $products->total() }}">{{ $products->total() }}</div>
+                    <div class="admin-stat-value" data-countup="{{ $totalProducts }}">{{ $totalProducts }}</div>
                     <div class="admin-stat-label">{{ __('Total Products') }}</div>
                     <div class="admin-stat-description">{{ __('All products in catalog') }}</div>
                 </div>
@@ -73,7 +73,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $products->where('active', true)->count() }}">{{ $products->where('active', true)->count() }}</div>
+                    <div class="admin-stat-value" data-countup="{{ $activeProducts }}">{{ $activeProducts }}</div>
                     <div class="admin-stat-label">{{ __('Active Products') }}</div>
                     <div class="admin-stat-description">{{ __('Currently available') }}</div>
                 </div>
@@ -101,7 +101,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $products->where('is_featured', true)->count() }}">{{ $products->where('is_featured', true)->count() }}</div>
+                    <div class="admin-stat-value" data-countup="{{ $featuredProducts }}">{{ $featuredProducts }}</div>
                     <div class="admin-stat-label">{{ __('Featured Products') }}</div>
                     <div class="admin-stat-description">{{ __('Highlighted products') }}</div>
                 </div>
@@ -130,7 +130,7 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup="{{ $products->where('is_best_seller', true)->count() }}">{{ $products->where('is_best_seller', true)->count() }}</div>
+                    <div class="admin-stat-value" data-countup="{{ $bestSellers }}">{{ $bestSellers }}</div>
                     <div class="admin-stat-label">{{ __('Best Sellers') }}</div>
                     <div class="admin-stat-description">{{ __('Top performing products') }}</div>
                 </div>
@@ -259,6 +259,11 @@
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
+                                        @if($isAdmin)
+                                        <a href="{{ route('admin.products.toggleStatus', $p) }}" class="btn btn-sm btn-outline-secondary" title="{{ $p->active ? __('Deactivate') : __('Activate') }}">
+                                            <i class="fas fa-{{ $p->active ? 'eye-slash' : 'eye' }}"></i>
+                                        </a>
+                                        @endif
                                         <a href="{{ route('admin.products.edit',$p) }}" class="btn btn-sm btn-outline-primary"
                                             title="{{ __('Edit') }}">
                                             <i class="fas fa-edit"></i>

@@ -440,7 +440,7 @@
                         @checked(old('is_best_seller',$m?->is_best_seller ?? false))>
                     <label class="form-check-label">{{ __('Best Seller') }}</label>
                 </div>
-                @if($pfShowActive)
+                @if($isAdmin)
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="active" value="1"
                         @checked(old('active',$m?->active ?? true))>
