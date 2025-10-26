@@ -122,6 +122,7 @@ class UserController extends BaseAdminController
             'user' => $user,
             'defaultCurrency' => \App\Helpers\GlobalHelper::getCurrencyContext()['defaultCurrency'],
             'balanceStats' => $this->balanceService->getStats($user),
+            'recentTransactions' => $user->balanceHistories()->with('admin')->latest()->take(3)->get(),
         ]);
     }
 

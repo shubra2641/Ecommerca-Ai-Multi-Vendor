@@ -120,31 +120,6 @@
             </div>
         </div>
 
-        <!-- Recent Transactions Preview -->
-        <div class="admin-modern-card admin-mb-1-5">
-            <div class="admin-card-header">
-                <h2 class="admin-card-title">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {{ __('Recent Transactions') }}
-                </h2>
-                <button type="button" class="admin-btn admin-btn-small admin-btn-primary">
-                    {{ __('View All') }}
-                </button>
-            </div>
-            <div class="admin-card-body">
-                <div class="admin-empty-state">
-                    <div class="admin-notification-icon">
-                        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <p>{{ __('No transactions yet.') }}</p>
-                </div>
-            </div>
-        </div>
-
         <!-- User Summary -->
         <div class="admin-modern-card admin-mb-1-5">
             <div class="admin-card-header">
