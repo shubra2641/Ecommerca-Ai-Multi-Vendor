@@ -12,16 +12,14 @@ class AdminProductPendingReviewNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(public Product $product)
-    {
-    }
+    public function __construct(public Product $product) {}
 
-    public function via($notifiable): array
+    public function via(): array
     {
         return ['database']; // mail already sent separately
     }
 
-    public function toArray($notifiable): array
+    public function toArray(): array
     {
         return [
             'type' => 'product_pending_review',

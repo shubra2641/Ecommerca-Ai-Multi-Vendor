@@ -84,7 +84,7 @@ final class ProductCatalogController extends Controller
             $slugMap = Cache::remember(
                 'product_category_slug_id_map',
                 600,
-                fn () => ProductCategory::pluck('id', 'slug')->all()
+                fn() => ProductCategory::pluck('id', 'slug')->all()
             );
             $id = $slugMap[$cat] ?? null;
             if ($id) {
@@ -99,7 +99,7 @@ final class ProductCatalogController extends Controller
         // Tag filter
         $tag = $request->get('tag');
         if ($tag) {
-            $query->whereHas('tags', fn ($t) => $t->where('slug', $tag));
+            $query->whereHas('tags', fn($t) => $t->where('slug', $tag));
         }
 
         $data = $this->handleListing($request, $query, ['selectedBrands' => (array) $request->get('brand', [])]);
@@ -206,7 +206,7 @@ final class ProductCatalogController extends Controller
 
         // Stock
         $available = $product->availableStock();
-        ['stockClass' => $stockClass, 'levelLabel' => $levelLabel] = $this->buildStockData($product, $available);
+        ['stockClass' => $stockClass, 'levelLabel' => $levelLabel] = $this->buildStockData($available);
 
         // Interest count
         try {
@@ -236,7 +236,7 @@ final class ProductCatalogController extends Controller
 
         // Flags
         // For variable products, check if ANY variation has stock
-        ['isOut' => $isOut, 'hasDiscount' => $hasDiscount, 'brandName' => $brandName] = $this->buildFlags($product, $available, $onSale, $activeVars);
+        ['isOut' => $isOut, 'hasDiscount' => $hasDiscount, 'brandName' => $brandName] = $this->buildFlags($product, $onSale, $activeVars);
 
         // Reviews
         $formattedReviewsCount = $reviewsCount >= 1000 ? round($reviewsCount / 1000, 1) . 'k' : $reviewsCount;
@@ -299,7 +299,7 @@ final class ProductCatalogController extends Controller
         return Cache::remember(
             'category_children_ids_' . $categoryId,
             600,
-            fn () => ProductCategory::where('parent_id', $categoryId)->pluck('id')->all()
+            fn() => ProductCategory::where('parent_id', $categoryId)->pluck('id')->all()
         );
     }
 
@@ -575,13 +575,13 @@ final class ProductCatalogController extends Controller
             return compact('gallery', 'mainImage');
         }
 
-        $gallery = $images->unique()->map(fn ($p) => ['raw' => $p, 'url' => \App\Helpers\GlobalHelper::storageImageUrl($p) ?: asset('images/placeholder.png')]);
+        $gallery = $images->unique()->map(fn($p) => ['raw' => $p, 'url' => \App\Helpers\GlobalHelper::storageImageUrl($p) ?: asset('images/placeholder.png')]);
         $mainImage = $gallery->first();
 
         return compact('gallery', 'mainImage');
     }
 
-    private function buildStockData($product, $available): array
+    private function buildStockData($available): array
     {
         $stockClass = match (true) {
             $available === 0 => 'out-stock',
@@ -608,7 +608,7 @@ final class ProductCatalogController extends Controller
         $activeVars = collect();
         if ($product->type === 'variable') {
             $activeVars = $product->variations->where('active', true);
-            $prices = $activeVars->map(fn ($v) => $v->effectivePrice())->filter();
+            $prices = $activeVars->map(fn($v) => $v->effectivePrice())->filter();
             if ($prices->count()) {
                 $minP = GlobalHelper::convertCurrency($prices->min());
                 $maxP = GlobalHelper::convertCurrency($prices->max());
@@ -683,7 +683,7 @@ final class ProductCatalogController extends Controller
         return $specCount;
     }
 
-    private function buildFlags($product, $available, $onSale, $activeVars): array
+    private function buildFlags($product, $onSale, $activeVars): array
     {
         $hasAnyStock = $product->type !== 'variable' || $activeVars->isEmpty() || $activeVars->contains(function ($v) {
             return ! $v->manage_stock || (($v->stock_qty ?? 0) - ($v->reserved_qty ?? 0) > 0);

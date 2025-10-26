@@ -22,7 +22,7 @@ class AdminStockLowNotification extends Notification implements ShouldQueue
         $this->available = $available;
     }
 
-    public function via(object $notifiable): array
+    public function via(): array
     {
         $via = ['database'];
         if (\App\Support\MailHelper::mailIsAvailable()) {
@@ -32,7 +32,7 @@ class AdminStockLowNotification extends Notification implements ShouldQueue
         return $via;
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         return [
             'type' => 'stock_low',

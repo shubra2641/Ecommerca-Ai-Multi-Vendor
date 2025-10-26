@@ -24,7 +24,7 @@ class UserReturnStatusUpdated extends Notification implements ShouldQueue
         $this->status = $status;
     }
 
-    public function via(object $notifiable): array
+    public function via(): array
     {
         $via = ['database'];
         if (\App\Support\MailHelper::mailIsAvailable()) {
@@ -34,7 +34,7 @@ class UserReturnStatusUpdated extends Notification implements ShouldQueue
         return $via;
     }
 
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(): MailMessage
     {
         $locale = app()->getLocale();
         $view = $locale === 'ar' ? 'emails.returns.user_status_ar_html' : 'emails.returns.user_status_en_html';
@@ -59,7 +59,7 @@ class UserReturnStatusUpdated extends Notification implements ShouldQueue
             ]);
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         $url = null;
         try {

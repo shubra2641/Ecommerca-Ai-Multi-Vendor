@@ -20,7 +20,7 @@ class AdminUserRegisteredNotification extends Notification implements ShouldQueu
         $this->onQueue('notifications');
     }
 
-    public function via(object $notifiable): array
+    public function via(): array
     {
         // admin quick notifications - database required; mail optional
         $via = ['database'];
@@ -31,12 +31,12 @@ class AdminUserRegisteredNotification extends Notification implements ShouldQueu
         return $via;
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         return [
             'type' => 'user_registered',
             'title' => __('New user registered'),
-            'message' => $this->user->name.' ('.($this->user->email ?? '').') '.__('registered'),
+            'message' => $this->user->name . ' (' . ($this->user->email ?? '') . ') ' . __('registered'),
             'url' => route('admin.users.show', $this->user->id),
             'icon' => 'user-plus',
         ];

@@ -30,7 +30,7 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
     /**
      * Get the notification's delivery channels.
      */
-    public function via(object $notifiable): array
+    public function via(): array
     {
         $channels = ['database'];
 
@@ -80,7 +80,7 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
     /**
      * Get the database representation of the notification.
      */
-    public function toDatabase(object $notifiable): array
+    public function toDatabase(): array
     {
         return [
             'type' => 'payment_status_updated',
@@ -99,9 +99,9 @@ class PaymentStatusUpdated extends Notification implements ShouldQueue
     /**
      * Get the array representation of the notification.
      */
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
-        return $this->toDatabase($notifiable);
+        return $this->toDatabase();
     }
 
     /**

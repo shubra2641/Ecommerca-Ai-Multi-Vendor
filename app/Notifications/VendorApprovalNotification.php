@@ -28,7 +28,7 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
      *
      * @return array<int, string>
      */
-    public function via(object $notifiable): array
+    public function via(): array
     {
         $via = ['database'];
         if (\App\Support\MailHelper::mailIsAvailable()) {
@@ -41,7 +41,7 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(): MailMessage
     {
         return (new MailMessage())
             ->subject('New Vendor Registration')
@@ -56,7 +56,7 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
      *
      * @return array<string, string>
      */
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         return [];
     }

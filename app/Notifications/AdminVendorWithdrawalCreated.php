@@ -19,12 +19,12 @@ class AdminVendorWithdrawalCreated extends Notification
         $this->withdrawal = $withdrawal;
     }
 
-    public function via($notifiable)
+    public function via()
     {
         return ['database'];
     }
 
-    public function toArray($notifiable)
+    public function toArray()
     {
         return [
             'type' => 'vendor_withdrawal_created',

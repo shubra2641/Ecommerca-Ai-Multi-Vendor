@@ -24,20 +24,20 @@ class VendorOrderStatusUpdated extends Notification implements ShouldQueue
         $this->status = $status;
     }
 
-    public function via(object $notifiable): array
+    public function via(): array
     {
         return ['database'];
     }
 
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(): MailMessage
     {
         return (new MailMessage())
-            ->subject(__('Order status updated').' #'.$this->order->id)
+            ->subject(__('Order status updated') . ' #' . $this->order->id)
             ->line(__('Order #:id status changed to :status', ['id' => $this->order->id, 'status' => $this->status]))
             ->action(__('View order items'), route('vendor.orders.index'));
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         return [
             'type' => 'vendor_order_status_updated',

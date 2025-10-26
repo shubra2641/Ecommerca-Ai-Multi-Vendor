@@ -27,7 +27,7 @@ class UserOrderStatusUpdated extends Notification implements ShouldQueue
         $this->tracking = $tracking;
     }
 
-    public function via(object $notifiable): array
+    public function via(): array
     {
         $via = ['database'];
         if (\App\Support\MailHelper::mailIsAvailable()) {
@@ -37,17 +37,17 @@ class UserOrderStatusUpdated extends Notification implements ShouldQueue
         return $via;
     }
 
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(): MailMessage
     {
         $locale = app()->getLocale();
         $view = $locale === 'ar' ? 'emails.orders.status_ar' : 'emails.orders.status_en';
 
         return (new MailMessage())
-            ->subject(__('Order update').' #'.$this->order->id)
+            ->subject(__('Order update') . ' #' . $this->order->id)
             ->view($view, ['order' => $this->order, 'status' => $this->status, 'tracking' => $this->tracking]);
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         return [
             'type' => 'order_status_updated',

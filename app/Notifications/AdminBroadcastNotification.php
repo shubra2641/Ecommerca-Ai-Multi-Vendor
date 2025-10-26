@@ -25,12 +25,12 @@ class AdminBroadcastNotification extends Notification
         $this->url = $url;
     }
 
-    public function via(object $notifiable): array
+    public function via(): array
     {
         return ['database'];
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         $default = Language::where('is_default', true)->value('code') ?? 'en';
 
@@ -53,7 +53,7 @@ class AdminBroadcastNotification extends Notification
 
     private function getFirstNonEmpty(array $translations): ?string
     {
-        return collect($translations)->first(fn ($v) => ! empty($v));
+        return collect($translations)->first(fn($v) => ! empty($v));
     }
 
     private function ensureDefaultTranslation(array $translations, string $default): array

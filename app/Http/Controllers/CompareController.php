@@ -41,7 +41,7 @@ class CompareController extends Controller
         return back()->with('success', __('Compare list updated'));
     }
 
-    public function index(Request $request)
+    public function index()
     {
         $ids = $this->getList();
         $items = collect();

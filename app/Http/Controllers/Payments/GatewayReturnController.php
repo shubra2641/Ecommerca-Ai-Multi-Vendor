@@ -41,7 +41,7 @@ class GatewayReturnController extends Controller
         return $this->handleGatewayReturn($payment, 'paytabs');
     }
 
-    public function iframeHost(Request $request)
+    public function iframeHost()
     {
         return view('payments.iframe');
     }
@@ -215,7 +215,7 @@ class GatewayReturnController extends Controller
         return redirect()->route('checkout.cancel')->with($level, $message);
     }
 
-    private function handleReturnError(Payment $payment, string $gatewaySlug, string $errorMessage)
+    private function handleReturnError(Payment $payment, string $gatewaySlug)
     {
         if ($payment->order_id) {
             return redirect()->route('orders.show', $payment->order_id)

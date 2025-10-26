@@ -21,7 +21,7 @@ class AdminNewReturnRequest extends Notification implements ShouldQueue
         $this->item = $item;
     }
 
-    public function via(object $notifiable): array
+    public function via(): array
     {
         $via = ['database'];
         if (\App\Support\MailHelper::mailIsAvailable()) {
@@ -31,7 +31,7 @@ class AdminNewReturnRequest extends Notification implements ShouldQueue
         return $via;
     }
 
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(): MailMessage
     {
         $locale = app()->getLocale();
         // prefer HTML mail templates
@@ -50,7 +50,7 @@ class AdminNewReturnRequest extends Notification implements ShouldQueue
             ]);
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         return [
             'type' => 'return_request',

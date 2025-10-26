@@ -19,7 +19,7 @@ class AdminVendorRegisteredNotification extends Notification implements ShouldQu
         $this->vendor = $vendor;
     }
 
-    public function via(object $notifiable): array
+    public function via(): array
     {
         $via = ['database'];
         if (\App\Support\MailHelper::mailIsAvailable()) {
@@ -29,12 +29,12 @@ class AdminVendorRegisteredNotification extends Notification implements ShouldQu
         return $via;
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         return [
             'type' => 'vendor_registered',
             'title' => __('New vendor registered'),
-            'message' => $this->vendor->name.' ('.($this->vendor->email ?? '').') '.__('registered'),
+            'message' => $this->vendor->name . ' (' . ($this->vendor->email ?? '') . ') ' . __('registered'),
             'url' => route('admin.users.show', $this->vendor->id),
             'icon' => 'store',
         ];

@@ -24,7 +24,7 @@ class UserPaymentStatusNotification extends Notification implements ShouldQueue
         $this->status = $status;
     }
 
-    public function via(object $notifiable): array
+    public function via(): array
     {
         $via = ['database'];
         if (\App\Support\MailHelper::mailIsAvailable()) {
@@ -34,24 +34,24 @@ class UserPaymentStatusNotification extends Notification implements ShouldQueue
         return $via;
     }
 
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(): MailMessage
     {
         $order = $this->payment->order;
         $locale = app()->getLocale();
         $view = $locale === 'ar' ? 'emails.payments.payment_status_ar' : 'emails.payments.payment_status_en';
 
         return (new MailMessage())
-            ->subject(__('Payment update').' #'.($order?->id ?? ''))
+            ->subject(__('Payment update') . ' #' . ($order?->id ?? ''))
             ->view($view, ['order' => $order, 'payment' => $this->payment, 'status' => $this->status]);
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         $order = $this->payment->order;
 
         return [
             'type' => 'payment_status',
-            'title' => __('Payment').' #'.($this->payment->id ?? ''),
+            'title' => __('Payment') . ' #' . ($this->payment->id ?? ''),
             'message' => __('Payment :id for order :order is :status', [
                 'id' => $this->payment->id,
                 'order' => $order?->id ?? '-',

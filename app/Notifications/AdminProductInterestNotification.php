@@ -19,7 +19,7 @@ class AdminProductInterestNotification extends Notification implements ShouldQue
         $this->interest = $interest;
     }
 
-    public function via(object $notifiable): array
+    public function via(): array
     {
         $via = ['database'];
         if (\App\Support\MailHelper::mailIsAvailable()) {
@@ -29,7 +29,7 @@ class AdminProductInterestNotification extends Notification implements ShouldQue
         return $via;
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         return [
             'type' => 'product_interest',
