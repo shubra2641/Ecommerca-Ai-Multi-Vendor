@@ -48,84 +48,128 @@ class VendorWithdrawalController extends Controller
         if ($withdrawal->status !== 'pending') {
             return back()->with('error', __('Already processed'));
         }
-        $user = $withdrawal->user;
+
         $request->validate([
             'admin_note' => 'nullable|string|max:1000',
             'proof' => 'nullable|image|max:5120',
         ]);
 
-        // Check if vendor has sufficient balance
-        if ($user->balance < $withdrawal->gross_amount) {
-            return back()->with('error', __('Vendor has insufficient balance for this withdrawal'));
+        // Check balance and process withdrawal
+        if (!$this->canProcessWithdrawal($withdrawal)) {
+            return back()->with('error', __('Vendor has insufficient balance'));
         }
 
-        // Deduct balance from vendor
-        $oldBalance = (float) $user->balance;
-        $newBalance = $oldBalance - (float) $withdrawal->gross_amount;
-        $user->update(['balance' => $newBalance]);
+        $this->processWithdrawalApproval($withdrawal, $request);
 
-        // create payout record
+        return back()->with('success', __('Withdrawal approved and payout created'));
+    }
+
+    private function canProcessWithdrawal(VendorWithdrawal $withdrawal): bool
+    {
+        return $withdrawal->user->balance >= $withdrawal->gross_amount;
+    }
+
+    private function processWithdrawalApproval(VendorWithdrawal $withdrawal, Request $request): void
+    {
+        $user = $withdrawal->user;
+
+        // Deduct balance
+        $this->deductVendorBalance($user, $withdrawal->gross_amount);
+
+        // Create payout
+        $payout = $this->createPayoutRecord($withdrawal, $request);
+
+        // Update withdrawal status
+        $withdrawal->update([
+            'status' => 'approved',
+            'approved_at' => now(),
+            'admin_note' => $request->input('admin_note')
+        ]);
+
+        // Process commission
+        $this->processCommission($withdrawal);
+
+        // Create transaction record
+        $this->createBalanceTransaction($user, $withdrawal, 'withdrawal_approved');
+
+        // Send notifications
+        $this->notifyVendor($withdrawal, 'approved');
+    }
+
+    private function deductVendorBalance($user, float $amount): void
+    {
+        $user->decrement('balance', $amount);
+    }
+
+    private function createPayoutRecord(VendorWithdrawal $withdrawal, Request $request): Payout
+    {
         $payout = Payout::create([
             'vendor_withdrawal_id' => $withdrawal->id,
-            'user_id' => $user->id,
+            'user_id' => $withdrawal->user_id,
             'amount' => $withdrawal->amount,
             'currency' => $withdrawal->currency,
             'status' => 'pending',
             'admin_note' => $request->input('admin_note'),
         ]);
-        // store proof if provided
+
         if ($request->hasFile('proof')) {
             $path = $request->file('proof')->store('withdrawals/proofs', 'public');
             $payout->update(['proof_path' => $path]);
         }
 
-        $withdrawal->update(['status' => 'approved', 'approved_at' => now(), 'admin_note' => $request->input('admin_note')]);
+        return $payout;
+    }
 
-        // Credit commission immediately to admin (user id 1) if commission exists
-        if ($withdrawal->commission_amount > 0) {
-            $admin = \App\Models\User::find(1);
-            if ($admin) {
-                $prev = (float) $admin->balance;
-                $commissionCredit = (float) ($withdrawal->commission_amount_exact ?? $withdrawal->commission_amount);
-                $new = $prev + $commissionCredit;
-                $admin->update(['balance' => $new]);
-                try {
-                    BalanceHistory::createTransaction(
-                        $admin,
-                        'credit',
-                        $commissionCredit,
-                        $prev,
-                        $new,
-                        __('Commission from withdrawal #:id', ['id' => $withdrawal->id]),
-                        Auth::id(),
-                        $withdrawal
-                    );
-                } catch (\Throwable $e) {
-                    logger()->warning('Failed to credit commission history: ' . $e->getMessage());
-                }
-            }
+    private function processCommission(VendorWithdrawal $withdrawal): void
+    {
+        if ($withdrawal->commission_amount <= 0) {
+            return;
         }
 
-        // Record the balance deduction transaction
+        $admin = \App\Models\User::find(1);
+        if (!$admin) {
+            return;
+        }
+
+        $commissionAmount = (float) ($withdrawal->commission_amount_exact ?? $withdrawal->commission_amount);
+        $admin->increment('balance', $commissionAmount);
+
+        try {
+            BalanceHistory::createTransaction(
+                $admin,
+                'credit',
+                $commissionAmount,
+                $admin->balance - $commissionAmount,
+                $admin->balance,
+                __('Commission from withdrawal #:id', ['id' => $withdrawal->id]),
+                Auth::id(),
+                $withdrawal
+            );
+        } catch (\Throwable $e) {
+            logger()->warning('Failed to credit commission history: ' . $e->getMessage());
+        }
+    }
+
+    private function createBalanceTransaction($user, VendorWithdrawal $withdrawal, string $type): void
+    {
         BalanceHistory::createTransaction(
             $user,
-            'withdrawal_approved',
+            $type,
             (float) $withdrawal->gross_amount,
-            $oldBalance,
-            $newBalance,
-            "Withdrawal #{$withdrawal->id} approved - Amount deducted: {$withdrawal->gross_amount} {$withdrawal->currency}",
+            $user->balance + $withdrawal->gross_amount,
+            $user->balance,
+            "Withdrawal #{$withdrawal->id} {$type} - Amount: {$withdrawal->gross_amount} {$withdrawal->currency}",
             Auth::id()
         );
+    }
 
-        // Notify vendor via DB notification
+    private function notifyVendor(VendorWithdrawal $withdrawal, string $status): void
+    {
         try {
-            $withdrawal->user->notify(new \App\Notifications\VendorWithdrawalStatusUpdated($withdrawal, 'approved'));
+            $withdrawal->user->notify(new \App\Notifications\VendorWithdrawalStatusUpdated($withdrawal, $status));
         } catch (\Throwable $e) {
             logger()->warning('Vendor notification failed: ' . $e->getMessage());
         }
-
-        // Also notify admins (audit) if needed
-        return back()->with('success', __('Withdrawal approved and payout created'));
     }
 
     public function reject(Request $request, VendorWithdrawal $withdrawal)
@@ -133,23 +177,27 @@ class VendorWithdrawalController extends Controller
         if ($withdrawal->status !== 'pending') {
             return back()->with('error', __('Already processed'));
         }
+
         $request->validate([
             'admin_note' => 'nullable|string|max:1000',
             'proof' => 'nullable|image|max:5120',
         ]);
-        $withdrawal->update(['status' => 'rejected', 'admin_note' => $request->input('admin_note')]);
-        // Log the rejection
-        BalanceHistory::createTransaction(
-            $withdrawal->user,
-            'withdrawal_rejected',
-            0.00,
-            (float) $withdrawal->user->balance,
-            (float) $withdrawal->user->balance,
-            "Withdrawal #{$withdrawal->id} rejected - Amount: {$withdrawal->gross_amount} {$withdrawal->currency}",
-            Auth::id()
-        );
+
+        $this->processWithdrawalRejection($withdrawal, $request);
 
         return back()->with('success', __('Withdrawal rejected'));
+    }
+
+    private function processWithdrawalRejection(VendorWithdrawal $withdrawal, Request $request): void
+    {
+        // Update withdrawal status
+        $withdrawal->update([
+            'status' => 'rejected',
+            'admin_note' => $request->input('admin_note')
+        ]);
+
+        // Log the rejection
+        $this->createBalanceTransaction($withdrawal->user, $withdrawal, 'withdrawal_rejected');
     }
 
     public function execute(Request $request, Payout $payout)
@@ -157,52 +205,75 @@ class VendorWithdrawalController extends Controller
         if ($payout->status !== 'pending') {
             return back()->with('error', __('Payout already processed'));
         }
-        $user = $payout->user;
-        // At execution, we assume funds held; just validate that the withdrawal still exists
-        $previous = (float) $user->balance; // current balance shouldn't decrease now
-        $new = $previous; // unchanged
-        $payout->update(['status' => 'executed', 'executed_at' => now(), 'admin_note' => $request->input('admin_note')]);
-        $request->validate(['admin_note' => 'nullable|string|max:1000', 'proof' => 'nullable|image|max:5120']);
 
+        $request->validate([
+            'admin_note' => 'nullable|string|max:1000',
+            'proof' => 'nullable|image|max:5120'
+        ]);
+
+        $this->processPayoutExecution($payout, $request);
+
+        return back()->with('success', __('Payout executed'));
+    }
+
+    private function processPayoutExecution(Payout $payout, Request $request): void
+    {
+        $user = $payout->user;
+
+        // Update payout status
+        $payout->update([
+            'status' => 'executed',
+            'executed_at' => now(),
+            'admin_note' => $request->input('admin_note')
+        ]);
+
+        // Store proof if provided
         if ($request->hasFile('proof')) {
             $path = $request->file('proof')->store('withdrawals/proofs', 'public');
             $payout->update(['proof_path' => $path]);
         }
-        BalanceHistory::createTransaction(
-            $user,
-            'withdrawal_executed',
-            0.00,
-            $previous,
-            $new,
-            'Withdrawal #' . ($payout->withdrawal?->id ?? $payout->id) . ' executed - Amount: ' . $payout->amount . ' ' . $payout->currency,
-            Auth::id()
-        );
-        // mark withdrawal completed
+
+        // Create transaction record
+        $this->createBalanceTransaction($user, $payout->withdrawal, 'withdrawal_executed');
+
+        // Update withdrawal status
+        $this->completeWithdrawal($payout);
+
+        // Send notifications
+        $this->sendExecutionNotifications($payout);
+    }
+
+    private function completeWithdrawal(Payout $payout): void
+    {
         $withdrawal = $payout->withdrawal;
-        if ($withdrawal) {
-            $withdrawal->update(['status' => 'completed']);
-            // copy proof path to withdrawal if payout has it
-            if (! empty($payout->proof_path) && empty($withdrawal->proof_path)) {
-                $withdrawal->update(['proof_path' => $payout->proof_path]);
-            }
-            try {
-                $withdrawal->user->notify(
-                    new \App\Notifications\VendorWithdrawalStatusUpdated(
-                        $withdrawal,
-                        'executed'
-                    )
-                );
-            } catch (\Throwable $e) {
-                logger()->warning('Vendor notification failed: ' . $e->getMessage());
-            }
+        if (!$withdrawal) {
+            return;
         }
+
+        $withdrawal->update(['status' => 'completed']);
+
+        // Copy proof path if not set
+        if (!empty($payout->proof_path) && empty($withdrawal->proof_path)) {
+            $withdrawal->update(['proof_path' => $payout->proof_path]);
+        }
+    }
+
+    private function sendExecutionNotifications(Payout $payout): void
+    {
+        $withdrawal = $payout->withdrawal;
+        $user = $payout->user;
+
+        // Notify vendor
+        if ($withdrawal) {
+            $this->notifyVendor($withdrawal, 'executed');
+        }
+
+        // Send email notification
         try {
             \Illuminate\Support\Facades\Mail::to($user->email)->queue(new \App\Mail\PayoutExecuted($payout));
         } catch (\Throwable $e) {
             logger()->warning('Failed to queue payout executed mail: ' . $e->getMessage());
         }
-
-        return back()->with('success', __('Payout executed'));
     }
 
     public function payoutsShow(Payout $payout)
