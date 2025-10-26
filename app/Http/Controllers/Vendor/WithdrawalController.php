@@ -38,7 +38,8 @@ class WithdrawalController extends Controller
         $gateways = $this->getWithdrawalGateways($setting);
         $stats = $this->getStats($user);
 
-        $availableBalance = ($user->balance ?? 0) - ($stats['pendingAmount'] ?? 0);
+        // Available balance is just the current balance since pending withdrawals don't deduct from balance
+        $availableBalance = $user->balance ?? 0;
 
         return view('vendor.withdrawals.create', array_merge($stats, [
             'user' => $user,
@@ -75,8 +76,7 @@ class WithdrawalController extends Controller
 
         DB::beginTransaction();
         try {
-            $user->update(['balance' => $user->balance - $amount]);
-
+            // Don't deduct balance here - it will be deducted when admin approves
             $withdrawal = VendorWithdrawal::create([
                 'user_id' => $user->id,
                 'amount' => $netAmount,
@@ -90,7 +90,8 @@ class WithdrawalController extends Controller
                 'held_at' => now(),
             ]);
 
-            $this->logTransaction($user, $withdrawal, $netAmount);
+            // Log the withdrawal request (no balance change yet)
+            $this->logTransaction($user, $withdrawal, 0); // 0 amount since no deduction
 
             if ($request->has('transfer') && is_array($request->input('transfer'))) {
                 $user->update(['transfer_details' => json_encode($request->input('transfer'))]);
