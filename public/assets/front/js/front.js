@@ -1,307 +1,1018 @@
-// Front-end JavaScript - Optimized
-(function () {
-    const doc = document;
-    const $ = (s) => doc.querySelector(s);
-    const $$ = (s) => Array.from(doc.querySelectorAll(s));
+/**
+ * Front-end JavaScript - Secure and Optimized
+ * Handles UI interactions, form validations, and dynamic content loading
+ */
 
-    async function fetchJson(url) {
-        // Validate URL to prevent HTTP vulnerabilities
+(function () {
+    'use strict';
+
+    // Utility functions
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+    // Safe DOM manipulation to prevent XSS
+    const createElement = (tag, attributes = {}, textContent = '') => {
+        const element = document.createElement(tag);
+        Object.keys(attributes).forEach(key => {
+            if (key === 'className') {
+                element.className = attributes[key];
+            } else if (key === 'textContent') {
+                element.textContent = attributes[key];
+            } else {
+                element.setAttribute(key, attributes[key]);
+            }
+        });
+        if (textContent) {
+            element.textContent = textContent;
+        }
+        return element;
+    };
+
+    // Safe fetch with validation
+    const safeFetch = async (url, options = {}) => {
         try {
+            // Validate URL
             const urlObj = new URL(url, window.location.origin);
-            // Only allow same-origin requests or whitelisted domains
             if (urlObj.origin !== window.location.origin) {
-                // For external URLs, only allow specific trusted domains
-                const allowedDomains = ['api.example.com']; // Add your trusted domains here
+                const allowedDomains = ['api.example.com'];
                 if (!allowedDomains.some(domain => urlObj.hostname === domain)) {
                     throw new Error('Unauthorized URL');
                 }
             }
-        } catch (e) {
-            console.error('Invalid URL provided to fetchJson:', url, e);
-            return { data: [] };
-        }
 
-        try {
-            const res = await fetch(url);
-            if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) {
-                console.error('fetchJson error: Invalid response type or status', url, res.status);
-                return { data: [] };
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return await res.json();
-        } catch (err) {
-            console.error('fetchJson error', url, err);
-            return { data: [] };
+
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return await response.json();
+            }
+
+            return response;
+        } catch (error) {
+            console.error('Fetch error:', error);
+            return null;
         }
-    }
+    };
 
-    function closeAll(except) {
-        $$('[data-dropdown].open').forEach(d => { if (d !== except) d.classList.remove('open'); });
-    }
+    // CSRF token helper
+    const getCsrfToken = () => {
+        const token = $('meta[name="csrf-token"]');
+        return token ? token.getAttribute('content') : '';
+    };
 
-    function initDropdowns() {
-        $$('[data-dropdown]').forEach(wrapper => {
-            const trigger = wrapper.querySelector('.dropdown-trigger');
-            const panel = wrapper.querySelector('.dropdown-panel');
-            if (!trigger || !panel) return;
+    // Dropdown functionality
+    const DropdownManager = {
+        init() {
+            this.bindEvents();
+        },
 
-            trigger.addEventListener('click', (e) => {
-                e.preventDefault();
-                const isOpen = wrapper.classList.toggle('open');
-                trigger.setAttribute('aria-expanded', isOpen);
-                if (isOpen) {
-                    closeAll(wrapper);
-                    panel.querySelector('button, a, input, [tabindex]')?.focus?.();
+        bindEvents() {
+            document.addEventListener('click', (e) => {
+                const trigger = e.target.closest('.dropdown-trigger');
+                if (trigger) {
+                    e.preventDefault();
+                    this.toggleDropdown(trigger);
+                } else if (!e.target.closest('[data-dropdown]')) {
+                    this.closeAllDropdowns();
                 }
             });
-        });
+        },
 
-        doc.addEventListener('click', (e) => {
-            if (!e.target.closest('[data-dropdown]')) closeAll();
-        });
-    }
+        toggleDropdown(trigger) {
+            const wrapper = trigger.closest('[data-dropdown]');
+            if (!wrapper) return;
 
-    function initCurrencySwitch() {
-        doc.addEventListener('click', async (e) => {
-            const btn = e.target.closest('.currency-chip');
-            if (!btn) return;
-            const code = btn.dataset.currency; if (!code) return;
+            const isOpen = wrapper.classList.toggle('open');
+            trigger.setAttribute('aria-expanded', isOpen);
+
+            if (isOpen) {
+                this.closeOtherDropdowns(wrapper);
+                this.focusFirstElement(wrapper);
+            }
+        },
+
+        closeAllDropdowns() {
+            $$('[data-dropdown].open').forEach(dropdown => {
+                dropdown.classList.remove('open');
+                const trigger = dropdown.querySelector('.dropdown-trigger');
+                if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            });
+        },
+
+        closeOtherDropdowns(except) {
+            $$('[data-dropdown].open').forEach(dropdown => {
+                if (dropdown !== except) {
+                    dropdown.classList.remove('open');
+                    const trigger = dropdown.querySelector('.dropdown-trigger');
+                    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+                }
+            });
+        },
+
+        focusFirstElement(wrapper) {
+            const panel = wrapper.querySelector('.dropdown-panel');
+            if (panel) {
+                const focusable = panel.querySelector('button, a, input, [tabindex]');
+                if (focusable && focusable.focus) {
+                    focusable.focus();
+                }
+            }
+        }
+    };
+
+    // Currency switcher
+    const CurrencySwitcher = {
+        init() {
+            document.addEventListener('click', (e) => {
+                const button = e.target.closest('.currency-chip');
+                if (button) {
+                    this.switchCurrency(button);
+                }
+            });
+        },
+
+        async switchCurrency(button) {
+            const code = button.dataset.currency;
+            if (!code) return;
+
             try {
-                const res = await fetch('/currency/switch', {
+                const response = await safeFetch('/currency/switch', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]')?.content || '' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCsrfToken()
+                    },
                     body: JSON.stringify({ code })
                 });
-                if (res.ok) location.reload();
-            } catch (err) {
-                console.error('Currency switch failed', err);
-            }
-        });
-    }
 
-    function initCompareBadge() {
-        const badge = $('[data-compare_count]');
-        if (!badge) return;
-        window.addEventListener('compare:update', (e) => {
-            const c = e.detail && typeof e.detail.count === 'number' ? e.detail.count : 0;
-            badge.textContent = c; badge.classList.toggle('show', c > 0);
-        });
-    }
-
-    function initLoader() {
-        const loader = $('#app-loader'); if (!loader) return;
-        const hideLoader = () => { loader.classList.add('hidden'); loader.setAttribute('aria-hidden', 'true'); };
-        if (document.readyState === 'complete') hideLoader(); else { window.addEventListener('load', hideLoader); setTimeout(hideLoader, 3000); }
-    }
-
-    // Hero slider
-    function initHeroSlider() {
-        const slider = $('.hero-slider'); if (!slider) return;
-        const track = slider.querySelector('[data-hero-slider-track]');
-        const prevBtn = slider.querySelector('[data-hero-prev]');
-        const nextBtn = slider.querySelector('[data-hero-next]');
-        const dots = slider.querySelector('[data-hero-dots]');
-        const slides = slider.querySelectorAll('.hero-slide');
-        if (!track || slides.length <= 1) return;
-
-        let currentSlide = 0;
-        const totalSlides = slides.length;
-        if (prevBtn) prevBtn.hidden = false;
-        if (nextBtn) nextBtn.hidden = false;
-        if (dots) dots.hidden = false;
-
-        // Create dots
-        if (dots) {
-            for (let i = 0; i < totalSlides; i++) {
-                const dot = doc.createElement('button'); dot.type = 'button'; dot.className = i === 0 ? 'active' : '';
-                dot.addEventListener('click', () => goToSlide(i)); dots.appendChild(dot);
+                if (response) {
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Currency switch failed:', error);
             }
         }
+    };
 
-        // Event listeners
-        if (nextBtn) nextBtn.addEventListener('click', () => nextSlide());
-        if (prevBtn) prevBtn.addEventListener('click', () => prevSlide());
+    // Compare badge
+    const CompareBadge = {
+        init() {
+            const badge = $('[data-compare_count]');
+            if (!badge) return;
 
-        // Auto play
-        const AUTO_PLAY_INTERVAL = 5000;
-        let autoPlay = setInterval(() => nextSlide(), AUTO_PLAY_INTERVAL);
-        slider.addEventListener('mouseenter', () => clearInterval(autoPlay));
-        slider.addEventListener('mouseleave', () => { autoPlay = setInterval(() => nextSlide(), AUTO_PLAY_INTERVAL); });
-
-        function goToSlide(index) {
-            currentSlide = index;
-            track.scrollLeft = index * track.offsetWidth;
-            updateDots();
-        }
-
-        function nextSlide() { goToSlide((currentSlide + 1) % totalSlides); }
-        function prevSlide() { goToSlide((currentSlide - 1 + totalSlides) % totalSlides); }
-
-        function updateDots() {
-            if (!dots) return;
-            const dotElements = dots.querySelectorAll('button');
-            dotElements.forEach((dot, idx) => dot.classList.toggle('active', idx === currentSlide));
-        }
-    }
-
-    // Quantity selector
-    function initQuantitySelector() {
-        const qtyDisplay = $('#qtyDisplay'); const qtyInput = $('#qtyInputSide'); const increaseBtn = $('.qty-increase'); const trashBtn = $('.qty-trash');
-        if (!(qtyDisplay && qtyInput && increaseBtn && trashBtn)) return;
-        let currentQty = 1; const maxStock = parseInt(qtyInput.getAttribute('max')) || 999;
-        const updateQuantity = (newQty) => { currentQty = Math.max(1, Math.min(newQty, maxStock)); qtyDisplay.textContent = currentQty; qtyInput.value = currentQty; };
-        increaseBtn.addEventListener('click', () => updateQuantity(currentQty + 1));
-        trashBtn.addEventListener('click', () => updateQuantity(currentQty - 1));
-    }
-
-    // Product variations
-    function initProductVariations() {
-        const variationCard = $('#variationGridCard'); if (!variationCard) return;
-        const variationsData = variationCard.dataset.variations; const currencySymbol = variationCard.dataset.currency; if (!variationsData || !currencySymbol) return;
-        const variations = JSON.parse(variationsData);
-
-        // Apply color swatches
-        $$('.option-btn.color[data-swatch], .option-btn.color-swatch[data-swatch]').forEach(btn => { const swatch = btn.dataset.swatch; if (swatch) btn.style.setProperty('background-color', swatch, 'important'); });
-
-        function updateAvailableOptions(selectedAttrs) {
-            $$('.variation-attr-block').forEach(block => {
-                const attrName = block.dataset.attr; const radios = block.querySelectorAll('.attr-radio');
-                radios.forEach(radio => {
-                    const value = radio.value; const label = radio.nextElementSibling; const testAttrs = { ...selectedAttrs, [attrName]: value };
-                    const hasMatch = variations.some(v => { const attrData = v.attribute_data || {}; if (v.active === false) return false; return Object.keys(testAttrs).every(attr => attrData[attr] === testAttrs[attr]); });
-                    radio.disabled = !hasMatch; if (label) { label.classList.toggle('disabled', !hasMatch); label.style.opacity = hasMatch ? '1' : '0.4'; label.style.cursor = hasMatch ? 'pointer' : 'not-allowed'; }
-                });
+            window.addEventListener('compare:update', (e) => {
+                const count = e.detail?.count || 0;
+                badge.textContent = count;
+                badge.classList.toggle('show', count > 0);
             });
         }
+    };
 
-        function updatePrice(selectedAttrs) {
-            const priceElement = $('#productPrice'); const priceMaxElement = $('#productPriceMax'); const priceRangeSep = $('.price-range-sep');
-            if (!selectedAttrs || Object.keys(selectedAttrs).length === 0) { if (priceElement && priceMaxElement && priceRangeSep) { priceElement.style.display = 'inline'; priceRangeSep.style.display = 'inline'; priceMaxElement.style.display = 'inline'; } return; }
-            const matchingVariation = variations.find(v => { const attrData = v.attribute_data || {}; return Object.keys(selectedAttrs).every(attr => attrData[attr] === selectedAttrs[attr]); });
-            if (matchingVariation) {
-                const displayPrice = matchingVariation.effective_price; if (priceElement) priceElement.textContent = currencySymbol + ' ' + displayPrice.toFixed(2); if (priceMaxElement) priceMaxElement.style.display = 'none'; if (priceRangeSep) priceRangeSep.style.display = 'none';
-                const priceInput = $('#selectedPrice'); if (priceInput) priceInput.value = displayPrice; const variationInput = $('#selectedVariationId'); if (variationInput) variationInput.value = matchingVariation.id;
-                const saleBadge = $('#globalSaleBadge'); if (saleBadge) { if (matchingVariation.sale_price && matchingVariation.sale_price < matchingVariation.price) { const discountPercent = Math.round(((matchingVariation.price - matchingVariation.sale_price) / matchingVariation.price) * 100); saleBadge.textContent = discountPercent + '% Off'; saleBadge.style.display = 'inline-block'; } else { saleBadge.style.display = 'none'; } }
-                updateStockStatus(matchingVariation);
-            } else { if (priceElement && priceMaxElement && priceRangeSep) { priceElement.style.display = 'inline'; priceRangeSep.style.display = 'inline'; priceMaxElement.style.display = 'inline'; } updateStockStatus(null); }
-        }
+    // Loader
+    const Loader = {
+        init() {
+            const loader = $('#app-loader');
+            if (!loader) return;
 
-        function updateStockStatus(variation) {
-            const stockBadge = $('#topStockBadge'); const stockStatus = $('.stock-status'); const addToCartBtn = $('.btn-buy'); const qtyInput = $('#qtyInputSide'); if (!variation) return; const availableStock = variation.stock_qty - (variation.reserved_qty || 0);
-            if (stockBadge) { stockBadge.classList.remove('high-stock', 'low-stock', 'out-stock', 'badge-info'); if (!variation.manage_stock) { stockBadge.classList.add('badge-info'); stockBadge.textContent = stockBadge.dataset.unlimited || 'Unlimited'; } else if (availableStock <= 0) { stockBadge.classList.add('out-stock'); stockBadge.textContent = stockBadge.dataset.outOfStock || 'Out of Stock'; } else if (availableStock <= 5) { stockBadge.classList.add('low-stock'); stockBadge.textContent = stockBadge.dataset.lowStock || 'Low Stock'; } else { stockBadge.classList.add('high-stock'); stockBadge.textContent = stockBadge.dataset.inStock || 'In Stock'; } }
-            if (stockStatus) { if (!variation.manage_stock) stockStatus.textContent = stockStatus.dataset.inStock || 'In stock'; else if (availableStock <= 0) stockStatus.textContent = stockStatus.dataset.outOfStock || 'Out of stock'; else stockStatus.textContent = availableStock + ' ' + (stockStatus.dataset.inStockText || 'in stock'); }
-            if (addToCartBtn) { if (!variation.manage_stock || availableStock > 0) { addToCartBtn.disabled = false; addToCartBtn.classList.remove('btn-out-of-stock'); addToCartBtn.textContent = addToCartBtn.dataset.addText || 'ADD TO CART'; if (qtyInput) { qtyInput.max = variation.manage_stock ? availableStock : 999; qtyInput.disabled = false; } } else { addToCartBtn.disabled = true; addToCartBtn.classList.add('btn-out-of-stock'); addToCartBtn.textContent = addToCartBtn.dataset.outOfStockText || 'OUT OF STOCK'; if (qtyInput) qtyInput.disabled = true; } }
-        }
+            const hideLoader = () => {
+                loader.classList.add('hidden');
+                loader.setAttribute('aria-hidden', 'true');
+            };
 
-        $$('.attr-radio').forEach(radio => radio.addEventListener('change', function () { const selectedAttrs = {}; $$('.attr-radio:checked').forEach(checked => { const attrName = checked.name.replace('attr_', ''); selectedAttrs[attrName] = checked.value; }); updateAvailableOptions(selectedAttrs); updatePrice(selectedAttrs); }));
-        updateAvailableOptions({});
-    }
-
-    // Image loading handler for shimmer effect
-    function initImageLoading() {
-        // Handle images in product cards and thumbnails
-        $$('.thumb-wrapper img, .product-card .product-image img').forEach(img => {
-            if (img.complete && img.naturalHeight !== 0) {
-                // Image already loaded
-                img.closest('.thumb-wrapper, .product-image')?.classList.add('is-loaded');
+            if (document.readyState === 'complete') {
+                hideLoader();
             } else {
-                // Image not loaded yet, add load event listener
-                img.addEventListener('load', function() {
-                    this.closest('.thumb-wrapper, .product-image')?.classList.add('is-loaded');
-                });
-                // Handle error case
-                img.addEventListener('error', function() {
-                    this.closest('.thumb-wrapper, .product-image')?.classList.add('is-loaded');
-                });
+                window.addEventListener('load', hideLoader);
+                setTimeout(hideLoader, 3000);
             }
-        });
+        }
+    };
+
+    // Hero slider
+    const HeroSlider = {
+        init() {
+            const slider = $('.hero-slider');
+            if (!slider) return;
+
+            this.slider = slider;
+            this.track = slider.querySelector('[data-hero-slider-track]');
+            this.prevBtn = slider.querySelector('[data-hero-prev]');
+            this.nextBtn = slider.querySelector('[data-hero-next]');
+            this.dots = slider.querySelector('[data-hero-dots]');
+            this.slides = slider.querySelectorAll('.hero-slide');
+
+            if (!this.track || this.slides.length <= 1) return;
+
+            this.currentSlide = 0;
+            this.totalSlides = this.slides.length;
+            this.autoPlayInterval = 5000;
+            this.autoPlayTimer = null;
+
+            this.setupButtons();
+            this.createDots();
+            this.bindEvents();
+            this.startAutoPlay();
+        },
+
+        setupButtons() {
+            if (this.prevBtn) this.prevBtn.hidden = false;
+            if (this.nextBtn) this.nextBtn.hidden = false;
+            if (this.dots) this.dots.hidden = false;
+        },
+
+        createDots() {
+            if (!this.dots) return;
+
+            for (let i = 0; i < this.totalSlides; i++) {
+                const dot = createElement('button', {
+                    type: 'button',
+                    className: i === 0 ? 'active' : ''
+                });
+                dot.addEventListener('click', () => this.goToSlide(i));
+                this.dots.appendChild(dot);
+            }
+        },
+
+        bindEvents() {
+            if (this.nextBtn) {
+                this.nextBtn.addEventListener('click', () => this.nextSlide());
+            }
+            if (this.prevBtn) {
+                this.prevBtn.addEventListener('click', () => this.prevSlide());
+            }
+
+            this.slider.addEventListener('mouseenter', () => this.stopAutoPlay());
+            this.slider.addEventListener('mouseleave', () => this.startAutoPlay());
+        },
+
+        goToSlide(index) {
+            this.currentSlide = index;
+            this.track.scrollLeft = index * this.track.offsetWidth;
+            this.updateDots();
+        },
+
+        nextSlide() {
+            this.goToSlide((this.currentSlide + 1) % this.totalSlides);
+        },
+
+        prevSlide() {
+            this.goToSlide((this.currentSlide - 1 + this.totalSlides) % this.totalSlides);
+        },
+
+        updateDots() {
+            if (!this.dots) return;
+            const dots = this.dots.querySelectorAll('button');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === this.currentSlide);
+            });
+        },
+
+        startAutoPlay() {
+            this.stopAutoPlay();
+            this.autoPlayTimer = setInterval(() => this.nextSlide(), this.autoPlayInterval);
+        },
+
+        stopAutoPlay() {
+            if (this.autoPlayTimer) {
+                clearInterval(this.autoPlayTimer);
+                this.autoPlayTimer = null;
+            }
+        }
+    };
+
+    // Quantity selector
+    const QuantitySelector = {
+        init() {
+            const qtyDisplay = $('#qtyDisplay');
+            const qtyInput = $('#qtyInputSide');
+            const increaseBtn = $('.qty-increase');
+            const decreaseBtn = $('.qty-trash');
+
+            if (!(qtyDisplay && qtyInput && increaseBtn && decreaseBtn)) return;
+
+            this.qtyDisplay = qtyDisplay;
+            this.qtyInput = qtyInput;
+            this.maxStock = parseInt(qtyInput.getAttribute('max')) || 999;
+            this.currentQty = 1;
+
+            this.bindEvents();
+            this.updateDisplay();
+        },
+
+        bindEvents() {
+            $('.qty-increase').addEventListener('click', () => this.increase());
+            $('.qty-trash').addEventListener('click', () => this.decrease());
+        },
+
+        increase() {
+            this.setQuantity(this.currentQty + 1);
+        },
+
+        decrease() {
+            this.setQuantity(this.currentQty - 1);
+        },
+
+        setQuantity(newQty) {
+            this.currentQty = Math.max(1, Math.min(newQty, this.maxStock));
+            this.updateDisplay();
+        },
+
+        updateDisplay() {
+            this.qtyDisplay.textContent = this.currentQty;
+            this.qtyInput.value = this.currentQty;
+        }
+    };
+
+    // Product variations
+    const ProductVariations = {
+        init() {
+            const variationCard = $('#variationGridCard');
+            if (!variationCard) return;
+
+            this.variationsData = variationCard.dataset.variations;
+            this.currencySymbol = variationCard.dataset.currency;
+
+            if (!this.variationsData || !this.currencySymbol) return;
+
+            try {
+                this.variations = JSON.parse(this.variationsData);
+            } catch (error) {
+                console.error('Invalid variations data:', error);
+                return;
+            }
+
+            this.applyColorSwatches();
+            this.bindEvents();
+            this.updateAvailableOptions({});
+        },
+
+        applyColorSwatches() {
+            $$('.option-btn.color[data-swatch], .option-btn.color-swatch[data-swatch]').forEach(btn => {
+                const swatch = btn.dataset.swatch;
+                if (swatch) {
+                    btn.style.setProperty('background-color', swatch, 'important');
+                }
+            });
+        },
+
+        bindEvents() {
+            $$('.attr-radio').forEach(radio => {
+                radio.addEventListener('change', () => this.onVariationChange());
+            });
+        },
+
+        onVariationChange() {
+            const selectedAttrs = {};
+            $$('.attr-radio:checked').forEach(checked => {
+                const attrName = checked.name.replace('attr_', '');
+                selectedAttrs[attrName] = checked.value;
+            });
+
+            this.updateAvailableOptions(selectedAttrs);
+            this.updatePrice(selectedAttrs);
+        },
+
+        updateAvailableOptions(selectedAttrs) {
+            $$('.variation-attr-block').forEach(block => {
+                const attrName = block.dataset.attr;
+                const radios = block.querySelectorAll('.attr-radio');
+
+                radios.forEach(radio => {
+                    const value = radio.value;
+                    const label = radio.nextElementSibling;
+                    const testAttrs = { ...selectedAttrs, [attrName]: value };
+
+                    const hasMatch = this.variations.some(v => {
+                        if (v.active === false) return false;
+                        const attrData = v.attribute_data || {};
+                        return Object.keys(testAttrs).every(attr =>
+                            attrData[attr] === testAttrs[attr]
+                        );
+                    });
+
+                    radio.disabled = !hasMatch;
+                    if (label) {
+                        label.classList.toggle('disabled', !hasMatch);
+                        label.style.opacity = hasMatch ? '1' : '0.4';
+                        label.style.cursor = hasMatch ? 'pointer' : 'not-allowed';
+                    }
+                });
+            });
+        },
+
+        updatePrice(selectedAttrs) {
+            const priceElement = $('#productPrice');
+            const priceMaxElement = $('#productPriceMax');
+            const priceRangeSep = $('.price-range-sep');
+
+            if (!selectedAttrs || Object.keys(selectedAttrs).length === 0) {
+                this.showPriceRange(priceElement, priceMaxElement, priceRangeSep);
+                return;
+            }
+
+            const matchingVariation = this.findMatchingVariation(selectedAttrs);
+            if (matchingVariation) {
+                this.updatePriceDisplay(matchingVariation);
+                this.updateStockStatus(matchingVariation);
+            } else {
+                this.showPriceRange(priceElement, priceMaxElement, priceRangeSep);
+                this.updateStockStatus(null);
+            }
+        },
+
+        findMatchingVariation(selectedAttrs) {
+            return this.variations.find(v => {
+                const attrData = v.attribute_data || {};
+                return Object.keys(selectedAttrs).every(attr =>
+                    attrData[attr] === selectedAttrs[attr]
+                );
+            });
+        },
+
+        showPriceRange(priceElement, priceMaxElement, priceRangeSep) {
+            if (priceElement) priceElement.style.display = 'inline';
+            if (priceRangeSep) priceRangeSep.style.display = 'inline';
+            if (priceMaxElement) priceMaxElement.style.display = 'inline';
+        },
+
+        updatePriceDisplay(variation) {
+            const priceElement = $('#productPrice');
+            const priceMaxElement = $('#productPriceMax');
+            const priceRangeSep = $('.price-range-sep');
+
+            if (priceElement) {
+                priceElement.textContent = this.currencySymbol + ' ' + variation.effective_price.toFixed(2);
+            }
+            if (priceMaxElement) priceMaxElement.style.display = 'none';
+            if (priceRangeSep) priceRangeSep.style.display = 'none';
+
+            // Update hidden inputs
+            const priceInput = $('#selectedPrice');
+            if (priceInput) priceInput.value = variation.effective_price;
+
+            const variationInput = $('#selectedVariationId');
+            if (variationInput) variationInput.value = variation.id;
+
+            // Update sale badge
+            this.updateSaleBadge(variation);
+        },
+
+        updateSaleBadge(variation) {
+            const saleBadge = $('#globalSaleBadge');
+            if (!saleBadge) return;
+
+            if (variation.sale_price && variation.sale_price < variation.price) {
+                const discountPercent = Math.round(((variation.price - variation.sale_price) / variation.price) * 100);
+                saleBadge.textContent = discountPercent + '% Off';
+                saleBadge.style.display = 'inline-block';
+            } else {
+                saleBadge.style.display = 'none';
+            }
+        },
+
+        updateStockStatus(variation) {
+            const stockBadge = $('#topStockBadge');
+            const stockStatus = $('.stock-status');
+            const addToCartBtn = $('.btn-buy');
+            const qtyInput = $('#qtyInputSide');
+
+            if (!variation) return;
+
+            const availableStock = variation.stock_qty - (variation.reserved_qty || 0);
+
+            this.updateStockBadge(stockBadge, availableStock, variation.manage_stock);
+            this.updateStockText(stockStatus, availableStock, variation.manage_stock);
+            this.updateAddToCartButton(addToCartBtn, availableStock, variation.manage_stock, qtyInput);
+        },
+
+        updateStockBadge(badge, availableStock, manageStock) {
+            if (!badge) return;
+
+            badge.classList.remove('high-stock', 'low-stock', 'out-stock', 'badge-info');
+
+            if (!manageStock) {
+                badge.classList.add('badge-info');
+                badge.textContent = badge.dataset.unlimited || 'Unlimited';
+            } else if (availableStock <= 0) {
+                badge.classList.add('out-stock');
+                badge.textContent = badge.dataset.outOfStock || 'Out of Stock';
+            } else if (availableStock <= 5) {
+                badge.classList.add('low-stock');
+                badge.textContent = badge.dataset.lowStock || 'Low Stock';
+            } else {
+                badge.classList.add('high-stock');
+                badge.textContent = badge.dataset.inStock || 'In Stock';
+            }
+        },
+
+        updateStockText(statusElement, availableStock, manageStock) {
+            if (!statusElement) return;
+
+            if (!manageStock) {
+                statusElement.textContent = statusElement.dataset.inStock || 'In stock';
+            } else if (availableStock <= 0) {
+                statusElement.textContent = statusElement.dataset.outOfStock || 'Out of stock';
+            } else {
+                statusElement.textContent = availableStock + ' ' + (statusElement.dataset.inStockText || 'in stock');
+            }
+        },
+
+        updateAddToCartButton(button, availableStock, manageStock, qtyInput) {
+            if (!button) return;
+
+            const canAddToCart = !manageStock || availableStock > 0;
+
+            button.disabled = !canAddToCart;
+            button.classList.toggle('btn-out-of-stock', !canAddToCart);
+            button.textContent = canAddToCart
+                ? (button.dataset.addText || 'ADD TO CART')
+                : (button.dataset.outOfStockText || 'OUT OF STOCK');
+
+            if (qtyInput) {
+                qtyInput.max = manageStock ? availableStock : 999;
+                qtyInput.disabled = !canAddToCart;
+            }
+        }
+    };
+
+    // Image loading handler
+    const ImageLoader = {
+        init() {
+            $$('.thumb-wrapper img, .product-card .product-image img').forEach(img => {
+                if (img.complete && img.naturalHeight !== 0) {
+                    this.markAsLoaded(img);
+                } else {
+                    img.addEventListener('load', () => this.markAsLoaded(img));
+                    img.addEventListener('error', () => this.markAsLoaded(img));
+                }
+            });
+        },
+
+        markAsLoaded(img) {
+            const wrapper = img.closest('.thumb-wrapper, .product-image');
+            if (wrapper) {
+                wrapper.classList.add('is-loaded');
+            }
+        }
+    };
+
+    // Safe select manipulation
+    const SelectUtils = {
+        clearSelect(select, placeholder) {
+            if (!select) return;
+
+            while (select.firstChild) {
+                select.removeChild(select.firstChild);
+            }
+
+            const option = createElement('option', { value: '' }, placeholder);
+            select.appendChild(option);
+        },
+
+        populateSelect(select, options, selectedValue = null) {
+            if (!select) return;
+
+            const firstOption = select.querySelector('option');
+            const firstText = firstOption ? firstOption.textContent : '';
+
+            this.clearSelect(select, firstText);
+
+            (options || []).forEach(option => {
+                const opt = createElement('option', { value: option.id }, option.name);
+                if (selectedValue && option.id == selectedValue) {
+                    opt.selected = true;
+                }
+                select.appendChild(opt);
+            });
+        }
+    };
+
+    // Checkout shipping
+    const CheckoutShipping = {
+        init() {
+            const checkoutRoot = $('#checkout-root');
+            if (!checkoutRoot) return;
+
+            this.translations = {
+                selectGovernorate: checkoutRoot.dataset.selectGovernorate || 'Select Governorate',
+                selectCity: checkoutRoot.dataset.selectCity || 'Select City',
+                selectShippingCompany: checkoutRoot.dataset.selectShippingCompany || 'Select Shipping Company'
+            };
+
+            this.currencySymbol = checkoutRoot.dataset.currencySymbol;
+            this.baseTotal = parseFloat(checkoutRoot.dataset.baseTotal || '0') || 0;
+
+            this.elements = {
+                countrySelect: $('#country-select'),
+                governorateSelect: $('#governorate-select'),
+                citySelect: $('#city-select'),
+                shippingZoneSelect: $('#shipping-zone-select'),
+                shippingCostDisplay: $('#shipping-cost-display'),
+                shippingCompanyDisplay: $('#shipping-company-display'),
+                shippingCostInput: $('#shipping-cost-input'),
+                shippingDaysInput: $('#shipping-days-input'),
+                shippingDaysDiv: $('#shipping-days'),
+                shippingDaysDisplay: $('#shipping-days-display'),
+                shippingInfo: $('#shipping-info'),
+                hiddenShippingZoneId: $('#input-shipping-zone-id'),
+                hiddenShippingPrice: $('#input-shipping-price'),
+                hiddenShippingDays: $('#shipping-days-input')
+            };
+
+            this.bindEvents();
+            this.initializeShipping();
+        },
+
+        bindEvents() {
+            const { countrySelect, governorateSelect, citySelect, shippingZoneSelect } = this.elements;
+
+            if (countrySelect) {
+                countrySelect.addEventListener('change', () => this.onCountryChange());
+            }
+            if (governorateSelect) {
+                governorateSelect.addEventListener('change', () => this.onGovernorateChange());
+            }
+            if (citySelect) {
+                citySelect.addEventListener('change', () => this.onCityChange());
+            }
+            if (shippingZoneSelect) {
+                shippingZoneSelect.addEventListener('change', () => this.onShippingZoneChange());
+            }
+        },
+
+        async onCountryChange() {
+            const countryId = this.elements.countrySelect.value;
+            await this.loadGovernorates(countryId);
+        },
+
+        async onGovernorateChange() {
+            const governorateId = this.elements.governorateSelect.value;
+            await this.loadCities(governorateId);
+        },
+
+        async onCityChange() {
+            const countryId = this.elements.countrySelect.value;
+            const governorateId = this.elements.governorateSelect.value;
+            const cityId = this.elements.citySelect.value;
+
+            if (cityId) {
+                await this.loadShippingOptions(countryId, governorateId, cityId);
+            } else {
+                await this.loadShippingOptions(countryId, governorateId, null);
+            }
+        },
+
+        async onShippingZoneChange() {
+            const selectedZoneId = this.elements.shippingZoneSelect.value;
+            if (!selectedZoneId) {
+                this.hideShippingInfo();
+                return;
+            }
+
+            const params = new URLSearchParams({
+                country: this.elements.countrySelect.value,
+                all: '1'
+            });
+
+            if (this.elements.governorateSelect.value) {
+                params.append('governorate', this.elements.governorateSelect.value);
+            }
+            if (this.elements.citySelect.value) {
+                params.append('city', this.elements.citySelect.value);
+            }
+
+            try {
+                const data = await safeFetch(`/api/new-shipping/quote?${params}`);
+                if (data && data.data) {
+                    const selectedOption = data.data.find(item => item.zone_id == selectedZoneId);
+                    if (selectedOption) {
+                        this.updateShippingDisplay(selectedOption);
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating shipping display:', error);
+            }
+        },
+
+        async loadGovernorates(countryId) {
+            if (!countryId) {
+                SelectUtils.clearSelect(this.elements.governorateSelect, this.translations.selectGovernorate);
+                SelectUtils.clearSelect(this.elements.citySelect, this.translations.selectCity);
+                SelectUtils.clearSelect(this.elements.shippingZoneSelect, this.translations.selectShippingCompany);
+                this.hideShippingInfo();
+                return;
+            }
+
+            const data = await safeFetch(`/api/locations/governorates?country=${countryId}`);
+            SelectUtils.populateSelect(this.elements.governorateSelect, data?.data || []);
+            SelectUtils.clearSelect(this.elements.citySelect, this.translations.selectCity);
+            SelectUtils.clearSelect(this.elements.shippingZoneSelect, this.translations.selectShippingCompany);
+            this.hideShippingInfo();
+        },
+
+        async loadCities(governorateId) {
+            if (!governorateId) {
+                SelectUtils.clearSelect(this.elements.citySelect, this.translations.selectCity);
+                SelectUtils.clearSelect(this.elements.shippingZoneSelect, this.translations.selectShippingCompany);
+                this.hideShippingInfo();
+                return;
+            }
+
+            const data = await safeFetch(`/api/locations/cities?governorate=${governorateId}`);
+            if (data && data.data && data.data.length > 0) {
+                SelectUtils.populateSelect(this.elements.citySelect, data.data);
+                SelectUtils.clearSelect(this.elements.shippingZoneSelect, this.translations.selectShippingCompany);
+                this.hideShippingInfo();
+            } else {
+                SelectUtils.clearSelect(this.elements.citySelect, this.translations.selectCity);
+                await this.loadShippingOptions(
+                    this.elements.countrySelect.value,
+                    governorateId,
+                    null
+                );
+            }
+        },
+
+        async loadShippingOptions(countryId, governorateId = null, cityId = null) {
+            if (!countryId) {
+                this.hideShippingInfo();
+                return;
+            }
+
+            const params = new URLSearchParams({ country: countryId });
+            if (governorateId) params.append('governorate', governorateId);
+            if (cityId) params.append('city', cityId);
+
+            const data = await safeFetch(`/api/locations/shipping?${params}`);
+            if (!data || !data.data || data.data.length === 0) {
+                SelectUtils.clearSelect(this.elements.shippingZoneSelect, this.translations.selectShippingCompany);
+                this.hideShippingInfo();
+                return;
+            }
+
+            const options = data.data.map(item => ({
+                id: item.zone_id,
+                name: `${item.company_name} - ${this.currencySymbol}${parseFloat(item.price).toFixed(2)}`
+            }));
+
+            SelectUtils.populateSelect(this.elements.shippingZoneSelect, options);
+
+            if (data.data.length === 1) {
+                this.elements.shippingZoneSelect.value = data.data[0].zone_id;
+                this.updateShippingDisplay(data.data[0]);
+            } else {
+                this.hideShippingInfo();
+            }
+        },
+
+        updateShippingDisplay(shippingOption) {
+            if (!shippingOption) {
+                this.hideShippingInfo();
+                return;
+            }
+
+            const { shippingCostDisplay, shippingCompanyDisplay, shippingCostInput,
+                    shippingDaysInput, shippingDaysDiv, shippingDaysDisplay, shippingInfo,
+                    hiddenShippingZoneId, hiddenShippingPrice, hiddenShippingDays } = this.elements;
+
+            if (shippingCostDisplay) {
+                shippingCostDisplay.textContent = `${this.currencySymbol}${parseFloat(shippingOption.price).toFixed(2)}`;
+            }
+            if (shippingCompanyDisplay) {
+                shippingCompanyDisplay.textContent = shippingOption.zone_name;
+            }
+            if (shippingCostInput) {
+                shippingCostInput.value = shippingOption.price;
+            }
+            if (shippingDaysInput) {
+                shippingDaysInput.value = shippingOption.estimated_days || '';
+            }
+
+            if (shippingOption.estimated_days) {
+                if (shippingDaysDisplay) {
+                    shippingDaysDisplay.textContent = shippingOption.estimated_days;
+                }
+                if (shippingDaysDiv) {
+                    shippingDaysDiv.classList.remove('hidden');
+                }
+            } else if (shippingDaysDiv) {
+                shippingDaysDiv.classList.add('hidden');
+            }
+
+            if (shippingInfo) {
+                shippingInfo.classList.remove('hidden');
+            }
+            if (hiddenShippingZoneId) {
+                hiddenShippingZoneId.value = shippingOption.zone_id;
+            }
+            if (hiddenShippingPrice) {
+                hiddenShippingPrice.value = shippingOption.price;
+            }
+            if (hiddenShippingDays) {
+                hiddenShippingDays.value = shippingOption.estimated_days || '';
+            }
+
+            this.updateOrderSummary(shippingOption.price);
+        },
+
+        hideShippingInfo() {
+            const { shippingInfo, shippingCostInput, shippingDaysInput,
+                    hiddenShippingZoneId, hiddenShippingPrice, hiddenShippingDays } = this.elements;
+
+            if (shippingInfo) shippingInfo.classList.add('hidden');
+            if (shippingCostInput) shippingCostInput.value = '';
+            if (shippingDaysInput) shippingDaysInput.value = '';
+            if (hiddenShippingZoneId) hiddenShippingZoneId.value = '';
+            if (hiddenShippingPrice) hiddenShippingPrice.value = '';
+            if (hiddenShippingDays) hiddenShippingDays.value = '';
+
+            this.updateOrderSummary(0);
+        },
+
+        updateOrderSummary(shippingCost) {
+            const shippingAmount = $('.shipping-amount');
+            if (shippingAmount) {
+                shippingAmount.textContent = shippingCost > 0
+                    ? `${this.currencySymbol}${parseFloat(shippingCost).toFixed(2)}`
+                    : '-';
+            }
+
+            const newTotal = this.baseTotal + parseFloat(shippingCost || 0);
+            const orderTotal = $('.order-total');
+            if (orderTotal) {
+                orderTotal.textContent = `${this.currencySymbol}${newTotal.toFixed(2)}`;
+            }
+        },
+
+        initializeShipping() {
+            if (this.elements.countrySelect && this.elements.countrySelect.value) {
+                this.loadGovernorates(this.elements.countrySelect.value);
+            }
+        }
+    };
+
+    // Address selection
+    const AddressSelection = {
+        init() {
+            this.elements = {
+                addressRadios: $$('input[name="selected_address"]'),
+                selectedAddressIdHidden: $('#selected-address-id'),
+                customerNameInput: $('#customer_name'),
+                customerEmailInput: $('#customer_email'),
+                customerPhoneInput: $('#customer_phone'),
+                customerAddressInput: $('#customer_address'),
+                countrySelect: $('#country-select'),
+                governorateSelect: $('#governorate-select'),
+                citySelect: $('#city-select')
+            };
+
+            this.translations = {
+                selectGovernorate: 'Select Governorate',
+                selectCity: 'Select City',
+                selectShippingCompany: 'Select Shipping Company'
+            };
+
+            this.currencySymbol = $('meta[name="currency-symbol"]')?.content || '$';
+
+            this.bindEvents();
+            this.initializeSelection();
+        },
+
+        bindEvents() {
+            this.elements.addressRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    if (radio.checked) {
+                        this.selectAddress(radio);
+                    }
+                });
+            });
+        },
+
+        async selectAddress(radio) {
+            const label = radio.closest('label');
+            if (!label) return;
+
+            const addrId = label.dataset.addrId;
+            const country = label.dataset.country;
+            const governorate = label.dataset.governorate;
+            const city = label.dataset.city;
+            const line1 = label.dataset.line1;
+            const phone = label.dataset.phone;
+            const name = label.querySelector('.address-name')?.textContent || '';
+
+            // Update form fields
+            if (this.elements.selectedAddressIdHidden) {
+                this.elements.selectedAddressIdHidden.value = addrId;
+            }
+            if (this.elements.customerNameInput) {
+                this.elements.customerNameInput.value = name;
+            }
+            if (this.elements.customerEmailInput) {
+                this.elements.customerEmailInput.value = document.querySelector('meta[name="user-email"]')?.content || '';
+            }
+            if (this.elements.customerPhoneInput) {
+                this.elements.customerPhoneInput.value = phone;
+            }
+            if (this.elements.customerAddressInput) {
+                this.elements.customerAddressInput.value = line1;
+            }
+
+            // Update location selects
+            if (this.elements.countrySelect && country) {
+                this.elements.countrySelect.value = country;
+                await this.loadGovernorates(country);
+            }
+            if (this.elements.governorateSelect && governorate) {
+                this.elements.governorateSelect.value = governorate;
+                await this.loadCities(governorate);
+            }
+            if (this.elements.citySelect && city) {
+                this.elements.citySelect.value = city;
+                await this.loadShippingOptions();
+            }
+        },
+
+        async loadGovernorates(countryId) {
+            if (!countryId || !this.elements.governorateSelect) return;
+
+            try {
+                const data = await safeFetch(`/api/locations/governorates?country=${countryId}`);
+                SelectUtils.populateSelect(this.elements.governorateSelect, data?.data || []);
+            } catch (error) {
+                console.error('Error loading governorates:', error);
+            }
+        },
+
+        async loadCities(governorateId) {
+            if (!governorateId || !this.elements.citySelect) return;
+
+            try {
+                const data = await safeFetch(`/api/locations/cities?governorate=${governorateId}`);
+                SelectUtils.populateSelect(this.elements.citySelect, data?.data || []);
+            } catch (error) {
+                console.error('Error loading cities:', error);
+            }
+        },
+
+        async loadShippingOptions() {
+            const countryId = this.elements.countrySelect?.value;
+            const governorateId = this.elements.governorateSelect?.value;
+            const cityId = this.elements.citySelect?.value;
+
+            if (!countryId) return;
+
+            const params = new URLSearchParams({ country: countryId, all: '1' });
+            if (governorateId) params.append('governorate', governorateId);
+            if (cityId) params.append('city', cityId);
+
+            try {
+                const data = await safeFetch(`/api/new-shipping/quote?${params}`);
+                if (data && data.data) {
+                    const shippingZoneSelect = $('#shipping-zone-select');
+                    if (shippingZoneSelect) {
+                        const options = data.data.map(item => ({
+                            id: item.zone_id,
+                            name: `${item.zone_name} - ${this.currencySymbol}${parseFloat(item.price).toFixed(2)}`
+                        }));
+                        SelectUtils.populateSelect(shippingZoneSelect, options);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading shipping options:', error);
+            }
+        },
+
+        initializeSelection() {
+            const initialChecked = $('input[name="selected_address"]:checked');
+            if (initialChecked) {
+                this.selectAddress(initialChecked);
+            }
+        }
+    };
+
+    // Initialize all modules when DOM is ready
+    function initializeApp() {
+        DropdownManager.init();
+        CurrencySwitcher.init();
+        CompareBadge.init();
+        Loader.init();
+        HeroSlider.init();
+        QuantitySelector.init();
+        ProductVariations.init();
+        CheckoutShipping.init();
+        AddressSelection.init();
+        ImageLoader.init();
     }
 
-    // Shipping / Checkout - Unified functions
-    function clearSelect(select, placeholder) {
-        if (!select) return;
-        // Clear existing options
-        select.innerHTML = '';
-        // Create new option element safely to prevent XSS
-        const option = document.createElement('option');
-        option.value = '';
-        option.textContent = placeholder;
-        select.appendChild(option);
-    }
-    function populateSelect(select, options, selectedValue = null) {
-        if (!select) return;
-        const firstText = select.querySelector('option')?.textContent || '';
-
-        // Clear existing options safely
-        select.innerHTML = '';
-
-        // Create first option element safely to prevent XSS
-        const firstOption = document.createElement('option');
-        firstOption.value = '';
-        firstOption.textContent = firstText;
-        select.appendChild(firstOption);
-
-        // Add other options safely
-        (options || []).forEach(option => {
-            const opt = document.createElement('option');
-            opt.value = option.id;
-            opt.textContent = option.name;
-            if (selectedValue && option.id == selectedValue) opt.selected = true;
-            select.appendChild(opt);
-        });
-    }
-
-    function initCheckoutShipping() {
-        const checkoutRoot = $('#checkout-root'); if (!checkoutRoot) return;
-        const translations = { selectGovernorate: checkoutRoot.dataset.selectGovernorate || 'Select Governorate', selectCity: checkoutRoot.dataset.selectCity || 'Select City', selectShippingCompany: checkoutRoot.dataset.selectShippingCompany || 'Select Shipping Company' };
-        const currencySymbol = checkoutRoot.dataset.currencySymbol; const baseTotal = parseFloat(checkoutRoot.dataset.baseTotal || '0') || 0;
-        const countrySelect = $('#country-select'); const governorateSelect = $('#governorate-select'); const citySelect = $('#city-select'); const shippingZoneSelect = $('#shipping-zone-select'); const shippingCostDisplay = $('#shipping-cost-display'); const shippingCompanyDisplay = $('#shipping-company-display'); const shippingCostInput = $('#shipping-cost-input'); const shippingDaysInput = $('#shipping-days-input'); const shippingDaysDiv = $('#shipping-days'); const shippingDaysDisplay = $('#shipping-days-display'); const shippingInfo = $('#shipping-info'); const hiddenShippingZoneId = $('#input-shipping-zone-id'); const hiddenShippingPrice = $('#input-shipping-price'); const hiddenShippingDays = $('#shipping-days-input');
-
-        async function loadGovernorates(countryId) { if (!countryId) { clearSelect(governorateSelect, translations.selectGovernorate); clearSelect(citySelect, translations.selectCity); clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); return; } const data = await fetchJson(`/api/locations/governorates?country=${countryId}`); populateSelect(governorateSelect, data.data || []); clearSelect(citySelect, translations.selectCity); clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); }
-
-        async function loadCities(governorateId) { if (!governorateId) { clearSelect(citySelect, translations.selectCity); clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); return; } const data = await fetchJson(`/api/locations/cities?governorate=${governorateId}`); if ((data.data || []).length > 0) { populateSelect(citySelect, data.data); clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); } else { clearSelect(citySelect, translations.selectCity); await loadShippingOptions(countrySelect.value, governorateId, null); } }
-
-        async function loadShippingOptions(countryId, governorateId = null, cityId = null) { if (!countryId) { hideShippingInfo(); return; } const params = new URLSearchParams({ country: countryId }); if (governorateId) params.append('governorate', governorateId); if (cityId) params.append('city', cityId); const data = await fetchJson(`/api/locations/shipping?${params}`); if (!data.data || data.data.length === 0) { clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); return; } populateSelect(shippingZoneSelect, (data.data || []).map(item => ({ id: item.zone_id, name: `${item.company_name} - ${currencySymbol}${parseFloat(item.price).toFixed(2)}` }))); if (data.data.length === 1) { shippingZoneSelect.value = data.data[0].zone_id; updateShippingDisplay(data.data[0]); } else hideShippingInfo(); }
-
-        function updateShippingDisplay(shippingOption) { if (!shippingOption) { hideShippingInfo(); return; } if (shippingCostDisplay) shippingCostDisplay.textContent = `${currencySymbol}${parseFloat(shippingOption.price).toFixed(2)}`; if (shippingCompanyDisplay) shippingCompanyDisplay.textContent = shippingOption.zone_name; if (shippingCostInput) shippingCostInput.value = shippingOption.price; if (shippingDaysInput) shippingDaysInput.value = shippingOption.estimated_days || ''; if (shippingOption.estimated_days) { if (shippingDaysDisplay) shippingDaysDisplay.textContent = shippingOption.estimated_days; if (shippingDaysDiv) shippingDaysDiv.classList.remove('hidden'); } else if (shippingDaysDiv) shippingDaysDiv.classList.add('hidden'); if (shippingInfo) shippingInfo.classList.remove('hidden'); if (hiddenShippingZoneId) hiddenShippingZoneId.value = shippingOption.zone_id; if (hiddenShippingPrice) hiddenShippingPrice.value = shippingOption.price; if (hiddenShippingDays) hiddenShippingDays.value = shippingOption.estimated_days || ''; updateOrderSummary(shippingOption.price); }
-
-        function hideShippingInfo() { if (shippingInfo) shippingInfo.classList.add('hidden'); if (shippingCostInput) shippingCostInput.value = ''; if (shippingDaysInput) shippingDaysInput.value = ''; if (hiddenShippingZoneId) hiddenShippingZoneId.value = ''; if (hiddenShippingPrice) hiddenShippingPrice.value = ''; if (hiddenShippingDays) hiddenShippingDays.value = ''; updateOrderSummary(0); }
-
-        function updateOrderSummary(shippingCost) { const shippingAmount = $('.shipping-amount'); if (shippingAmount) shippingAmount.textContent = shippingCost > 0 ? `${currencySymbol}${parseFloat(shippingCost).toFixed(2)}` : '-'; const newTotal = baseTotal + parseFloat(shippingCost || 0); const orderTotal = $('.order-total'); if (orderTotal) orderTotal.textContent = `${currencySymbol}${newTotal.toFixed(2)}`; }
-
-        countrySelect.addEventListener('change', function () { loadGovernorates(this.value); }); governorateSelect.addEventListener('change', function () { loadCities(this.value); }); citySelect.addEventListener('change', function () { if (this.value) loadShippingOptions(countrySelect.value, governorateSelect.value, this.value); else loadShippingOptions(countrySelect.value, governorateSelect.value, null); });
-
-        shippingZoneSelect.addEventListener('change', function () { const selectedZoneId = this.value; if (!selectedZoneId) { hideShippingInfo(); return; } const params = new URLSearchParams({ country: countrySelect.value }); if (governorateSelect.value) params.append('governorate', governorateSelect.value); if (citySelect.value) params.append('city', citySelect.value); params.append('all', '1'); fetch(`/api/new-shipping/quote?${params}`).then(r => { if (!r.ok || !r.headers.get('content-type')?.includes('application/json')) throw new Error('Invalid response'); return r.json(); }).then(data => { const selectedOption = data.data.find(item => item.zone_id == selectedZoneId); if (selectedOption) updateShippingDisplay(selectedOption); }).catch(err => console.error('Error updating shipping display:', err)); });
-
-        if (countrySelect.value) loadGovernorates(countrySelect.value);
-    }
-
-    // Address selection - Simplified
-    function initAddressSelection() {
-        const addressRadios = $$('input[name="selected_address"]'); const selectedAddressIdHidden = $('#selected-address-id'); const customerNameInput = $('#customer_name'); const customerEmailInput = $('#customer_email'); const customerPhoneInput = $('#customer_phone'); const customerAddressInput = $('#customer_address'); const countrySelect = $('#country-select'); const governorateSelect = $('#governorate-select'); const citySelect = $('#city-select'); const translations = { selectGovernorate: 'Select Governorate', selectCity: 'Select City', selectShippingCompany: 'Select Shipping Company' };
-        const currencySymbol = $('meta[name="currency-symbol"]')?.content || '$'; // Get currency symbol from meta tag
-
-        async function loadGovernoratesAsync(countryId) { if (!countryId) { if (governorateSelect) clearSelect(governorateSelect, translations.selectGovernorate); if (citySelect) clearSelect(citySelect, translations.selectCity); const shippingZoneSelect = $('#shipping-zone-select'); if (shippingZoneSelect) clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); return; } try { const data = await fetchJson(`/api/locations/governorates?country=${countryId}`); if (governorateSelect) populateSelect(governorateSelect, data.data); if (citySelect) clearSelect(citySelect, translations.selectCity); const shippingZoneSelect = $('#shipping-zone-select'); if (shippingZoneSelect) clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); } catch (err) { console.error('Error loading governorates:', err); } }
-
-        async function loadCitiesAsync(governorateId) { if (!governorateId) { if (citySelect) clearSelect(citySelect, translations.selectCity); const shippingZoneSelect = $('#shipping-zone-select'); if (shippingZoneSelect) clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); return; } try { const data = await fetchJson(`/api/locations/cities?governorate=${governorateId}`); if (data.data.length > 0) { if (citySelect) populateSelect(citySelect, data.data); const shippingZoneSelect = $('#shipping-zone-select'); if (shippingZoneSelect) clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); } else { if (citySelect) clearSelect(citySelect, translations.selectCity); } } catch (err) { console.error('Error loading cities:', err); } }
-
-        async function loadShippingOptionsAsync(countryId, governorateId = null, cityId = null) { if (!countryId) { hideShippingInfo(); return; } const params = new URLSearchParams({ country: countryId }); if (governorateId) params.append('governorate', governorateId); if (cityId) params.append('city', cityId); params.append('all', '1'); try { const data = await fetchJson(`/api/new-shipping/quote?${params}`); if (!data.data || data.data.length === 0) { const shippingZoneSelect = $('#shipping-zone-select'); if (shippingZoneSelect) clearSelect(shippingZoneSelect, translations.selectShippingCompany); hideShippingInfo(); return; } const shippingZoneSelect = $('#shipping-zone-select'); if (shippingZoneSelect) populateSelect(shippingZoneSelect, data.data.map(item => ({ id: item.zone_id, name: `${item.zone_name} - ${currencySymbol}${parseFloat(item.price).toFixed(2)}` }))); } catch (err) { console.error('Error loading shipping options:', err); } }
-
-        function hideShippingInfo() { const shippingInfo = $('#shipping-info'); const shippingCostInput = $('#shipping-cost-input'); const shippingDaysInput = $('#shipping-days-input'); const hiddenShippingZoneId = $('#input-shipping-zone-id'); const hiddenShippingPrice = $('#input-shipping-price'); const hiddenShippingDays = $('#shipping-days-input'); if (shippingInfo) shippingInfo.classList.add('hidden'); if (shippingCostInput) shippingCostInput.value = ''; if (shippingDaysInput) shippingDaysInput.value = ''; if (hiddenShippingZoneId) hiddenShippingZoneId.value = ''; if (hiddenShippingPrice) hiddenShippingPrice.value = ''; if (hiddenShippingDays) hiddenShippingDays.value = ''; }
-
-        async function selectAddress(radio) { const label = radio.closest('label'); const addrId = label?.dataset?.addrId; const country = label?.dataset?.country; const governorate = label?.dataset?.governorate; const city = label?.dataset?.city; const line1 = label?.dataset?.line1; const phone = label?.dataset?.phone; const name = label?.querySelector('.address-name')?.textContent || ''; if (selectedAddressIdHidden) selectedAddressIdHidden.value = addrId; if (customerNameInput) customerNameInput.value = name; if (customerEmailInput) customerEmailInput.value = doc.querySelector('meta[name="user-email"]')?.content || ''; if (customerPhoneInput) customerPhoneInput.value = phone; if (customerAddressInput) customerAddressInput.value = line1; if (countrySelect) { countrySelect.value = country; await loadGovernoratesAsync(country); } if (governorateSelect) { governorateSelect.value = governorate; await loadCitiesAsync(governorate); } if (citySelect) { citySelect.value = city; if (citySelect.value) await loadShippingOptionsAsync(countrySelect.value, governorateSelect.value, citySelect.value); else await loadShippingOptionsAsync(countrySelect.value, governorateSelect.value, null); } }
-
-        addressRadios.forEach(radio => radio.addEventListener('change', function () { if (this.checked) selectAddress(this); }));
-        const initialChecked = $('input[name="selected_address"]:checked'); if (initialChecked) selectAddress(initialChecked);
-    }
-
-    // Initialize all
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            initDropdowns(); initCurrencySwitch(); initCompareBadge(); initLoader(); initHeroSlider(); initQuantitySelector(); initProductVariations(); initCheckoutShipping(); initAddressSelection(); initImageLoading();
-        });
+        document.addEventListener('DOMContentLoaded', initializeApp);
     } else {
-        initDropdowns(); initCurrencySwitch(); initCompareBadge(); initLoader(); initHeroSlider(); initQuantitySelector(); initProductVariations(); initCheckoutShipping(); initAddressSelection(); initImageLoading();
+        initializeApp();
     }
-}());
+
+})();
 
 

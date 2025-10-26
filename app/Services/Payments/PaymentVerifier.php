@@ -13,8 +13,8 @@ final class PaymentVerifier
 {
     public function __construct(
         private readonly OrderCreator $orderCreator,
-    ) {
-    }    public function verifyGenericGatewayCharge(Payment $payment, PaymentGateway $gateway): array
+    ) {}
+    public function verifyGenericGatewayCharge(Payment $payment, PaymentGateway $gateway): array
     {
         $credentials = $this->getGatewayCredentials($gateway);
         $chargeId = $this->getChargeId($payment, $gateway);

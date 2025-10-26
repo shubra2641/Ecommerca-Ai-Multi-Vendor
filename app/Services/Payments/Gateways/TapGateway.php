@@ -18,8 +18,7 @@ final class TapGateway
         private readonly TapChargeBuilder $chargeBuilder,
         private readonly TapPaymentCreator $paymentCreator,
         private readonly OrderCreator $orderCreator,
-    ) {
-    }
+    ) {}
 
     public function initPayment(Order $order, PaymentGateway $gateway, int $orderId): array
     {
