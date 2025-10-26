@@ -59,24 +59,24 @@ class NotificationController extends Controller
     {
         $user = $request->user();
         if ($user->role !== 'vendor') {
-            return response()->json(['ok' => false], 403);
+            abort(403);
         }
         $n = $user->notifications()->where('id', $id)->first();
         if ($n) {
             $n->markAsRead();
         }
 
-        return response()->json(['ok' => true]);
+        return back();
     }
 
     public function markAll(Request $request)
     {
         $user = $request->user();
         if ($user->role !== 'vendor') {
-            return response()->json(['ok' => false], 403);
+            abort(403);
         }
         $user->unreadNotifications()->update(['read_at' => now()]);
 
-        return response()->json(['ok' => true]);
+        return back();
     }
 }

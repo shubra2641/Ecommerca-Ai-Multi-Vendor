@@ -90,8 +90,16 @@ class WithdrawalController extends Controller
                 'held_at' => now(),
             ]);
 
-            // Log the withdrawal request (no balance change yet)
-            $this->logTransaction($user, $withdrawal, 0); // 0 amount since no deduction
+            // Log withdrawal request
+            BalanceHistory::createTransaction(
+                $user,
+                'withdrawal_request',
+                0.00,
+                (float) $user->balance,
+                (float) $user->balance,
+                "Withdrawal request #{$withdrawal->id} created - Amount: {$withdrawal->gross_amount} {$withdrawal->currency}",
+                null
+            );
 
             if ($request->has('transfer') && is_array($request->input('transfer'))) {
                 $user->update(['transfer_details' => json_encode($request->input('transfer'))]);
@@ -119,11 +127,11 @@ class WithdrawalController extends Controller
     private function getStats($user)
     {
         return [
-            'totalWithdrawn' => VendorWithdrawal::where('user_id', $user->id)->where('status', 'completed')->sum('amount'),
+            'totalWithdrawn' => (int) BalanceHistory::where('user_id', $user->id)->whereIn('type', ['withdrawal_approved', 'withdrawal_executed'])->count(),
             'pendingWithdrawals' => VendorWithdrawal::where('user_id', $user->id)->where('status', 'pending')->sum('amount'),
             'pendingAmount' => VendorWithdrawal::where('user_id', $user->id)->where('status', 'pending')->sum('amount'),
-            'approvedThisMonth' => VendorWithdrawal::where('user_id', $user->id)->where('status', 'completed')
-                ->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->sum('amount'),
+            'approvedThisMonth' => (float) BalanceHistory::where('user_id', $user->id)->where('type', 'withdrawal_approved')
+                ->whereYear('created_at', now()->year)->whereMonth('created_at', now()->month)->sum('amount'),
             'totalRequests' => VendorWithdrawal::where('user_id', $user->id)->count(),
         ];
     }
@@ -156,27 +164,5 @@ class WithdrawalController extends Controller
         }
 
         return $formattedGateways;
-    }
-
-    private function logTransaction($user, $withdrawal, $netAmount): void
-    {
-        try {
-            BalanceHistory::createTransaction(
-                $user,
-                'debit',
-                $netAmount,
-                $user->balance + $netAmount,
-                $user->balance,
-                __('Withdrawal hold #:id (net :amount :currency)', [
-                    'id' => $withdrawal->id,
-                    'amount' => number_format($netAmount, 2),
-                    'currency' => $withdrawal->currency,
-                ]),
-                Auth::id(),
-                $withdrawal
-            );
-        } catch (\Throwable $e) {
-            logger()->warning('Failed logging withdrawal hold: ' . $e->getMessage());
-        }
     }
 }

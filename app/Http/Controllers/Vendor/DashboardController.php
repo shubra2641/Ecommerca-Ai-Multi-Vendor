@@ -24,6 +24,10 @@ class DashboardController extends Controller
             $vendor->update(['balance' => $dashboardData['actual_balance']]);
         }
 
+        // Get recent notifications for the header
+        $recentNotifications = $vendor->notifications()->latest()->limit(5)->get();
+        $unreadCount = $vendor->unreadNotifications()->count();
+
         return view('vendor.dashboard', [
             'totalSales' => $dashboardData['total_sales'],
             'ordersCount' => $dashboardData['total_orders'],
@@ -31,8 +35,12 @@ class DashboardController extends Controller
             'productsCount' => $dashboardData['total_products'],
             'activeProductsCount' => $dashboardData['active_products'],
             'pendingProductsCount' => $dashboardData['pending_products'],
-            'actualBalance' => $dashboardData['actual_balance'],
+            'actualBalance' => $vendor->balance ?? 0,
             'recentOrders' => $dashboardData['recent_orders'],
+            'totalWithdrawn' => $dashboardData['total_withdrawn'],
+            'monthlyApproved' => $dashboardData['monthly_approved'],
+            'recentNotifications' => $recentNotifications,
+            'unreadNotificationsCount' => $unreadCount,
         ]);
     }
 }

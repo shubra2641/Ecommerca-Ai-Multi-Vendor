@@ -107,24 +107,15 @@ class VendorWithdrawalController extends Controller
         }
 
         // Record the balance deduction transaction
-        try {
-            BalanceHistory::createTransaction(
-                $user,
-                'debit',
-                (float) $withdrawal->gross_amount,
-                $oldBalance,
-                $newBalance,
-                __('Withdrawal #:id approved (amount :amount :currency)', [
-                    'id' => $withdrawal->id,
-                    'amount' => number_format($withdrawal->gross_amount, 2),
-                    'currency' => $withdrawal->currency,
-                ]),
-                Auth::id(),
-                $withdrawal
-            );
-        } catch (\Throwable $e) {
-            logger()->warning('Failed to log approval transaction: ' . $e->getMessage());
-        }
+        BalanceHistory::createTransaction(
+            $user,
+            'withdrawal_approved',
+            (float) $withdrawal->gross_amount,
+            $oldBalance,
+            $newBalance,
+            "Withdrawal #{$withdrawal->id} approved - Amount deducted: {$withdrawal->gross_amount} {$withdrawal->currency}",
+            Auth::id()
+        );
 
         // Notify vendor via DB notification
         try {
@@ -147,22 +138,16 @@ class VendorWithdrawalController extends Controller
             'proof' => 'nullable|image|max:5120',
         ]);
         $withdrawal->update(['status' => 'rejected', 'admin_note' => $request->input('admin_note')]);
-        // No refund needed since balance was not deducted during approval
-        // Just log the rejection
-        try {
-            BalanceHistory::createTransaction(
-                $withdrawal->user,
-                'adjustment',
-                0.00,
-                (float) $withdrawal->user->balance,
-                (float) $withdrawal->user->balance,
-                __('Withdrawal #:id rejected', ['id' => $withdrawal->id]),
-                Auth::id(),
-                $withdrawal
-            );
-        } catch (\Throwable $e) {
-            logger()->warning('Failed to log rejection transaction: ' . $e->getMessage());
-        }
+        // Log the rejection
+        BalanceHistory::createTransaction(
+            $withdrawal->user,
+            'withdrawal_rejected',
+            0.00,
+            (float) $withdrawal->user->balance,
+            (float) $withdrawal->user->balance,
+            "Withdrawal #{$withdrawal->id} rejected - Amount: {$withdrawal->gross_amount} {$withdrawal->currency}",
+            Auth::id()
+        );
 
         return back()->with('success', __('Withdrawal rejected'));
     }
@@ -183,23 +168,15 @@ class VendorWithdrawalController extends Controller
             $path = $request->file('proof')->store('withdrawals/proofs', 'public');
             $payout->update(['proof_path' => $path]);
         }
-        try {
-            BalanceHistory::createTransaction(
-                $user,
-                'adjustment',
-                0.00,
-                $previous,
-                $new,
-                __(
-                    'Payout executed for withdrawal #:id (funds were previously held)',
-                    ['id' => $payout->withdrawal?->id ?? $payout->id]
-                ),
-                Auth::id(),
-                $payout
-            );
-        } catch (\Throwable $e) {
-            logger()->warning('Failed to record balance history for payout ' . $payout->id . ': ' . $e->getMessage());
-        }
+        BalanceHistory::createTransaction(
+            $user,
+            'withdrawal_executed',
+            0.00,
+            $previous,
+            $new,
+            'Withdrawal #' . ($payout->withdrawal?->id ?? $payout->id) . ' executed - Amount: ' . $payout->amount . ' ' . $payout->currency,
+            Auth::id()
+        );
         // mark withdrawal completed
         $withdrawal = $payout->withdrawal;
         if ($withdrawal) {

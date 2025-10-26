@@ -54,9 +54,9 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value">{{ number_format($totalWithdrawn, 2) }} {{ $currency }}</div>
+                    <div class="admin-stat-value">{{ number_format($totalWithdrawn) }}</div>
                     <div class="admin-stat-label">{{ __('vendor.withdrawals.total_withdrawn') }}</div>
-                    <div class="admin-stat-description">{{ __('Total amount withdrawn') }}</div>
+                    <div class="admin-stat-description">{{ __('Total completed withdrawals') }}</div>
                 </div>
                 <div class="admin-stat-footer">
                     <div class="admin-stat-trend admin-stat-trend-up">

@@ -138,6 +138,27 @@ class AppServiceProvider extends ServiceProvider
                 'notificationsPollIntervalMs',
                 (int) config('notifications.poll_interval_ms', 30000)
             );
+            // Provide recent notifications and unread count for vendor header (server-side)
+            try {
+                /** @var \App\Models\User|null $user */
+                $user = \Illuminate\Support\Facades\Auth::user();
+                if ($user) {
+                    // limit to 5 recent items for the dropdown
+                    $recent = $user->notifications()->latest()->limit(5)->get();
+                    $unread = $user->unreadNotifications()->count();
+                } else {
+                    $recent = collect();
+                    $unread = 0;
+                }
+            } catch (\Throwable $e) {
+                // avoid breaking views if notifications table or relation fails
+                logger()->warning('Failed to load vendor notifications for header: ' . $e->getMessage());
+                $recent = collect();
+                $unread = 0;
+            }
+
+            $view->with('recentNotifications', $recent);
+            $view->with('unreadNotificationsCount', $unread);
         });
         View::composer('vendor.products.index', \App\View\Composers\VendorProductsIndexComposer::class);
 

@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\VendorWithdrawal;
+use App\Models\BalanceHistory;
 use Illuminate\Support\Facades\DB;
 
 final class VendorDashboardService
@@ -26,26 +27,28 @@ final class VendorDashboardService
             'pending_products' => $this->getPendingProductsCount($vendorId),
             'actual_balance' => $this->getActualBalance($totalSales, $totalWithdrawals),
             'recent_orders' => $this->getRecentOrders($vendorId),
+            'total_withdrawn' => $this->getTotalWithdrawn($vendorId),
+            'monthly_approved' => $this->getMonthlyApproved($vendorId),
         ];
     }
 
     private function getTotalSales(int $vendorId): float
     {
-        return OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        return (float) OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->sum(DB::raw('(price * COALESCE(qty, 1))'));
     }
 
     private function getOrdersCount(int $vendorId): int
     {
-        return OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+        return OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
             ->distinct('order_id')
             ->count('order_id');
     }
 
     private function getPendingWithdrawals(int $vendorId): float
     {
-        return VendorWithdrawal::where('user_id', $vendorId)
+        return (float) VendorWithdrawal::where('user_id', $vendorId)
             ->where('status', 'pending')
             ->sum('amount');
     }
@@ -72,7 +75,7 @@ final class VendorDashboardService
 
     private function getTotalWithdrawals(int $vendorId): float
     {
-        return VendorWithdrawal::where('user_id', $vendorId)
+        return (float) VendorWithdrawal::where('user_id', $vendorId)
             ->where('status', 'completed')
             ->sum('amount');
     }
@@ -84,9 +87,34 @@ final class VendorDashboardService
 
     private function getRecentOrders(int $vendorId): \Illuminate\Database\Eloquent\Collection
     {
-        return Order::whereHas('items.product', fn ($q) => $q->where('vendor_id', $vendorId))
+        return Order::whereHas('items.product', fn($q) => $q->where('vendor_id', $vendorId))
             ->latest('created_at')
             ->limit(5)
             ->get();
+    }
+
+    private function getBalanceHistory(int $vendorId): array
+    {
+        return BalanceHistory::where('user_id', $vendorId)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->toArray();
+    }
+
+    private function getTotalWithdrawn(int $vendorId): int
+    {
+        return (int) BalanceHistory::where('user_id', $vendorId)
+            ->whereIn('type', ['withdrawal_approved', 'withdrawal_executed'])
+            ->count();
+    }
+
+    private function getMonthlyApproved(int $vendorId): float
+    {
+        return (float) BalanceHistory::where('user_id', $vendorId)
+            ->where('type', 'withdrawal_approved')
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->sum('amount');
     }
 }

@@ -186,6 +186,80 @@
 
         <!-- Second Statistics Row -->
         <div class="admin-stats-grid">
+            <!-- Total Withdrawn -->
+            <div class="admin-stat-card admin-stat-info">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2V22M17 5H9.5A3.5 3.5 0 0 0 9.5 12H14.5A3.5 3.5 0 0 1 14.5 19H6" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" id="total-withdrawn" data-countup data-target="{{ (int)($totalWithdrawn ?? 0) }}">
+                        {{ isset($totalWithdrawn) ? number_format($totalWithdrawn) : '0' }}
+                    </div>
+                    <div class="admin-stat-label">{{ __('Total Withdrawn') }}</div>
+                    <div class="admin-stat-description">{{ __('إجمالي المسحوب') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <a href="{{ route('vendor.withdrawals.index') }}" class="admin-btn admin-btn-secondary">
+                        {{ __('View Details') }}
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </a>
+                    <div class="admin-stat-trend admin-stat-trend-info">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                        <span>{{ __('All time') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Approved -->
+            <div class="admin-stat-card admin-stat-warning">
+                <div class="admin-stat-header">
+                    <div class="admin-stat-icon-wrapper">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" />
+                        </svg>
+                    </div>
+                    <div class="admin-stat-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 8V12L16 14" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="admin-stat-content">
+                    <div class="admin-stat-value" id="monthly-approved" data-countup data-decimals="2" data-target="{{ number_format($monthlyApproved ?? 0, 2, '.', '') }}">
+                        {{ isset($monthlyApproved) ? number_format($monthlyApproved, 2) : '0.00' }}
+                    </div>
+                    <div class="admin-stat-label">{{ __('Monthly Approved') }}</div>
+                    <div class="admin-stat-description">{{ __('الموافق هذا الشهر') }}</div>
+                </div>
+                <div class="admin-stat-footer">
+                    <a href="{{ route('vendor.withdrawals.index') }}" class="admin-btn admin-btn-secondary">
+                        {{ __('View Details') }}
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M7 14l3-3 3 3 5-5" />
+                        </svg>
+                    </a>
+                    <div class="admin-stat-trend admin-stat-trend-warning">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 8V12L16 14" />
+                        </svg>
+                        <span>{{ __('This month') }}</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Total Products -->
             <div class="admin-stat-card admin-stat-info">
                 <div class="admin-stat-header">
