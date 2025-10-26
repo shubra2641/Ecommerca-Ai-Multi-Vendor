@@ -117,50 +117,7 @@
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="admin-modern-card">
-            <div class="admin-card-header">
-                <h3 class="admin-card-title">
-                    <i class="fas fa-filter"></i>
-                    {{ __('Filters') }}
-                </h3>
-            </div>
-            <form method="GET" action="{{ route('admin.product-tags.index') }}" class="admin-card-body">
-                <div class="admin-filter-grid">
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Search Tags') }}</label>
-                        <input type="text" class="admin-form-input" name="search"
-                            value="{{ request('search') }}" placeholder="{{ __('Search by name or slug...') }}">
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Usage Status') }}</label>
-                        <select class="admin-form-input" name="usage">
-                            <option value="">{{ __('All Tags') }}</option>
-                            <option value="used" {{ request('usage') == 'used' ? 'selected' : '' }}>{{ __('Used Tags') }}</option>
-                            <option value="unused" {{ request('usage') == 'unused' ? 'selected' : '' }}>{{ __('Unused Tags') }}</option>
-                        </select>
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Per Page') }}</label>
-                        <select class="admin-form-input" name="per_page">
-                            <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
-                            <option value="25" {{ request('per_page', 10) == 25 ? 'selected' : '' }}>25</option>
-                            <option value="50" {{ request('per_page', 10) == 50 ? 'selected' : '' }}>50</option>
-                            <option value="100" {{ request('per_page', 10) == 100 ? 'selected' : '' }}>100</option>
-                        </select>
-                    </div>
-                    <div class="admin-filter-actions">
-                        <button type="submit" class="admin-btn admin-btn-primary">
-                            <i class="fas fa-search"></i>
-                            {{ __('Filter') }}
-                        </button>
-                        <a href="{{ route('admin.product-tags.index') }}" class="admin-btn admin-btn-secondary" title="{{ __('Clear') }}">
-                            <i class="fas fa-times"></i>
-                        </a>
-                    </div>
-                </div>
-            </form>
-        </div>
+
 
         <!-- Tags List -->
         <div class="admin-modern-card">

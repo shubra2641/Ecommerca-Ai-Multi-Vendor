@@ -28,42 +28,7 @@
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="admin-modern-card admin-mb-1-5">
-            <div class="admin-card-header">
-                <h3 class="admin-card-title">
-                    <i class="fas fa-filter"></i>
-                    {{ __('Search & Filter') }}
-                </h3>
-            </div>
-            <form method="GET" action="{{ route('admin.gallery.index') }}" class="admin-card-body">
-                <div class="admin-form-grid">
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">@lang('Search')</label>
-                        <input type="text" name="q" value="{{ $q ?? '' }}" class="admin-form-input" placeholder="@lang('Title / description / tag')">
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">@lang('Tag')</label>
-                        <select name="tag" class="admin-form-input">
-                            <option value="">@lang('All')</option>
-                            @foreach(($distinctTags ?? []) as $t)
-                            <option value="{{ $t }}" @selected(($tag ?? '' )===$t)>{{ $t }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">&nbsp;</label>
-                        <div class="admin-actions-flex">
-                            <button class="admin-btn admin-btn-primary">
-                                <i class="fas fa-search"></i>
-                                @lang('Filter')
-                            </button>
-                            <a href="{{ route('admin.gallery.index') }}" class="admin-btn admin-btn-secondary">@lang('Reset')</a>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
+
 
         @if(!$images->count())
         <div class="admin-empty-state">

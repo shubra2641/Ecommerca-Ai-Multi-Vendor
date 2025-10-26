@@ -19,26 +19,9 @@ class GalleryController extends Controller
 {
     public function index(Request $request)
     {
-        $searchTerm = trim($request->get('q', ''));
-        $tagFilter = trim($request->get('tag', ''));
-        $query = GalleryImage::query();
-        if ($searchTerm !== '') {
-            $query->where(function ($searchQuery) use ($searchTerm): void {
-                $searchQuery->where('title', 'like', "%{$searchTerm}%")
-                    ->orWhere('description', 'like', "%{$searchTerm}%")
-                    ->orWhere('alt', 'like', "%{$searchTerm}%")
-                    ->orWhere('tags', 'like', "%{$searchTerm}%");
-            });
-        }
-        if ($tagFilter !== '') {
-            $query->where('tags', 'like', "%{$tagFilter}%");
-        }
-        $images = $query->latest()->paginate(30)->appends(['q' => $searchTerm, 'tag' => $tagFilter]);
-        $distinctTags = GalleryImage::select('tags')->whereNotNull('tags')->pluck('tags')->flatMap(function ($row) {
-            return array_filter(array_map('trim', explode(',', $row)));
-        })->unique()->sort()->values();
+        $images = GalleryImage::latest()->paginate(30);
 
-        return view('admin.gallery.index', compact('images', 'searchTerm', 'tagFilter', 'distinctTags'));
+        return view('admin.gallery.index', compact('images'));
     }
 
     public function create()

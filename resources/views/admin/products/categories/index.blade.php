@@ -117,47 +117,7 @@
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <form method="GET" action="{{ route('admin.product-categories.index') }}" class="row g-3">
-                    <div class="col-md-4">
-                        <label for="search" class="form-label">{{ __('Search') }}</label>
-                        <input type="text" class="form-control" id="search" name="search"
-                            value="{{ request('search') }}" placeholder="{{ __('Search categories...') }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="status" class="form-label">{{ __('Status') }}</label>
-                        <select class="form-select" id="status" name="status">
-                            <option value="">{{ __('All Status') }}</option>
-                            <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>{{ __('Active') }}</option>
-                            <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="type" class="form-label">{{ __('Type') }}</label>
-                        <select class="form-select" id="type" name="type">
-                            <option value="">{{ __('All Types') }}</option>
-                            <option value="parent" {{ request('type') == 'parent' ? 'selected' : '' }}>{{ __('Parent Categories') }}</option>
-                            <option value="child" {{ request('type') == 'child' ? 'selected' : '' }}>{{ __('Subcategories') }}</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">&nbsp;</label>
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary flex-fill" title="{{ __('Filter') }}">
-                                <i class="fas fa-search d-md-none"></i>
-                                <span class="d-none d-md-inline">{{ __('Filter') }}</span>
-                            </button>
-                            <a href="{{ route('admin.product-categories.index') }}" class="btn btn-outline-secondary" title="{{ __('Clear') }}">
-                                <i class="fas fa-times d-md-none"></i>
-                                <span class="d-none d-md-inline">{{ __('Clear') }}</span>
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+
 
         <!-- Main Content -->
         <div class="card modern-card">

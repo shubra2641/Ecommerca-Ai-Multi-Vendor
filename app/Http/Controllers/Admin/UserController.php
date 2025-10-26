@@ -27,7 +27,7 @@ class UserController extends BaseAdminController
     public function index(Request $request)
     {
         return view('admin.users.index', [
-            'users' => $this->getUsers($request),
+            'users' => $this->getUsers(),
             'userStats' => $this->getUserStats(),
         ]);
     }
@@ -167,32 +167,9 @@ class UserController extends BaseAdminController
         return view('admin.users.balance-history', compact('user', 'balanceHistories'));
     }
 
-    protected function getUsers(Request $request)
+    protected function getUsers()
     {
-        $query = User::query();
-
-        if ($request->has('search') && $request->search) {
-            $searchTerm = $request->search;
-            $query->where(function ($q) use ($searchTerm): void {
-                $q->where('name', 'like', "%{$searchTerm}%")
-                    ->orWhere('email', 'like', "%{$searchTerm}%")
-                    ->orWhere('phone', 'like', "%{$searchTerm}%");
-            });
-        }
-
-        if ($request->has('role') && $request->role) {
-            $query->where('role', $request->role);
-        }
-
-        if ($request->has('status') && $request->status) {
-            if ($request->status === 'approved') {
-                $query->whereNotNull('approved_at');
-            } elseif ($request->status === 'pending') {
-                $query->whereNull('approved_at');
-            }
-        }
-
-        return $query->latest()->paginate(15)->appends($request->all());
+        return User::latest()->paginate(15);
     }
 
     protected function getUserStats()

@@ -117,58 +117,7 @@
             </div>
         </div>
 
-        <!-- Filters and Search -->
-        <div class="admin-modern-card mb-4">
-            <div class="admin-card-header">
-                <h3 class="admin-card-title">
-                    <i class="fas fa-search"></i>
-                    {{ __('Filter & Search') }}
-                </h3>
-                <p class="admin-card-subtitle">{{ __('Search and filter attributes') }}</p>
-            </div>
-            <div class="admin-card-body">
-                <form method="GET" action="{{ route('admin.product-attributes.index') }}" class="admin-filter-grid">
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Search') }}</label>
-                        <div class="admin-input-group">
-                            <input type="text" name="search" value="{{ request('search') }}" class="admin-form-input admin-form-input-search" placeholder="{{ __('Search attributes...') }}">
-                            <div class="admin-input-icon">
-                                <i class="fas fa-search"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Type') }}</label>
-                        <select name="type" class="admin-form-input">
-                            <option value="">{{ __('All Types') }}</option>
-                            <option value="select" @selected(request('type')==='select' )>{{ __('Select') }}</option>
-                            <option value="color" @selected(request('type')==='color' )>{{ __('Color') }}</option>
-                            <option value="text" @selected(request('type')==='text' )>{{ __('Text') }}</option>
-                        </select>
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Status') }}</label>
-                        <select name="status" class="admin-form-input">
-                            <option value="">{{ __('All Status') }}</option>
-                            <option value="active" @selected(request('status')==='active' )>{{ __('Active') }}</option>
-                            <option value="inactive" @selected(request('status')==='inactive' )>{{ __('Inactive') }}</option>
-                        </select>
-                    </div>
-                    <div class="admin-filter-actions">
-                        <div class="admin-filter-buttons">
-                            <button type="submit" class="admin-btn admin-btn-primary admin-btn-filter">
-                                <i class="fas fa-search"></i>
-                                {{ __('Filter') }}
-                            </button>
-                            <a href="{{ route('admin.product-attributes.index') }}" class="admin-btn admin-btn-outline admin-btn-clear">
-                                <i class="fas fa-times"></i>
-                                {{ __('Clear') }}
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+
 
         <!-- Main Content -->
         <div class="admin-modern-card">

@@ -28,19 +28,19 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $request->validate([
-            'q' => 'nullable|string|max:255',
-            'category' => 'nullable|integer|exists:product_categories,id',
-            'type' => 'nullable|string|max:50',
-            'flag' => 'nullable|in:featured,best,inactive',
-            'stock' => 'nullable|in:na,low,soon,in',
-        ]);
+        $products = Product::with(['category', 'variations'])->paginate($request->get('per_page', 10));
 
-        $query = Product::with(['category', 'variations']);
-        $this->applyFilters($query, $request);
-        $products = $query->latest()->paginate(40)->withQueryString();
+        $apiStockProducts = [];
+        $apiStockVariations = [];
 
-        return view('admin.products.products.index', compact('products'));
+        foreach ($products as $product) {
+            $apiStockProducts[$product->id] = $this->getStockInfo($product);
+            foreach ($product->variations as $variation) {
+                $apiStockVariations[$variation->id] = $this->getStockInfo($variation);
+            }
+        }
+
+        return view('admin.products.products.index', compact('products', 'apiStockProducts', 'apiStockVariations'));
     }
 
     public function show(Product $product)
@@ -142,39 +142,6 @@ class ProductController extends Controller
             ->with('success', __('AI generated successfully'))
             ->with('ai_result', $result)
             ->with('ai_locale', $locale);
-    }
-
-    protected function applyFilters(\Illuminate\Database\Eloquent\Builder $query, Request $request): void
-    {
-        $searchTerm = $request->input('q');
-        if ($searchTerm) {
-            $query->where(function (\Illuminate\Database\Eloquent\Builder $subQuery) use ($searchTerm): void {
-                $subQuery->where('name', 'like', "%{$searchTerm}%")->orWhere('sku', 'like', "%{$searchTerm}%");
-            });
-        }
-
-        if ($request->filled('category')) {
-            $query->where('product_category_id', $request->input('category'));
-        }
-
-        $productType = $request->input('type');
-        if ($productType) {
-            $query->where('type', $productType);
-        }
-
-        $flag = $request->input('flag');
-        if ($flag) {
-            match ($flag) {
-                'featured' => $query->where('is_featured', 1),
-                'best' => $query->where('is_best_seller', 1),
-                'inactive' => $query->where('active', 0),
-            };
-        }
-
-        $stockFilter = $request->input('stock');
-        if ($stockFilter) {
-            $this->applyStockFilter($query, $stockFilter);
-        }
     }
 
     protected function getFormData(): array
@@ -493,21 +460,6 @@ class ProductController extends Controller
         }
 
         return array_values(array_filter(array_map('trim', $gallery), fn($item) => ! empty($item)));
-    }
-
-    protected function applyStockFilter($query, string $stock): void
-    {
-        $low = config('catalog.stock_low_threshold', 5);
-        $soon = config('catalog.stock_soon_threshold', 10);
-
-        match ($stock) {
-            'na' => $query->where(function ($stockQuery): void {
-                $stockQuery->where('manage_stock', 0)->orWhereNull('manage_stock');
-            }),
-            'low' => $query->where('manage_stock', 1)->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low]),
-            'soon' => $query->where('manage_stock', 1)->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ? AND (stock_qty - COALESCE(reserved_qty,0)) <= ?', [$low, $soon]),
-            'in' => $query->where('manage_stock', 1)->whereRaw('(stock_qty - COALESCE(reserved_qty,0)) > ?', [$soon]),
-        };
     }
 
     protected function handleNotifications(Product $product, ?bool $oldActive = null): void

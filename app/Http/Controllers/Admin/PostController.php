@@ -16,33 +16,9 @@ class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Post::with('category', 'author');
+        $posts = Post::with('category', 'author')->orderByDesc('published_at')->paginate(20);
 
-        $searchTerm = $request->get('q');
-        if ($searchTerm) {
-            $query->where(function ($searchQuery) use ($searchTerm): void {
-                $searchQuery->where('title', 'like', "%{$searchTerm}%")
-                    ->orWhere('excerpt', 'like', "%{$searchTerm}%")
-                    ->orWhere('body', 'like', "%{$searchTerm}%");
-            });
-        }
-
-        $categoryId = $request->get('category_id');
-        if ($categoryId) {
-            $query->where('category_id', $categoryId);
-        }
-
-        $published = $request->get('published');
-        if ($published) {
-            if ($published !== '') {
-                $query->where('published', (bool) $published);
-            }
-        }
-
-        $posts = $query->orderByDesc('published_at')->paginate(20);
-        $categories = PostCategory::orderBy('name')->get();
-
-        return view('admin.blog.posts.index', compact('posts', 'searchTerm', 'categories', 'categoryId', 'published'));
+        return view('admin.blog.posts.index', compact('posts'));
     }
 
     public function create()

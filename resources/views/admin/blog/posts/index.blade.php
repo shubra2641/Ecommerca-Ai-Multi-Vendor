@@ -25,50 +25,7 @@
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="admin-modern-card">
-            <div class="admin-card-header">
-                <h2 class="admin-card-title">
-                    <i class="fas fa-filter"></i>
-                    {{ __('Filters') }}
-                </h2>
-            </div>
-            <div class="admin-card-body">
-                <form method="GET" class="admin-filter-grid">
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Search') }}</label>
-                        <input type="text" name="q" value="{{ $q }}" class="admin-form-input" placeholder="{{ __('Search posts...') }}">
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Category') }}</label>
-                        <select name="category_id" class="admin-form-select">
-                            <option value="">{{ __('All Categories') }}</option>
-                            @foreach($categories as $c)
-                            <option value="{{ $c->id }}" @if($categoryId==$c->id) selected @endif>{{ $c->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Published') }}</label>
-                        <select name="published" class="admin-form-select">
-                            <option value="">{{ __('All') }}</option>
-                            <option value="1" @if($published==='1' ) selected @endif>{{ __('Published') }}</option>
-                            <option value="0" @if($published==='0' ) selected @endif>{{ __('Draft') }}</option>
-                        </select>
-                    </div>
-                    <div class="admin-filter-actions">
-                        <button type="submit" class="admin-btn admin-btn-primary">
-                            <i class="fas fa-search"></i>
-                            {{ __('Filter') }}
-                        </button>
-                        <a href="{{ route('admin.blog.posts.index') }}" class="admin-btn admin-btn-secondary">
-                            <i class="fas fa-undo"></i>
-                            {{ __('Reset') }}
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
+
 
         <!-- Posts Table -->
         <div class="admin-modern-card">
