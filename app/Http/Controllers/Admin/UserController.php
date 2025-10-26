@@ -23,7 +23,7 @@ class UserController extends BaseAdminController
         $this->balanceService = $balanceService;
     }
 
-    public function index(Request $request)
+    public function index()
     {
         return view('admin.users.index', [
             'users' => $this->getUsers(),
@@ -55,7 +55,7 @@ class UserController extends BaseAdminController
 
     public function update(UpdateUserRequest $request, User $user)
     {
-        $user->update($this->prepareUserData($request->validated(), $user));
+        $user->update($this->prepareUserData($request->validated()));
 
         return redirect()->route('admin.users.index')->with('success', __('User updated successfully.'));
     }
@@ -200,10 +200,7 @@ class UserController extends BaseAdminController
         return $query->paginate(15);
     }
 
-    /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    protected function prepareUserData(array $validated, ?User $_user = null)
+    protected function prepareUserData(array $validated)
     {
         $data = [
             'name' => $validated['name'],

@@ -6,11 +6,10 @@ namespace App\Http\Controllers\Api\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductAttribute;
-use Illuminate\Http\Request;
 
 class ProductAttributesController extends Controller
 {
-    public function index(Request $r)
+    public function index()
     {
         $attributes = ProductAttribute::with('values')->orderBy('name')->get();
 
@@ -19,7 +18,7 @@ class ProductAttributesController extends Controller
                 'id' => $a->id,
                 'name' => $a->name,
                 'slug' => $a->slug,
-                'values' => $a->values->map(fn ($v) => [
+                'values' => $a->values->map(fn($v) => [
                     'id' => $v->id,
                     'value' => $v->value,
                     'slug' => $v->slug,

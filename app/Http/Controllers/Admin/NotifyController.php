@@ -6,11 +6,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductInterest;
-use Illuminate\Http\Request;
 
 class NotifyController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $query = ProductInterest::with(['product', 'user']);
 

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Mail;
 
 class ProductApprovalController extends Controller
 {
-    public function pending(Request $request)
+    public function pending()
     {
         $baseQuery = Product::query()->whereNotNull('vendor_id')->where('active', false);
         $overallTotal = (clone $baseQuery)->count();

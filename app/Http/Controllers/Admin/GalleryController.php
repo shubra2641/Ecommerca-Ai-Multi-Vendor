@@ -17,7 +17,7 @@ use Intervention\Image\ImageManager;
 
 class GalleryController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $images = GalleryImage::latest()->paginate(30);
 

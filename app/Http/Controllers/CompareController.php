@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Helpers\GlobalHelper;
 use App\Http\Requests\ProductIdRequest;
 use App\Models\Product;
-use Illuminate\Http\Request;
 
 class CompareController extends Controller
 {

@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $posts = Post::with('category', 'author')->orderByDesc('published_at')->paginate(20);
 
@@ -147,7 +147,7 @@ class PostController extends Controller
     private function buildPostPayload(array $data, ?Post $post = null): array
     {
         $fallback = config('app.fallback_locale');
-        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn ($v) => ! empty($v)) ?? '';
+        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn($v) => ! empty($v)) ?? '';
 
         $payload = [
             'title' => $defaultTitle,
@@ -169,7 +169,7 @@ class PostController extends Controller
             if (isset($data[$field]) && is_array($data[$field])) {
                 $translations = array_filter($data[$field]);
                 $payload[$field . '_translations'] = $translations;
-                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn ($v) => ! empty($v));
+                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn($v) => ! empty($v));
             }
         }
 
@@ -199,7 +199,7 @@ class PostController extends Controller
         $base = $slug;
         $counter = 1;
 
-        while (Post::where('slug', $slug)->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))->exists()) {
+        while (Post::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
             $slug = $base . '-' . $counter;
             $counter++;
         }

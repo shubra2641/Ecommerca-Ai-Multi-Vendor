@@ -9,7 +9,6 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class GatewayReturnController extends Controller
@@ -84,7 +83,7 @@ class GatewayReturnController extends Controller
 
             return $this->processStandardReturn($payment, $gateway, $gatewaySlug);
         } catch (\Throwable $e) {
-            return $this->handleReturnError($payment, $gatewaySlug, $e->getMessage());
+            return $this->handleReturnError($payment, $gatewaySlug);
         }
     }
 

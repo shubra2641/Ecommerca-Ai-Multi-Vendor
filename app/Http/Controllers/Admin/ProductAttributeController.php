@@ -75,7 +75,6 @@ class ProductAttributeController extends Controller
      */
     public function updateValue(
         Request $request,
-        ProductAttribute $_productAttribute,
         ProductAttributeValue $value
     ) {
         $data = $request->validate([
@@ -91,10 +90,7 @@ class ProductAttributeController extends Controller
         return back()->with('success', __('Value updated'));
     }
 
-    /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function deleteValue(ProductAttribute $_productAttribute, ProductAttributeValue $value)
+    public function deleteValue(ProductAttributeValue $value)
     {
         $value->delete();
 
