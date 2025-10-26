@@ -50,7 +50,7 @@ final class PaymentVerifier
 
         $payment->status = $finalStatus;
         $payment->payload = array_merge($payment->payload ?? [], [
-            $gateway->slug . '_charge_status' => $finalStatus,
+            $gateway->slug . '_charge_status' => $finalStatus
         ]);
         $payment->save();
 
@@ -63,7 +63,7 @@ final class PaymentVerifier
 
     private function determineStatus(?string $status): string
     {
-        if (!$status) {
+        if (! $status) {
             return 'processing';
         }
 
@@ -77,7 +77,7 @@ final class PaymentVerifier
     private function handlePaidPayment(Payment $payment): void
     {
         $order = $payment->order;
-        if (!$order) {
+        if (! $order) {
             $order = $this->createOrderFromSnapshot($payment);
         }
 
@@ -97,7 +97,7 @@ final class PaymentVerifier
     private function createOrderFromSnapshot(Payment $payment): ?Order
     {
         $snapshot = $payment->payload['checkout_snapshot'] ?? null;
-        if (!$snapshot) {
+        if (! $snapshot) {
             return null;
         }
 
