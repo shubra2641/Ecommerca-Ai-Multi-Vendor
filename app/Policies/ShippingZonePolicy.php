@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\ShippingZone;
 use App\Models\User;
 
 class ShippingZonePolicy
@@ -14,7 +13,7 @@ class ShippingZonePolicy
         return $this->isAdmin($user);
     }
 
-    public function view(?User $user, ShippingZone $zone): bool
+    public function view(?User $user): bool
     {
         return $this->isAdmin($user);
     }
@@ -24,17 +23,17 @@ class ShippingZonePolicy
         return $this->isAdmin($user);
     }
 
-    public function update(?User $user, ShippingZone $zone): bool
+    public function update(?User $user): bool
     {
         return $this->isAdmin($user);
     }
 
-    public function delete(?User $user, ShippingZone $zone): bool
+    public function delete(?User $user): bool
     {
         return $this->isAdmin($user);
     }
 
-    public function restore(?User $user, ShippingZone $zone): bool
+    public function restore(): bool
     {
         return false;
     }

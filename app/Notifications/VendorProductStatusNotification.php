@@ -52,7 +52,7 @@ class VendorProductStatusNotification extends Notification
             ->action(__('View product'), route('vendor.products.edit', $this->product->id));
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         return [
             'type' => 'product_'.$this->action,

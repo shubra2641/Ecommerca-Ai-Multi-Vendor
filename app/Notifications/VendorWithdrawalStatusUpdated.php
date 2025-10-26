@@ -22,12 +22,12 @@ class VendorWithdrawalStatusUpdated extends Notification
         $this->status = $status;
     }
 
-    public function via(object $notifiable): array
+    public function via(): array
     {
         return ['database'];
     }
 
-    public function toArray(object $notifiable): array
+    public function toArray(): array
     {
         $payload = [
             'type' => 'vendor_withdrawal_status_updated',

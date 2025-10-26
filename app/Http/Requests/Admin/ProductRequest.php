@@ -111,7 +111,6 @@ class ProductRequest extends FormRequest
             // Digital product validations
             $isDigital = ($this->input('physical_type') === 'digital') || ($this->input('type') === 'digital');
             if ($isDigital) {
-                $productId = $this->route('product')?->id ?? null;
                 // For existing products, always check database first
                 // Existing digital product - no need to require downloads
                 // The database already has the download info
