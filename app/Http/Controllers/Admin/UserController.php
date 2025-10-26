@@ -127,7 +127,7 @@ class UserController extends BaseAdminController
 
     public function addBalance(AdjustBalanceRequest $request, User $user)
     {
-        $result = $this->balanceService->addBalance(
+        $this->balanceService->addBalance(
             $user,
             (float) $request->validated()['amount'],
             $request->validated()['note'] ?? null,

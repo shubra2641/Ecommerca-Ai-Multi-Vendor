@@ -204,27 +204,23 @@ class GalleryController extends Controller
         $webpPath = null;
         $thumbPath = null;
 
-        try {
-            $manager = new ImageManager(new Driver());
-            $imageObj = $manager->read($file->getRealPath());
+        $manager = new ImageManager(new Driver());
+        $imageObj = $manager->read($file->getRealPath());
 
-            $webpFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '.webp';
-            $webpRelative = 'gallery/webp/' . $webpFileName;
-            $imageObj->toWebp(85)->save(Storage::disk('public')->path($webpRelative));
-            $webpPath = $webpRelative;
+        $webpFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '.webp';
+        $webpRelative = 'gallery/webp/' . $webpFileName;
+        $imageObj->toWebp(85)->save(Storage::disk('public')->path($webpRelative));
+        $webpPath = $webpRelative;
 
-            $thumbClone = $imageObj->clone();
-            $thumbClone->scale(320, 320, function ($constraint): void {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
-            $thumbFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '_thumb.jpg';
-            $thumbRelative = 'gallery/thumbs/' . $thumbFileName;
-            $thumbClone->toJpeg(75)->save(Storage::disk('public')->path($thumbRelative));
-            $thumbPath = $thumbRelative;
-        } catch (\Throwable $e) {
-            // leave optional derivatives empty if processing fails
-        }
+        $thumbClone = $imageObj->clone();
+        $thumbClone->scale(320, 320, function ($constraint): void {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        });
+        $thumbFileName = pathinfo($file->hashName(), PATHINFO_FILENAME) . '_thumb.jpg';
+        $thumbRelative = 'gallery/thumbs/' . $thumbFileName;
+        $thumbClone->toJpeg(75)->save(Storage::disk('public')->path($thumbRelative));
+        $thumbPath = $thumbRelative;
 
         return GalleryImage::create([
             'original_path' => $originalPath,

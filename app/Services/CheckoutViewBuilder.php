@@ -17,13 +17,10 @@ class CheckoutViewBuilder
         [$items, $total] = $this->processCartItems($cart);
         [$currentCurrency, $defaultCurrency, $currency_symbol, $displayTotal] = $this->prepareCurrenciesAndTotals($currencyId, $total);
         $this->convertCurrency($items, $currentCurrency, $defaultCurrency);
-        [$coupon, $discount, $discounted_total, $displayDiscountedTotal, $displayDiscount] = $this->applyCoupon($appliedCouponId, $total, $displayTotal, $currentCurrency, $defaultCurrency);
+        [$coupon, $discount, $discounted_total, $displayDiscountedTotal, $displayDiscount] = $this->applyCoupon($appliedCouponId, $total, $displayTotal);
         $addresses = collect();
         if ($user) {
-            try {
-                $addresses = $user->addresses()->get();
-            } catch (\Throwable $e) {
-            }
+            $addresses = $user->addresses()->get();
         }
         $defaultAddress = $addresses->firstWhere('is_default', true);
         $gateways = PaymentGateway::where('enabled', true)->get();
@@ -92,7 +89,7 @@ class CheckoutViewBuilder
         return [$items, $total];
     }
 
-    private function applyCoupon(?int $appliedCouponId, float $total, float $displayTotal, $currentCurrency, $defaultCurrency): array
+    private function applyCoupon(?int $appliedCouponId, float $total, float $displayTotal): array
     {
         if (! $appliedCouponId) {
             return [null, 0, $total, $displayTotal, 0];
@@ -111,11 +108,7 @@ class CheckoutViewBuilder
             $displayDiscountedTotal = $discounted_total;
         }
 
-        $displayDiscount = $discount;
-        try {
-            $displayDiscount = \App\Helpers\GlobalHelper::convertCurrency((float) $discount);
-        } catch (\Throwable $e) {
-        }
+        $displayDiscount = \App\Helpers\GlobalHelper::convertCurrency((float) $discount);
 
         return [$coupon, $discount, $discounted_total, $displayDiscountedTotal, $displayDiscount];
     }
@@ -166,10 +159,10 @@ class CheckoutViewBuilder
             return null;
         }
         return match (true) {
-            is_object($variant) => ! empty($variant->name) ? $variant->name : (! empty($variant->attribute_data) ? collect($variant->attribute_data)->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ') : null),
+            is_object($variant) => ! empty($variant->name) ? $variant->name : (! empty($variant->attribute_data) ? collect($variant->attribute_data)->map(fn($v, $k) => ucfirst($k) . ': ' . $v)->values()->join(', ') : null),
             is_string($variant) => (function ($v) {
                 $parsed = json_decode($v, true);
-                return json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data']) ? collect($parsed['attribute_data'])->map(fn ($val, $key) => ucfirst($key) . ': ' . $val)->values()->join(', ') : $v;
+                return json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data']) ? collect($parsed['attribute_data'])->map(fn($val, $key) => ucfirst($key) . ': ' . $val)->values()->join(', ') : $v;
             })($variant),
             ! empty($attributes) => implode(', ', $attributes),
             default => null,
@@ -178,14 +171,11 @@ class CheckoutViewBuilder
 
     private function resolveItemImage($product): string
     {
-        try {
-            if (! empty($product->image_url)) {
-                return $product->image_url;
-            }
-            if (method_exists($product, 'getFirstMediaUrl')) {
-                return $product->getFirstMediaUrl('images');
-            }
-        } catch (\Throwable $e) {
+        if (! empty($product->image_url)) {
+            return $product->image_url;
+        }
+        if (method_exists($product, 'getFirstMediaUrl')) {
+            return $product->getFirstMediaUrl('images');
         }
         return asset('images/placeholder.svg');
     }
@@ -215,11 +205,7 @@ class CheckoutViewBuilder
 
     private function convertTotal($currentCurrency, $defaultCurrency, string $currency_symbol, float $total): array
     {
-        $displayTotal = $total;
-        try {
-            $displayTotal = \App\Helpers\GlobalHelper::convertCurrency((float) $total);
-        } catch (\Throwable $e) {
-        }
+        $displayTotal = \App\Helpers\GlobalHelper::convertCurrency((float) $total);
         return [$currentCurrency, $defaultCurrency, $currency_symbol, $displayTotal];
     }
 }

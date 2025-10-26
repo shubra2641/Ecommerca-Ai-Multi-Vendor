@@ -14,13 +14,11 @@ final class GenericGateway
     public function __construct(
         private readonly GenericChargeBuilder $chargeBuilder,
         private readonly GenericPaymentCreator $paymentCreator,
-    ) {
-    }
+    ) {}
 
     public function initFromSnapshot(array $snapshot, PaymentGateway $gateway, string $slug): array
     {
         $cfg = $gateway->config ?? [];
-        $currency = strtoupper($cfg[$slug . '_currency'] ?? ($snapshot['currency'] ?? 'USD'));
         $apiBase = rtrim($cfg['api_base'] ?? ('https://api.' . $slug . '.com'), '/');
 
         return DB::transaction(function () use ($snapshot, $cfg, $apiBase, $slug) {

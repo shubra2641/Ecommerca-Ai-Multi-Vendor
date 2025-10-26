@@ -39,7 +39,7 @@ class ShippingZonePolicy
         return false;
     }
 
-    public function forceDelete(?User $user, ShippingZone $zone): bool
+    public function forceDelete(): bool
     {
         return false;
     }

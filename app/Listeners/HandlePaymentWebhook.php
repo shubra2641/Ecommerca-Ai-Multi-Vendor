@@ -118,21 +118,13 @@ class HandlePaymentWebhook implements ShouldQueue
 
     private function sendUserNotification($user, $payment, string $status): void
     {
-        try {
-            $user->notify(new PaymentStatusUpdated($payment, $status));
-        } catch (\Exception $e) {
-            // Handle notification failure silently
-        }
+        $user->notify(new PaymentStatusUpdated($payment, $status));
     }
 
     private function sendAdminNotification($payment, string $status): void
     {
-        try {
-            $adminUsers = \App\Models\User::where('role', 'admin')->get();
-            Notification::send($adminUsers, new PaymentStatusUpdated($payment, $status));
-        } catch (\Exception $e) {
-            // Handle notification failure silently
-        }
+        $adminUsers = \App\Models\User::where('role', 'admin')->get();
+        Notification::send($adminUsers, new PaymentStatusUpdated($payment, $status));
     }
 
     /**
@@ -161,21 +153,17 @@ class HandlePaymentWebhook implements ShouldQueue
 
     private function handleSuccessfulPayment($payment, array $webhookData = []): void
     {
-        try {
-            $this->updatePaymentWithWebhookData($payment, $webhookData);
-            $payment->save();
+        $this->updatePaymentWithWebhookData($payment, $webhookData);
+        $payment->save();
 
-            $order = $payment->order;
-            if (! $order) {
-                return;
-            }
-
-            $this->releaseInventory($order);
-            $this->generateInvoice($order);
-            $this->sendOrderConfirmation($order);
-        } catch (\Exception $e) {
-            // Handle exception silently in production
+        $order = $payment->order;
+        if (! $order) {
+            return;
         }
+
+        $this->releaseInventory($order);
+        $this->generateInvoice($order);
+        $this->sendOrderConfirmation($order);
     }
 
     private function updatePaymentWithWebhookData($payment, array $webhookData): void
@@ -196,32 +184,26 @@ class HandlePaymentWebhook implements ShouldQueue
      */
     private function handleFailedPayment($payment, array $webhookData = []): void
     {
-        try {
-            $order = $payment->order;
+        $order = $payment->order;
 
-            // Update payment failure details
-            if (! empty($webhookData['transaction_id'])) {
-                $payment->transaction_id = $webhookData['transaction_id'];
-            }
-            if (! empty($webhookData['gateway_reference'])) {
-                $payment->gateway_reference = $webhookData['gateway_reference'];
-            }
-            if (! empty($webhookData['error_message'])) {
-                $payment->failure_reason = $webhookData['error_message'];
-            }
-            $payment->save();
+        // Update payment failure details
+        if (! empty($webhookData['transaction_id'])) {
+            $payment->transaction_id = $webhookData['transaction_id'];
+        }
+        if (! empty($webhookData['gateway_reference'])) {
+            $payment->gateway_reference = $webhookData['gateway_reference'];
+        }
+        if (! empty($webhookData['error_message'])) {
+            $payment->failure_reason = $webhookData['error_message'];
+        }
+        $payment->save();
 
-            if ($order) {
-                // Restore inventory
-                $this->restoreInventory($order);
+        if ($order) {
+            // Restore inventory
+            $this->restoreInventory($order);
 
-                // Do not cancel the order here; keep order status unchanged for failed payments.
-                // Order cancellation should be handled by separate business logic if required.
-            }
-        } catch (\Exception $e) {
-            if (! app()->environment('testing')) {
-                null;
-            }
+            // Do not cancel the order here; keep order status unchanged for failed payments.
+            // Order cancellation should be handled by separate business logic if required.
         }
     }
 
@@ -230,75 +212,24 @@ class HandlePaymentWebhook implements ShouldQueue
      */
     private function handleRefundedPayment($payment, array $webhookData = []): void
     {
-        try {
-            $order = $payment->order;
+        $order = $payment->order;
 
-            if ($order) {
-                // Update order status
-                $order->status = 'refunded';
-                $order->save();
+        if ($order) {
+            // Update order status
+            $order->status = 'refunded';
+            $order->save();
 
-                // Restore inventory
-                $this->restoreInventory($order);
-            }
+            // Restore inventory
+            $this->restoreInventory($order);
+        }
 
-            // Update payment refund fields
-            if (! empty($webhookData['refund_amount'])) {
-                $payment->refunded_amount = $webhookData['refund_amount'];
-                $payment->refunded_at = $payment->refunded_at ?? now();
-                $payment->save();
-            }
-        } catch (\Exception $e) {
-            if (! app()->environment('testing')) {
-                null;
-            }
+        // Update payment refund fields
+        if (! empty($webhookData['refund_amount'])) {
+            $payment->refunded_amount = $webhookData['refund_amount'];
+            $payment->refunded_at = $payment->refunded_at ?? now();
+            $payment->save();
         }
     }
-
-    /**
-     * Release inventory for successful orders.
-     */
-    private function releaseInventory($order): void
-    {
-        // Implementation depends on your inventory system
-        if (! app()->environment('testing')) {
-            null;
-        }
-    }
-
-    /**
-     * Restore inventory for failed/cancelled orders.
-     */
-    private function restoreInventory($order): void
-    {
-        // Implementation depends on your inventory system
-        if (! app()->environment('testing')) {
-            null;
-        }
-    }
-
-    /**
-     * Generate invoice for successful orders.
-     */
-    private function generateInvoice($order): void
-    {
-        // Implementation depends on your invoice system
-        if (! app()->environment('testing')) {
-            null;
-        }
-    }
-
-    /**
-     * Send order confirmation.
-     */
-    private function sendOrderConfirmation($order): void
-    {
-        // Implementation depends on your notification system
-        if (! app()->environment('testing')) {
-            null;
-        }
-    }
-
     /**
      * Cancel order if no successful payments exist.
      */
@@ -311,10 +242,6 @@ class HandlePaymentWebhook implements ShouldQueue
         if (! $hasSuccessfulPayment && $order->status !== 'cancelled') {
             $order->status = 'cancelled';
             $order->save();
-
-            if (! app()->environment('testing')) {
-                null;
-            }
         }
     }
 }

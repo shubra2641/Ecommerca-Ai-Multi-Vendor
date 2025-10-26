@@ -25,7 +25,7 @@ final class VendorWithdrawalService
             'payment_method' => [
                 'required',
                 'string',
-                function ($_attribute, $value, $fail) use ($gatewaySlugs): void {
+                function ($value, $fail) use ($gatewaySlugs): void {
                     if (! in_array($value, $gatewaySlugs)) {
                         $fail('Invalid payment method');
                     }

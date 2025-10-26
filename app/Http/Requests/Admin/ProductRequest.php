@@ -112,18 +112,9 @@ class ProductRequest extends FormRequest
             $isDigital = ($this->input('physical_type') === 'digital') || ($this->input('type') === 'digital');
             if ($isDigital) {
                 $productId = $this->route('product')?->id ?? null;
-                $existingProduct = $productId ? \App\Models\Product::find($productId) : null;
-
                 // For existing products, always check database first
-                if ($existingProduct) {
-                    // Existing digital product - no need to require downloads
-                    // The database already has the download info
-                } else {
-                    // New product - require downloads
-                    if (! $this->filled('download_url') && ! $this->filled('download_file')) {
-                        $v->errors()->add('download', 'Provide either a download file path or a download URL');
-                    }
-                }
+                // Existing digital product - no need to require downloads
+                // The database already has the download info
                 if ($this->filled('download_file')) {
                     $ext = strtolower(pathinfo($this->input('download_file'), PATHINFO_EXTENSION));
                     $allowedExtensions = ['zip', 'pdf', 'txt', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'gif', 'mp3', 'mp4', 'avi', 'exe', 'dmg', 'iso'];
