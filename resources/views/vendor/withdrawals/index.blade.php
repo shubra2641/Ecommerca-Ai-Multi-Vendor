@@ -125,67 +125,6 @@
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="admin-modern-card">
-            <div class="admin-card-header">
-                <h3 class="admin-card-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    {{ __('Filters') }}
-                </h3>
-            </div>
-            <form method="GET" action="{{ route('vendor.withdrawals.index') }}" class="admin-card-body" autocomplete="off">
-                <div class="admin-filter-grid">
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Search') }}</label>
-                        <input type="text" name="search" class="admin-form-input" placeholder="{{ __('vendor.withdrawals.search_placeholder') }}" value="{{ request('search') }}">
-                    </div>
-
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Status') }}</label>
-                        <select name="status" class="admin-form-input">
-                            <option value="">{{ __('vendor.withdrawals.status_all') }}</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('vendor.withdrawals.status_pending') }}</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('vendor.withdrawals.status_approved') }}</option>
-                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>{{ __('vendor.withdrawals.status_completed') }}</option>
-                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>{{ __('vendor.withdrawals.status_rejected') }}</option>
-                        </select>
-                    </div>
-
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('From Date') }}</label>
-                        <input type="date" name="date_from" class="admin-form-input" value="{{ request('date_from') }}">
-                    </div>
-
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">{{ __('Held Only') }}</label>
-                        <div class="admin-form-check">
-                            <input type="checkbox" name="held" value="1" class="admin-form-check-input" {{ ($heldOnly ?? false) ? 'checked' : '' }}>
-                            <label class="admin-form-check-label">{{ __('Show held withdrawals only') }}</label>
-                        </div>
-                    </div>
-
-                    <div class="admin-filter-actions">
-                        <button type="submit" class="admin-btn admin-btn-primary">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
-                                <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            {{ __('vendor.withdrawals.apply_filters') }}
-                        </button>
-                        <a href="{{ route('vendor.withdrawals.index') }}" class="admin-btn admin-btn-secondary">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            {{ __('vendor.withdrawals.clear_all') }}
-                        </a>
-                    </div>
-                </div>
-            </form>
-        </div>
-
         <!-- Withdrawals Table -->
         <div class="admin-modern-card">
             <div class="admin-card-header">
