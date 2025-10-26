@@ -8,7 +8,7 @@ class ApproveWithdrawalRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; //
+        return $this->route('withdrawal')->status === 'pending';
     }
 
     public function rules(): array

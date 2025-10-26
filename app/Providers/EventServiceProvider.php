@@ -8,8 +8,14 @@ use App\Events\OrderCancelled;
 use App\Events\OrderPaid;
 use App\Events\OrderRefunded;
 use App\Events\PaymentWebhookReceived;
+use App\Events\WithdrawalApproved;
+use App\Events\WithdrawalRejected;
+use App\Events\PayoutExecuted;
 use App\Listeners\HandlePaymentWebhook;
 use App\Listeners\StockAdjustmentListener;
+use App\Listeners\WithdrawalApprovedListener;
+use App\Listeners\WithdrawalRejectedListener;
+use App\Listeners\PayoutExecutedListener;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -23,6 +29,15 @@ class EventServiceProvider extends ServiceProvider
         OrderRefunded::class => [StockAdjustmentListener::class . '@handleOrderRefunded'],
         PaymentWebhookReceived::class => [
             HandlePaymentWebhook::class,
+        ],
+        WithdrawalApproved::class => [
+            WithdrawalApprovedListener::class,
+        ],
+        WithdrawalRejected::class => [
+            WithdrawalRejectedListener::class,
+        ],
+        PayoutExecuted::class => [
+            PayoutExecutedListener::class,
         ],
     ];
 

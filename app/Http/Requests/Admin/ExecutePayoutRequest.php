@@ -8,7 +8,7 @@ class ExecutePayoutRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->route('payout')->status === 'pending';
     }
 
     public function rules(): array
