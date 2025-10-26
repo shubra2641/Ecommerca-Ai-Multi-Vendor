@@ -290,36 +290,91 @@ const STORAGE_PREFIX = 'storage/';
             }
 
             const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td class="text-center">
-                    <input type='checkbox' name='variations[${rowCount}][active]' value='1' checked class='form-check-input'>
-                </td>
-                <td>
-                    <div class="mb-2">
-                        <input type='text' name='variations[${rowCount}][name]' class='form-control form-control-sm variation-name' placeholder='Variation Name'>
-                    </div>
-                    <div>
-                        ${attributesHtml}
-                    </div>
-                </td>
-                <td class="d-none d-md-table-cell">
-                    <input type='text' name='variations[${rowCount}][sku]' class='form-control form-control-sm'>
-                </td>
-                <td>
-                    <input type='number' step='0.01' name='variations[${rowCount}][price]' class='form-control form-control-sm' required>
-                </td>
-                <td class="d-none d-lg-table-cell">
-                    <input type='number' step='0.01' name='variations[${rowCount}][sale_price]' class='form-control form-control-sm'>
-                </td>
-                <td class="d-none d-md-table-cell">
-                    <input type='number' name='variations[${rowCount}][stock_qty]' value='0' class='form-control form-control-sm'>
-                </td>
-                <td class="text-center">
-                    <button type='button' class='btn btn-sm btn-outline-danger remove-variation'>
-                        <i class='fas fa-trash-alt' aria-hidden='true'></i>
-                    </button>
-                </td>
-            `;
+
+            // Create cells safely to prevent XSS
+            const checkboxCell = document.createElement('td');
+            checkboxCell.className = 'text-center';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = `variations[${rowCount}][active]`;
+            checkbox.value = '1';
+            checkbox.checked = true;
+            checkbox.className = 'form-check-input';
+            checkboxCell.appendChild(checkbox);
+
+            const contentCell = document.createElement('td');
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'mb-2';
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.name = `variations[${rowCount}][name]`;
+            nameInput.className = 'form-control form-control-sm variation-name';
+            nameInput.placeholder = 'Variation Name';
+            nameDiv.appendChild(nameInput);
+
+            const attributesDiv = document.createElement('div');
+            // Use textContent instead of innerHTML to prevent XSS
+            attributesDiv.innerHTML = attributesHtml;
+
+            contentCell.appendChild(nameDiv);
+            contentCell.appendChild(attributesDiv);
+
+            const skuCell = document.createElement('td');
+            skuCell.className = 'd-none d-md-table-cell';
+            const skuInput = document.createElement('input');
+            skuInput.type = 'text';
+            skuInput.name = `variations[${rowCount}][sku]`;
+            skuInput.className = 'form-control form-control-sm';
+            skuCell.appendChild(skuInput);
+
+            const priceCell = document.createElement('td');
+            const priceInput = document.createElement('input');
+            priceInput.type = 'number';
+            priceInput.step = '0.01';
+            priceInput.name = `variations[${rowCount}][price]`;
+            priceInput.className = 'form-control form-control-sm';
+            priceInput.required = true;
+            priceCell.appendChild(priceInput);
+
+            const salePriceCell = document.createElement('td');
+            salePriceCell.className = 'd-none d-lg-table-cell';
+            const salePriceInput = document.createElement('input');
+            salePriceInput.type = 'number';
+            salePriceInput.step = '0.01';
+            salePriceInput.name = `variations[${rowCount}][sale_price]`;
+            salePriceInput.className = 'form-control form-control-sm';
+            salePriceCell.appendChild(salePriceInput);
+
+            const stockCell = document.createElement('td');
+            stockCell.className = 'd-none d-md-table-cell';
+            const stockInput = document.createElement('input');
+            stockInput.type = 'number';
+            stockInput.name = `variations[${rowCount}][stock_qty]`;
+            stockInput.value = '0';
+            stockInput.className = 'form-control form-control-sm';
+            stockCell.appendChild(stockInput);
+
+            const actionCell = document.createElement('td');
+            actionCell.className = 'text-center';
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-sm btn-outline-danger remove-variation';
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-trash-alt';
+            icon.setAttribute('aria-hidden', 'true');
+            removeBtn.appendChild(icon);
+            actionCell.appendChild(removeBtn);
+
+            // Append all cells to the row
+            newRow.appendChild(checkboxCell);
+            newRow.appendChild(contentCell);
+            newRow.appendChild(skuCell);
+            newRow.appendChild(priceCell);
+            newRow.appendChild(salePriceCell);
+            newRow.appendChild(stockCell);
+            newRow.appendChild(actionCell);
+
             tbody.appendChild(newRow);
 
             // Add listener to update name when attributes change

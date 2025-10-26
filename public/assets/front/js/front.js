@@ -5,6 +5,22 @@
     const $$ = (s) => Array.from(doc.querySelectorAll(s));
 
     async function fetchJson(url) {
+        // Validate URL to prevent HTTP vulnerabilities
+        try {
+            const urlObj = new URL(url, window.location.origin);
+            // Only allow same-origin requests or whitelisted domains
+            if (urlObj.origin !== window.location.origin) {
+                // For external URLs, only allow specific trusted domains
+                const allowedDomains = ['api.example.com']; // Add your trusted domains here
+                if (!allowedDomains.some(domain => urlObj.hostname === domain)) {
+                    throw new Error('Unauthorized URL');
+                }
+            }
+        } catch (e) {
+            console.error('Invalid URL provided to fetchJson:', url, e);
+            return { data: [] };
+        }
+
         try {
             const res = await fetch(url);
             if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) {
