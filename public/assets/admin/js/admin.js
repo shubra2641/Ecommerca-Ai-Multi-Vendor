@@ -261,33 +261,6 @@ const STORAGE_PREFIX = 'storage/';
 
             const rowCount = tbody.querySelectorAll('tr').length;
             const meta = document.getElementById('product-variation-meta');
-            let attributesHtml = '';
-
-            if (meta && selectedAttrs.length > 0) {
-                try {
-                    const attrData = JSON.parse(atob(meta.dataset.attributes || 'W10='));
-
-                    selectedAttrs.forEach(attrSlug => {
-                        const attr = attrData.find(a => a.slug === attrSlug);
-                        if (attr) {
-                            const escapedSlug = AdminPanel.escapeHtml(attrSlug);
-                            const escapedName = AdminPanel.escapeHtml(attr.name);
-                            const optionsHtml = attr.values.map(val =>
-                                `<option value='${AdminPanel.escapeHtml(val.value)}'>${AdminPanel.escapeHtml(val.value)}</option>`
-                            ).join('');
-
-                            attributesHtml += `
-                                <select name='variations[${rowCount}][attributes][${escapedSlug}]' class='form-select form-select-sm mb-1 variation-attr-select' data-attr-name='${escapedName}'>
-                                    <option value=''>${escapedName}</option>
-                                    ${optionsHtml}
-                                </select>
-                            `;
-                        }
-                    });
-                } catch {
-                    console.error('Error parsing variation meta data');
-                }
-            }
 
             const newRow = document.createElement('tr');
 
@@ -314,8 +287,41 @@ const STORAGE_PREFIX = 'storage/';
             nameDiv.appendChild(nameInput);
 
             const attributesDiv = document.createElement('div');
-            // Use textContent instead of innerHTML to prevent XSS
-            attributesDiv.innerHTML = attributesHtml;
+
+            // Create attribute selects safely to prevent XSS
+            if (meta && selectedAttrs.length > 0) {
+                try {
+                    const attrData = JSON.parse(atob(meta.dataset.attributes || 'W10='));
+
+                    selectedAttrs.forEach(attrSlug => {
+                        const attr = attrData.find(a => a.slug === attrSlug);
+                        if (attr) {
+                            const select = document.createElement('select');
+                            select.name = `variations[${rowCount}][attributes][${attrSlug}]`;
+                            select.className = 'form-select form-select-sm mb-1 variation-attr-select';
+                            select.setAttribute('data-attr-name', attr.name);
+
+                            // Create default option
+                            const defaultOption = document.createElement('option');
+                            defaultOption.value = '';
+                            defaultOption.textContent = attr.name;
+                            select.appendChild(defaultOption);
+
+                            // Create value options safely
+                            attr.values.forEach(val => {
+                                const option = document.createElement('option');
+                                option.value = val.value;
+                                option.textContent = val.value;
+                                select.appendChild(option);
+                            });
+
+                            attributesDiv.appendChild(select);
+                        }
+                    });
+                } catch {
+                    console.error('Error parsing variation meta data');
+                }
+            }
 
             contentCell.appendChild(nameDiv);
             contentCell.appendChild(attributesDiv);
