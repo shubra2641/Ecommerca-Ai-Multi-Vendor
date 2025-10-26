@@ -128,6 +128,9 @@ class ProductController extends Controller
         if (!$isAdmin && $product->vendor_id !== $user->id) {
             abort(403);
         }
+        if (!$isAdmin) {
+            abort(403, 'Vendors cannot delete products.');
+        }
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', __('Product deleted successfully.'));

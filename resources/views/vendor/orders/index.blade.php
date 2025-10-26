@@ -20,30 +20,6 @@
                     </div>
                 </div>
             </div>
-            <div class="header-actions">
-                <a href="{{ route('vendor.orders.export', request()->only(['q','status','start_date','end_date'])) }}" class="admin-btn admin-btn-success">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 15V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    {{ __('Export CSV') }}
-                </a>
-                <form method="post" action="{{ route('vendor.orders.export.request') }}" class="d-inline">
-                    @csrf
-                    <input type="hidden" name="status" value="{{ request('status') }}" />
-                    <input type="hidden" name="start_date" value="{{ request('start_date') }}" />
-                    <input type="hidden" name="end_date" value="{{ request('end_date') }}" />
-                    <button class="admin-btn admin-btn-outline">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M21 15V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        {{ __('Request Export (email)') }}
-                    </button>
-                </form>
-            </div>
         </div>
 
         <!-- Filters -->

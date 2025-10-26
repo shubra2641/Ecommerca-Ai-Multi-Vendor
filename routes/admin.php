@@ -443,13 +443,6 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
         Route::post('returns/{item}', [ReturnsController::class, 'update'])
             ->name('returns.update');
 
-        // Enhanced User Balance Routes
-        Route::prefix('users/{user}')->group(function (): void {
-            Route::get('balance/stats', [UserController::class, 'getBalanceStats'])->name('users.balance.stats');
-            Route::get('balance/history', [UserController::class, 'getBalanceHistory'])->name('users.balance.history');
-            Route::post('balance/bulk', [UserController::class, 'bulkBalanceOperation'])->name('users.balance.bulk');
-        });
-
         // Enhanced Notification Routes
         Route::prefix('notifications')->group(function (): void {
             Route::get('stats', [NotificationController::class, 'getStats'])->name('notifications.stats');

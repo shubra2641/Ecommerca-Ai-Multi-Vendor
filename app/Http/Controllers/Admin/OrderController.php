@@ -12,6 +12,7 @@ use App\Models\ProductVariation;
 use App\Models\User;
 use App\Services\StockService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
@@ -125,6 +126,43 @@ class OrderController extends Controller
         $payments = Payment::with('order', 'user')->latest()->paginate(25);
 
         return view('admin.orders.payments', compact('payments'));
+    }
+
+    public function vendorIndex()
+    {
+        $query = OrderItem::query()
+            ->with(['order.user', 'product'])
+            ->whereHas('product', function ($q) {
+                $q->where('vendor_id', Auth::id());
+            })
+            ->latest();
+
+        $orderItems = $query->paginate(25);
+
+        return view('vendor.orders.index', ['items' => $orderItems]);
+    }
+
+    public function vendorShow(OrderItem $orderItem)
+    {
+        // Ensure the vendor owns the product
+        if (!$orderItem->product || $orderItem->product->vendor_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $orderItem->load('order.user', 'product', 'order.payments.attachments', 'order.shippingAddress', 'order.shippingZone');
+
+        $customerStats = $this->getCustomerStats($orderItem->order);
+        $addressText = $this->getAddressText($orderItem->order);
+        $offlinePayments = $this->getOfflinePayments($orderItem->order);
+        $firstPaymentNote = $orderItem->order->payments->first()?->note ?? null;
+
+        return view('vendor.orders.show', [
+            'item' => $orderItem,
+            'customerStats' => $customerStats,
+            'aovAddressText' => $addressText,
+            'aovOfflinePayments' => $offlinePayments,
+            'aovFirstPaymentNote' => $firstPaymentNote,
+        ]);
     }
 
     public function updateStatus(\App\Http\Requests\Admin\UpdateOrderStatusRequest $request, $orderId)
