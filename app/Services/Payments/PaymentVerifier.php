@@ -4,32 +4,54 @@ declare(strict_types=1);
 
 namespace App\Services\Payments;
 
-use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
-use Illuminate\Support\Facades\DB;
+use App\Services\Payments\Gateways\Verifier\OrderCreator;
 use Illuminate\Support\Facades\Http;
 
 final class PaymentVerifier
 {
-    public function verifyGenericGatewayCharge(Payment $payment, PaymentGateway $gateway): array
+    public function __construct(
+        private readonly OrderCreator $orderCreator,
+    ) {
+    }    public function verifyGenericGatewayCharge(Payment $payment, PaymentGateway $gateway): array
     {
-        $chargeId = $payment->payload[$gateway->slug . '_charge_id'] ?? $payment->payload['charge_id'] ?? null;
+        $credentials = $this->getGatewayCredentials($gateway);
+        $chargeId = $this->getChargeId($payment, $gateway);
+        $apiBase = $this->getApiBase($gateway);
+
+        $response = $this->makeApiRequest($apiBase, $credentials['secret'], $chargeId);
+
+        return $this->processApiResponse($payment, $gateway, $response);
+    }
+
+    private function getGatewayCredentials(PaymentGateway $gateway): array
+    {
         $cfg = $gateway->config ?? [];
         $secret = $cfg['secret_key'] ?? ($cfg['api_key'] ?? null);
 
-        if (!$secret || !$chargeId) {
-            throw new \RuntimeException('Missing gateway secret or charge id for verify');
+        if (!$secret) {
+            throw new \RuntimeException('Missing gateway secret or API key');
         }
 
-        $apiBase = rtrim($cfg['api_base'] ?? ('https://api.' . $gateway->slug . '.com'), '/');
+        return ['secret' => $secret];
+    }
 
-        try {
-            $response = $this->makeApiRequest($apiBase, $secret, $chargeId);
-            return $this->processApiResponse($payment, $gateway, $response);
-        } catch (\Throwable $e) {
-            return ['success' => false, 'status' => 'pending', 'data' => null];
+    private function getChargeId(Payment $payment, PaymentGateway $gateway): string
+    {
+        $chargeId = $payment->payload[$gateway->slug . '_charge_id'] ?? $payment->payload['charge_id'] ?? null;
+
+        if (!$chargeId) {
+            throw new \RuntimeException('Missing charge id');
         }
+
+        return $chargeId;
+    }
+
+    private function getApiBase(PaymentGateway $gateway): string
+    {
+        $cfg = $gateway->config ?? [];
+        return rtrim($cfg['api_base'] ?? ('https://api.' . $gateway->slug . '.com'), '/');
     }
 
     private function makeApiRequest(string $apiBase, string $secret, string $chargeId): array
@@ -55,7 +77,7 @@ final class PaymentVerifier
         $payment->save();
 
         if ($finalStatus === 'paid') {
-            $this->handlePaidPayment($payment);
+            $this->orderCreator->handlePaidPayment($payment);
         }
 
         return ['payment' => $payment, 'status' => $payment->status, 'charge' => $response];
@@ -72,65 +94,5 @@ final class PaymentVerifier
             'FAILED', 'CANCELLED', 'DECLINED' => 'failed',
             default => 'processing',
         };
-    }
-
-    private function handlePaidPayment(Payment $payment): void
-    {
-        $order = $payment->order;
-        if (! $order) {
-            $order = $this->createOrderFromSnapshot($payment);
-        }
-
-        if ($order && $order->status !== 'paid') {
-            $order->status = 'paid';
-            $order->save();
-        }
-
-        try {
-            session()->forget('cart');
-        } catch (\Throwable $_) {
-            // Ignore cart clearing errors
-            null;
-        }
-    }
-
-    private function createOrderFromSnapshot(Payment $payment): ?Order
-    {
-        $snapshot = $payment->payload['checkout_snapshot'] ?? null;
-        if (! $snapshot) {
-            return null;
-        }
-
-        try {
-            return DB::transaction(function () use ($snapshot, $payment) {
-                $order = Order::create([
-                    'user_id' => $snapshot['user_id'] ?? null,
-                    'status' => 'completed',
-                    'total' => $snapshot['total'] ?? 0,
-                    'items_subtotal' => $snapshot['total'] ?? 0,
-                    'currency' => $snapshot['currency'] ?? config('app.currency', 'USD'),
-                    'shipping_address' => $snapshot['shipping_address'] ?? null,
-                    'payment_method' => $payment->method,
-                    'payment_status' => 'paid',
-                ]);
-
-                foreach ($snapshot['items'] ?? [] as $item) {
-                    \App\Models\OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $item['product_id'] ?? null,
-                        'name' => $item['name'] ?? null,
-                        'qty' => $item['qty'] ?? 1,
-                        'price' => $item['price'] ?? 0,
-                    ]);
-                }
-
-                $payment->order_id = $order->id;
-                $payment->save();
-
-                return $order;
-            });
-        } catch (\Throwable $e) {
-            return null;
-        }
     }
 }
