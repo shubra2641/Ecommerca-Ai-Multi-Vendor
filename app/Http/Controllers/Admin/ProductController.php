@@ -34,7 +34,7 @@ class ProductController extends Controller
 
         $query = Product::with(['category', 'variations']);
 
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $query->where('vendor_id', $user->id);
         }
 
@@ -62,7 +62,7 @@ class ProductController extends Controller
     {
         $user = Auth::user();
         $isAdmin = $user->role === 'admin';
-        if (!$isAdmin && $product->vendor_id !== $user->id) {
+        if (! $isAdmin && $product->vendor_id !== $user->id) {
             abort(403);
         }
         $product->load(['tags', 'variations', 'category']);
@@ -96,7 +96,7 @@ class ProductController extends Controller
     {
         $user = Auth::user();
         $isAdmin = $user->role === 'admin';
-        if (!$isAdmin && $product->vendor_id !== $user->id) {
+        if (! $isAdmin && $product->vendor_id !== $user->id) {
             abort(403);
         }
         $product->load(['tags', 'variations', 'serials']);
@@ -109,7 +109,7 @@ class ProductController extends Controller
     {
         $user = Auth::user();
         $isAdmin = $user->role === 'admin';
-        if (!$isAdmin && $product->vendor_id !== $user->id) {
+        if (! $isAdmin && $product->vendor_id !== $user->id) {
             abort(403);
         }
         $oldActive = $product->active;
@@ -125,10 +125,10 @@ class ProductController extends Controller
     {
         $user = Auth::user();
         $isAdmin = $user->role === 'admin';
-        if (!$isAdmin && $product->vendor_id !== $user->id) {
+        if (! $isAdmin && $product->vendor_id !== $user->id) {
             abort(403);
         }
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             abort(403, 'Vendors cannot delete products.');
         }
         $product->delete();
@@ -196,9 +196,9 @@ class ProductController extends Controller
     protected function getFormData(): array
     {
         return [
-            'categories' => Cache::remember('product_categories_ordered', 3600, fn() => ProductCategory::orderBy('name')->get()),
-            'tags' => Cache::remember('product_tags_ordered', 3600, fn() => ProductTag::orderBy('name')->get()),
-            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn() => ProductAttribute::with('values')->orderBy('name')->get()),
+            'categories' => Cache::remember('product_categories_ordered', 3600, fn () => ProductCategory::orderBy('name')->get()),
+            'tags' => Cache::remember('product_tags_ordered', 3600, fn () => ProductTag::orderBy('name')->get()),
+            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn () => ProductAttribute::with('values')->orderBy('name')->get()),
         ];
     }
 
@@ -385,7 +385,7 @@ class ProductController extends Controller
                 $normalized[$locale] = is_string($val) ? trim($val) : trim((string) $val);
             }
             $base = $this->extractPrimaryTextFromArray($normalized);
-            $translations = array_filter($normalized, fn($val) => $val !== '');
+            $translations = array_filter($normalized, fn ($val) => $val !== '');
 
             return [$base, $translations ? $translations : null];
         }
@@ -508,7 +508,7 @@ class ProductController extends Controller
             $gallery = json_decode($gallery, true) ? json_decode($gallery, true) : [];
         }
 
-        return array_values(array_filter(array_map('trim', $gallery), fn($item) => ! empty($item)));
+        return array_values(array_filter(array_map('trim', $gallery), fn ($item) => ! empty($item)));
     }
 
     protected function handleNotifications(Product $product, ?bool $oldActive = null): void
@@ -546,7 +546,7 @@ class ProductController extends Controller
 
     protected function getStockInfo($item): array
     {
-        if (!$item->manage_stock) {
+        if (! $item->manage_stock) {
             return [
                 'available' => null,
                 'stock_qty' => null,

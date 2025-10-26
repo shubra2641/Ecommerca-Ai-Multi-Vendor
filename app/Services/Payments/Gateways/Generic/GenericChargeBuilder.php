@@ -35,7 +35,7 @@ final class GenericChargeBuilder
             ->acceptJson()
             ->post($apiBase . '/charges', $payload);
 
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             throw new \Exception('Charge error: ' . $response->status());
         }
 

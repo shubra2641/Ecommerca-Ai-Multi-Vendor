@@ -94,9 +94,10 @@ final class HeaderComposer
                 try {
                     return \App\Models\ProductCategory::where('parent_id', null)
                         ->where('active', true)
-                        ->with(['children' => function ($query) {
+                        ->with(['children' => function ($query): void {
                             $query->where('active', true)->orderBy('name');
-                        }])
+                        },
+                        ])
                         ->orderBy('name')
                         ->get();
                 } catch (\Throwable $e) {

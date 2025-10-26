@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
+use App\Events\PayoutExecuted;
 use App\Events\WithdrawalApproved;
 use App\Events\WithdrawalRejected;
-use App\Events\PayoutExecuted;
 use App\Models\BalanceHistory;
 use App\Models\Payout;
 use App\Models\User;
@@ -97,7 +99,7 @@ class AdminVendorWithdrawalService
         }
 
         $admin = User::find(1);
-        if (!$admin) {
+        if (! $admin) {
             return;
         }
 
@@ -134,14 +136,14 @@ class AdminVendorWithdrawalService
     private function completeWithdrawal(Payout $payout): void
     {
         $withdrawal = $payout->withdrawal;
-        if (!$withdrawal) {
+        if (! $withdrawal) {
             return;
         }
 
         $withdrawal->update(['status' => 'completed']);
 
         // Copy proof path if not set
-        if ($payout->proof_path && !$withdrawal->proof_path) {
+        if ($payout->proof_path && ! $withdrawal->proof_path) {
             $withdrawal->update(['proof_path' => $payout->proof_path]);
         }
     }

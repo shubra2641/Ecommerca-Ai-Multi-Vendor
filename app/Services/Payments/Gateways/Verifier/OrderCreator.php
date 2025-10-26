@@ -12,7 +12,7 @@ final class OrderCreator
     public function handlePaidPayment(Payment $payment): void
     {
         $order = $payment->order;
-        if (!$order) {
+        if (! $order) {
             $order = $this->createOrderFromSnapshot($payment);
         }
 
@@ -32,7 +32,7 @@ final class OrderCreator
     private function createOrderFromSnapshot(Payment $payment): ?\App\Models\Order
     {
         $snapshot = $payment->payload['checkout_snapshot'] ?? null;
-        if (!$snapshot) {
+        if (! $snapshot) {
             return null;
         }
 

@@ -7,8 +7,8 @@ namespace App\Services\Payments\Gateways;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
 use App\Services\Payments\Gateways\Verifier\ApiRequestHandler;
-use App\Services\Payments\Gateways\Verifier\StatusProcessor;
 use App\Services\Payments\Gateways\Verifier\OrderCreator;
+use App\Services\Payments\Gateways\Verifier\StatusProcessor;
 
 final class PaymentVerifier
 {
@@ -25,13 +25,13 @@ final class PaymentVerifier
         $apiBase = rtrim($cfg['api_base'] ?? ('https://api.' . $payment->method . '.com'), '/');
         $chargeId = $payment->payload[$payment->method . '_charge_id'] ?? null;
 
-        if (!$chargeId) {
+        if (! $chargeId) {
             throw new \RuntimeException('Missing charge id');
         }
 
         $response = $this->apiRequestHandler->getChargeStatus($cfg, $apiBase, $chargeId);
 
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             return ['payment' => $payment, 'status' => 'pending', 'charge' => null];
         }
 
@@ -40,7 +40,7 @@ final class PaymentVerifier
 
         $payment->status = $status;
         $payment->payload = array_merge($payment->payload ?? [], [
-            $payment->method . '_charge_status' => $json['status'] ?? null
+            $payment->method . '_charge_status' => $json['status'] ?? null,
         ]);
         $payment->save();
 

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\BalanceHistory;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\VendorWithdrawal;
-use App\Models\BalanceHistory;
 use Illuminate\Support\Facades\DB;
 
 final class VendorDashboardService
@@ -34,14 +34,14 @@ final class VendorDashboardService
 
     private function getTotalSales(int $vendorId): float
     {
-        return (float) OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereHas('order', fn($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
+        return (float) OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order', fn ($qo) => $qo->whereIn('status', ['completed', 'delivered', 'shipped']))
             ->sum(DB::raw('(price * COALESCE(qty, 1))'));
     }
 
     private function getOrdersCount(int $vendorId): int
     {
-        return OrderItem::whereHas('product', fn($q) => $q->where('vendor_id', $vendorId))
+        return OrderItem::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
             ->distinct('order_id')
             ->count('order_id');
     }
@@ -87,7 +87,7 @@ final class VendorDashboardService
 
     private function getRecentOrders(int $vendorId): \Illuminate\Database\Eloquent\Collection
     {
-        return Order::whereHas('items.product', fn($q) => $q->where('vendor_id', $vendorId))
+        return Order::whereHas('items.product', fn ($q) => $q->where('vendor_id', $vendorId))
             ->latest('created_at')
             ->limit(5)
             ->get();

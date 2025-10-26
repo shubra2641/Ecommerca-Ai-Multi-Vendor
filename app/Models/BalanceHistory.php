@@ -12,16 +12,16 @@ class BalanceHistory extends Model
 {
     use HasFactory;
 
-    const TYPE_CREDIT = 'credit';
-    const TYPE_DEBIT = 'debit';
-    const TYPE_ADJUSTMENT = 'adjustment';
-    const TYPE_REFUND = 'refund';
-    const TYPE_BONUS = 'bonus';
-    const TYPE_PENALTY = 'penalty';
-    const TYPE_WITHDRAWAL_REQUEST = 'withdrawal_request';
-    const TYPE_WITHDRAWAL_APPROVED = 'withdrawal_approved';
-    const TYPE_WITHDRAWAL_REJECTED = 'withdrawal_rejected';
-    const TYPE_WITHDRAWAL_EXECUTED = 'withdrawal_executed';
+    public const TYPE_CREDIT = 'credit';
+    public const TYPE_DEBIT = 'debit';
+    public const TYPE_ADJUSTMENT = 'adjustment';
+    public const TYPE_REFUND = 'refund';
+    public const TYPE_BONUS = 'bonus';
+    public const TYPE_PENALTY = 'penalty';
+    public const TYPE_WITHDRAWAL_REQUEST = 'withdrawal_request';
+    public const TYPE_WITHDRAWAL_APPROVED = 'withdrawal_approved';
+    public const TYPE_WITHDRAWAL_REJECTED = 'withdrawal_rejected';
+    public const TYPE_WITHDRAWAL_EXECUTED = 'withdrawal_executed';
 
     protected $fillable = [
         'user_id',

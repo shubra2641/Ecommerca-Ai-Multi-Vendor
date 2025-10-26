@@ -36,7 +36,7 @@ final class TapChargeBuilder
             ->acceptJson()
             ->post('https://api.tap.company/v2/charges', $payload);
 
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             throw new \Exception('Charge error: ' . $response->status());
         }
 

@@ -13,7 +13,8 @@ final class PaymentVerifier
 {
     public function __construct(
         private readonly OrderCreator $orderCreator,
-    ) {}
+    ) {
+    }
     public function verifyGenericGatewayCharge(Payment $payment, PaymentGateway $gateway): array
     {
         $credentials = $this->getGatewayCredentials($gateway);
@@ -30,7 +31,7 @@ final class PaymentVerifier
         $cfg = $gateway->config ?? [];
         $secret = $cfg['secret_key'] ?? ($cfg['api_key'] ?? null);
 
-        if (!$secret) {
+        if (! $secret) {
             throw new \RuntimeException('Missing gateway secret or API key');
         }
 
@@ -41,7 +42,7 @@ final class PaymentVerifier
     {
         $chargeId = $payment->payload[$gateway->slug . '_charge_id'] ?? $payment->payload['charge_id'] ?? null;
 
-        if (!$chargeId) {
+        if (! $chargeId) {
             throw new \RuntimeException('Missing charge id');
         }
 
@@ -58,7 +59,7 @@ final class PaymentVerifier
     {
         $resp = Http::withToken($secret)->acceptJson()->get($apiBase . '/charges/' . $chargeId);
 
-        if (!$resp->ok()) {
+        if (! $resp->ok()) {
             return ['status' => 'pending', 'data' => null];
         }
 
@@ -72,7 +73,7 @@ final class PaymentVerifier
 
         $payment->status = $finalStatus;
         $payment->payload = array_merge($payment->payload ?? [], [
-            $gateway->slug . '_charge_status' => $finalStatus
+            $gateway->slug . '_charge_status' => $finalStatus,
         ]);
         $payment->save();
 

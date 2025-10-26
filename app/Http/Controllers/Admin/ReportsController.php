@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -151,15 +150,15 @@ class ReportsController extends Controller
             'manage_stock_count' => \App\Models\Product::where('manage_stock', 1)->count(),
             'out_of_stock' => \App\Models\Product::where('manage_stock', 1)
                 ->get()
-                ->filter(fn($x) => ($x->availableStock() ?? 0) <= 0)
+                ->filter(fn ($x) => ($x->availableStock() ?? 0) <= 0)
                 ->count(),
             'serials_low' => \App\Models\Product::where('has_serials', 1)
                 ->get()
-                ->filter(fn($x) => $x->serials()->whereNull('sold_at')->count() <= 5)
+                ->filter(fn ($x) => $x->serials()->whereNull('sold_at')->count() <= 5)
                 ->count(),
             'average_stock' => (int) round(\App\Models\Product::where('manage_stock', 1)
                 ->get()
-                ->map(fn($x) => $x->availableStock() ?? 0)
+                ->map(fn ($x) => $x->availableStock() ?? 0)
                 ->avg()),
         ];
 

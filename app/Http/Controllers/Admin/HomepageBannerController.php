@@ -9,7 +9,6 @@ use App\Models\HomepageBanner;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -104,8 +103,8 @@ class HomepageBannerController extends Controller
 
     private function mergeI18nData(?array $existing, ?array $incoming): array
     {
-        $existing = $existing ?: [];
-        $incoming = $incoming ?: [];
+        $existing = $existing ? $existing : [];
+        $incoming = $incoming ? $incoming : [];
 
         foreach ($incoming as $key => $value) {
             if ($value === '') {

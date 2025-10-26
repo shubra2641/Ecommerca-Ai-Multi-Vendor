@@ -8,10 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
-use App\Models\ProductVariation;
 use App\Models\User;
-use App\Services\StockService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
@@ -132,7 +129,7 @@ class OrderController extends Controller
     {
         $query = OrderItem::query()
             ->with(['order.user', 'product'])
-            ->whereHas('product', function ($q) {
+            ->whereHas('product', function ($q): void {
                 $q->where('vendor_id', Auth::id());
             })
             ->latest();
@@ -145,7 +142,7 @@ class OrderController extends Controller
     public function vendorShow(OrderItem $orderItem)
     {
         // Ensure the vendor owns the product
-        if (!$orderItem->product || $orderItem->product->vendor_id !== Auth::id()) {
+        if (! $orderItem->product || $orderItem->product->vendor_id !== Auth::id()) {
             abort(403);
         }
 

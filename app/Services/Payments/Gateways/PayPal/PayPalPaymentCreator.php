@@ -6,7 +6,6 @@ namespace App\Services\Payments\Gateways\PayPal;
 
 use App\Models\Order;
 use App\Models\Payment;
-use Illuminate\Support\Facades\DB;
 
 final class PayPalPaymentCreator
 {

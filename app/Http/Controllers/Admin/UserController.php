@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\Admin\AdjustBalanceRequest;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
-use App\Models\Currency;
 use App\Models\User;
 use App\Services\BalanceService;
 use Illuminate\Http\Request;

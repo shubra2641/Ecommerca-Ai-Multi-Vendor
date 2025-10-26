@@ -62,7 +62,7 @@ class CheckoutViewBuilder
         }
         if (! empty($variant->attribute_data)) {
             return collect($variant->attribute_data)
-                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
                 ->join(', ');
         }
@@ -74,7 +74,7 @@ class CheckoutViewBuilder
         $parsed = json_decode($variant, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['attribute_data'])) {
             return collect($parsed['attribute_data'])
-                ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
+                ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
                 ->join(', ');
         }

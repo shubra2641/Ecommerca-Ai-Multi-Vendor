@@ -26,7 +26,7 @@ class PaymentApiController extends Controller
                 ->select(['id', 'name', 'slug', 'logo', 'description'])
                 ->orderBy('name')
                 ->get()
-                ->map(fn($g) => [
+                ->map(fn ($g) => [
                     'id' => $g->id,
                     'name' => $g->name,
                     'slug' => $g->slug,

@@ -43,7 +43,7 @@ class PostCategoryController extends Controller
             'parent_id' => 'nullable|exists:post_categories,id',
         ]);
         $fallback = config('app.fallback_locale');
-        $defaultName = $data['name'][$fallback] ?? collect($data['name'])->first(fn($v) => ! empty($v));
+        $defaultName = $data['name'][$fallback] ?? collect($data['name'])->first(fn ($v) => ! empty($v));
         $slugTranslations = $data['slug'] ?? [];
         foreach ($data['name'] as $loc => $v) {
             if (! isset($slugTranslations[$loc]) || $slugTranslations[$loc] === '') {
@@ -71,7 +71,7 @@ class PostCategoryController extends Controller
             if (isset($data[$f]) && is_array($data[$f])) {
                 $payload[$f . '_translations'] = array_filter($data[$f]);
                 $payload[$f] = $payload[$f . '_translations'][$fallback] ??
-                    collect($payload[$f . '_translations'])->first(fn($value) => ! empty($value));
+                    collect($payload[$f . '_translations'])->first(fn ($value) => ! empty($value));
             }
         }
         PostCategory::create($payload);
@@ -105,7 +105,7 @@ class PostCategoryController extends Controller
         ]);
         $fallback = config('app.fallback_locale');
         $defaultName = $data['name'][$fallback] ??
-            collect($data['name'])->first(fn($value) => ! empty($value)) ??
+            collect($data['name'])->first(fn ($value) => ! empty($value)) ??
             $category->getRawOriginal('name');
         $slugTranslations = $data['slug'] ?? ($category->slug_translations ?? []);
         foreach ($data['name'] as $loc => $value) {
@@ -125,7 +125,7 @@ class PostCategoryController extends Controller
             if (isset($data[$f]) && is_array($data[$f])) {
                 $payload[$f . '_translations'] = array_filter($data[$f]);
                 $payload[$f] = $payload[$f . '_translations'][$fallback] ??
-                    collect($payload[$f . '_translations'])->first(fn($value) => ! empty($value));
+                    collect($payload[$f . '_translations'])->first(fn ($value) => ! empty($value));
             }
         }
         $category->update($payload);

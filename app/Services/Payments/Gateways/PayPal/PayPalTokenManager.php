@@ -16,12 +16,12 @@ final class PayPalTokenManager
             ->retry(2, 400)
             ->post($this->getBaseUrl($config) . '/v1/oauth2/token', ['grant_type' => 'client_credentials']);
 
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             throw new \Exception('Token error: ' . $response->status());
         }
 
         $token = $response->json('access_token');
-        if (!$token) {
+        if (! $token) {
             throw new \Exception('Token empty');
         }
 

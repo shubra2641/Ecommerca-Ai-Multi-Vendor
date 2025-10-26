@@ -188,9 +188,9 @@ class HomepageSectionController extends Controller
 
     private function mergeI18nData(?array $existing, ?array $incoming): array
     {
-        $existing = $existing ?: [];
+        $existing = $existing ? $existing : [];
 
-        foreach (($incoming ?: []) as $lang => $val) {
+        foreach (($incoming ? $incoming : []) as $lang => $val) {
             if ($val === null) {
                 continue;
             }

@@ -18,7 +18,8 @@ final class TapGateway
         private readonly TapChargeBuilder $chargeBuilder,
         private readonly TapPaymentCreator $paymentCreator,
         private readonly OrderCreator $orderCreator,
-    ) {}
+    ) {
+    }
 
     public function initPayment(Order $order, PaymentGateway $gateway, int $orderId): array
     {
@@ -53,7 +54,7 @@ final class TapGateway
         $cfg = $gateway->config ?? [];
         $secret = $cfg['tap_secret_key'] ?? null;
 
-        if (!$secret) {
+        if (! $secret) {
             throw new \RuntimeException('Missing Tap secret key');
         }
 
@@ -64,7 +65,7 @@ final class TapGateway
     {
         $chargeId = $payment->payload['tap_charge_id'] ?? null;
 
-        if (!$chargeId) {
+        if (! $chargeId) {
             throw new \RuntimeException('Missing Tap charge id');
         }
 
@@ -77,7 +78,7 @@ final class TapGateway
             ->acceptJson()
             ->get('https://api.tap.company/v2/charges/' . $chargeId);
 
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             return ['status' => 'pending', 'data' => null];
         }
 
@@ -131,7 +132,7 @@ final class TapGateway
 
     private function determineStatus(?string $status): string
     {
-        if (!$status) {
+        if (! $status) {
             return 'processing';
         }
 

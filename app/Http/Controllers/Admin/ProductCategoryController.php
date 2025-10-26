@@ -124,7 +124,7 @@ final class ProductCategoryController extends Controller
             'seo_description' => $result['seo_description'] ?? null,
             'seo_keywords' => $result['seo_tags'] ?? null,
             'seo_title' => $result['seo_title'] ?? null,
-        ], fn($value) => ! empty($value));
+        ], fn ($value) => ! empty($value));
 
         // Fill translations only for the requested language
         if ($locale && ! empty($result['description'])) {
