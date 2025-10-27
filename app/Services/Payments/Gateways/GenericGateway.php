@@ -14,7 +14,8 @@ final class GenericGateway
     public function __construct(
         private readonly GenericChargeBuilder $chargeBuilder,
         private readonly GenericPaymentCreator $paymentCreator,
-    ) {}
+    ) {
+    }
 
     public function initFromSnapshot(array $snapshot, PaymentGateway $gateway, string $slug): array
     {
