@@ -28,13 +28,13 @@ easy.zip
 
 # Custom exclusions for GitHub upload
 # Database files and directories
-database/
-database/factories/
-database/seeders/
-database/migrations/
-database/migrations/disabled/
-database/*.sqlite
-*.sqlite*
+# database/
+# database/factories/
+# database/seeders/
+# database/migrations/
+# database/migrations/disabled/
+# database/*.sqlite
+# *.sqlite*
 
 # Node modules and build files
 node_modules/
