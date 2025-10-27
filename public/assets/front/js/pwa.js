@@ -82,7 +82,7 @@
                 break;
             case 'OFFLINE_ACTION_QUEUED':
                 break;
-            default:
+        default:
         }
     }
 

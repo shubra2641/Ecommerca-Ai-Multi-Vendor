@@ -45,8 +45,8 @@ final class AdminOrdersIndexComposer
         $meta = $first->meta;
 
         return match (true) {
-            ! empty($meta['variant_name']) => $meta['variant_name'],
-            ! empty($meta['attribute_data']) && is_array($meta['attribute_data']) => collect($meta['attribute_data'])
+            $meta['variant_name'] ?? false => $meta['variant_name'],
+            ($meta['attribute_data'] ?? false) && is_array($meta['attribute_data']) => collect($meta['attribute_data'])
                 ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                 ->join(', '),
             default => null,

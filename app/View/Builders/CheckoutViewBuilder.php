@@ -11,7 +11,7 @@ class CheckoutViewBuilder
         return collect($items)->map(function ($it) {
             $p = $it['product'];
             $img = null;
-            if (! empty($p->image_url)) {
+            if ($p->image_url) {
                 $img = $p->image_url;
             } elseif (method_exists($p, 'getFirstMediaUrl')) {
                 try {
@@ -34,7 +34,7 @@ class CheckoutViewBuilder
 
     public static function variantLabel($it): ?string
     {
-        if (! empty($it['variant'])) {
+        if ($it['variant']) {
             return match (true) {
                 is_object($it['variant']) => self::handleObjectVariant($it['variant']),
                 is_string($it['variant']) => self::handleStringVariant($it['variant']),
@@ -42,7 +42,7 @@ class CheckoutViewBuilder
             };
         }
 
-        if (! empty($it['attributes'])) {
+        if ($it['attributes']) {
             return is_array($it['attributes']) ? implode(', ', $it['attributes']) : (string) $it['attributes'];
         }
 
@@ -60,7 +60,7 @@ class CheckoutViewBuilder
         if ($name) {
             return $name;
         }
-        if (! empty($variant->attribute_data)) {
+        if ($variant->attribute_data) {
             return collect($variant->attribute_data)
                 ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
                 ->values()
