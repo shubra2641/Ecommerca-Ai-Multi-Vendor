@@ -136,7 +136,7 @@
 
         async switchCurrency(button) {
             const code = button.dataset.currency;
-            if (!code) return;
+            if (!code) {return;}
 
             try {
                 const response = await safeFetch('/currency/switch', {
@@ -175,7 +175,7 @@
     const Loader = {
         init() {
             const loader = $('#app-loader');
-            if (!loader) return;
+            if (!loader) {return;}
 
             const hideLoader = () => {
                 loader.classList.add('hidden');
@@ -846,7 +846,7 @@
             if (shippingCostInput) shippingCostInput.value = '';
             if (shippingDaysInput) shippingDaysInput.value = '';
             if (hiddenShippingZoneId) hiddenShippingZoneId.value = '';
-            if (hiddenShippingPrice) hiddenShippingPrice.value = '';
+            if (hiddenShippingPrice) {hiddenShippingPrice.value = '';}
             if (hiddenShippingDays) hiddenShippingDays.value = '';
 
             this.updateOrderSummary(0);

@@ -3,7 +3,6 @@
  * Basic functionality only
  */
 /* eslint-disable no-alert, no-console */
-/* global AdminPanel, atob, Event */
 const MOBILE_BREAKPOINT = 992;
 const STORAGE_PREFIX = 'storage/';
 (function () {

@@ -65,7 +65,7 @@
     // Get data from element
     function getData(id) {
         const el = document.getElementById(id);
-        if (!el) return null;
+        if (!el) {return null;}
 
         try {
             if (el.dataset.payload) {

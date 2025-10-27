@@ -2,7 +2,6 @@
  * Simple PWA Registration Script
  * Handles service worker registration and PWA features
  */
-/* global Notification, window, navigator, document, location */
 
 (function () {
     'use strict';
