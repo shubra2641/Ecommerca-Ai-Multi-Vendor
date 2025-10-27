@@ -180,7 +180,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
 // User account area
 Route::middleware('auth')->prefix('account')->name('user.')->group(function (): void {
-    Route::get('/', [UserDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [UserDashboardController::class, 'index'])->name('home');
     Route::get('/orders', [OrdersController::class, 'index'])->name('orders');
     Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('orders.show');
     // Returns

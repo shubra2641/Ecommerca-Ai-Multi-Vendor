@@ -41,7 +41,6 @@
                         @endforeach
                         @else
                         <li>
-                            <div class="px-3 py-2 text-muted">لا توجد إشعارات</div>
                         </li>
                         @endif
                         <li>
