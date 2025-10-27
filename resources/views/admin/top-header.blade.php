@@ -65,9 +65,13 @@
                     <ul class="dropdown-menu">
                         @foreach($dashboardAdminLanguages as $lang)
                         <li>
-                            <a class="dropdown-item" href="?language={{ $lang->code }}">
-                                {{ $lang->name }}
-                            </a>
+                            <form method="POST" action="{{ route('language.switch') }}" style="display: inline;">
+                                @csrf
+                                <input type="hidden" name="language" value="{{ $lang->code }}">
+                                <button type="submit" class="dropdown-item" style="border: none; background: none; width: 100%; text-align: left; padding: 0.375rem 1.5rem;">
+                                    {{ $lang->name }}
+                                </button>
+                            </form>
                         </li>
                         @endforeach
                     </ul>

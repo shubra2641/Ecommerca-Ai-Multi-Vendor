@@ -80,12 +80,16 @@
                         @endif
                         @foreach($__langs as $lang)
                         <li>
-                            <a class="dropdown-item" href="{{ url('/vendor/language') }}?language={{ urlencode($lang->code) }}">
-                                @if(!empty($lang->flag))
-                                <i class="flag-icon flag-icon-{{ e($lang->flag) }}"></i>
-                                @endif
-                                {{ $lang->name }}
-                            </a>
+                            <form method="POST" action="{{ url('/vendor/language') }}" style="display: inline;">
+                                @csrf
+                                <input type="hidden" name="language" value="{{ $lang->code }}">
+                                <button type="submit" class="dropdown-item" style="border: none; background: none; width: 100%; text-align: left; padding: 0.375rem 1.5rem;">
+                                    @if(!empty($lang->flag))
+                                    <i class="flag-icon flag-icon-{{ e($lang->flag) }}"></i>
+                                    @endif
+                                    {{ $lang->name }}
+                                </button>
+                            </form>
                         </li>
                         @endforeach
                         @if(collect($__langs)->isEmpty())
