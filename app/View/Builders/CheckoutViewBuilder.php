@@ -34,7 +34,7 @@ class CheckoutViewBuilder
 
     public static function variantLabel($it): ?string
     {
-        if ($it['variant']) {
+        if (isset($it['variant']) && $it['variant']) {
             return match (true) {
                 is_object($it['variant']) => self::handleObjectVariant($it['variant']),
                 is_string($it['variant']) => self::handleStringVariant($it['variant']),
@@ -42,7 +42,7 @@ class CheckoutViewBuilder
             };
         }
 
-        if ($it['attributes']) {
+        if (isset($it['attributes']) && $it['attributes']) {
             return is_array($it['attributes']) ? implode(', ', $it['attributes']) : (string) $it['attributes'];
         }
 
