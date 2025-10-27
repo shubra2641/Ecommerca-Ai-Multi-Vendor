@@ -27,12 +27,6 @@ const STORAGE_PREFIX = 'storage/';
         this.initProductForm();
         this.initSerialsToggle();
         this.initMediaManager();
-        this.initAdminNotifications();
-        this.initVendorDashboard();
-        this.initVendorProducts();
-        this.initVendorOrders();
-        this.initVendorWithdrawals();
-        this.initVendorSettings();
     };
 
     // Simple sidebar toggle
