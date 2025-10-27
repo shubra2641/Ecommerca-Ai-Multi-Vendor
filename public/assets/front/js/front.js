@@ -538,27 +538,6 @@
         }
     };
 
-    // Image loading handler
-    const ImageLoader = {
-        init() {
-            $$('.thumb-wrapper img, .product-card .product-image img').forEach(img => {
-                if (img.complete && img.naturalHeight !== 0) {
-                    this.markAsLoaded(img);
-                } else {
-                    img.addEventListener('load', () => this.markAsLoaded(img));
-                    img.addEventListener('error', () => this.markAsLoaded(img));
-                }
-            });
-        },
-
-        markAsLoaded(img) {
-            const wrapper = img.closest('.thumb-wrapper, .product-image');
-            if (wrapper) {
-                wrapper.classList.add('is-loaded');
-            }
-        }
-    };
-
     // Safe select manipulation
     const SelectUtils = {
         clearSelect(select, placeholder) {
@@ -1012,7 +991,6 @@
         ProductVariations.init();
         CheckoutShipping.init();
         AddressSelection.init();
-        ImageLoader.init();
     }
 
     if (document.readyState === 'loading') {
