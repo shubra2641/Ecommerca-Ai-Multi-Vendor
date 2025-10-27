@@ -31,12 +31,16 @@
     // Safe fetch with validation
     const safeFetch = async (url, options = {}) => {
         try {
-            // Validate URL
-            const urlObj = new URL(url, window.location.origin);
-            if (urlObj.origin !== window.location.origin) {
-                const allowedDomains = ['api.example.com'];
-                if (!allowedDomains.some(domain => urlObj.hostname === domain)) {
-                    throw new Error('Unauthorized URL');
+            // Validate URL - only allow relative URLs or same origin
+            if (typeof url !== 'string') {
+                throw new Error('Invalid URL');
+            }
+
+            // Allow only relative URLs (starting with /) or same origin URLs
+            if (!url.startsWith('/')) {
+                const urlObj = new URL(url, window.location.origin);
+                if (urlObj.origin !== window.location.origin) {
+                    throw new Error('Unauthorized URL - only same origin allowed');
                 }
             }
 
