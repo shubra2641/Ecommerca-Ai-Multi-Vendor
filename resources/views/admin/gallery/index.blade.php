@@ -33,7 +33,7 @@
         @if(!$images->count())
         <div class="admin-empty-state">
             <div class="admin-notification-icon">
-                <i class="fas fa-image" style="font-size: 48px;"></i>
+                <i class="fas fa-image icon-large"></i>
             </div>
             <h3>@lang('No images yet.')</h3>
             <p>@lang('Upload your first image to get started.')</p>

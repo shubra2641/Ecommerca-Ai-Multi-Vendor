@@ -68,7 +68,7 @@
                 </div>
                 @else
                 <div class="admin-empty-state">
-                    <i class="fas fa-file-invoice" style="font-size:64px"></i>
+                    <i class="fas fa-file-invoice icon-xlarge"></i>
                     <p>{{ __('No payments found') }}</p>
                 </div>
                 @endif

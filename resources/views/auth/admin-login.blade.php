@@ -3,7 +3,7 @@
         <div class="admin-login-container">
             <div class="admin-login-header">
                 <div class="admin-login-icon">
-                    <i class="fas fa-shield-alt" style="font-size: 48px;" aria-hidden="true"></i>
+                    <i class="fas fa-shield-alt icon-large" aria-hidden="true"></i>
                 </div>
                 <h1 class="admin-login-title">{{ __('Admin Login') }}</h1>
                 <p class="admin-login-subtitle">{{ __('Sign in to access the admin panel') }}</p>

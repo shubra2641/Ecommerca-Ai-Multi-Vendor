@@ -93,7 +93,7 @@
         </div>
         @else
         <div class="admin-empty-state">
-          <i class="fas fa-city" style="font-size: 64px;"></i>
+          <i class="fas fa-city icon-xlarge"></i>
           <p>{{ __('No cities found') }}</p>
         </div>
         @endif

@@ -116,7 +116,7 @@
           </div>
           @else
           <div class="admin-empty-state">
-            <i class="fas fa-tags" style="font-size: 48px;"></i>
+            <i class="fas fa-tags icon-large"></i>
             <h3>{{ __('No Tags Found') }}</h3>
             <p>{{ __('Get started by creating your first blog tag') }}</p>
           </div>

@@ -108,7 +108,7 @@
                         @else
                         <div class="admin-empty-state">
                             <div class="admin-notification-icon">
-                                <i class="fas fa-flag" style="font-size: 48px;"></i>
+                                <i class="fas fa-flag icon-large"></i>
                             </div>
                             <h3>{{ __('No banners yet.') }}</h3>
                             <p>{{ __('Create your first banner to get started.') }}</p>

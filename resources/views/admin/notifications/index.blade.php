@@ -38,9 +38,9 @@
                         <div class="admin-item-main">
                             <div class="admin-item-placeholder {{ $n->read_at ? 'admin-item-placeholder-gray' : 'admin-item-placeholder-cyan' }}">
                                 @if($n->read_at)
-                                <i class="fas fa-check" style="color:white;font-size:20px"></i>
+                                <i class="fas fa-check icon-large"></i>
                                 @else
-                                <i class="fas fa-bell" style="color:white;font-size:20px"></i>
+                                <i class="fas fa-bell"></i>
                                 @endif
                             </div>
                             <div class="admin-item-details">
@@ -75,7 +75,7 @@
                             <form method="POST" action="{{ route('admin.notifications.read', $n->id) }}" class="admin-form admin-mt-half">
                                 @csrf
                                 <button class="admin-btn-small admin-btn-success">
-                                    <i class="fas fa-check"></i>
+                                    <i class="fas fa-check icon-medium"></i>
                                     {{ __('Mark read') }}
                                 </button>
                             </form>

@@ -104,7 +104,7 @@
                 </div>
                 @else
                 <div class="admin-empty-state">
-                    <i class="fas fa-newspaper" style="font-size: 48px;"></i>
+                    <i class="fas fa-newspaper icon-large"></i>
                     <h3>{{ __('No Posts Found') }}</h3>
                     <p>{{ __('No posts match your current filters. Try adjusting your search criteria.') }}</p>
                     <a href="{{ route('admin.blog.posts.create') }}" class="admin-btn admin-btn-primary">

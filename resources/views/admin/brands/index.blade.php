@@ -87,7 +87,7 @@
                 </div>
                 @else
                 <div class="admin-empty-state">
-                    <i class="fas fa-tag" style="font-size: 48px;"></i>
+                    <i class="fas fa-tag icon-large"></i>
                     <h3>{{ __('No Brands Found') }}</h3>
                     <p>{{ __('Get started by creating your first brand') }}</p>
                     <a href="{{ route('admin.brands.create') }}" class="admin-btn admin-btn-primary">

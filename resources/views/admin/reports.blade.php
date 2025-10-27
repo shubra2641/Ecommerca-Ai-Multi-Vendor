@@ -319,7 +319,7 @@
                         </div>
                         @else
                         <div class="text-center py-3">
-                            <i class="fas fa-exclamation-triangle text-warning mb-2" style="font-size: 48px;"></i>
+                            <i class="fas fa-exclamation-triangle text-warning mb-2 icon-large"></i>
                             <p class="text-muted mb-0">{{ __('System health data not available') }}</p>
                         </div>
                         @endif

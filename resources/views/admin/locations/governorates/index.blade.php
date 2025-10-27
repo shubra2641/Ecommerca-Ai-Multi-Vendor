@@ -93,7 +93,7 @@
         </div>
         @else
         <div class="admin-empty-state">
-          <i class="fas fa-map-marked-alt" style="font-size: 64px;"></i>
+          <i class="fas fa-map-marked-alt icon-xlarge"></i>
           <p>{{ __('No governorates found') }}</p>
         </div>
         @endif

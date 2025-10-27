@@ -108,7 +108,7 @@
                 </div>
                 @else
                 <div class="admin-empty-state">
-                    <i class="fas fa-ticket-alt" style="font-size: 48px;"></i>
+                    <i class="fas fa-ticket-alt icon-large"></i>
                     <h3>{{ __('No Coupons Found') }}</h3>
                     <p>{{ __('Get started by creating your first discount coupon') }}</p>
                     <a href="{{ route('admin.coupons.create') }}" class="admin-btn admin-btn-primary">

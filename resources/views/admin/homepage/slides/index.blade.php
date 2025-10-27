@@ -104,7 +104,7 @@
             @else
             <div class="admin-empty-state">
               <div class="admin-notification-icon">
-                <i class="fas fa-images" style="font-size: 48px;"></i>
+                <i class="fas fa-images icon-large"></i>
               </div>
               <h3>{{ __('No slides yet.') }}</h3>
               <p>{{ __('Create your first slide to get started.') }}</p>

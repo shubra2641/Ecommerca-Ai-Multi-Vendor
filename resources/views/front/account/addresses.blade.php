@@ -183,7 +183,7 @@
                             </div>
                             @else
                             <div class="empty-state empty-state-small">
-                                <i class="fas fa-box-open empty-icon" style="font-size:48px"></i>
+                                <i class="fas fa-box-open empty-icon icon-large"></i>
                                 <p class="empty-text">{{ __('No other addresses.') }}</p>
                             </div>
                             @endif

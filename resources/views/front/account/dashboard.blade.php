@@ -130,7 +130,7 @@
                             </div>
                             @if(!$recentOrders->count())
                             <div class="empty-state">
-                                <i class="fas fa-box-open empty-icon" style="font-size:48px;" aria-hidden="true"></i>
+                                <i class="fas fa-box-open empty-icon icon-large" aria-hidden="true"></i>
                                 <p class="empty-text">{{ __('No orders yet.') }}</p>
                             </div>
                             @else

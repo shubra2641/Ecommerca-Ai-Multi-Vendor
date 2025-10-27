@@ -225,8 +225,8 @@
             </div>
             @else
             <div class="admin-empty-state">
-                <i class="fas fa-dollar-sign" style="font-size: 48px;"></i>
-                <h3>{{ __('No Currencies Found') }}</h3>
+                <i class="fas fa-dollar-sign icon-large"></i>
+                <h3>@lang('No currencies found.')</h3>
                 <p>{{ __('Start by adding your first currency to the system.') }}</p>
                 <a href="{{ route('admin.currencies.create') }}" class="admin-btn admin-btn-primary">
                     <i class="fas fa-plus"></i>
