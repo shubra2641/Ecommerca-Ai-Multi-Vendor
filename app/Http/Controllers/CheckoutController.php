@@ -4,14 +4,22 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderPaid;
 use App\Helpers\GlobalHelper;
 use App\Http\Requests\CheckoutRequest;
+use App\Http\Requests\CreateOrderRequest;
+use App\Http\Requests\StartGatewayPaymentRequest;
+use App\Http\Requests\SubmitOfflinePaymentRequest;
+use App\Models\Coupon;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
+use App\Models\Product;
 use App\Services\Checkout\CheckoutProcessor;
 use App\Services\CheckoutViewBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
@@ -22,14 +30,16 @@ class CheckoutController extends Controller
     public function showForm()
     {
         $cart = session()->get('cart', []);
-        if (empty($cart)) {
-            return redirect()->route('cart.index')->with('error', __('Your cart is empty'));
+        try {
+            $this->validateCartNotEmpty($cart);
+        } catch (\Exception $e) {
+            return redirect()->route('cart.index')->with('error', $e->getMessage());
         }
         $vm = app(CheckoutViewBuilder::class)->build(
             $cart,
             GlobalHelper::getCurrencyContext()['currentCurrency']->id,
             session('applied_coupon_id'),
-            auth()->user()
+            Auth::user()
         );
 
         if (! $vm['coupon'] && session()->has('applied_coupon_id')) {
@@ -45,8 +55,10 @@ class CheckoutController extends Controller
     public function submitForm(CheckoutRequest $request)
     {
         $cart = session()->get('cart', []);
-        if (empty($cart)) {
-            return redirect()->route('cart.index')->with('error', __('Your cart is empty'));
+        try {
+            $this->validateCartNotEmpty($cart);
+        } catch (\Exception $e) {
+            return redirect()->route('cart.index')->with('error', $e->getMessage());
         }
 
         // Calculate totals
@@ -137,22 +149,11 @@ class CheckoutController extends Controller
         $data = $request->validated();
 
         return DB::transaction(function () use ($order, $data) {
-            $payment = Payment::create([
-                'order_id' => $order->id,
-                'user_id' => $order->user_id,
+            $payment = $this->markOrderAsPaid($order, [
                 'method' => 'offline',
                 'amount' => $data['amount'],
-                'currency' => $order->currency,
-                'status' => 'received',
                 'payload' => ['note' => $data['note'] ?? null],
             ]);
-
-            $order->payment_status = 'paid';
-            $order->status = 'completed';
-            $order->save();
-
-            // Dispatch OrderPaid event to trigger stock deduction
-            event(new OrderPaid($order));
 
             return response()->json(['ok' => true, 'payment_id' => $payment->id]);
         });
@@ -245,7 +246,7 @@ class CheckoutController extends Controller
                 ->with('error_message', __('Payment was canceled. Your cart has been restored.'));
         }
 
-        if (auth()->id() !== $order->user_id) {
+        if (Auth::id() !== $order->user_id) {
             abort(403);
         }
 
@@ -264,7 +265,7 @@ class CheckoutController extends Controller
         $order = $orderId ? Order::find($orderId) : null;
 
         if ($order) {
-            if (auth()->id() !== $order->user_id) {
+            if (Auth::id() !== $order->user_id) {
                 abort(403);
             }
 
@@ -288,6 +289,41 @@ class CheckoutController extends Controller
     }
 
     /** Helpers extracted to reduce complexity and duplication */
+    private function validateCartNotEmpty(array $cart): void
+    {
+        if (empty($cart)) {
+            throw new \Exception(__('Your cart is empty'));
+        }
+    }
+
+    private function createPayment(array $paymentData): Payment
+    {
+        return Payment::create($paymentData);
+    }
+
+    private function markOrderAsPaid(Order $order, array $paymentData = []): Payment
+    {
+        $payment = $this->createPayment(array_merge([
+            'order_id' => $order->id,
+            'user_id' => $order->user_id,
+            'method' => $paymentData['method'] ?? 'gateway',
+            'amount' => $paymentData['amount'] ?? $order->total,
+            'currency' => $paymentData['currency'] ?? $order->currency,
+            'status' => 'completed',
+            'transaction_id' => $paymentData['transaction_id'] ?? null,
+            'payload' => $paymentData,
+        ], $paymentData));
+
+        $order->payment_status = 'paid';
+        $order->status = 'completed';
+        $order->save();
+
+        // Dispatch OrderPaid event to trigger stock deduction
+        event(new OrderPaid($order));
+
+        return $payment;
+    }
+
     private function computeSubtotal(array $cart): float
     {
         $subtotal = 0.0;
@@ -333,7 +369,7 @@ class CheckoutController extends Controller
 
     private function startOfflinePayment(Order $order, PaymentGateway $gateway)
     {
-        $payment = Payment::create([
+        $payment = $this->createPayment([
             'order_id' => $order->id,
             'user_id' => $order->user_id,
             'method' => 'offline',
@@ -392,7 +428,7 @@ class CheckoutController extends Controller
                 ->first();
 
             if (! $payment) {
-                $payment = Payment::create([
+                $payment = $this->createPayment([
                     'order_id' => $order->id,
                     'user_id' => $order->user_id,
                     'method' => 'stripe',
@@ -448,7 +484,7 @@ class CheckoutController extends Controller
             $payment->transaction_id = $tx;
             $payment->save();
         } else {
-            Payment::create([
+            $this->createPayment([
                 'order_id' => $order->id,
                 'user_id' => $order->user_id,
                 'method' => 'stripe',
@@ -460,9 +496,7 @@ class CheckoutController extends Controller
             ]);
         }
 
-        $order->payment_status = 'paid';
-        $order->status = 'completed';
-        $order->save();
+        $this->markOrderAsPaid($order);
     }
 
     private function restoreStripePendingCart(): void
@@ -476,25 +510,7 @@ class CheckoutController extends Controller
     private function markOrderPaid(Order $order, array $data)
     {
         return DB::transaction(function () use ($order, $data) {
-            Payment::create([
-                'order_id' => $order->id,
-                'user_id' => $order->user_id,
-                'method' => $data['method'] ?? 'gateway',
-                'amount' => $data['amount'] ?? $order->total,
-                'currency' => $data['currency'] ?? $order->currency,
-                'status' => 'completed',
-                'transaction_id' => $data['transaction_id'] ?? null,
-                'payload' => $data,
-            ]);
-
-            $order->payment_status = 'paid';
-            $order->status = 'completed';
-            $order->save();
-
-            // Dispatch OrderPaid event to trigger stock deduction
-            event(new OrderPaid($order));
-
-            return response()->json(['ok' => true]);
+            return $this->markOrderAsPaid($order, $data);
         });
     }
 

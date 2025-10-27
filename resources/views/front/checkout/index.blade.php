@@ -31,46 +31,7 @@
                 <div class="checkout-left">
                     <div class="panel-card">
                         <h3 class="panel-title">{{ __('Shipping Address') }}</h3>
-                        <div class="address-card">
-                            <div class="address-left">
-                                <div class="address-title">{{ __('Deliver to') }}</div>
-                                <div class="small-muted">
-                                    {{ __('Choose one of your saved addresses or enter a new one') }}
-                                </div>
-                            </div>
-                            <div class="address-actions"><a href="#addresses-manage"
-                                    class="btn btn-sm btn-outline">{{ __('Manage') }}</a></div>
-                        </div>
 
-                        {{-- Addresses list: clickable/selectable cards --}}
-                        <div id="addresses-list" class="mt-2">
-                            @if(!empty($addresses) && $addresses->count())
-                            <div class="addresses-grid">
-                                @foreach($addresses as $addr)
-                                <label class="address-card-selectable" data-addr-id="{{ $addr->id }}"
-                                    data-country="{{ $addr->country_id }}"
-                                    data-governorate="{{ $addr->governorate_id }}" data-city="{{ $addr->city_id }}"
-                                    data-line1="{{ e($addr->line1) }}" data-line2="{{ e($addr->line2) }}"
-                                    data-phone="{{ e($addr->phone) }}" data-name="{{ e($addr->name ?? auth()->user()->name) }}">
-                                    <input type="radio" name="selected_address" value="{{ $addr->id }}"
-                                        {{ $addr->is_default ? 'checked' : '' }}>
-                                    <div class="address-card-body">
-                                        <div class="address-name">{{ $addr->name ?? auth()->user()->name }}</div>
-                                        <div class="small-muted">
-                                            {{ $addr->line1 }}{{ $addr->line2 ? ', ' . $addr->line2 : '' }}
-                                        </div>
-                                        <div class="small-muted">{{ $addr->phone }}</div>
-                                        @if($addr->is_default)<div class="badge small">{{ __('Default') }}</div>@endif
-                                    </div>
-                                </label>
-                                @endforeach
-                            </div>
-                            @else
-                            <div class="small-muted">
-                                {{ __('No saved addresses. Please enter a delivery address below.') }}
-                            </div>
-                            @endif
-                        </div>
                         <div class="mt-3">
                             <div class="form-row">
                                 <div class="form-group">
