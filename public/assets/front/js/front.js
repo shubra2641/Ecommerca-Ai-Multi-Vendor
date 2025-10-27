@@ -720,10 +720,7 @@
 
         async loadGovernorates(countryId) {
             if (!countryId) {
-                SelectUtils.clearSelect(this.elements.governorateSelect, this.translations.selectGovernorate);
-                SelectUtils.clearSelect(this.elements.citySelect, this.translations.selectCity);
-                SelectUtils.clearSelect(this.elements.shippingZoneSelect, this.translations.selectShippingCompany);
-                this.hideShippingInfo();
+                this.clearShippingSelects();
                 return;
             }
 
@@ -735,9 +732,7 @@
 
         async loadCities(governorateId) {
             if (!governorateId) {
-                SelectUtils.clearSelect(this.elements.citySelect, this.translations.selectCity);
-                SelectUtils.clearSelect(this.elements.shippingZoneSelect, this.translations.selectShippingCompany);
-                this.hideShippingInfo();
+                this.clearShippingSelects();
                 return;
             }
 
@@ -768,8 +763,7 @@
 
             const data = await safeFetch(`/api/locations/shipping?${params}`);
             if (!data || !data.data || data.data.length === 0) {
-                SelectUtils.clearSelect(this.elements.shippingZoneSelect, this.translations.selectShippingCompany);
-                this.hideShippingInfo();
+                this.clearShippingSelects();
                 return;
             }
 
@@ -786,6 +780,12 @@
             } else {
                 this.hideShippingInfo();
             }
+        },
+
+        clearShippingSelects() {
+            SelectUtils.clearSelect(this.elements.citySelect, this.translations.selectCity);
+            SelectUtils.clearSelect(this.elements.shippingZoneSelect, this.translations.selectShippingCompany);
+            this.hideShippingInfo();
         },
 
         updateShippingDisplay(shippingOption) {
