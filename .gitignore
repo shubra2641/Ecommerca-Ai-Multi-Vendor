@@ -28,6 +28,7 @@ easy.zip
 
 # Custom exclusions for GitHub upload
 # Database files and directories
+database/
 database/factories/
 database/seeders/
 database/migrations/
