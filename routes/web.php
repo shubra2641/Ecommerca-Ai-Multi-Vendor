@@ -214,7 +214,7 @@ Route::get('/api/payment-gateways', [PaymentGatewaysController::class, 'index'])
 Route::middleware(['auth', 'can:access-user'])->prefix('user')->name('user.')->group(function (): void {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 });
-
+// auth routes
 require __DIR__ . '/auth.php';
 
 // Admin routes
@@ -232,14 +232,8 @@ Route::prefix('vendor')->name('vendor.')->group(function (): void {
     require __DIR__ . '/vendor.php';
 });
 
-// Note: routes/api.php is loaded by the RouteServiceProvider with the 'api' middleware
-// and '/api' prefix. Do not require it here to avoid registering API routes under
-// the web (CSRF-protected) middleware.
-
-// Debug route removed from web routes.
 
 // Simulated payment redirect routes for local/testing (accept POST for gateways that POST JSON)
-// Removed simulated gateway redirect routes
 Route::get('/payments/paypal/{payment}/return', [PaypalController::class, 'return'])
     ->name('paypal.return');
 Route::get('/payments/paypal/{payment}/cancel', [PaypalController::class, 'cancel'])
