@@ -25,9 +25,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void
-    {
-    }
+    public function register(): void {}
 
     /**
      * Bootstrap any application services.
@@ -119,6 +117,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('admin.footer.settings', \App\View\Composers\AdminFooterSettingsComposer::class);
         View::composer('admin.dashboard-admin', \App\View\Composers\AdminDashboardAdminComposer::class);
         View::composer('admin.top-header', \App\View\Composers\AdminDashboardAdminComposer::class);
+        View::composer('layouts.admin', \App\View\Composers\AdminDashboardAdminComposer::class);
         View::composer('admin.blog.posts.create', \App\View\Composers\AdminBlogPostCreateComposer::class);
         View::composer('admin.blog.posts.edit', \App\View\Composers\AdminBlogPostEditComposer::class);
 
@@ -181,7 +180,7 @@ class AppServiceProvider extends ServiceProvider
                         'setting' => \Illuminate\Support\Facades\Cache::remember(
                             'site_settings',
                             3600,
-                            fn () => \App\Models\Setting::first()
+                            fn() => \App\Models\Setting::first()
                         ),
                     ];
                 } catch (\Throwable $e) {
@@ -210,7 +209,7 @@ class AppServiceProvider extends ServiceProvider
                     $setting = \Illuminate\Support\Facades\Cache::remember(
                         'site_settings',
                         3600,
-                        fn () => \App\Models\Setting::first()
+                        fn() => \App\Models\Setting::first()
                     );
                     $font = cache()->get(
                         'settings.font_family',

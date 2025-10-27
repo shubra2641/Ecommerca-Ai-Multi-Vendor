@@ -92,6 +92,10 @@ Route::middleware([
         ->name('admin.notifications.latest');
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])
         ->name('admin.notifications.unreadCount');
+    Route::get('/notifications/latest', [NotificationController::class, 'latest'])
+        ->name('admin.notifications.latest');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])
+        ->name('admin.notifications.unreadCount');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])
         ->name('admin.notifications.read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAll'])
@@ -355,7 +359,7 @@ Route::match(['get', 'post'], '/vendor/language', [\App\Http\Controllers\Languag
 
 // Admin logout
 Route::post('/admin/logout', function () {
-    auth()->logout();
+    \Illuminate\Support\Facades\Auth::logout();
 
     return redirect()->route('admin.login');
 })->name('admin.logout')->middleware(['auth', 'role:admin', 'can:access-admin']);
