@@ -590,6 +590,27 @@
         }
     };
 
+    // Shared location loader
+    const LocationLoader = {
+        async loadGovernorates(selectElement, countryId) {
+            try {
+                const data = await safeFetch(`/api/locations/governorates?country=${countryId}`);
+                SelectUtils.populateSelect(selectElement, data?.data || []);
+            } catch (error) {
+                console.error('Error loading governorates:', error);
+            }
+        },
+
+        async loadCities(selectElement, governorateId) {
+            try {
+                const data = await safeFetch(`/api/locations/cities?governorate=${governorateId}`);
+                SelectUtils.populateSelect(selectElement, data?.data || []);
+            } catch (error) {
+                console.error('Error loading cities:', error);
+            }
+        }
+    };
+
     // Checkout shipping
     const CheckoutShipping = {
         init() {
@@ -706,8 +727,7 @@
                 return;
             }
 
-            const data = await safeFetch(`/api/locations/governorates?country=${countryId}`);
-            SelectUtils.populateSelect(this.elements.governorateSelect, data?.data || []);
+            await LocationLoader.loadGovernorates(this.elements.governorateSelect, countryId);
             SelectUtils.clearSelect(this.elements.citySelect, this.translations.selectCity);
             SelectUtils.clearSelect(this.elements.shippingZoneSelect, this.translations.selectShippingCompany);
             this.hideShippingInfo();
@@ -723,7 +743,7 @@
 
             const data = await safeFetch(`/api/locations/cities?governorate=${governorateId}`);
             if (data && data.data && data.data.length > 0) {
-                SelectUtils.populateSelect(this.elements.citySelect, data.data);
+                await LocationLoader.loadCities(this.elements.citySelect, governorateId);
                 SelectUtils.clearSelect(this.elements.shippingZoneSelect, this.translations.selectShippingCompany);
                 this.hideShippingInfo();
             } else {
@@ -937,24 +957,12 @@
 
         async loadGovernorates(countryId) {
             if (!countryId || !this.elements.governorateSelect) return;
-
-            try {
-                const data = await safeFetch(`/api/locations/governorates?country=${countryId}`);
-                SelectUtils.populateSelect(this.elements.governorateSelect, data?.data || []);
-            } catch (error) {
-                console.error('Error loading governorates:', error);
-            }
+            await LocationLoader.loadGovernorates(this.elements.governorateSelect, countryId);
         },
 
         async loadCities(governorateId) {
             if (!governorateId || !this.elements.citySelect) return;
-
-            try {
-                const data = await safeFetch(`/api/locations/cities?governorate=${governorateId}`);
-                SelectUtils.populateSelect(this.elements.citySelect, data?.data || []);
-            } catch (error) {
-                console.error('Error loading cities:', error);
-            }
+            await LocationLoader.loadCities(this.elements.citySelect, governorateId);
         },
 
         async loadShippingOptions() {

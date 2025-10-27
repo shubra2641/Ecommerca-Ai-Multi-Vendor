@@ -7,10 +7,12 @@ namespace App\View\Composers;
 use App\Models\Language;
 use App\Models\ProductAttribute;
 use App\Models\ProductCategory;
+use App\Traits\ProductVariationDataTrait;
 use Illuminate\View\View;
 
 final class AdminProductFormComposer
 {
+    use ProductVariationDataTrait;
     public function compose(View $view): void
     {
         $data = $view->getData();
@@ -20,7 +22,7 @@ final class AdminProductFormComposer
         $categories = $this->getCategories();
         $pfAttrData = $this->getAttributeData();
         $pfUsedAttributes = $this->getUsedAttributes($model);
-        $pfClientVariations = $this->getClientVariations($model);
+        $pfClientVariations = $this->getVariationsData($model);
         $pfHasSerials = $this->getHasSerials($model);
         $pfLangMeta = $this->getLanguageMeta($languages, $model);
         $pfExistingSerials = $this->getExistingSerials($model);
@@ -101,56 +103,9 @@ final class AdminProductFormComposer
         return ProductAttribute::with('values')
             ->orderBy('name')
             ->get()
-            ->map(function ($a) {
-                return [
-                    'id' => $a->id,
-                    'name' => $a->name,
-                    'slug' => $a->slug,
-                    'values' => $a->values
-                        ->map(fn ($v) => [
-                            'id' => $v->id,
-                            'value' => $v->value,
-                            'slug' => $v->slug,
-                        ])
-                        ->values()
-                        ->all(),
-                ];
-            })
+            ->map(fn($a) => $this->mapAttribute($a))
             ->values()
             ->all();
-    }
-
-    private function getClientVariations($model): array
-    {
-        if (! $model) {
-            return [];
-        }
-
-        try {
-            return $model->variations->map(function ($v) {
-                return [
-                    'id' => $v->id,
-                    'active' => (bool) $v->active,
-                    'attributes' => $v->attribute_data ?? [],
-                    'image' => $v->image,
-                    'name' => $v->name,
-                    'name_translations' => $v->name_translations ?? [],
-                    'sku' => $v->sku,
-                    'price' => $v->price,
-                    'sale_price' => $v->sale_price,
-                    'sale_start' => $v->sale_start ?
-                        $v->sale_start->format('Y-m-d\\TH:i') : null,
-                    'sale_end' => $v->sale_end ?
-                        $v->sale_end->format('Y-m-d\\TH:i') : null,
-                    'manage_stock' => (bool) $v->manage_stock,
-                    'stock_qty' => $v->stock_qty,
-                    'reserved_qty' => $v->reserved_qty,
-                    'backorder' => (bool) $v->backorder,
-                ];
-            })->values()->all();
-        } catch (\Throwable $e) {
-            return [];
-        }
     }
 
     private function getLanguageMeta($languages, $model): array
