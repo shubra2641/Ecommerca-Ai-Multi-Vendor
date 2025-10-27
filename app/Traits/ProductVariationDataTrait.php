@@ -11,7 +11,7 @@ trait ProductVariationDataTrait
         }
 
         try {
-            return $model->variations->map(fn ($v) => $this->mapVariation($v))
+            return $model->variations->map(fn($v) => $this->mapVariation($v))
                 ->values()->all();
         } catch (\Throwable $e) {
             return [];
@@ -47,7 +47,7 @@ trait ProductVariationDataTrait
             'id' => $a->id,
             'name' => $a->name,
             'slug' => $a->slug,
-            'values' => $a->values->map(fn ($v) => $this->mapAttributeValue($v))
+            'values' => $a->values->map(fn($v) => $this->mapAttributeValue($v))
                 ->values()->all(),
         ];
     }
