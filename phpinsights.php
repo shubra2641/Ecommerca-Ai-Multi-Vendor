@@ -92,5 +92,5 @@ return [
     | to be used by the parallel processing.
     |
     */
-    'threads' => null,
+    'threads' => 1,
 ];

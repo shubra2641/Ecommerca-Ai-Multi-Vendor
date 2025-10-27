@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,7 +16,6 @@ class PayPalPaymentHandler implements ShouldQueue
      */
     public function __construct()
     {
-        //
     }
 
     /**
@@ -22,6 +23,5 @@ class PayPalPaymentHandler implements ShouldQueue
      */
     public function handle(): void
     {
-        //
     }
 }

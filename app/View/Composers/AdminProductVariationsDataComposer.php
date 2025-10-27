@@ -36,7 +36,7 @@ final class AdminProductVariationsDataComposer
 
     private function getAttributeData($attributes): array
     {
-        return $attributes->map(fn($a) => $this->mapAttribute($a))
+        return $attributes->map(fn ($a) => $this->mapAttribute($a))
             ->filter()
             ->values()
             ->all();
@@ -47,7 +47,7 @@ final class AdminProductVariationsDataComposer
         return Language::where('is_active', 1)
             ->orderByDesc('is_default')
             ->get()
-            ->map(fn($l) => [
+            ->map(fn ($l) => [
                 'code' => $l->code,
                 'name' => $l->name,
                 'is_default' => $l->is_default,

@@ -9,8 +9,8 @@ use App\Models\PaymentGateway;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Schema;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
-use PayPalCheckoutSdk\Core\SandboxEnvironment;
 use PayPalCheckoutSdk\Core\ProductionEnvironment;
+use PayPalCheckoutSdk\Core\SandboxEnvironment;
 use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
 
 class PaymentService
@@ -76,6 +76,69 @@ class PaymentService
         }
 
         return $masked;
+    }
+
+    public function handlePayPalReturn(Payment $payment)
+    {
+        if ($payment->method !== 'paypal' || $payment->status !== 'pending') {
+            return redirect('/')->with('error', __('Invalid payment state'));
+        }
+
+        $cfg = $payment->paymentGateway?->config ?? [];
+        $clientId = $cfg['paypal_client_id'] ?? null;
+        $secret = $cfg['paypal_secret'] ?? null;
+        $mode = ($cfg['paypal_mode'] ?? 'sandbox') === 'live' ? 'live' : 'sandbox';
+
+        $environment = $mode === 'live' ? new ProductionEnvironment($clientId, $secret) : new SandboxEnvironment($clientId, $secret);
+        $client = new PayPalHttpClient($environment);
+
+        $orderId = $payment->payload['paypal_order_id'] ?? null;
+        if (! $orderId) {
+            throw new \Exception('missing_order');
+        }
+
+        $request = new OrdersCaptureRequest($orderId);
+        $response = $client->execute($request);
+
+        if ($response->statusCode === 201) {
+            $payment->status = 'completed';
+            $payment->completed_at = now();
+            $payment->payload = array_merge($payment->payload ?? [], ['paypal_capture' => $response->result]);
+            $payment->save();
+
+            if ($payment->order) {
+                $payment->order->payment_status = 'paid';
+                $payment->order->status = 'completed';
+                $payment->order->save();
+            }
+
+            session()->forget('cart');
+            return redirect()->route('orders.show', $payment->order_id)->with('success', __('Payment completed'));
+        }
+        $payment->status = 'failed';
+        $payment->failure_reason = 'capture_failed';
+        $payment->failed_at = now();
+        $payment->save();
+
+        $this->restoreCartFromSnapshot($payment);
+        return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', __('Payment capture failed'));
+    }
+
+    public function handlePayPalCancel(Payment $payment)
+    {
+        if ($payment->method === 'paypal' && $payment->status === 'pending') {
+            $payment->status = 'failed';
+            $payment->failure_reason = 'user_cancelled';
+            $payment->failed_at = now();
+            $payment->save();
+        }
+
+        if ($payment->order_id) {
+            return redirect()->route('orders.show', $payment->order_id)->with('error', __('Payment cancelled'));
+        }
+
+        $this->restoreCartFromSnapshot($payment);
+        return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', __('Payment cancelled'));
     }
 
     private function categorizeCredentials(array $credentials): array
@@ -204,74 +267,10 @@ class PaymentService
         return false;
     }
 
-    public function handlePayPalReturn(Payment $payment)
-    {
-        if ($payment->method !== 'paypal' || $payment->status !== 'pending') {
-            return redirect('/')->with('error', __('Invalid payment state'));
-        }
-
-        $cfg = $payment->paymentGateway?->config ?? [];
-        $clientId = $cfg['paypal_client_id'] ?? null;
-        $secret = $cfg['paypal_secret'] ?? null;
-        $mode = ($cfg['paypal_mode'] ?? 'sandbox') === 'live' ? 'live' : 'sandbox';
-
-        $environment = $mode === 'live' ? new ProductionEnvironment($clientId, $secret) : new SandboxEnvironment($clientId, $secret);
-        $client = new PayPalHttpClient($environment);
-
-        $orderId = $payment->payload['paypal_order_id'] ?? null;
-        if (!$orderId) {
-            throw new \Exception('missing_order');
-        }
-
-        $request = new OrdersCaptureRequest($orderId);
-        $response = $client->execute($request);
-
-        if ($response->statusCode === 201) {
-            $payment->status = 'completed';
-            $payment->completed_at = now();
-            $payment->payload = array_merge($payment->payload ?? [], ['paypal_capture' => $response->result]);
-            $payment->save();
-
-            if ($payment->order) {
-                $payment->order->payment_status = 'paid';
-                $payment->order->status = 'completed';
-                $payment->order->save();
-            }
-
-            session()->forget('cart');
-            return redirect()->route('orders.show', $payment->order_id)->with('success', __('Payment completed'));
-        } else {
-            $payment->status = 'failed';
-            $payment->failure_reason = 'capture_failed';
-            $payment->failed_at = now();
-            $payment->save();
-
-            $this->restoreCartFromSnapshot($payment);
-            return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', __('Payment capture failed'));
-        }
-    }
-
-    public function handlePayPalCancel(Payment $payment)
-    {
-        if ($payment->method === 'paypal' && $payment->status === 'pending') {
-            $payment->status = 'failed';
-            $payment->failure_reason = 'user_cancelled';
-            $payment->failed_at = now();
-            $payment->save();
-        }
-
-        if ($payment->order_id) {
-            return redirect()->route('orders.show', $payment->order_id)->with('error', __('Payment cancelled'));
-        }
-
-        $this->restoreCartFromSnapshot($payment);
-        return view('payments.failure')->with('order', null)->with('payment', $payment)->with('error_message', __('Payment cancelled'));
-    }
-
     private function restoreCartFromSnapshot(Payment $payment): void
     {
         $snap = $payment->payload['checkout_snapshot'] ?? null;
-        if ($snap && !empty($snap['items'])) {
+        if ($snap && ! empty($snap['items'])) {
             $cart = [];
             foreach ($snap['items'] as $it) {
                 if (empty($it['product_id'])) {
