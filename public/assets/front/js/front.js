@@ -191,98 +191,6 @@
         }
     };
 
-    // Hero slider
-    const HeroSlider = {
-        init() {
-            const slider = $('.hero-slider');
-            if (!slider) return;
-
-            this.slider = slider;
-            this.track = slider.querySelector('[data-hero-slider-track]');
-            this.prevBtn = slider.querySelector('[data-hero-prev]');
-            this.nextBtn = slider.querySelector('[data-hero-next]');
-            this.dots = slider.querySelector('[data-hero-dots]');
-            this.slides = slider.querySelectorAll('.hero-slide');
-
-            if (!this.track || this.slides.length <= 1) return;
-
-            this.currentSlide = 0;
-            this.totalSlides = this.slides.length;
-            this.autoPlayInterval = 5000;
-            this.autoPlayTimer = null;
-
-            this.setupButtons();
-            this.createDots();
-            this.bindEvents();
-            this.startAutoPlay();
-        },
-
-        setupButtons() {
-            if (this.prevBtn) this.prevBtn.hidden = false;
-            if (this.nextBtn) this.nextBtn.hidden = false;
-            if (this.dots) this.dots.hidden = false;
-        },
-
-        createDots() {
-            if (!this.dots) return;
-
-            for (let i = 0; i < this.totalSlides; i++) {
-                const dot = createElement('button', {
-                    type: 'button',
-                    className: i === 0 ? 'active' : ''
-                });
-                dot.addEventListener('click', () => this.goToSlide(i));
-                this.dots.appendChild(dot);
-            }
-        },
-
-        bindEvents() {
-            if (this.nextBtn) {
-                this.nextBtn.addEventListener('click', () => this.nextSlide());
-            }
-            if (this.prevBtn) {
-                this.prevBtn.addEventListener('click', () => this.prevSlide());
-            }
-
-            this.slider.addEventListener('mouseenter', () => this.stopAutoPlay());
-            this.slider.addEventListener('mouseleave', () => this.startAutoPlay());
-        },
-
-        goToSlide(index) {
-            this.currentSlide = index;
-            this.track.scrollLeft = index * this.track.offsetWidth;
-            this.updateDots();
-        },
-
-        nextSlide() {
-            this.goToSlide((this.currentSlide + 1) % this.totalSlides);
-        },
-
-        prevSlide() {
-            this.goToSlide((this.currentSlide - 1 + this.totalSlides) % this.totalSlides);
-        },
-
-        updateDots() {
-            if (!this.dots) return;
-            const dots = this.dots.querySelectorAll('button');
-            dots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === this.currentSlide);
-            });
-        },
-
-        startAutoPlay() {
-            this.stopAutoPlay();
-            this.autoPlayTimer = setInterval(() => this.nextSlide(), this.autoPlayInterval);
-        },
-
-        stopAutoPlay() {
-            if (this.autoPlayTimer) {
-                clearInterval(this.autoPlayTimer);
-                this.autoPlayTimer = null;
-            }
-        }
-    };
-
     // Quantity selector
     const QuantitySelector = {
         init() {
@@ -853,132 +761,7 @@
         }
     };
 
-    // Address selection
-    const AddressSelection = {
-        init() {
-            this.elements = {
-                addressRadios: $$('input[name="selected_address"]'),
-                selectedAddressIdHidden: $('#selected-address-id'),
-                customerNameInput: $('#customer_name'),
-                customerEmailInput: $('#customer_email'),
-                customerPhoneInput: $('#customer_phone'),
-                customerAddressInput: $('#customer_address'),
-                countrySelect: $('#country-select'),
-                governorateSelect: $('#governorate-select'),
-                citySelect: $('#city-select')
-            };
 
-            this.translations = {
-                selectGovernorate: 'Select Governorate',
-                selectCity: 'Select City',
-                selectShippingCompany: 'Select Shipping Company'
-            };
-
-            this.currencySymbol = $('meta[name="currency-symbol"]')?.content || '$';
-
-            this.bindEvents();
-            this.initializeSelection();
-        },
-
-        bindEvents() {
-            this.elements.addressRadios.forEach(radio => {
-                radio.addEventListener('change', () => {
-                    if (radio.checked) {
-                        this.selectAddress(radio);
-                    }
-                });
-            });
-        },
-
-        async selectAddress(radio) {
-            const label = radio.closest('label');
-            if (!label) return;
-
-            const addrId = label.dataset.addrId;
-            const country = label.dataset.country;
-            const governorate = label.dataset.governorate;
-            const city = label.dataset.city;
-            const line1 = label.dataset.line1;
-            const phone = label.dataset.phone;
-            const name = label.querySelector('.address-name')?.textContent || '';
-
-            // Update form fields
-            if (this.elements.selectedAddressIdHidden) {
-                this.elements.selectedAddressIdHidden.value = addrId;
-            }
-            if (this.elements.customerNameInput) {
-                this.elements.customerNameInput.value = name;
-            }
-            if (this.elements.customerEmailInput) {
-                this.elements.customerEmailInput.value = document.querySelector('meta[name="user-email"]')?.content || '';
-            }
-            if (this.elements.customerPhoneInput) {
-                this.elements.customerPhoneInput.value = phone;
-            }
-            if (this.elements.customerAddressInput) {
-                this.elements.customerAddressInput.value = line1;
-            }
-
-            // Update location selects
-            if (this.elements.countrySelect && country) {
-                this.elements.countrySelect.value = country;
-                await this.loadGovernorates(country);
-            }
-            if (this.elements.governorateSelect && governorate) {
-                this.elements.governorateSelect.value = governorate;
-                await this.loadCities(governorate);
-            }
-            if (this.elements.citySelect && city) {
-                this.elements.citySelect.value = city;
-                await this.loadShippingOptions();
-            }
-        },
-
-        async loadGovernorates(countryId) {
-            if (!countryId || !this.elements.governorateSelect) return;
-            await LocationLoader.loadGovernorates(this.elements.governorateSelect, countryId);
-        },
-
-        async loadCities(governorateId) {
-            if (!governorateId || !this.elements.citySelect) return;
-            await LocationLoader.loadCities(this.elements.citySelect, governorateId);
-        },
-
-        async loadShippingOptions() {
-            const countryId = this.elements.countrySelect?.value;
-            const governorateId = this.elements.governorateSelect?.value;
-            const cityId = this.elements.citySelect?.value;
-
-            if (!countryId) return;
-
-            const params = new URLSearchParams({ country: countryId, all: '1' });
-            if (governorateId) params.append('governorate', governorateId);
-            if (cityId) params.append('city', cityId);
-
-            try {
-                const data = await safeFetch(`/api/new-shipping/quote?${params}`);
-                if (data && data.data) {
-                    const shippingZoneSelect = $('#shipping-zone-select');
-                    if (shippingZoneSelect) {
-                        const options = data.data.map(item => ({
-                            id: item.zone_id,
-                            name: `${item.zone_name} - ${this.currencySymbol}${parseFloat(item.price).toFixed(2)}`
-                        }));
-                        SelectUtils.populateSelect(shippingZoneSelect, options);
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading shipping options:', error);
-            }
-        },
-
-        initializeSelection() {
-            const initialChecked = $('input[name="selected_address"]:checked');
-            if (initialChecked) {
-                this.selectAddress(initialChecked);
-            }
-        }
-    };
 
     // Initialize all modules when DOM is ready
     function initializeApp() {
@@ -986,11 +769,9 @@
         CurrencySwitcher.init();
         CompareBadge.init();
         Loader.init();
-        HeroSlider.init();
         QuantitySelector.init();
         ProductVariations.init();
         CheckoutShipping.init();
-        AddressSelection.init();
     }
 
     if (document.readyState === 'loading') {
