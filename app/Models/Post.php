@@ -92,7 +92,7 @@ class Post extends Model
         // Simple conversion: **text** to <strong>text</strong>
         $text = str_replace('**', '<strong>', $this->body);
         $text = str_replace('**', '</strong>', $text);
-        
+
         // Convert line breaks to <br>
         return nl2br($text);
     }
