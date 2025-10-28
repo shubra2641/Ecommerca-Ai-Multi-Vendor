@@ -58,13 +58,17 @@ final class AdminProductFormComposer
     private function getExistingSerials($model): string
     {
         if (! $model || ! $model->has_serials) {
-            return old('serials', '');
+            return (string) old('serials', '');
         }
 
         // Get unsold serials only
-        $unsoldSerials = $model->serials()->whereNull('sold_at')->pluck('serial')->toArray();
-
-        return implode("\n", $unsoldSerials ?: []);
+        try {
+            $unsoldSerials = $model->serials()->whereNull('sold_at')->pluck('serial')->toArray();
+            $serials = is_array($unsoldSerials) ? $unsoldSerials : [];
+            return implode("\n", $serials);
+        } catch (\Exception $e) {
+            return '';
+        }
     }
 
     private function getFormSettings(array $data, $languages): array
