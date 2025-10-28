@@ -53,14 +53,18 @@ class PostController extends Controller
 
     public function update(Request $request, Post $post)
     {
-        $data = $this->validatePostData($request);
-        $payload = $this->buildPostPayload($data, $post);
+        try {
+            $data = $this->validatePostData($request);
+            $payload = $this->buildPostPayload($data, $post);
 
-        $post->update($payload);
-        $post->tags()->sync($data['tags'] ?? []);
-        $this->flushBlogCache($post);
+            $post->update($payload);
+            $post->tags()->sync($data['tags'] ?? []);
+            $this->flushBlogCache($post);
 
-        return back()->with('success', __('Post updated'));
+            return back()->with('success', __('Post updated'));
+        } catch (\Exception $e) {
+            return back()->with('error', __('Update failed: ') . $e->getMessage());
+        }
     }
 
     public function destroy(Post $post)
@@ -85,6 +89,11 @@ class PostController extends Controller
 
     public function aiSuggest(Request $request, SimpleAIService $aiService)
     {
+        // Only allow AI suggestions when target parameter is present (from AI buttons)
+        if (!$request->has('target')) {
+            return redirect()->back()->with('error', __('Invalid AI request'));
+        }
+
         // Get name from array or string
         $nameInput = $request->input('title');
 
@@ -156,7 +165,7 @@ class PostController extends Controller
 
     private function validatePostData(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'title' => 'required|array',
             'title.*' => 'nullable|string|max:190',
             'slug' => 'nullable|array',
@@ -176,6 +185,15 @@ class PostController extends Controller
             'tags.*' => 'integer|exists:tags,id',
             'featured_image_path' => 'nullable|string',
         ]);
+
+        // Ensure all multilingual fields are arrays
+        foreach (['title', 'slug', 'excerpt', 'body', 'seo_title', 'seo_description', 'seo_tags'] as $field) {
+            if (isset($data[$field]) && !is_array($data[$field])) {
+                $data[$field] = [$data[$field]];
+            }
+        }
+
+        return $data;
     }
 
     private function buildPostPayload(array $data, ?Post $post = null): array
