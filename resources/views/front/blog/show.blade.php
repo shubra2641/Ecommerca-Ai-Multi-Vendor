@@ -42,39 +42,9 @@
                     <img src="{{ \App\Helpers\GlobalHelper::storageImageUrl($post->featured_image) ?: asset('images/placeholder.png') }}" alt="{{ $post->title }}">
                 </div>
                 @endif
-                <div class="post-content content-style">
+                <div class="post-content">
                     {!! $post->body_html !!}
                 </div>
-                <style>
-                .content-style strong {
-                    font-weight: bold;
-                }
-                .content-style em {
-                    font-style: italic;
-                }
-                .content-style h1, .content-style h2, .content-style h3, .content-style h4, .content-style h5, .content-style h6 {
-                    margin: 1.5rem 0 1rem;
-                    font-weight: 600;
-                    line-height: 1.3;
-                }
-                .content-style h1 { font-size: 2rem; }
-                .content-style h2 { font-size: 1.75rem; }
-                .content-style h3 { font-size: 1.5rem; }
-                .content-style h4 { font-size: 1.25rem; }
-                .content-style h5 { font-size: 1.1rem; }
-                .content-style h6 { font-size: 1rem; }
-                .content-style ul {
-                    margin: 1rem 0;
-                    padding-left: 2rem;
-                }
-                .content-style li {
-                    margin-bottom: 0.5rem;
-                }
-                .content-style p {
-                    margin: 1rem 0;
-                    line-height: 1.6;
-                }
-                </style>
                 @if($post->tags->count())
                 <div class="post-tags">
                     @foreach($post->tags as $tag)

@@ -291,42 +291,4 @@ class PostController extends Controller
         }
     }
 
-    /**
-     * Convert simple Markdown to HTML
-     */
-    private function markdownToHtml(string $text): string
-    {
-        // Convert **text** to <strong>text</strong>
-        $text = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $text);
-        
-        // Convert *text* to <em>text</em>
-        $text = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $text);
-        
-        // Convert ## Heading to <h2>Heading</h2>
-        $text = preg_replace('/^## (.*?)$/m', '<h2>$1</h2>', $text);
-        
-        // Convert # Heading to <h1>Heading</h1>
-        $text = preg_replace('/^# (.*?)$/m', '<h1>$1</h1>', $text);
-        
-        // Convert ### Heading to <h3>Heading</h3>
-        $text = preg_replace('/^### (.*?)$/m', '<h3>$1</h3>', $text);
-        
-        // Convert #### Heading to <h4>Heading</h4>
-        $text = preg_replace('/^#### (.*?)$/m', '<h4>$1</h4>', $text);
-        
-        // Convert - item to <li>item</li>
-        $text = preg_replace('/^- (.*?)$/m', '<li>$1</li>', $text);
-        
-        // Wrap consecutive <li> elements in <ul>
-        $text = preg_replace('/(<li>.*<\/li>)/s', '<ul>$1</ul>', $text);
-        
-        // Convert line breaks to <br>
-        $text = nl2br($text);
-        
-        // Convert paragraphs (double line breaks)
-        $text = preg_replace('/<br\s*\/?>\s*<br\s*\/?>/', '</p><p>', $text);
-        $text = '<p>' . $text . '</p>';
-        
-        return $text;
-    }
 }
