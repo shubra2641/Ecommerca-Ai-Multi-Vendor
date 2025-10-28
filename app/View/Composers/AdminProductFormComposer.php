@@ -107,7 +107,7 @@ final class AdminProductFormComposer
         return ProductAttribute::with('values')
             ->orderBy('name')
             ->get()
-            ->map(fn ($a) => $this->mapAttribute($a))
+            ->map(fn($a) => $this->mapAttribute($a))
             ->values()
             ->all();
     }

@@ -1,18 +1,5 @@
 {{-- Data supplied via AdminProductFormComposer (ProductFormBuilder) --}}
 
-@if(session()->has('ai_result'))
-<div class="alert alert-info alert-dismissible fade show">
-    <h6>{{ __('AI Generated Content') }} ({{ strtoupper(session('ai_locale')) }}):</h6>
-    @foreach(session('ai_result') as $key => $value)
-    <div class="mb-2">
-        <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
-        <div class="small">{{ $value }}</div>
-    </div>
-    @endforeach
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
-
 <div class="row g-4" data-default-locale="{{ $defaultLocale }}">
     <!-- Main Content -->
     <div class="col-xl-8 col-lg-7">
@@ -60,7 +47,7 @@
                                             {{ __('AI Generate') }}
                                         </button>
                                     </label>
-                                    <textarea name="description[{{ $lang->code }}]" class="admin-form-input js-ai-description" rows="6">{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['description']) ? session('ai_result')['description'] : $pfLangMeta[$lang->code]['desc_val'] }}</textarea>
+                                    <textarea name="description[{{ $lang->code }}]" class="admin-form-input js-ai-description" rows="6">{{ old('description.'.$lang->code, $pfLangMeta[$lang->code]['desc_val']) }}</textarea>
                                 </div>
                             </div>
                             @endforeach
@@ -291,11 +278,11 @@
                         <div class="admin-form-grid">
                             <div class="admin-form-group">
                                 <label class="admin-form-label">{{ __('SEO Title') }}</label>
-                                <input name="seo_title[{{ $lang->code }}]" value="{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['seo_title']) ? session('ai_result')['seo_title'] : $pfLangMeta[$lang->code]['seo_title'] }}" class="admin-form-input">
+                                <input name="seo_title[{{ $lang->code }}]" value="{{ old('seo_title.'.$lang->code, $pfLangMeta[$lang->code]['seo_title']) }}" class="admin-form-input">
                             </div>
                             <div class="admin-form-group">
                                 <label class="admin-form-label">{{ __('SEO Keywords') }}</label>
-                                <input name="seo_keywords[{{ $lang->code }}]" value="{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['seo_tags']) ? session('ai_result')['seo_tags'] : $pfLangMeta[$lang->code]['seo_keywords'] }}" class="admin-form-input">
+                                <input name="seo_keywords[{{ $lang->code }}]" value="{{ old('seo_keywords.'.$lang->code, $pfLangMeta[$lang->code]['seo_keywords']) }}" class="admin-form-input">
                             </div>
                             <div class="admin-form-group admin-form-group-wide">
                                 <label class="admin-form-label d-flex justify-content-between align-items-center">
@@ -307,7 +294,7 @@
                                         {{ __('AI Generate') }}
                                     </button>
                                 </label>
-                                <textarea name="seo_description[{{ $lang->code }}]" class="admin-form-input js-ai-seo-description" rows="3">{{ session('ai_locale') === $lang->code && session()->has('ai_result') && isset(session('ai_result')['seo_description']) ? session('ai_result')['seo_description'] : $pfLangMeta[$lang->code]['seo_description'] }}</textarea>
+                                <textarea name="seo_description[{{ $lang->code }}]" class="admin-form-input js-ai-seo-description" rows="3">{{ old('seo_description.'.$lang->code, $pfLangMeta[$lang->code]['seo_description']) }}</textarea>
                             </div>
                         </div>
                     </div>

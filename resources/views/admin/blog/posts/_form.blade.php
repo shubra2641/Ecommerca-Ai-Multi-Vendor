@@ -39,7 +39,7 @@
         <div class="row g-3">
           <div class="col-md-8">
             <label class="form-label small fw-semibold">{{ __('Title') }}</label>
-            <input name="title[{{ $code }}]" value="{{ old('title.'.$code, $titleTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('title') : '')) }}" class="form-control form-control-sm" @if($lang->is_default) required @endif placeholder="{{ __('Post title') }}">
+            <input name="title[{{ $code }}]" value="{{ is_string(old('title.'.$code)) ? old('title.'.$code) : ($titleTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('title') : '')) }}" class="form-control form-control-sm" @if($lang->is_default) required @endif placeholder="{{ __('Post title') }}">
           </div>
           <div class="col-md-4">
             <label class="form-label small fw-semibold">{{ __('Slug') }}</label>
@@ -51,7 +51,7 @@
               <span>{{ __('Excerpt') }} <small class="text-muted" data-counter-display="excerpt-{{ $code }}">0/300</small></span>
               <button type="submit" form="blogPostForm" formaction="{{ route('admin.blog.posts.ai.suggest') }}?target=excerpt&locale={{ $code }}" formmethod="get" class="btn btn-xs btn-outline-primary"><i class="fas fa-magic"></i> AI</button>
             </label>
-            <textarea name="excerpt[{{ $code }}]" rows="2" class="form-control form-control-sm js-post-excerpt" data-counter="excerpt-{{ $code }}" data-max="300" placeholder="{{ __('Short summary (<=300 chars)') }}">{{ old('excerpt.'.$code, $excerptTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('excerpt') : '')) }}</textarea>
+            <textarea name="excerpt[{{ $code }}]" rows="2" class="form-control form-control-sm js-post-excerpt" data-counter="excerpt-{{ $code }}" data-max="300" placeholder="{{ __('Short summary (<=300 chars)') }}">{{ is_string(old('excerpt.'.$code)) ? old('excerpt.'.$code) : ($excerptTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('excerpt') : '')) }}</textarea>
           </div>
           <div class="col-12">
             <label class="form-label small fw-semibold d-flex justify-content-between align-items-center">
@@ -62,7 +62,7 @@
           </div>
           <div class="col-md-4">
             <label class="form-label small fw-semibold">{{ __('SEO Title') }}</label>
-            <input name="seo_title[{{ $code }}]" value="{{ old('seo_title.'.$code, $seoTitleTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('seo_title') : '')) }}" class="form-control form-control-sm" placeholder="{{ __('Optional SEO title') }}">
+            <input name="seo_title[{{ $code }}]" value="{{ is_string(old('seo_title.'.$code)) ? old('seo_title.'.$code) : ($seoTitleTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('seo_title') : '')) }}" class="form-control form-control-sm" placeholder="{{ __('Optional SEO title') }}">
           </div>
           <div class="col-md-4">
             <label class="form-label small fw-semibold d-flex justify-content-between align-items-center">

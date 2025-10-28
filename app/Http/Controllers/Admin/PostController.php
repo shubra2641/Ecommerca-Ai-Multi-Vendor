@@ -87,37 +87,58 @@ class PostController extends Controller
     {
         // Get name from array or string
         $nameInput = $request->input('title');
-        $locale = $request->input('locale');
 
         // Extract title from multilingual name array
         if (is_array($nameInput)) {
-            // If locale specified, try to get title from that locale
-            if ($locale && ! empty($nameInput[$locale])) {
-                $title = $nameInput[$locale];
-            } else {
-                // Otherwise get first non-empty value
-                $title = collect($nameInput)->filter()->first();
-            }
+            $title = collect($nameInput)->filter()->first();
         } else {
-            $title = $nameInput ? $nameInput : $request->input('name');
+            $title = $nameInput ?: $request->input('name');
         }
 
-        // Validate title - ensure it's a string
+        // Validate title
         if (empty($title) || ! is_string($title)) {
-            return back()->with('error', __('Please enter a name first'));
+            return back()->with('error', __('Please enter a title first'));
         }
 
-        $result = $aiService->generate($title, 'blog', $locale);
+        // Get all active languages
+        $languages = \App\Models\Language::where('is_active', 1)->get();
 
-        if (isset($result['error'])) {
-            return back()->with('error', $result['error'])->withInput();
+        // Generate content for all languages
+        $formattedData = [];
+
+        foreach ($languages as $language) {
+            $result = $aiService->generate($title, 'blog', $language->code);
+
+            if (isset($result['error'])) {
+                continue; // Skip this language if AI fails
+            }
+
+            // Add content for this language
+            if (isset($result['title'])) {
+                $formattedData['title'][$language->code] = $result['title'];
+            }
+            if (isset($result['excerpt'])) {
+                $formattedData['excerpt'][$language->code] = $result['excerpt'];
+            }
+            if (isset($result['body'])) {
+                $formattedData['body'][$language->code] = $result['body'];
+            }
+            if (isset($result['seo_title'])) {
+                $formattedData['seo_title'][$language->code] = $result['seo_title'];
+            }
+            if (isset($result['seo_description'])) {
+                $formattedData['seo_description'][$language->code] = $result['seo_description'];
+            }
+            if (isset($result['seo_tags'])) {
+                $formattedData['seo_tags'][$language->code] = $result['seo_tags'];
+            }
         }
 
-        // Merge with existing form data to preserve user input
+        // Merge with existing form data
         $existingData = $request->except(['_token']);
-        $mergedData = array_merge($existingData, $result);
+        $mergedData = array_merge($existingData, $formattedData);
 
-        return back()->with('success', __('AI generated successfully'))->withInput($mergedData);
+        return back()->with('success', __('AI generated successfully for all languages'))->withInput($mergedData);
     }
 
     private function validatePostData(Request $request): array
@@ -147,7 +168,7 @@ class PostController extends Controller
     private function buildPostPayload(array $data, ?Post $post = null): array
     {
         $fallback = config('app.fallback_locale');
-        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn ($v) => ! empty($v)) ?? '';
+        $defaultTitle = $data['title'][$fallback] ?? collect($data['title'])->first(fn($v) => ! empty($v)) ?? '';
 
         $payload = [
             'title' => $defaultTitle,
@@ -169,7 +190,7 @@ class PostController extends Controller
             if (isset($data[$field]) && is_array($data[$field])) {
                 $translations = array_filter($data[$field]);
                 $payload[$field . '_translations'] = $translations;
-                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn ($v) => ! empty($v));
+                $payload[$field] = $translations[$fallback] ?? collect($translations)->first(fn($v) => ! empty($v));
             }
         }
 
@@ -199,7 +220,7 @@ class PostController extends Controller
         $base = $slug;
         $counter = 1;
 
-        while (Post::where('slug', $slug)->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))->exists()) {
+        while (Post::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
             $slug = $base . '-' . $counter;
             $counter++;
         }

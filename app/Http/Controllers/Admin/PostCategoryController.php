@@ -43,7 +43,7 @@ class PostCategoryController extends Controller
             'parent_id' => 'nullable|exists:post_categories,id',
         ]);
         $fallback = config('app.fallback_locale');
-        $defaultName = $data['name'][$fallback] ?? collect($data['name'])->first(fn ($v) => ! empty($v));
+        $defaultName = $data['name'][$fallback] ?? collect($data['name'])->first(fn($v) => ! empty($v));
         $slugTranslations = $data['slug'] ?? [];
         foreach ($data['name'] as $loc => $v) {
             if (! isset($slugTranslations[$loc]) || $slugTranslations[$loc] === '') {
@@ -71,7 +71,7 @@ class PostCategoryController extends Controller
             if (isset($data[$f]) && is_array($data[$f])) {
                 $payload[$f . '_translations'] = array_filter($data[$f]);
                 $payload[$f] = $payload[$f . '_translations'][$fallback] ??
-                    collect($payload[$f . '_translations'])->first(fn ($value) => ! empty($value));
+                    collect($payload[$f . '_translations'])->first(fn($value) => ! empty($value));
             }
         }
         PostCategory::create($payload);
@@ -105,7 +105,7 @@ class PostCategoryController extends Controller
         ]);
         $fallback = config('app.fallback_locale');
         $defaultName = $data['name'][$fallback] ??
-            collect($data['name'])->first(fn ($value) => ! empty($value)) ??
+            collect($data['name'])->first(fn($value) => ! empty($value)) ??
             $category->getRawOriginal('name');
         $slugTranslations = $data['slug'] ?? ($category->slug_translations ?? []);
         foreach ($data['name'] as $loc => $value) {
@@ -125,7 +125,7 @@ class PostCategoryController extends Controller
             if (isset($data[$f]) && is_array($data[$f])) {
                 $payload[$f . '_translations'] = array_filter($data[$f]);
                 $payload[$f] = $payload[$f . '_translations'][$fallback] ??
-                    collect($payload[$f . '_translations'])->first(fn ($value) => ! empty($value));
+                    collect($payload[$f . '_translations'])->first(fn($value) => ! empty($value));
             }
         }
         $category->update($payload);
@@ -140,55 +140,59 @@ class PostCategoryController extends Controller
         return back()->with('success', __('Category deleted'));
     }
 
-        // AI suggestion for blog category description & SEO
+    // AI suggestion for blog category description & SEO
     public function aiSuggest(Request $request, \App\Services\AI\SimpleAIService $aiService)
     {
         // Get name from array or string
         $nameInput = $request->input('name');
-        $locale = $request->input('locale');
 
         // Extract title from multilingual name array
         if (is_array($nameInput)) {
-            // If locale specified, try to get title from that locale
-            if ($locale && ! empty($nameInput[$locale])) {
-                $title = $nameInput[$locale];
-            } else {
-                // Otherwise get first non-empty value
-                $title = collect($nameInput)->filter()->first();
-            }
+            $title = collect($nameInput)->filter()->first();
         } else {
-            $title = $nameInput ? $nameInput : $request->input('title');
+            $title = $nameInput ?: $request->input('title');
         }
 
-                // Validate title - ensure it's a string
+        // Validate title
         if (empty($title) || ! is_string($title)) {
             return back()->with('error', __('Please enter a name first'));
         }
 
-        $result = $aiService->generate($title, 'category', $locale);
+        // Get all active languages
+        $languages = \App\Models\Language::where('is_active', 1)->get();
 
-        if (isset($result['error'])) {
-            return back()->with('error', $result['error'])->withInput();
-        }
-
-        // Format AI results for the form structure
+        // Generate content for all languages
         $formattedData = [];
-        if (isset($result['description']) && $locale) {
-            $formattedData['description'][$locale] = $result['description'];
-        }
-        if (isset($result['seo_title']) && $locale) {
-            $formattedData['seo_title'][$locale] = $result['seo_title'];
-        }
-        if (isset($result['seo_description']) && $locale) {
-            $formattedData['seo_description'][$locale] = $result['seo_description'];
-        }
-        if (isset($result['seo_tags']) && $locale) {
-            $formattedData['seo_tags'][$locale] = $result['seo_tags'];
+
+        foreach ($languages as $language) {
+            $result = $aiService->generate($title, 'category', $language->code);
+
+            if (isset($result['error'])) {
+                continue; // Skip this language if AI fails
+            }
+
+            // Add content for this language
+            if (isset($result['name'])) {
+                $formattedData['name'][$language->code] = $result['name'];
+            }
+            if (isset($result['description'])) {
+                $formattedData['description'][$language->code] = $result['description'];
+            }
+            if (isset($result['seo_title'])) {
+                $formattedData['seo_title'][$language->code] = $result['seo_title'];
+            }
+            if (isset($result['seo_description'])) {
+                $formattedData['seo_description'][$language->code] = $result['seo_description'];
+            }
+            if (isset($result['seo_tags'])) {
+                $formattedData['seo_tags'][$language->code] = $result['seo_tags'];
+            }
         }
 
-        // Store AI data in session for GET requests
-        session(['ai_generated_data' => $formattedData]);
+        // Merge with existing form data
+        $existingData = $request->except(['_token']);
+        $mergedData = array_merge($existingData, $formattedData);
 
-        return back()->with('success', __('AI generated successfully'));
+        return back()->with('success', __('AI generated successfully for all languages'))->withInput($mergedData);
     }
 }

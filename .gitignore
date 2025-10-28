@@ -24,7 +24,6 @@ Thumbs.db
 
 # Ignore cursor AI rules
 .cursor/rules/codacy.mdc
-easy.zip
 
 # Custom exclusions for GitHub upload
 # Database files and directories

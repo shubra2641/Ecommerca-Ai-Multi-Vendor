@@ -94,13 +94,13 @@
                 <div class="admin-form-grid">
                     <div class="admin-form-group">
                         <label class="admin-form-label">{{ __('Name') }}</label>
-                        <input name="name_i18n[{{ $lang->code }}]" value="{{ old('name_i18n.'.$lang->code, $model->name_translations[$lang->code] ?? '') }}" class="admin-form-input" placeholder="{{ __('Translated name') }}">
+                        <input name="name_i18n[{{ $lang->code }}]" value="{{ is_string(old('name_i18n.'.$lang->code)) ? old('name_i18n.'.$lang->code) : (is_array($model->name_translations ?? null) ? ($model->name_translations[$lang->code] ?? '') : '') }}" class="admin-form-input" placeholder="{{ __('Translated name') }}">
                     </div>
                     <div class="admin-form-group">
                         <label class="admin-form-label d-flex justify-content-between align-items-center">
                             <span>{{ __('Description') }}</span>
                         </label>
-                        <textarea name="description_i18n[{{ $lang->code }}]" rows="2" class="admin-form-input js-cat-description-i18n" placeholder="{{ __('Translated description') }}">{{ old('description_i18n.'.$lang->code, $model->description_translations[$lang->code] ?? '') }}</textarea>
+                        <textarea name="description_i18n[{{ $lang->code }}]" rows="2" class="admin-form-input js-cat-description-i18n" placeholder="{{ __('Translated description') }}">{{ is_string(old('description_i18n.'.$lang->code)) ? old('description_i18n.'.$lang->code) : (is_array($model->description_translations ?? null) ? ($model->description_translations[$lang->code] ?? '') : '') }}</textarea>
                     </div>
                 </div>
             </div>
@@ -121,14 +121,14 @@
         <div class="admin-form-grid">
             <div class="admin-form-group">
                 <label class="admin-form-label">{{ __('SEO Title') }}</label>
-                <input name="seo_title" value="{{ old('seo_title',$model->seo_title ?? '') }}" class="admin-form-input">
+                <input name="seo_title" value="{{ is_string(old('seo_title')) ? old('seo_title') : ($model->seo_title ?? '') }}" class="admin-form-input">
             </div>
             <div class="admin-form-group">
                 <label class="admin-form-label">{{ __('SEO Keywords (comma)') }}</label>
-                <input name="seo_keywords" value="{{ old('seo_keywords',$model->seo_keywords ?? '') }}" class="admin-form-input">
+                <input name="seo_keywords" value="{{ is_string(old('seo_keywords')) ? old('seo_keywords') : ($model->seo_keywords ?? '') }}" class="admin-form-input">
             </div>
             <div class="admin-form-group admin-form-group-wide">
-                <textarea name="seo_description" rows="3" class="admin-form-input js-cat-description-seo">{{ old('seo_description',$model->seo_description ?? '') }}</textarea>
+                <textarea name="seo_description" rows="3" class="admin-form-input js-cat-description-seo">{{ is_string(old('seo_description')) ? old('seo_description') : ($model->seo_description ?? '') }}</textarea>
             </div>
         </div>
     </div>

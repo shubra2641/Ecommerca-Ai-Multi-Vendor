@@ -94,27 +94,49 @@ final class ProductCategoryController extends Controller
 
     public function aiSuggest(Request $request, SimpleAIService $aiService)
     {
-        $title = $request->input('name') ? $request->input('name') : $request->input('title');
-        $locale = $request->input('locale');
+        $title = $request->input('name') ?: $request->input('title');
 
         // Validate title
         if (empty($title)) {
             return back()->with('error', __('Please enter a name first'));
         }
 
-        $result = $aiService->generate($title, 'category', $locale);
+        // Get all active languages
+        $languages = \App\Models\Language::where('is_active', 1)->get();
 
-        if (isset($result['error'])) {
-            return back()->with('error', $result['error'])->withInput();
+        // Generate content for all languages
+        $formattedData = [];
+
+        foreach ($languages as $language) {
+            $result = $aiService->generate($title, 'category', $language->code);
+
+            if (isset($result['error'])) {
+                continue; // Skip this language if AI fails
+            }
+
+            // Add content for this language
+            if (isset($result['name'])) {
+                $formattedData['name_i18n'][$language->code] = $result['name'];
+            }
+            if (isset($result['description'])) {
+                $formattedData['description_i18n'][$language->code] = $result['description'];
+            }
+            if (isset($result['seo_title'])) {
+                $formattedData['seo_title'][$language->code] = $result['seo_title'];
+            }
+            if (isset($result['seo_description'])) {
+                $formattedData['seo_description'][$language->code] = $result['seo_description'];
+            }
+            if (isset($result['seo_tags'])) {
+                $formattedData['seo_keywords'][$language->code] = $result['seo_tags'];
+            }
         }
 
-        $merge = $this->buildMergeArray($result, $title, $locale);
-
-        // Merge with existing form data to preserve user input
+        // Merge with existing form data
         $existingData = $request->except(['_token']);
-        $mergedData = array_merge($existingData, $merge);
+        $mergedData = array_merge($existingData, $formattedData);
 
-        return back()->with('success', __('AI generated successfully'))->withInput($mergedData);
+        return back()->with('success', __('AI generated successfully for all languages'))->withInput($mergedData);
     }
 
     private function buildMergeArray(array $result, string $title, ?string $locale): array
@@ -124,7 +146,7 @@ final class ProductCategoryController extends Controller
             'seo_description' => $result['seo_description'] ?? null,
             'seo_keywords' => $result['seo_tags'] ?? null,
             'seo_title' => $result['seo_title'] ?? null,
-        ], fn ($value) => ! empty($value));
+        ], fn($value) => ! empty($value));
 
         // Fill translations only for the requested language
         if ($locale && ! empty($result['description'])) {

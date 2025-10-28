@@ -160,45 +160,83 @@ class ProductController extends Controller
     {
         // Get name from array or string
         $nameInput = $request->input('name');
-        $locale = $request->input('locale');
+        $requestedLocale = $request->input('locale') ?: $request->query('locale');
+
+        // Get all active languages
+        $languages = \App\Models\Language::where('is_active', 1)->get();
 
         // Extract title from multilingual name array
         if (is_array($nameInput)) {
-            // If locale specified, try to get title from that locale
-            if ($locale && ! empty($nameInput[$locale])) {
-                $title = $nameInput[$locale];
-            } else {
-                // Otherwise get first non-empty value
-                $title = collect($nameInput)->filter()->first();
-            }
+            $title = collect($nameInput)->filter()->first();
         } else {
-            $title = $nameInput ? $nameInput : $request->input('title');
+            $title = $nameInput ?: $request->input('title');
         }
 
-        // Validate title - ensure it's a string
+        // Validate title
         if (empty($title) || ! is_string($title)) {
             return back()->with('error', __('Please enter a name first'));
         }
 
-        $result = $aiService->generate($title, 'product', $locale);
+        // Generate content for all languages
+        $formattedData = [];
 
-        if (isset($result['error'])) {
-            return back()->with('error', $result['error'])->withInput();
+        foreach ($languages as $language) {
+            $result = $aiService->generate($title, 'product', $language->code);
+
+            if (isset($result['error'])) {
+                continue; // Skip this language if AI fails
+            }
+
+            // Add content for this language
+            if (isset($result['description'])) {
+                $formattedData['description'][$language->code] = $result['description'];
+            }
+            if (isset($result['short_description'])) {
+                $formattedData['short_description'][$language->code] = $result['short_description'];
+            }
+            if (isset($result['seo_title'])) {
+                $formattedData['seo_title'][$language->code] = $result['seo_title'];
+            }
+            if (isset($result['seo_description'])) {
+                $formattedData['seo_description'][$language->code] = $result['seo_description'];
+            }
+            if (isset($result['seo_tags'])) {
+                $formattedData['seo_keywords'][$language->code] = $result['seo_tags'];
+            }
         }
 
-        // Simple approach - return with message and let user copy manually
-        return back()
-            ->with('success', __('AI generated successfully'))
-            ->with('ai_result', $result)
-            ->with('ai_locale', $locale);
+        // Add physical attributes (same for all languages)
+        if (!empty($formattedData)) {
+            $firstResult = $aiService->generate($title, 'product', $languages->first()->code);
+            if (!isset($firstResult['error'])) {
+                if (isset($firstResult['width'])) {
+                    $formattedData['width'] = $firstResult['width'];
+                }
+                if (isset($firstResult['length'])) {
+                    $formattedData['length'] = $firstResult['length'];
+                }
+                if (isset($firstResult['height'])) {
+                    $formattedData['height'] = $firstResult['height'];
+                }
+                if (isset($firstResult['weight'])) {
+                    $formattedData['weight'] = $firstResult['weight'];
+                }
+            }
+        }
+
+        // Merge with existing form data
+        $existingData = $request->except(['_token']);
+        $mergedData = array_merge($existingData, $formattedData);
+
+        return back()->with('success', __('AI generated successfully for all languages'))->withInput($mergedData);
     }
 
     protected function getFormData(): array
     {
         return [
-            'categories' => Cache::remember('product_categories_ordered', 3600, fn () => ProductCategory::orderBy('name')->get()),
-            'tags' => Cache::remember('product_tags_ordered', 3600, fn () => ProductTag::orderBy('name')->get()),
-            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn () => ProductAttribute::with('values')->orderBy('name')->get()),
+            'categories' => Cache::remember('product_categories_ordered', 3600, fn() => ProductCategory::orderBy('name')->get()),
+            'tags' => Cache::remember('product_tags_ordered', 3600, fn() => ProductTag::orderBy('name')->get()),
+            'attributes' => Cache::remember('product_attributes_with_values', 3600, fn() => ProductAttribute::with('values')->orderBy('name')->get()),
         ];
     }
 
@@ -385,7 +423,7 @@ class ProductController extends Controller
                 $normalized[$locale] = is_string($val) ? trim($val) : trim((string) $val);
             }
             $base = $this->extractPrimaryTextFromArray($normalized);
-            $translations = array_filter($normalized, fn ($val) => $val !== '');
+            $translations = array_filter($normalized, fn($val) => $val !== '');
 
             return [$base, $translations ? $translations : null];
         }
@@ -508,7 +546,7 @@ class ProductController extends Controller
             $gallery = json_decode($gallery, true) ? json_decode($gallery, true) : [];
         }
 
-        return array_values(array_filter(array_map('trim', $gallery), fn ($item) => ! empty($item)));
+        return array_values(array_filter(array_map('trim', $gallery), fn($item) => ! empty($item)));
     }
 
     protected function handleNotifications(Product $product, ?bool $oldActive = null): void

@@ -224,9 +224,9 @@ class SimpleAIService
         $languageInstruction = $language ? "Write in {$language} language. " : '';
 
         return match ($type) {
-            'product' => "{$languageInstruction}Create detailed content for product '{$title}'. Return JSON with: description (max 500 chars), short_description (max 200 chars), seo_description (max 160 chars), seo_tags (comma separated keywords). Make it professional and appealing.",
-            'category' => "{$languageInstruction}Create content for product category '{$title}'. Return JSON with: description (max 300 chars), seo_title (max 60 chars), seo_description (max 160 chars), seo_tags (comma separated keywords). Make it informative and SEO-friendly.",
-            'blog' => "{$languageInstruction}Create blog content about '{$title}'. Return JSON with: content (max 1000 chars), seo_description (max 160 chars), seo_tags (comma separated keywords). Make it engaging and informative.",
+            'product' => "{$languageInstruction}Create detailed content for product '{$title}'. Return JSON with: description (max 500 chars), short_description (max 200 chars), seo_title (max 60 chars), seo_description (max 160 chars), seo_tags (comma separated keywords), width (in cm), length (in cm), height (in cm), weight (in kg). Make it professional and appealing.",
+            'category' => "{$languageInstruction}Create content for product category '{$title}'. Return JSON with: name (translated category name, max 100 chars), description (max 300 chars), seo_title (max 60 chars), seo_description (max 160 chars), seo_tags (comma separated keywords). Make it informative and SEO-friendly.",
+            'blog' => "{$languageInstruction}Create blog content about '{$title}'. Return JSON with: title (translated blog title, max 200 chars), excerpt (max 300 chars), body (max 2000 chars), seo_title (max 60 chars), seo_description (max 160 chars), seo_tags (comma separated keywords). Make it engaging and informative.",
             default => "{$languageInstruction}Create content for '{$title}'. Return JSON with: description, seo_description, seo_tags. Make it professional."
         };
     }
