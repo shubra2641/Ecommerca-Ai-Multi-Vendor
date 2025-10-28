@@ -82,6 +82,8 @@
                             <x-input-error :messages="$errors->get('password_confirmation')" class="admin-form-error" />
                         </div>
 
+                        <x-recaptcha />
+
                         <div class="admin-form-actions">
                             <button type="submit" class="admin-btn admin-btn-primary admin-btn-full" aria-label="{{ __('Register') }}">
                                 <i class="fas fa-user-plus" aria-hidden="true"></i>

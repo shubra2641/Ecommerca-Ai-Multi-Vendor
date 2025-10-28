@@ -20,8 +20,7 @@ use Illuminate\Support\Str;
 use Throwable;
 
 /**
- * Class CartController
- *
+ * Simple Cart Controller
  * Handles cart operations: listing, add/update/remove items, coupon handling
  * and wishlist moves.
  */
@@ -57,45 +56,11 @@ final class CartController extends Controller
         $data = $request->validated();
         $product = Product::findOrFail($data['product_id']);
         $qty = $data['qty'] ?? 1;
-        // enforce stock limits server-side
-        $variation = null;
-        if (! empty($data['variation_id'])) {
-            $variation = ProductVariation::find($data['variation_id']);
-            if ($variation && $variation->product_id === $product->id) {
-                // determine available for variation
-                if ($variation->manage_stock) {
-                    $available = max(0, (int) $variation->stock_qty - (int) $variation->reserved_qty);
-                    if ($available < $qty) {
-                        if ($request->wantsJson()) {
-                            return response()->json([
-                                'success' => false,
-                                'message' => __('Requested quantity exceeds available stock'),
-                                'cart_count' => count($this->getCart()),
-                            ], 400);
-                        }
 
-                        return back()->with('error', __('Requested quantity exceeds available stock'));
-                    }
-                }
-            } else {
-                $variation = null;
-            }
-        } else {
-            // simple product availability
-            if ($product->manage_stock) {
-                $available = max(0, (int) ($product->stock_qty ?? 0) - (int) ($product->reserved_qty ?? 0));
-                if ($available < $qty) {
-                    if ($request->wantsJson()) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => __('Requested quantity exceeds available stock'),
-                            'cart_count' => count($this->getCart()),
-                        ], 400);
-                    }
-
-                    return back()->with('error', __('Requested quantity exceeds available stock'));
-                }
-            }
+        // Check stock availability
+        $stockError = $this->checkStockAvailability($product, $data['variation_id'] ?? null, $qty);
+        if ($stockError) {
+            return $this->stockErrorResponse($request, $stockError);
         }
         $cart = $this->getCart();
         // Use composite key productId[:variationId] so variants are separate lines
@@ -272,7 +237,7 @@ final class CartController extends Controller
                 'displayTotal' => $displayTotal,
                 'discountedTotal' => $displayTotal,
                 'discount' => 0,
-                'currency_symbol' => $currencyContext['currencySymbol'],
+                'currency_symbol' => $currencyContext['currencySymbol'] ?? $currencyContext['currency_symbol'] ?? '$',
             ]);
         }
 
@@ -388,7 +353,7 @@ final class CartController extends Controller
         if (! $variantLabel && ! empty($variation->attribute_data)) {
             try {
                 $variantLabel = collect($variation->attribute_data)
-                    ->map(fn ($v, $k) => ucfirst($k) . ': ' . $v)
+                    ->map(fn($v, $k) => ucfirst($k) . ': ' . $v)
                     ->values()
                     ->join(', ');
             } catch (\Throwable $e) {
@@ -433,9 +398,9 @@ final class CartController extends Controller
     private function handleCurrencyConversion($items, $total, $discount): array
     {
         $currencyContext = GlobalHelper::getCurrencyContext();
-        $currentCurrency = $currencyContext['currentCurrency'];
-        $defaultCurrency = $currencyContext['defaultCurrency'];
-        $currency_symbol = $currencyContext['currencySymbol'];
+        $currentCurrency = $currencyContext['currentCurrency'] ?? null;
+        $defaultCurrency = $currencyContext['defaultCurrency'] ?? null;
+        $currency_symbol = $currencyContext['currencySymbol'] ?? $currencyContext['currency_symbol'] ?? '$';
 
         try {
             $displayTotal = GlobalHelper::convertCurrency($total, $defaultCurrency, $currentCurrency, 2);
@@ -482,9 +447,9 @@ final class CartController extends Controller
     private function calculateDisplayTotals($total, $coupon)
     {
         $currencyContext = GlobalHelper::getCurrencyContext();
-        $currentCurrency = $currencyContext['currentCurrency'];
-        $defaultCurrency = $currencyContext['defaultCurrency'];
-        $currency_symbol = $currencyContext['currencySymbol'];
+        $currentCurrency = $currencyContext['currentCurrency'] ?? null;
+        $defaultCurrency = $currencyContext['defaultCurrency'] ?? null;
+        $currency_symbol = $currencyContext['currencySymbol'] ?? $currencyContext['currency_symbol'] ?? '$';
 
         try {
             $displayTotal = GlobalHelper::convertCurrency($total, $defaultCurrency, $currentCurrency, 2);
@@ -497,5 +462,42 @@ final class CartController extends Controller
         $discount_display = round($displayTotal - $discounted_display, 2);
 
         return [$displayTotal, $discounted_display, $discount_display, $currency_symbol];
+    }
+
+    // Helper methods for cleaner code
+
+    private function checkStockAvailability(Product $product, ?int $variationId, int $qty): ?string
+    {
+        if ($variationId) {
+            $variation = ProductVariation::find($variationId);
+            if ($variation && $variation->product_id === $product->id && $variation->manage_stock) {
+                $available = max(0, (int) $variation->stock_qty - (int) $variation->reserved_qty);
+                if ($available < $qty) {
+                    return __('Requested quantity exceeds available stock');
+                }
+            }
+        } else {
+            if ($product->manage_stock) {
+                $available = max(0, (int) ($product->stock_qty ?? 0) - (int) ($product->reserved_qty ?? 0));
+                if ($available < $qty) {
+                    return __('Requested quantity exceeds available stock');
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function stockErrorResponse(Request $request, string $message)
+    {
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => $message,
+                'cart_count' => count($this->getCart()),
+            ], 400);
+        }
+
+        return back()->with('error', $message);
     }
 }

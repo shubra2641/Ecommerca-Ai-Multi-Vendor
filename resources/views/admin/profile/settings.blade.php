@@ -267,6 +267,48 @@
                             </div>
 
                             <hr />
+                            <h4 class="mt-4">{{ __('reCAPTCHA Settings') }}</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group form-check">
+                                        <input type="hidden" name="recaptcha_enabled" value="0">
+                                        <input type="checkbox" id="recaptcha_enabled" name="recaptcha_enabled" value="1"
+                                            class="form-check-input"
+                                            {{ old('recaptcha_enabled', $setting->recaptcha_enabled ?? false) ? 'checked' : '' }}>
+                                        <label for="recaptcha_enabled"
+                                            class="form-check-label">{{ __('Enable reCAPTCHA') }}</label>
+                                        <small
+                                            class="form-text text-muted">{{ __('Enable Google reCAPTCHA for login, registration, and password reset forms.') }}</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="alert alert-info py-2 px-3 w-100 mb-0 small">
+                                        <strong>{{ __('Note:') }}</strong> {{ __('You need to register your site at Google reCAPTCHA to get the API keys.') }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="recaptcha_site_key" class="form-label">{{ __('reCAPTCHA Site Key') }}</label>
+                                        <input type="text" id="recaptcha_site_key" name="recaptcha_site_key" class="form-control"
+                                            value="{{ old('recaptcha_site_key', $setting->recaptcha_site_key ?? '') }}"
+                                            placeholder="6Lc...">
+                                        <small class="form-text text-muted">{{ __('Public key for frontend forms.') }}</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="recaptcha_secret_key" class="form-label">{{ __('reCAPTCHA Secret Key') }}</label>
+                                        <input type="password" id="recaptcha_secret_key" name="recaptcha_secret_key" class="form-control"
+                                            value="{{ old('recaptcha_secret_key', $setting->recaptcha_secret_key ?? '') }}"
+                                            placeholder="6Lc...">
+                                        <small class="form-text text-muted">{{ __('Private key for server verification.') }}</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr />
                             <h4 class="mt-4">{{ __('External Payment Settings') }}</h4>
                             <div class="row">
                                 <div class="col-md-6">

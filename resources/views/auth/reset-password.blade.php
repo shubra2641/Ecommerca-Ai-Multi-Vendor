@@ -42,6 +42,8 @@
                             <x-input-error :messages="$errors->get('password_confirmation')" class="admin-form-error" />
                         </div>
 
+                        <x-recaptcha />
+
                         <div class="admin-form-actions">
                             <button type="submit" class="admin-btn admin-btn-primary admin-btn-full">
                                 <i class="fas fa-check-circle"></i>

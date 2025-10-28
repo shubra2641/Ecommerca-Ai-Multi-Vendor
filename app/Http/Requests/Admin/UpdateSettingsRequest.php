@@ -104,6 +104,10 @@ class UpdateSettingsRequest extends FormRequest
             'ai_openai_api_key' => ['nullable', 'string', 'max:255'],
             // External Payment settings
             'enable_external_payment_redirect' => ['nullable', 'in:0,1'],
+            // reCAPTCHA settings
+            'recaptcha_enabled' => ['nullable', 'in:0,1'],
+            'recaptcha_site_key' => ['nullable', 'string', 'max:255'],
+            'recaptcha_secret_key' => ['nullable', 'string', 'max:255'],
         ];
     }
 

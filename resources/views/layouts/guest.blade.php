@@ -15,6 +15,13 @@
     <link rel="stylesheet" href="{{ asset('css/local-fonts.css') }}">
     <link href="{{ asset('assets/front/css/front.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/admin/css/admin.css') }}" rel="stylesheet">
+
+    @php
+    $recaptchaService = app(\App\Services\RecaptchaService::class);
+    @endphp
+    @if($recaptchaService->isEnabled())
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @endif
 </head>
 
 <body class="guest-layout" data-font-active="{{ $selectedFont }}">

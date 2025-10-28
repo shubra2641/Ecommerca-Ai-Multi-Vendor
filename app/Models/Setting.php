@@ -43,6 +43,10 @@ class Setting extends Model
         'ai_openai_api_key',
         // External Payment
         'enable_external_payment_redirect',
+        // reCAPTCHA
+        'recaptcha_enabled',
+        'recaptcha_site_key',
+        'recaptcha_secret_key',
     ];
 
     protected $casts = [
@@ -66,6 +70,7 @@ class Setting extends Model
         'footer_labels' => 'array',
         'ai_enabled' => 'boolean',
         'enable_external_payment_redirect' => 'boolean',
+        'recaptcha_enabled' => 'boolean',
     ];
 
     /**
@@ -74,8 +79,8 @@ class Setting extends Model
     protected function seoTitle(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => $value ? htmlspecialchars_decode($value, ENT_QUOTES) : null,
-            set: fn (?string $value) => $value ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : null,
+            get: fn(?string $value) => $value ? htmlspecialchars_decode($value, ENT_QUOTES) : null,
+            set: fn(?string $value) => $value ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : null,
         );
     }
 
@@ -85,15 +90,15 @@ class Setting extends Model
     protected function seoDescription(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => $value ? htmlspecialchars_decode($value, ENT_QUOTES) : null,
-            set: fn (?string $value) => $value ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : null,
+            get: fn(?string $value) => $value ? htmlspecialchars_decode($value, ENT_QUOTES) : null,
+            set: fn(?string $value) => $value ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : null,
         );
     }
 
     protected function fontFamily(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => $value && in_array($value, [
+            get: fn(?string $value) => $value && in_array($value, [
                 // Latin Fonts
                 'Inter',
                 'Roboto',
@@ -210,8 +215,8 @@ class Setting extends Model
     protected function rights(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => $value ? htmlspecialchars_decode($value, ENT_QUOTES) : null,
-            set: fn (?string $value) => $value ? htmlspecialchars(strip_tags($value), ENT_QUOTES, 'UTF-8') : null,
+            get: fn(?string $value) => $value ? htmlspecialchars_decode($value, ENT_QUOTES) : null,
+            set: fn(?string $value) => $value ? htmlspecialchars(strip_tags($value), ENT_QUOTES, 'UTF-8') : null,
         );
     }
 
@@ -232,7 +237,7 @@ class Setting extends Model
                     return $value;
                 }
             },
-            set: fn ($value) => $value // set handled in controller (encryption)
+            set: fn($value) => $value // set handled in controller (encryption)
         );
     }
 
@@ -243,8 +248,8 @@ class Setting extends Model
     protected function enableExternalPaymentRedirect(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => isset($this->attributes['enable_external_payment_redirect']) ? (bool) $value : false,
-            set: fn ($value) => (bool) $value
+            get: fn($value) => isset($this->attributes['enable_external_payment_redirect']) ? (bool) $value : false,
+            set: fn($value) => (bool) $value
         );
     }
 
