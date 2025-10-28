@@ -131,9 +131,6 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th width="40">
-                                    <input type="checkbox" class="select-all">
-                                </th>
                                 <th>{{ __('Language') }}</th>
                                 <th>{{ __('Code') }}</th>
                                 <th>{{ __('Flag') }}</th>
@@ -147,9 +144,6 @@
                         <tbody>
                             @foreach($languages as $language)
                             <tr>
-                                <td>
-                                    <input type="checkbox" class="row-checkbox" value="{{ $language->id }}">
-                                </td>
                                 <td>
                                     <div class="user-info">
                                         <div class="user-avatar">
@@ -246,29 +240,6 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Bulk Actions -->
-                <div class="bulk-actions">
-                    <div class="bulk-actions-content">
-                        <span class="selected-text">
-                            {{ __('Selected') }}: <span class="selected-count">0</span> {{ __('items') }}
-                        </span>
-                        <div class="bulk-buttons">
-                            <button type="button" class="btn btn-sm btn-success" data-action="bulk-activate">
-                                <i class="fas fa-check-circle"></i>
-                                {{ __('Activate') }}
-                            </button>
-                            <button type="button" class="btn btn-sm btn-warning" data-action="bulk-deactivate">
-                                <i class="fas fa-times"></i>
-                                {{ __('Deactivate') }}
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" data-action="bulk-delete">
-                                <i class="fas fa-trash"></i>
-                                {{ __('Delete') }}
-                            </button>
-                        </div>
-                    </div>
                 </div>
 
                 @if($languages->hasPages())

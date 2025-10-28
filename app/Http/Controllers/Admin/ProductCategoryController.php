@@ -107,28 +107,44 @@ final class ProductCategoryController extends Controller
         // Generate content for all languages
         $formattedData = [];
 
+        $errors = [];
         foreach ($languages as $language) {
-            $result = $aiService->generate($title, 'category', $language->code);
+            try {
+                $result = $aiService->generate($title, 'category', $language->code);
 
-            if (isset($result['error'])) {
-                continue; // Skip this language if AI fails
-            }
+                if (isset($result['error'])) {
+                    $errors[] = "Language {$language->name}: " . $result['error'];
+                    continue; // Skip this language if AI fails
+                }
 
-            // Add content for this language
-            if (isset($result['name'])) {
-                $formattedData['name_i18n'][$language->code] = $result['name'];
+                // Add content for this language
+                if (isset($result['name'])) {
+                    $formattedData['name_i18n'][$language->code] = $result['name'];
+                }
+                if (isset($result['description'])) {
+                    $formattedData['description_i18n'][$language->code] = $result['description'];
+                }
+                if (isset($result['seo_title'])) {
+                    $formattedData['seo_title'][$language->code] = $result['seo_title'];
+                }
+                if (isset($result['seo_description'])) {
+                    $formattedData['seo_description'][$language->code] = $result['seo_description'];
+                }
+                if (isset($result['seo_tags'])) {
+                    $formattedData['seo_keywords'][$language->code] = $result['seo_tags'];
+                }
+            } catch (\Exception $e) {
+                $errors[] = "Language {$language->name}: " . $e->getMessage();
             }
-            if (isset($result['description'])) {
-                $formattedData['description_i18n'][$language->code] = $result['description'];
-            }
-            if (isset($result['seo_title'])) {
-                $formattedData['seo_title'][$language->code] = $result['seo_title'];
-            }
-            if (isset($result['seo_description'])) {
-                $formattedData['seo_description'][$language->code] = $result['seo_description'];
-            }
-            if (isset($result['seo_tags'])) {
-                $formattedData['seo_keywords'][$language->code] = $result['seo_tags'];
+        }
+
+        // Add base description (for default language)
+        if (!empty($formattedData) && $languages->isNotEmpty()) {
+            $defaultLanguage = $languages->where('is_default', true)->first() ?: $languages->first();
+            $baseResult = $aiService->generate($title, 'category', $defaultLanguage->code);
+
+            if (!isset($baseResult['error']) && isset($baseResult['description'])) {
+                $formattedData['description'] = $baseResult['description'];
             }
         }
 
@@ -136,7 +152,14 @@ final class ProductCategoryController extends Controller
         $existingData = $request->except(['_token']);
         $mergedData = array_merge($existingData, $formattedData);
 
-        return back()->with('success', __('AI generated successfully for all languages'))->withInput($mergedData);
+        // Prepare success message
+        $successMessage = __('AI generated successfully for all languages');
+        if (!empty($errors)) {
+            $errorCount = count($errors);
+            $successMessage .= " " . __('Some languages failed') . " ({$errorCount} " . __('errors') . ")";
+        }
+
+        return back()->with('success', $successMessage)->withInput($mergedData);
     }
 
     private function buildMergeArray(array $result, string $title, ?string $locale): array

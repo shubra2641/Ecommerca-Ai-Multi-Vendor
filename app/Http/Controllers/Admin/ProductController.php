@@ -180,28 +180,34 @@ class ProductController extends Controller
         // Generate content for all languages
         $formattedData = [];
 
+        $errors = [];
         foreach ($languages as $language) {
-            $result = $aiService->generate($title, 'product', $language->code);
+            try {
+                $result = $aiService->generate($title, 'product', $language->code);
 
-            if (isset($result['error'])) {
-                continue; // Skip this language if AI fails
-            }
+                if (isset($result['error'])) {
+                    $errors[] = "Language {$language->name}: " . $result['error'];
+                    continue;
+                }
 
-            // Add content for this language
-            if (isset($result['description'])) {
-                $formattedData['description'][$language->code] = $result['description'];
-            }
-            if (isset($result['short_description'])) {
-                $formattedData['short_description'][$language->code] = $result['short_description'];
-            }
-            if (isset($result['seo_title'])) {
-                $formattedData['seo_title'][$language->code] = $result['seo_title'];
-            }
-            if (isset($result['seo_description'])) {
-                $formattedData['seo_description'][$language->code] = $result['seo_description'];
-            }
-            if (isset($result['seo_tags'])) {
-                $formattedData['seo_keywords'][$language->code] = $result['seo_tags'];
+                // Add content for this language
+                if (isset($result['description'])) {
+                    $formattedData['description'][$language->code] = $result['description'];
+                }
+                if (isset($result['short_description'])) {
+                    $formattedData['short_description'][$language->code] = $result['short_description'];
+                }
+                if (isset($result['seo_title'])) {
+                    $formattedData['seo_title'][$language->code] = $result['seo_title'];
+                }
+                if (isset($result['seo_description'])) {
+                    $formattedData['seo_description'][$language->code] = $result['seo_description'];
+                }
+                if (isset($result['seo_tags'])) {
+                    $formattedData['seo_keywords'][$language->code] = $result['seo_tags'];
+                }
+            } catch (\Exception $e) {
+                $errors[] = "Language {$language->name}: " . $e->getMessage();
             }
         }
 
@@ -228,7 +234,14 @@ class ProductController extends Controller
         $existingData = $request->except(['_token']);
         $mergedData = array_merge($existingData, $formattedData);
 
-        return back()->with('success', __('AI generated successfully for all languages'))->withInput($mergedData);
+        // Prepare success message
+        $successMessage = __('AI generated successfully for all languages');
+        if (!empty($errors)) {
+            $errorCount = count($errors);
+            $successMessage .= " " . __('Some languages failed') . " ({$errorCount} " . __('errors') . ")";
+        }
+
+        return back()->with('success', $successMessage)->withInput($mergedData);
     }
 
     protected function getFormData(): array

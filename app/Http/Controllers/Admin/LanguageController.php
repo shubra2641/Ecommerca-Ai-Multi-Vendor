@@ -227,6 +227,7 @@ final class LanguageController extends Controller
         try {
             $aiService = app(\App\Services\AI\SimpleAIService::class);
             $translatedKeys = [];
+            $errors = [];
 
             foreach ($request->translations as $key => $value) {
                 // Skip empty keys
@@ -234,26 +235,56 @@ final class LanguageController extends Controller
                     continue;
                 }
 
-                // Generate translation for this key
-                $result = $aiService->generate($key, 'translation', $language->code);
-
-                if (isset($result['translation'])) {
-                    $translatedKeys[$key] = $result['translation'];
-                } elseif (isset($result['description'])) {
-                    // Fallback to description if translation key not found
-                    $translatedKeys[$key] = $result['description'];
-                } else {
-                    // Keep original value if AI fails
-                    $translatedKeys[$key] = $value;
+                try {
+                    // Generate translation for this key
+                    $result = $aiService->generate($key, 'translation', $language->code);
+                    
+                    if (isset($result['error'])) {
+                        $errors[] = "Key '{$key}': " . $result['error'];
+                        $translatedKeys[$key] = $value; // Keep original value
+                        continue;
+                    }
+                    
+                    if (isset($result['translation'])) {
+                        $translatedKeys[$key] = $result['translation'];
+                    } elseif (isset($result['description'])) {
+                        // Fallback to description if translation key not found
+                        $translatedKeys[$key] = $result['description'];
+                    } else {
+                        // Keep original value if AI fails
+                        $translatedKeys[$key] = $value;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Key '{$key}': " . $e->getMessage();
+                    $translatedKeys[$key] = $value; // Keep original value
                 }
             }
 
-            // Save the translated keys
+            // Save the translated keys (even if some failed)
             $this->saveTranslations($language->code, $translatedKeys);
 
-            return redirect()->back()->with('success', __('All translations have been updated with AI!'));
+            // Prepare success message
+            $successMessage = __('Translations updated successfully!');
+            if (!empty($errors)) {
+                $errorCount = count($errors);
+                $successMessage .= " " . __('Some translations failed') . " ({$errorCount} " . __('errors') . ")";
+            }
+
+            return redirect()->back()->with('success', $successMessage);
+
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', __('Translation failed: ') . $e->getMessage());
+            // Check for specific error types
+            $errorMessage = $e->getMessage();
+            
+            if (str_contains($errorMessage, 'quota') || str_contains($errorMessage, 'limit')) {
+                return redirect()->back()->with('error', __('AI translation limit exceeded. Please try again later or check your API quota.'));
+            } elseif (str_contains($errorMessage, 'timeout') || str_contains($errorMessage, 'time')) {
+                return redirect()->back()->with('error', __('AI translation request timed out. Please try again.'));
+            } elseif (str_contains($errorMessage, 'api') || str_contains($errorMessage, 'key')) {
+                return redirect()->back()->with('error', __('AI API error. Please check your API key and settings.'));
+            } else {
+                return redirect()->back()->with('error', __('Translation failed: ') . $errorMessage);
+            }
         }
     }
 

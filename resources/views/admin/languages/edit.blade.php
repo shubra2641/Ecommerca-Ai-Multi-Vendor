@@ -136,42 +136,6 @@
                     </form>
                 </div>
             </div>
-
-            <!-- Language Statistics & Actions -->
-            <div class="admin-modern-card">
-                <div class="admin-card-header">
-                    <h2 class="admin-card-title">
-                        <i class="fas fa-chart-bar"></i>
-                        {{ __('Language Statistics') }}
-                    </h2>
-                </div>
-                <div class="admin-card-body">
-                    <div class="admin-info-grid">
-                        <div class="admin-info-item">
-                            <div class="admin-info-label">
-                                <i class="fas fa-file-alt"></i>
-                                {{ __('Total Translations') }}
-                            </div>
-                            <div class="admin-info-value">{{ $language->translations_count ?? 0 }}</div>
-                        </div>
-                        <div class="admin-info-item">
-                            <div class="admin-info-label">
-                                <i class="fas fa-calendar"></i>
-                                {{ __('Created') }}
-                            </div>
-                            <div class="admin-info-value">{{ $language->created_at->format('M d, Y') }}</div>
-                        </div>
-                        <div class="admin-info-item">
-                            <div class="admin-info-label">
-                                <i class="fas fa-clock"></i>
-                                {{ __('Last Updated') }}
-                            </div>
-                            <div class="admin-info-value">{{ $language->updated_at->format('M d, Y') }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 </section>
