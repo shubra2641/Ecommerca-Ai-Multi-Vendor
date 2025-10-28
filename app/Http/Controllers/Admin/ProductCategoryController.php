@@ -109,7 +109,7 @@ final class ProductCategoryController extends Controller
 
         $errors = [];
         $defaultLanguage = $languages->where('is_default', true)->first() ?: $languages->first();
-        
+
         foreach ($languages as $language) {
             try {
                 $result = $aiService->generate($title, 'category', $language->code);
@@ -126,7 +126,7 @@ final class ProductCategoryController extends Controller
                 if (isset($result['description'])) {
                     $formattedData['description_i18n'][$language->code] = $result['description'];
                 }
-                
+
                 // Store SEO data from default language only (since SEO is not translatable for product categories)
                 if ($language->code === $defaultLanguage->code) {
                     if (isset($result['seo_title'])) {
@@ -151,7 +151,7 @@ final class ProductCategoryController extends Controller
 
             if (!isset($baseResult['error']) && isset($baseResult['description'])) {
                 $formattedData['description'] = $baseResult['description'];
-                
+
                 // Also set SEO data from base result if not already set
                 if (!isset($formattedData['seo_title']) && isset($baseResult['seo_title'])) {
                     $formattedData['seo_title'] = $baseResult['seo_title'];
