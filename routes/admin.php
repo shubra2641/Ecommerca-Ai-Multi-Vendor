@@ -158,6 +158,7 @@ Route::middleware([
         )->name('translations.add');
         Route::delete('/{language}/translations/delete', [AdminLanguageController::class, 'deleteTranslation'])
             ->name('translations.delete');
+        Route::post('/{language}/translations/ai-translate', [AdminLanguageController::class, 'aiTranslate'])->name('translations.ai-translate');
         Route::post('/{language}/set-default', [AdminLanguageController::class, 'setDefault'])->name('set-default');
     });
 

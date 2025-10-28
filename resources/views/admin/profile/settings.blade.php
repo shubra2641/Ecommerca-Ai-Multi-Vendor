@@ -197,7 +197,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="ai_openai_api_key" class="form-label">{{ __('AI API Key') }}</label>
-                                        <input type="text" id="ai_openai_api_key" name="ai_openai_api_key" class="form-control" value="{{ old('ai_openai_api_key', $setting->ai_openai_api_key ? '••••••••' : '') }}" placeholder="sk-... or grok-...">
+                                        <input type="text" id="ai_openai_api_key" name="ai_openai_api_key" class="form-control" value="{{ old('ai_openai_api_key', $setting->ai_openai_api_key ?? '') }}" placeholder="sk-... or grok-...">
                                         <div class="form-text small">{{ __('Stored encrypted. Never expose to vendors.') }}</div>
                                     </div>
                                 </div>

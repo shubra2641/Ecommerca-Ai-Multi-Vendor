@@ -60,14 +60,14 @@
                     </div>
                 </div>
                 <div class="admin-stat-content">
-                    <div class="admin-stat-value" data-countup data-target="{{ (int)$languages->where('active', true)->count() }}">{{ $languages->where('active', true)->count() }}</div>
+                    <div class="admin-stat-value" data-countup data-target="{{ (int)$languages->where('is_active', true)->count() }}">{{ $languages->where('is_active', true)->count() }}</div>
                     <div class="admin-stat-label">{{ __('Active Languages') }}</div>
-                    <div class="admin-stat-description">{{ number_format((($languages->where('active', true)->count() / max($languages->count(), 1)) * 100), 1) }}% {{ __('active') }}</div>
+                    <div class="admin-stat-description">{{ number_format((($languages->where('is_active', true)->count() / max($languages->count(), 1)) * 100), 1) }}% {{ __('active') }}</div>
                 </div>
                 <div class="admin-stat-footer">
                     <div class="admin-stat-trend admin-stat-trend-up">
                         <i class="fas fa-chart-line"></i>
-                        <span>{{ number_format((($languages->where('active', true)->count() / max($languages->count(), 1)) * 100), 1) }}% {{ __('active') }}</span>
+                        <span>{{ number_format((($languages->where('is_active', true)->count() / max($languages->count(), 1)) * 100), 1) }}% {{ __('active') }}</span>
                     </div>
                 </div>
             </div>
@@ -176,7 +176,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($language->active)
+                                    @if($language->is_active)
                                     <span class="badge bg-success">
                                         <i class="fas fa-check-circle"></i>
                                         {{ __('Active') }}

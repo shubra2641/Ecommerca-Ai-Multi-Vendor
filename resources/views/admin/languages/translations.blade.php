@@ -74,14 +74,16 @@
                         </h2>
                         @if(count($translations) > 0)
                         <div class="admin-card-actions">
-                            <button type="button" class="admin-btn admin-btn-small admin-btn" id="expandAll">
-                                <i class="fas fa-expand-arrows-alt"></i>
-                                {{ __('Expand All') }}
-                            </button>
-                            <button type="button" class="admin-btn admin-btn-small admin-btn" id="collapseAll">
-                                <i class="fas fa-compress-arrows-alt"></i>
-                                {{ __('Collapse All') }}
-                            </button>
+                            <form action="{{ route('admin.languages.translations.ai-translate', $language) }}" method="POST" class="d-inline">
+                                @csrf
+                                @foreach($translations as $key => $value)
+                                <input type="hidden" name="translations[{{ $key }}]" value="{{ $value }}">
+                                @endforeach
+                                <button type="submit" class="admin-btn admin-btn-small admin-btn-primary">
+                                    <i class="fas fa-magic"></i>
+                                    {{ __('AI Translate All') }}
+                                </button>
+                            </form>
                         </div>
                         @endif
                     </div>
@@ -98,7 +100,7 @@
                         </div>
                     </div>
 
-                    <form action="{{ route('admin.languages.translations.update', $language) }}" method="POST" class="admin-form">
+                    <form id="translationsForm" action="{{ route('admin.languages.translations.update', $language) }}" method="POST" class="admin-form">
                         @csrf
                         @method('PUT')
 
@@ -161,4 +163,5 @@
     @method('DELETE')
     <input type="hidden" name="key" id="deleteKey">
 </form>
+
 @endsection

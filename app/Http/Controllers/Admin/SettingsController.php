@@ -143,34 +143,45 @@ class SettingsController extends Controller
             }
         }
 
+        // Only update fields that have actually changed
+        $changedData = [];
+        foreach ($data as $key => $value) {
+            if ($setting->$key !== $value) {
+                $changedData[$key] = $value;
+            }
+        }
+
         // Prevent writing unknown columns (some installs may lack newly added columns)
         if (Schema::hasColumn('settings', 'enable_external_payment_redirect')) {
-            $setting->fill($data);
+            $setting->fill($changedData);
         } else {
             // Remove the key to avoid QueryException when saving
-            $dataWithoutMissing = $data;
-            unset($dataWithoutMissing['enable_external_payment_redirect']);
-            $setting->fill($dataWithoutMissing);
+            unset($changedData['enable_external_payment_redirect']);
+            $setting->fill($changedData);
         }
-        // AI settings handling
+        // AI settings handling - only update if changed
         if ($request->has('ai_enabled')) {
-            $setting->ai_enabled = (bool) $request->input('ai_enabled');
+            $newAiEnabled = (bool) $request->input('ai_enabled');
+            if ($setting->ai_enabled !== $newAiEnabled) {
+                $setting->ai_enabled = $newAiEnabled;
+            }
         }
         if ($request->filled('ai_provider')) {
-            $setting->ai_provider = $request->input('ai_provider');
+            $newProvider = $request->input('ai_provider');
+            if ($setting->ai_provider !== $newProvider) {
+                $setting->ai_provider = $newProvider;
+            }
         } elseif ($request->has('ai_provider') && $request->input('ai_provider') === '') {
-            $setting->ai_provider = null;
+            if ($setting->ai_provider !== null) {
+                $setting->ai_provider = null;
+            }
         }
-        // API key: ignore masked placeholder (••••••••) so existing key stays
+        // API key: only update if new key provided (not masked placeholder)
         if ($request->has('ai_openai_api_key')) {
             $rawKey = trim((string) $request->input('ai_openai_api_key'));
-            if ($rawKey !== '' && ! str_starts_with($rawKey, '••••')) {
-                try {
-                    $setting->ai_openai_api_key = encrypt($rawKey);
-                } catch (\Throwable $e) {
-                    // Fallback to plain if encryption fails (log for later)
-                    $setting->ai_openai_api_key = $rawKey;
-                }
+            if ($rawKey !== '' && ! str_starts_with($rawKey, '••••') && $setting->ai_openai_api_key !== $rawKey) {
+                // Store as plain text (not encrypted) for easier management
+                $setting->ai_openai_api_key = $rawKey;
             }
         }
         $setting->save();

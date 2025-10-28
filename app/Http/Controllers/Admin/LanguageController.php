@@ -18,7 +18,15 @@ final class LanguageController extends Controller
             ->orderBy('name')
             ->paginate(10);
 
-        return view('admin.languages.index', compact('languages'));
+        // Add translations count manually
+        $languages->getCollection()->transform(function ($language) {
+            $language->translations_count = $this->getLanguageTranslationsCount($language->code);
+            return $language;
+        });
+
+        $totalTranslations = $this->getTotalTranslations();
+
+        return view('admin.languages.index', compact('languages', 'totalTranslations'));
     }
 
     public function create()
@@ -95,6 +103,32 @@ final class LanguageController extends Controller
             ->with('success', __('Default language updated successfully'));
     }
 
+    public function setDefault(Request $request, Language $language): \Illuminate\Http\RedirectResponse
+    {
+        return $this->makeDefault($language);
+    }
+
+    public function activate(Language $language): \Illuminate\Http\RedirectResponse
+    {
+        $language->update(['is_active' => true]);
+
+        return redirect()->route('admin.languages.index')
+            ->with('success', __('Language activated successfully'));
+    }
+
+    public function deactivate(Language $language): \Illuminate\Http\RedirectResponse
+    {
+        if ($language->is_default) {
+            return redirect()->route('admin.languages.index')
+                ->with('error', __('Cannot deactivate default language'));
+        }
+
+        $language->update(['is_active' => false]);
+
+        return redirect()->route('admin.languages.index')
+            ->with('success', __('Language deactivated successfully'));
+    }
+
     private function handleDefaultLanguage(bool $setDefault): void
     {
         if ($setDefault) {
@@ -134,5 +168,131 @@ final class LanguageController extends Controller
         }
 
         return $request->validate($rules);
+    }
+
+    public function translations(Language $language)
+    {
+        $translations = $this->getTranslations($language->code);
+
+        return view('admin.languages.translations', compact('language', 'translations'));
+    }
+
+    public function updateTranslations(Request $request, Language $language)
+    {
+        $request->validate([
+            'translations' => 'required|array',
+            'translations.*' => 'string',
+        ]);
+
+        $this->saveTranslations($language->code, $request->translations);
+
+        return redirect()->back()->with('success', __('Translations updated successfully'));
+    }
+
+    public function addTranslation(Request $request, Language $language)
+    {
+        $request->validate([
+            'key' => 'required|string|max:255',
+            'value' => 'required|string',
+        ]);
+
+        $translations = $this->getTranslations($language->code);
+        $translations[$request->key] = $request->value;
+
+        $this->saveTranslations($language->code, $translations);
+
+        return redirect()->back()->with('success', __('Translation added successfully'));
+    }
+
+    public function deleteTranslation(Request $request, Language $language)
+    {
+        $request->validate([
+            'key' => 'required|string',
+        ]);
+
+        $translations = $this->getTranslations($language->code);
+        unset($translations[$request->key]);
+
+        $this->saveTranslations($language->code, $translations);
+
+        return redirect()->back()->with('success', __('Translation deleted successfully'));
+    }
+
+    public function aiTranslate(Request $request, Language $language)
+    {
+        $request->validate([
+            'translations' => 'required|array',
+        ]);
+
+        try {
+            $aiService = app(\App\Services\AI\SimpleAIService::class);
+            $translatedKeys = [];
+
+            foreach ($request->translations as $key => $value) {
+                // Skip empty keys
+                if (empty($key)) {
+                    continue;
+                }
+
+                // Generate translation for this key
+                $result = $aiService->generate($key, 'translation', $language->code);
+
+                if (isset($result['translation'])) {
+                    $translatedKeys[$key] = $result['translation'];
+                } elseif (isset($result['description'])) {
+                    // Fallback to description if translation key not found
+                    $translatedKeys[$key] = $result['description'];
+                } else {
+                    // Keep original value if AI fails
+                    $translatedKeys[$key] = $value;
+                }
+            }
+
+            // Save the translated keys
+            $this->saveTranslations($language->code, $translatedKeys);
+
+            return redirect()->back()->with('success', __('All translations have been updated with AI!'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', __('Translation failed: ') . $e->getMessage());
+        }
+    }
+
+    private function getTranslations(string $langCode): array
+    {
+        $path = resource_path("lang/{$langCode}.json");
+
+        if (!File::exists($path)) {
+            return [];
+        }
+
+        $content = File::get($path);
+        $translations = json_decode($content, true);
+
+        return is_array($translations) ? $translations : [];
+    }
+
+    private function saveTranslations(string $langCode, array $translations): void
+    {
+        $path = resource_path("lang/{$langCode}.json");
+        $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
+        File::put($path, json_encode($translations, $options));
+    }
+
+    private function getLanguageTranslationsCount(string $langCode): int
+    {
+        $translations = $this->getTranslations($langCode);
+        return count($translations);
+    }
+
+    private function getTotalTranslations(): int
+    {
+        $total = 0;
+        $languages = Language::where('is_active', true)->get();
+
+        foreach ($languages as $language) {
+            $total += $this->getLanguageTranslationsCount($language->code);
+        }
+
+        return $total;
     }
 }
