@@ -214,7 +214,7 @@ Route::middleware([
             Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
             Route::post('/{post}/publish', [PostController::class, 'publishToggle'])->name('publish');
             // AI assist for post content (title/excerpt/body/seo)
-            Route::match(['get', 'post'], '/ai/suggest', [PostController::class, 'aiSuggest'])
+            Route::match(['get', 'post', 'put'], '/ai/suggest', [PostController::class, 'aiSuggest'])
                 ->name('ai.suggest');
         });
         // Categories
@@ -226,7 +226,7 @@ Route::middleware([
             Route::put('/{category}', [PostCategoryController::class, 'update'])->name('update');
             Route::delete('/{category}', [PostCategoryController::class, 'destroy'])->name('destroy');
             // AI assist for blog category description & SEO
-            Route::match(['get', 'post'], '/ai/suggest', [PostCategoryController::class, 'aiSuggest'])
+            Route::match(['get', 'post', 'put'], '/ai/suggest', [PostCategoryController::class, 'aiSuggest'])
                 ->name('ai.suggest');
         });
 
@@ -393,7 +393,7 @@ Route::middleware(['web', 'auth', 'role:admin', 'can:access-admin'])
         )->name('product-attributes.values.destroy');
         Route::resource('products', ProductController::class);
         Route::post('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggleStatus');
-        Route::match(['get', 'post'], 'ai/suggest', [ProductController::class, 'aiSuggest'])
+        Route::match(['get', 'post', 'put'], 'ai/suggest', [ProductController::class, 'aiSuggest'])
             ->name('products.ai.suggest');
         // vendor product approvals (path: /admin/products/pending-review)
         Route::get('pending-review', [ProductApprovalController::class, 'pending'])->name('products.pending');
