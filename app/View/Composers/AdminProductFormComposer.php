@@ -64,7 +64,7 @@ final class AdminProductFormComposer
         // Get unsold serials only
         $unsoldSerials = $model->serials()->whereNull('sold_at')->pluck('serial')->toArray();
 
-        return implode("\n", $unsoldSerials);
+        return implode("\n", $unsoldSerials ?: []);
     }
 
     private function getFormSettings(array $data, $languages): array
