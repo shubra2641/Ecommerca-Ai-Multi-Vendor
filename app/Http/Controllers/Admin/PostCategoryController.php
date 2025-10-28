@@ -186,10 +186,9 @@ class PostCategoryController extends Controller
             $formattedData['seo_tags'][$locale] = $result['seo_tags'];
         }
 
-        // Merge with existing form data to preserve user input
-        $existingData = $request->except(['_token']);
-        $mergedData = array_merge($existingData, $formattedData);
+        // Store AI data in session for GET requests
+        session(['ai_generated_data' => $formattedData]);
 
-        return back()->with('success', __('AI generated successfully'))->withInput($mergedData);
+        return back()->with('success', __('AI generated successfully'));
     }
 }

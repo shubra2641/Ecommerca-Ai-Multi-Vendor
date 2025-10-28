@@ -21,6 +21,7 @@
       </ul>
     </div>
     <div class="tab-content p-3 border-top">
+      @php($aiData = session('ai_generated_data', []))
       @foreach($langs as $i=>$lang)
       @php($code = $lang->code)
       @php($nameTranslations = isset($category) ? ($category->name_translations ?? []) : [])
@@ -47,27 +48,28 @@
               <span>{{ __('Description') }}</span>
               <button type="submit" form="category-form-enhanced" formaction="{{ route('admin.blog.categories.ai.suggest') }}?target=description&locale={{ $code }}" formmethod="get" class="btn btn-xs btn-outline-primary"><i class="fas fa-magic"></i> AI</button>
             </label>
-            <textarea name="description[{{ $code }}]" rows="3" class="form-control form-control-sm js-blog-cat-description" placeholder="{{ __('Short descriptive text about this category') }}">{{ old('description.'.$code, $descTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('description') : '')) }}</textarea>
+            <textarea name="description[{{ $code }}]" rows="3" class="form-control form-control-sm js-blog-cat-description" placeholder="{{ __('Short descriptive text about this category') }}">{{ $aiData['description'][$code] ?? old('description.'.$code, $descTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('description') : '')) }}</textarea>
           </div>
           <div class="col-md-6">
             <label class="form-label small fw-semibold">{{ __('SEO Title') }}</label>
-            <input name="seo_title[{{ $code }}]" value="{{ old('seo_title.'.$code, $seoTitleTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('seo_title') : '')) }}" class="form-control form-control-sm" placeholder="{{ __('Optional SEO title') }}">
+            <input name="seo_title[{{ $code }}]" value="{{ $aiData['seo_title'][$code] ?? old('seo_title.'.$code, $seoTitleTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('seo_title') : '')) }}" class="form-control form-control-sm" placeholder="{{ __('Optional SEO title') }}">
           </div>
           <div class="col-md-6">
             <label class="form-label small fw-semibold d-flex justify-content-between align-items-center">
               <span>{{ __('SEO Description') }}</span>
               <button type="submit" form="category-form-enhanced" formaction="{{ route('admin.blog.categories.ai.suggest') }}?target=seo&locale={{ $code }}" formmethod="get" class="btn btn-xs btn-outline-primary"><i class="fas fa-magic"></i> AI</button>
             </label>
-            <input name="seo_description[{{ $code }}]" value="{{ old('seo_description.'.$code, $seoDescTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('seo_description') : '')) }}" class="form-control form-control-sm js-blog-cat-seo-description" placeholder="{{ __('Meta description (<=160 chars)') }}">
+            <input name="seo_description[{{ $code }}]" value="{{ $aiData['seo_description'][$code] ?? old('seo_description.'.$code, $seoDescTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('seo_description') : '')) }}" class="form-control form-control-sm js-blog-cat-seo-description" placeholder="{{ __('Meta description (<=160 chars)') }}">
           </div>
           <div class="col-md-6">
             <label class="form-label small fw-semibold">{{ __('SEO Tags') }}</label>
-            <input name="seo_tags[{{ $code }}]" value="{{ old('seo_tags.'.$code, $seoTagsTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('seo_tags') : '')) }}" class="form-control form-control-sm" placeholder="tag1,tag2">
+            <input name="seo_tags[{{ $code }}]" value="{{ $aiData['seo_tags'][$code] ?? old('seo_tags.'.$code, $seoTagsTranslations[$code] ?? ($lang->is_default && isset($category) ? $category->getRawOriginal('seo_tags') : '')) }}" class="form-control form-control-sm" placeholder="tag1,tag2">
             <div class="form-text small">{{ __('Comma separated keywords') }}</div>
           </div>
         </div>
       </div>
       @endforeach
+      @php(session()->forget('ai_generated_data'))
     </div>
   </div>
 </div>
