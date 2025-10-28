@@ -108,6 +108,8 @@ final class ProductCategoryController extends Controller
         $formattedData = [];
 
         $errors = [];
+        $defaultLanguage = $languages->where('is_default', true)->first() ?: $languages->first();
+        
         foreach ($languages as $language) {
             try {
                 $result = $aiService->generate($title, 'category', $language->code);
@@ -124,14 +126,18 @@ final class ProductCategoryController extends Controller
                 if (isset($result['description'])) {
                     $formattedData['description_i18n'][$language->code] = $result['description'];
                 }
-                if (isset($result['seo_title'])) {
-                    $formattedData['seo_title'][$language->code] = $result['seo_title'];
-                }
-                if (isset($result['seo_description'])) {
-                    $formattedData['seo_description'][$language->code] = $result['seo_description'];
-                }
-                if (isset($result['seo_tags'])) {
-                    $formattedData['seo_keywords'][$language->code] = $result['seo_tags'];
+                
+                // Store SEO data from default language only (since SEO is not translatable for product categories)
+                if ($language->code === $defaultLanguage->code) {
+                    if (isset($result['seo_title'])) {
+                        $formattedData['seo_title'] = $result['seo_title'];
+                    }
+                    if (isset($result['seo_description'])) {
+                        $formattedData['seo_description'] = $result['seo_description'];
+                    }
+                    if (isset($result['seo_tags'])) {
+                        $formattedData['seo_keywords'] = $result['seo_tags'];
+                    }
                 }
             } catch (\Exception $e) {
                 $errors[] = "Language {$language->name}: " . $e->getMessage();
@@ -145,6 +151,17 @@ final class ProductCategoryController extends Controller
 
             if (!isset($baseResult['error']) && isset($baseResult['description'])) {
                 $formattedData['description'] = $baseResult['description'];
+                
+                // Also set SEO data from base result if not already set
+                if (!isset($formattedData['seo_title']) && isset($baseResult['seo_title'])) {
+                    $formattedData['seo_title'] = $baseResult['seo_title'];
+                }
+                if (!isset($formattedData['seo_description']) && isset($baseResult['seo_description'])) {
+                    $formattedData['seo_description'] = $baseResult['seo_description'];
+                }
+                if (!isset($formattedData['seo_keywords']) && isset($baseResult['seo_tags'])) {
+                    $formattedData['seo_keywords'] = $baseResult['seo_tags'];
+                }
             }
         }
 

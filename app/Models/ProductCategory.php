@@ -17,9 +17,6 @@ class ProductCategory extends Model
     protected array $translatable = [
         'name',
         'description',
-        'seo_title',
-        'seo_description',
-        'seo_keywords',
     ];
 
     protected $fillable = [
