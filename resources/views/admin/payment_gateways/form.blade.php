@@ -334,5 +334,4 @@
     </div>
 </section>
 
-<script src="{{ asset('admin/js/payment-gateway-form.js') }}" defer></script>
 @endsection

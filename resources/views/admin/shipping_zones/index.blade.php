@@ -108,8 +108,4 @@
 
     </div>
 </section>
-
-@section('scripts')
-<script src="{{ asset('admin/js/confirm-delete.js') }}"></script>
-@endsection
 @endsection

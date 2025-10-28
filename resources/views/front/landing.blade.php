@@ -8,8 +8,8 @@
     <section class="flash-sale-section animate-fade-in-up" aria-labelledby="flash-sale-title">
         <div class="container">
             <div class="section-header">
-                <h2 id="flash-sale-title" class="section-title">{{ __('Flash Sale') }}</h2>
-                <p class="section-sub">{{ __('Limited time deals – don\'t miss out!') }}</p>
+                <h2 id="flash-sale-title" class="section-title">{{ $sectionTitles['flash_sale']['title'] ?? __('Flash Sale') }}</h2>
+                <p class="section-sub">{{ $sectionTitles['flash_sale']['subtitle'] ?? __('Limited time deals – don\'t miss out!') }}</p>
                 @if(!empty($flashSaleEndsAt))
                 <div class="flash-countdown" data-flash-countdown data-end="{{ $flashSaleEndsAt->utc()->format('Y-m-d\TH:i:s\Z') }}" aria-live="polite">
                     <span class="cd-label">{{ __('Ends in') }}:</span>
@@ -26,7 +26,7 @@
                 @endforeach
             </div>
             <div class="section-footer">
-                <a href="{{ route('products.index', ['filter'=>'on-sale']) }}" class="btn btn-primary hero-slide-cta">{{ __('View All Deals') }}</a>
+                <a href="{{ route('products.index', ['filter'=>'on-sale']) }}" class="btn btn-primary hero-slide-cta">{{ $sectionMeta['flash_sale']['cta_label'] ?? __('View All Deals') }}</a>
             </div>
         </div>
     </section>
@@ -36,8 +36,8 @@
     <section class="shop-categories animate-fade-in-up" aria-labelledby="categories-title">
         <div class="container">
             <div class="section-header">
-                <h2 id="categories-title" class="section-title">{{ __('Shop by Category') }}</h2>
-                <p class="section-sub">{{ __('Browse our main categories') }}</p>
+                <h2 id="categories-title" class="section-title">{{ $sectionTitles['categories']['title'] ?? __('Shop by Category') }}</h2>
+                <p class="section-sub">{{ $sectionTitles['categories']['subtitle'] ?? __('Browse our main categories') }}</p>
             </div>
             <ul class="cat-main-list" role="list" aria-label="{{ __('Main categories') }}">
                 @foreach(($landingCategories ?? collect()) as $mc)
@@ -56,7 +56,7 @@
                 @endforeach
             </ul>
             <div class="section-footer">
-                <a href="{{ route('products.index') }}" class="btn btn-primary hero-slide-cta">{{ __('View All Products') }}</a>
+                <a href="{{ route('products.index') }}" class="btn btn-primary hero-slide-cta">{{ $sectionMeta['categories']['cta_label'] ?? __('View All Products') }}</a>
             </div>
         </div>
     </section>
@@ -65,8 +65,8 @@
     <section class="latest-products-section animate-fade-in-up" aria-labelledby="latest-products-title">
         <div class="container">
             <div class="section-header">
-                <h2 id="latest-products-title" class="section-title">{{ __('Latest Products') }}</h2>
-                <p class="section-sub">{{ __('Fresh arrivals just added to our catalog') }}</p>
+                <h2 id="latest-products-title" class="section-title">{{ $sectionTitles['latest_products']['title'] ?? __('Latest Products') }}</h2>
+                <p class="section-sub">{{ $sectionTitles['latest_products']['subtitle'] ?? __('Fresh arrivals just added to our catalog') }}</p>
             </div>
             <div class="products-grid latest-products-grid">
                 @foreach(($latestProducts ?? collect()) as $product)
@@ -74,7 +74,7 @@
                 @endforeach
             </div>
             <div class="section-footer">
-                <a href="{{ route('products.index', ['sort'=>'newest']) }}" class="btn btn-primary hero-slide-cta">{{ __('View All New Arrivals') }}</a>
+                <a href="{{ route('products.index', ['sort'=>'newest']) }}" class="btn btn-primary hero-slide-cta">{{ $sectionMeta['latest_products']['cta_label'] ?? __('View All New Arrivals') }}</a>
             </div>
         </div>
     </section>
@@ -84,8 +84,8 @@
     <section class="latest-articles-section animate-fade-in-up" aria-labelledby="latest-articles-title" data-placeholder="{{ asset('images/placeholder.svg') }}">
         <div class="container">
             <div class="section-header">
-                <h2 id="latest-articles-title" class="section-title">{{ __('Latest Articles') }}</h2>
-                <p class="section-sub">{{ __('Insights & updates from our blog') }}</p>
+                <h2 id="latest-articles-title" class="section-title">{{ $sectionTitles['blog_posts']['title'] ?? __('Latest Articles') }}</h2>
+                <p class="section-sub">{{ $sectionTitles['blog_posts']['subtitle'] ?? __('Insights & updates from our blog') }}</p>
             </div>
             <div class="latest-articles-grid">
                 @foreach($latestPosts as $post)
@@ -113,7 +113,7 @@
                 @endforeach
             </div>
             <div class="section-footer">
-                <a href="{{ route('blog.index') }}" class="btn btn-outline btn-lg">{{ __('View All Articles') }}</a>
+                <a href="{{ route('blog.index') }}" class="btn btn-outline btn-lg">{{ $sectionMeta['blog_posts']['cta_label'] ?? __('View All Articles') }}</a>
             </div>
         </div>
     </section>

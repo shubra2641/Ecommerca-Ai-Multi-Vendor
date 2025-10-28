@@ -89,11 +89,6 @@ class PostController extends Controller
 
     public function aiSuggest(Request $request, SimpleAIService $aiService)
     {
-        // Only allow AI suggestions when target parameter is present (from AI buttons)
-        if (!$request->has('target')) {
-            return redirect()->back()->with('error', __('Invalid AI request'));
-        }
-
         // Get name from array or string
         $nameInput = $request->input('title');
 
@@ -227,7 +222,8 @@ class PostController extends Controller
 
         // Handle featured image
         if (! empty($data['featured_image_path'])) {
-            $payload['featured_image'] = trim(str_replace(\App\Helpers\GlobalHelper::storageImageUrl(''), '', $data['featured_image_path']), ' /');
+            $storageUrl = \App\Helpers\GlobalHelper::storageImageUrl('');
+            $payload['featured_image'] = $storageUrl ? trim(str_replace($storageUrl, '', $data['featured_image_path']), ' /') : $data['featured_image_path'];
         }
 
         return $payload;
@@ -251,7 +247,7 @@ class PostController extends Controller
         $base = $slug;
         $counter = 1;
 
-        while (Post::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
+        while (Post::withTrashed()->where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
             $slug = $base . '-' . $counter;
             $counter++;
         }

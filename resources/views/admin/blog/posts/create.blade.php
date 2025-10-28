@@ -22,7 +22,7 @@
         </div>
 
         <!-- Form -->
-        <form method="POST" action="{{ route('admin.blog.posts.store') }}" id="blogPostForm" enctype="multipart/form-data" class="admin-modern-card needs-validation" novalidate>
+        <form method="POST" action="{{ route('admin.blog.posts.store') }}" id="blogPostForm" enctype="multipart/form-data" class="admin-modern-card">
             @csrf
             <div class="admin-card-body">
                 @include('admin.blog.posts._form')

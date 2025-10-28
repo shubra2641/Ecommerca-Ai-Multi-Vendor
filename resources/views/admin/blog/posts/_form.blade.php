@@ -1,11 +1,7 @@
 @php($langs = $blogPostLanguages ?? ($blogPostLanguages = \App\Models\Language::where('is_active',1)->orderByDesc('is_default')->get()))
 @php($defaultLang = $langs->firstWhere('is_default',1) ?? $langs->first())
 <input type="hidden" id="blog-post-default-lang" value="{{ $defaultLang?->code }}">
-@if($errors->any())
-<div class="alert alert-danger small">
-  <ul class="mb-0">@foreach($errors->all() as $err)<li>{{ $err }}</li>@endforeach</ul>
-</div>
-@endif
+
 <div class="card mb-4">
   <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
     <h5 class="mb-0"><i class="fas fa-language me-2 text-primary"></i>{{ __('Post Translations') }}</h5>
@@ -39,7 +35,10 @@
         <div class="row g-3">
           <div class="col-md-8">
             <label class="form-label small fw-semibold">{{ __('Title') }}</label>
-            <input name="title[{{ $code }}]" value="{{ is_string(old('title.'.$code)) ? old('title.'.$code) : ($titleTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('title') : '')) }}" class="form-control form-control-sm" @if($lang->is_default) required @endif placeholder="{{ __('Post title') }}">
+            <input name="title[{{ $code }}]" value="{{ is_string(old('title.'.$code)) ? old('title.'.$code) : ($titleTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('title') : '')) }}" class="form-control form-control-sm @error('title.'.$code) is-invalid @enderror" @if($lang->is_default) required @endif placeholder="{{ __('Post title') }}">
+            @error('title.'.$code)
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
           </div>
           <div class="col-md-4">
             <label class="form-label small fw-semibold">{{ __('Slug') }}</label>
@@ -49,14 +48,16 @@
           <div class="col-12">
             <label class="form-label small fw-semibold d-flex justify-content-between align-items-center">
               <span>{{ __('Excerpt') }} <small class="text-muted" data-counter-display="excerpt-{{ $code }}">0/300</small></span>
-              <button type="submit" form="blogPostForm" formaction="{{ route('admin.blog.posts.ai.suggest') }}?target=excerpt&locale={{ $code }}" formmethod="get" class="btn btn-xs btn-outline-primary"><i class="fas fa-magic"></i> AI</button>
+              <button type="submit" form="blogPostForm" formaction="{{ route('admin.blog.posts.ai.suggest') }}?target=excerpt&locale={{ $code }}" formmethod="post" class="btn btn-xs btn-outline-primary"><i class="fas fa-magic"></i> AI</button>
             </label>
-            <textarea name="excerpt[{{ $code }}]" rows="2" class="form-control form-control-sm js-post-excerpt" data-counter="excerpt-{{ $code }}" data-max="300" placeholder="{{ __('Short summary (<=300 chars)') }}">{{ is_string(old('excerpt.'.$code)) ? old('excerpt.'.$code) : ($excerptTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('excerpt') : '')) }}</textarea>
+            <textarea name="excerpt[{{ $code }}]" rows="2" class="form-control form-control-sm js-post-excerpt @error('excerpt.'.$code) is-invalid @enderror" data-counter="excerpt-{{ $code }}" data-max="300" placeholder="{{ __('Short summary (<=300 chars)') }}">{{ is_string(old('excerpt.'.$code)) ? old('excerpt.'.$code) : ($excerptTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('excerpt') : '')) }}</textarea>
+            @error('excerpt.'.$code)
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
           </div>
           <div class="col-12">
             <label class="form-label small fw-semibold d-flex justify-content-between align-items-center">
               <span>{{ __('Body') }}</span>
-              <button type="submit" form="blogPostForm" formaction="{{ route('admin.blog.posts.ai.suggest') }}?target=body&locale={{ $code }}" formmethod="get" class="btn btn-xs btn-outline-primary"><i class="fas fa-magic"></i> AI</button>
             </label>
             <textarea name="body[{{ $code }}]" rows="10" class="form-control form-control-sm js-post-body" placeholder="{{ __('Main article content') }}">{{ old('body.'.$code, $bodyTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('body') : '')) }}</textarea>
           </div>
@@ -67,9 +68,11 @@
           <div class="col-md-4">
             <label class="form-label small fw-semibold d-flex justify-content-between align-items-center">
               <span>{{ __('SEO Description') }} <small class="text-muted" data-counter-display="seodesc-{{ $code }}">0/160</small></span>
-              <button type="submit" form="blogPostForm" formaction="{{ route('admin.blog.posts.ai.suggest') }}?target=blog_seo&locale={{ $code }}" formmethod="get" class="btn btn-xs btn-outline-primary"><i class="fas fa-magic"></i> AI</button>
             </label>
-            <input name="seo_description[{{ $code }}]" value="{{ old('seo_description.'.$code, $seoDescTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('seo_description') : '')) }}" class="form-control form-control-sm js-post-seo-description" data-counter="seodesc-{{ $code }}" data-max="160" placeholder="{{ __('Meta description') }}">
+            <input name="seo_description[{{ $code }}]" value="{{ old('seo_description.'.$code, $seoDescTr[$code] ?? ($lang->is_default && isset($post) ? $post->getRawOriginal('seo_description') : '')) }}" class="form-control form-control-sm js-post-seo-description @error('seo_description.'.$code) is-invalid @enderror" data-counter="seodesc-{{ $code }}" data-max="160" placeholder="{{ __('Meta description') }}">
+            @error('seo_description.'.$code)
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
           </div>
           <div class="col-md-4">
             <label class="form-label small fw-semibold">{{ __('SEO Tags') }}</label>
@@ -120,18 +123,3 @@
     </div>
   </div>
 </div>
-@if(isset($post))
-<div class="card mb-4">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h6 class="mb-0"><i class="fas fa-bolt me-2 text-primary"></i>{{ __('Publishing') }}</h6>
-    <form method="POST" action="{{ route('admin.blog.posts.publish',$post) }}" class="d-inline">@csrf <button type="submit" class="btn btn-sm btn-outline-secondary">@if($post->published) {{ __('Unpublish') }} @else {{ __('Publish') }} @endif</button></form>
-  </div>
-  <div class="card-body small text-muted">
-    @if($post->published)
-    {{ __('Published at:') }} {{ $post->published_at }}
-    @else
-    {{ __('Not published yet.') }}
-    @endif
-  </div>
-</div>
-@endif

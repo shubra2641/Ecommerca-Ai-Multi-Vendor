@@ -233,7 +233,7 @@ const STORAGE_PREFIX = 'storage/';
 
         // Ensure initial state is correct after DOM is fully loaded
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 setTimeout(toggleSections, 50);
             });
         } else {

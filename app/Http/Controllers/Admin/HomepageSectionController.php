@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\HomepageSection;
+use App\Services\AI\SimpleAIService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -121,6 +122,65 @@ class HomepageSectionController extends Controller
         Cache::forget('homepage_sections_conf');
 
         return back()->with('success', __('Homepage sections updated.'));
+    }
+
+    public function aiSuggest(Request $request, SimpleAIService $aiService): RedirectResponse
+    {
+        $request->validate([
+            'sections' => 'required|array',
+        ]);
+
+        // Get all active languages
+        $languages = \App\Models\Language::where('is_active', 1)->get();
+        $sections = $request->input('sections');
+        $errors = [];
+
+        // Process each section
+        foreach ($sections as $index => $section) {
+            $sectionKey = $section['key'] ?? "section_{$index}";
+
+            // Get title from any available language or use key as fallback
+            $sectionTitle = $sectionKey;
+            if (isset($section['title']) && is_array($section['title'])) {
+                $sectionTitle = collect($section['title'])->filter()->first() ?: $sectionKey;
+            }
+
+            foreach ($languages as $language) {
+                try {
+                    $result = $aiService->generate($sectionTitle, 'homepage_section', $language->code);
+
+                    if (isset($result['error'])) {
+                        $errors[] = "Section {$sectionKey} - Language {$language->name}: " . $result['error'];
+                        continue;
+                    }
+
+                    // Add content for this language
+                    if (isset($result['title'])) {
+                        $sections[$index]['title'][$language->code] = $result['title'];
+                    }
+                    if (isset($result['subtitle'])) {
+                        $sections[$index]['subtitle'][$language->code] = $result['subtitle'];
+                    }
+                    if (isset($result['cta_label'])) {
+                        $sections[$index]['cta_label'][$language->code] = $result['cta_label'];
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Section {$sectionKey} - Language {$language->name}: " . $e->getMessage();
+                }
+            }
+        }
+
+        // Prepare form data
+        $formData = ['sections' => $sections];
+
+        // Prepare success message
+        $successMessage = __('AI generated successfully for all sections and languages');
+        if (!empty($errors)) {
+            $errorCount = count($errors);
+            $successMessage .= " " . __('Some items failed') . " ({$errorCount} " . __('errors') . ")";
+        }
+
+        return back()->with('success', $successMessage)->withInput($formData);
     }
 
     private function validateBulkUpdateData(Request $request): array

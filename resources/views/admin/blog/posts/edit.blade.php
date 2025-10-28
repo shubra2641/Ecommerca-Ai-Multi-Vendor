@@ -18,16 +18,11 @@
           <i class="fas fa-arrow-left"></i>
           {{ __('Back') }}
         </a>
-        @if($post->published)
-        <span class="admin-status-badge admin-status-badge-success">{{ __('Published') }}</span>
-        @else
-        <span class="admin-status-badge admin-status-badge-secondary">{{ __('Draft') }}</span>
-        @endif
       </div>
     </div>
 
     <!-- Form -->
-    <form method="POST" action="{{ route('admin.blog.posts.update',$post) }}" id="blogPostForm" enctype="multipart/form-data" class="admin-modern-card needs-validation" novalidate>
+    <form method="POST" action="{{ route('admin.blog.posts.update',$post) }}" id="blogPostForm" enctype="multipart/form-data" class="admin-modern-card">
       @csrf
       @method('PUT')
       <div class="admin-card-body">

@@ -275,6 +275,7 @@ Route::middleware([
     Route::prefix('homepage')->name('admin.homepage.')->group(function (): void {
         Route::get('sections', [HomepageSectionController::class, 'index'])->name('sections.index');
         Route::post('sections', [HomepageSectionController::class, 'updateBulk'])->name('sections.update');
+        Route::post('sections/ai-suggest', [HomepageSectionController::class, 'aiSuggest'])->name('sections.ai-suggest');
         Route::get('slides', [HomepageSlideController::class, 'index'])->name('slides.index');
         Route::post('slides', [HomepageSlideController::class, 'store'])->name('slides.store');
         Route::put('slides/{slide}', [HomepageSlideController::class, 'update'])->name('slides.update');
@@ -287,13 +288,13 @@ Route::middleware([
 
     // Cache management routes
     Route::prefix('cache')->name('admin.cache.')->group(function (): void {
-        Route::post('/clear', [AdminDashboardController::class, 'clearCache'])->name('clear');
+        Route::post('/clear', [\App\Http\Controllers\Admin\DashboardController::class, 'clearCache'])->name('clear');
     });
 
     // System management routes
     Route::prefix('system')->name('admin.')->group(function (): void {
-        Route::post('/logs/clear', [AdminDashboardController::class, 'clearLogs'])->name('logs.clear');
-        Route::post('/optimize', [AdminDashboardController::class, 'optimize'])->name('optimize');
+        Route::post('/logs/clear', [\App\Http\Controllers\Admin\DashboardController::class, 'clearLogs'])->name('logs.clear');
+        Route::post('/optimize', [\App\Http\Controllers\Admin\DashboardController::class, 'optimize'])->name('optimize');
     });
 
     // Language routes additions

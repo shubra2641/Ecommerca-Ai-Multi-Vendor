@@ -126,16 +126,6 @@
                                     <div class="admin-text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <div class="admin-form-group">
-                                    <label class="admin-form-label">{{ __('Default Language') }}</label>
-                                    <select name="app_locale" class="admin-form-input @error('app_locale') is-invalid @enderror" required>
-                                        <option value="en" {{ config('app.locale') === 'en' ? 'selected' : '' }}>{{ __('English') }}</option>
-                                        <option value="ar" {{ config('app.locale') === 'ar' ? 'selected' : '' }}>{{ __('Arabic') }}</option>
-                                    </select>
-                                    @error('app_locale')
-                                    <div class="admin-text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
                             </div>
 
                             <div class="admin-form-group">

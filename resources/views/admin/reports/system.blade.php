@@ -399,16 +399,4 @@
         </div>
     </div>
 
-    @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set progress bar width dynamically
-            const progressBars = document.querySelectorAll('.progress-bar[data-width]');
-            progressBars.forEach(bar => {
-                const width = bar.getAttribute('data-width');
-                bar.style.width = width + '%';
-            });
-        });
-    </script>
-    @endpush
     @endsection

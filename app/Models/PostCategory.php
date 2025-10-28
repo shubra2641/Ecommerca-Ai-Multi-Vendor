@@ -40,6 +40,7 @@ class PostCategory extends Model
     protected $casts = [
         'name_translations' => 'array',
         'slug_translations' => 'array',
+        'description_translations' => 'array',
         'seo_title_translations' => 'array',
         'seo_description_translations' => 'array',
         'seo_tags_translations' => 'array',

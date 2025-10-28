@@ -72,7 +72,7 @@
                   @foreach($activeLanguages as $lang)
                   <div class="admin-mb-half d-flex align-items-center gap-1">
                     <span class="admin-badge admin-badge-secondary">{{ strtoupper($lang->code) }}</span>
-                    <input type="text" class="admin-form-input" name="sections[{{ $loop->parent->index }}][title][{{ $lang->code }}]" value="{{ $section->title_i18n[$lang->code] ?? '' }}" placeholder="{{ $lang->code }}">
+                    <input type="text" class="admin-form-input" name="sections[{{ $loop->parent->index }}][title][{{ $lang->code }}]" value="{{ old('sections.'.$loop->parent->index.'.title.'.$lang->code, $section->title_i18n[$lang->code] ?? '') }}" placeholder="{{ $lang->code }}">
                   </div>
                   @endforeach
                 </td>
@@ -80,7 +80,7 @@
                   @foreach($activeLanguages as $lang)
                   <div class="admin-mb-half d-flex align-items-center gap-1">
                     <span class="admin-badge admin-badge-secondary">{{ strtoupper($lang->code) }}</span>
-                    <input type="text" class="admin-form-input" name="sections[{{ $loop->parent->index }}][subtitle][{{ $lang->code }}]" value="{{ $section->subtitle_i18n[$lang->code] ?? '' }}" placeholder="{{ $lang->code }}">
+                    <input type="text" class="admin-form-input" name="sections[{{ $loop->parent->index }}][subtitle][{{ $lang->code }}]" value="{{ old('sections.'.$loop->parent->index.'.subtitle.'.$lang->code, $section->subtitle_i18n[$lang->code] ?? '') }}" placeholder="{{ $lang->code }}">
                   </div>
                   @endforeach
                 </td>
@@ -88,7 +88,7 @@
                   @foreach($activeLanguages as $lang)
                   <div class="admin-mb-half d-flex align-items-center gap-1">
                     <span class="admin-badge admin-badge-info">{{ strtoupper($lang->code) }}</span>
-                    <input type="text" class="admin-form-input" name="sections[{{ $loop->parent->index }}][cta_label][{{ $lang->code }}]" value="{{ $section->cta_label_i18n[$lang->code] ?? '' }}" placeholder="{{ __('CTA') }} {{ $lang->code }}">
+                    <input type="text" class="admin-form-input" name="sections[{{ $loop->parent->index }}][cta_label][{{ $lang->code }}]" value="{{ old('sections.'.$loop->parent->index.'.cta_label.'.$lang->code, $section->cta_label_i18n[$lang->code] ?? '') }}" placeholder="{{ __('CTA') }} {{ $lang->code }}">
                   </div>
                   @endforeach
                 </td>
@@ -108,11 +108,17 @@
           </table>
         </div>
         <div class="admin-card-footer">
-          <div class="admin-flex-end">
-            <button type="submit" class="admin-btn admin-btn-primary">
-              <i class="fas fa-save"></i>
-              {{ __('Save Changes') }}
-            </button>
+          <div class="admin-flex-between">
+            <div class="admin-flex-start gap-2">
+              <button type="submit" formaction="{{ route('admin.homepage.sections.ai-suggest') }}" class="admin-btn admin-btn-secondary">
+                <i class="fas fa-magic"></i>
+                {{ __('AI Generate All') }}
+              </button>
+              <button type="submit" class="admin-btn admin-btn-primary">
+                <i class="fas fa-save"></i>
+                {{ __('Save Changes') }}
+              </button>
+            </div>
           </div>
         </div>
       </form>

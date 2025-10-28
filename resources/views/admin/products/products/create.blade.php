@@ -49,15 +49,6 @@
                 <p class="admin-card-subtitle">{{ __('Fill in the product details below') }}</p>
             </div>
             <div class="admin-card-body">
-                @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0 small">
-                        @foreach($errors->all() as $err)
-                        <li>{{ $err }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-                @endif
                 <form id="product-form" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data"
                     autocomplete="off">
                     @csrf
