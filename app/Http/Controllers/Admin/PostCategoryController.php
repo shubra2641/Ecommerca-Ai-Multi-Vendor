@@ -140,7 +140,7 @@ class PostCategoryController extends Controller
         return back()->with('success', __('Category deleted'));
     }
 
-    // AI suggestion for blog category description & SEO
+        // AI suggestion for blog category description & SEO
     public function aiSuggest(Request $request, \App\Services\AI\SimpleAIService $aiService)
     {
         // Get name from array or string
@@ -160,7 +160,7 @@ class PostCategoryController extends Controller
             $title = $nameInput ? $nameInput : $request->input('title');
         }
 
-        // Validate title - ensure it's a string
+                // Validate title - ensure it's a string
         if (empty($title) || ! is_string($title)) {
             return back()->with('error', __('Please enter a name first'));
         }
@@ -171,9 +171,24 @@ class PostCategoryController extends Controller
             return back()->with('error', $result['error'])->withInput();
         }
 
+        // Format AI results for the form structure
+        $formattedData = [];
+        if (isset($result['description']) && $locale) {
+            $formattedData['description'][$locale] = $result['description'];
+        }
+        if (isset($result['seo_title']) && $locale) {
+            $formattedData['seo_title'][$locale] = $result['seo_title'];
+        }
+        if (isset($result['seo_description']) && $locale) {
+            $formattedData['seo_description'][$locale] = $result['seo_description'];
+        }
+        if (isset($result['seo_tags']) && $locale) {
+            $formattedData['seo_tags'][$locale] = $result['seo_tags'];
+        }
+
         // Merge with existing form data to preserve user input
         $existingData = $request->except(['_token']);
-        $mergedData = array_merge($existingData, $result);
+        $mergedData = array_merge($existingData, $formattedData);
 
         return back()->with('success', __('AI generated successfully'))->withInput($mergedData);
     }
