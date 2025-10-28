@@ -20,4 +20,7 @@
 
 @if($errors->any())
 <div id="flash-errors" data-errors="{{ json_encode($errors->all()) }}" class="d-none"></div>
+@foreach($errors->all() as $e)
+<li>{{ $e }}</li>
+@endforeach
 @endif

@@ -24,20 +24,6 @@
             </div>
         </div>
 
-        @if($errors->any())
-        <div class="admin-modern-card admin-mb-1-5">
-            <div class="admin-card-body">
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach($errors->all() as $e)
-                        <li>{{ $e }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-        @endif
-
         <!-- Upload Form -->
         <div class="admin-modern-card">
             <div class="admin-card-header">

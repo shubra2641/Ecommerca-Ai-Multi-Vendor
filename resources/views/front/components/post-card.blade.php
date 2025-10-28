@@ -7,6 +7,6 @@
     <h5 class="card-title mb-1"><a href="{{ route('blog.show',$post->slug) }}" class="text-decoration-none">{{ $post->title }}</a></h5>
     <div class="text-muted small mb-2">{{ $post->published_at?->format('Y-m-d') }} @if($post->category) • {{ $post->category->name }} @endif</div>
     <p class="card-text small flex-grow-1 mb-2">{{ $post->excerpt }}</p>
-    <a href="{{ route('blog.show',$post->slug) }}" class="btn btn-sm btn-outline-primary mt-auto align-self-start">{{ __('Read More') }}</a>
+    <a href="{{ route('blog.show',$post->slug) }}" class="btn btn-primary btn-sm">{{ __('Read More') }}</a>
   </div>
 </div>

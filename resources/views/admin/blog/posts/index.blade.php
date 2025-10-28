@@ -88,6 +88,12 @@
                                         <a href="{{ route('admin.blog.posts.edit', $post) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Edit') }}">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        <form method="POST" action="{{ route('admin.blog.posts.publish', $post) }}" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm @if($post->published) btn-outline-warning @else btn-outline-success @endif" title="@if($post->published) {{ __('Unpublish') }} @else {{ __('Publish') }} @endif">
+                                                <i class="fas @if($post->published) fa-eye-slash @else fa-eye @endif"></i>
+                                            </button>
+                                        </form>
                                         <form method="POST" action="{{ route('admin.blog.posts.destroy', $post) }}" class="js-confirm" data-confirm="{{ __('Are you sure you want to delete this post?') }}">
                                             @csrf
                                             @method('DELETE')
