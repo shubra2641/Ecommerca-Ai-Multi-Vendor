@@ -194,7 +194,9 @@ class OrderController extends Controller
                 }
             } catch (\Throwable $e) {
                 logger()->warning('Order status notification failed: ' . $e->getMessage());
-            }            // Notify vendors who have items in this order about the status change
+            }
+
+            // Notify vendors who have items in this order about the status change
             try {
                 $order->load('items.product');
                 $itemsByVendor = [];
@@ -288,15 +290,38 @@ class OrderController extends Controller
         return implode(', ', $parts);
     }
 
-    private function getOfflinePayments(Order $order): array
+    public function cancelBackorderItem(Order $order, OrderItem $item)
     {
-        $offlinePayments = [];
-        foreach ($order->payments as $payment) {
-            if ($payment->method === 'offline') {
-                $offlinePayments[$payment->id] = true;
-            }
+        // Ensure the item belongs to the order
+        if ($item->order_id !== $order->id) {
+            return redirect()->back()->with('error', __('Invalid order item'));
         }
 
-        return $offlinePayments;
+        // Check if item is actually on backorder
+        if (! $item->is_backorder) {
+            return redirect()->back()->with('error', __('Item is not on backorder'));
+        }
+
+        try {
+            $item->is_backorder = false;
+            $item->save();
+
+            // Log the action
+            logger()->info('Backorder cancelled for order item', [
+                'order_id' => $order->id,
+                'item_id' => $item->id,
+                'product_name' => $item->name,
+            ]);
+
+            return redirect()->back()->with('success', __('Backorder cancelled successfully'));
+        } catch (\Exception $e) {
+            logger()->error('Failed to cancel backorder for order item', [
+                'order_id' => $order->id,
+                'item_id' => $item->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', __('Failed to cancel backorder'));
+        }
     }
 }

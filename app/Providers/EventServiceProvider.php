@@ -7,11 +7,9 @@ namespace App\Providers;
 use App\Events\OrderCancelled;
 use App\Events\OrderPaid;
 use App\Events\OrderRefunded;
-use App\Events\PaymentWebhookReceived;
 use App\Events\PayoutExecuted;
 use App\Events\WithdrawalApproved;
 use App\Events\WithdrawalRejected;
-use App\Listeners\HandlePaymentWebhook;
 use App\Listeners\PayoutExecutedListener;
 use App\Listeners\StockAdjustmentListener;
 use App\Listeners\WithdrawalApprovedListener;
@@ -27,9 +25,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         OrderCancelled::class => [StockAdjustmentListener::class . '@handleOrderCancelled'],
         OrderRefunded::class => [StockAdjustmentListener::class . '@handleOrderRefunded'],
-        PaymentWebhookReceived::class => [
-            HandlePaymentWebhook::class,
-        ],
         WithdrawalApproved::class => [
             WithdrawalApprovedListener::class,
         ],
