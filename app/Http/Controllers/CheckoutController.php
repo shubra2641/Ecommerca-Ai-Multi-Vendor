@@ -205,6 +205,10 @@ class CheckoutController extends Controller
             return $this->startStripePayment($order, $gateway);
         }
 
+        if ($gateway->driver === 'cod') {
+            return $this->startCodPayment($order, $gateway);
+        }
+
         return response()->json(['error' => 'unsupported_gateway_driver'], 422);
     }
 
@@ -367,22 +371,29 @@ class CheckoutController extends Controller
         return $query->first();
     }
 
-    private function startOfflinePayment(Order $order, PaymentGateway $gateway)
+    private function startCodPayment(Order $order, PaymentGateway $gateway)
     {
         $payment = $this->createPayment([
             'order_id' => $order->id,
             'user_id' => $order->user_id,
-            'method' => 'offline',
+            'method' => 'cod',
             'amount' => $order->total,
             'currency' => $order->currency,
-            'status' => 'pending',
+            'status' => 'completed',
         ]);
 
+        // Mark order as completed for COD
+        $order->payment_status = 'paid';
+        $order->status = 'completed';
+        $order->save();
+
+        // Dispatch OrderPaid event
+        event(new OrderPaid($order));
+
         return response()->json([
-            'type' => 'offline',
+            'type' => 'cod',
             'payment_id' => $payment->id,
-            'instructions' => $gateway->transfer_instructions,
-            'requires_transfer_image' => $gateway->requires_transfer_image,
+            'instructions' => 'Payment will be collected on delivery.',
         ]);
     }
 
@@ -534,11 +545,11 @@ class CheckoutController extends Controller
 
                 return redirect()->away($paymentResult['redirect_url']);
 
-            case 'offline':
+            case 'cod':
                 session()->forget('cart');
 
                 return redirect($paymentResult['redirect_url'])
-                    ->with('success', __('Order created. Follow the payment instructions.'))
+                    ->with('success', __('Order created successfully. Payment will be collected on delivery.'))
                     ->with('refresh_admin_notifications', true);
 
             case 'stripe':

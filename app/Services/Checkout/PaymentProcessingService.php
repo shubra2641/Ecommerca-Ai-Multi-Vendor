@@ -12,9 +12,9 @@ final class PaymentProcessingService
 {
     public function __construct(
         private readonly OfflinePaymentHandler $offlinePaymentHandler,
-        private readonly StripePaymentHandler $stripePaymentHandler
-    ) {
-    }
+        private readonly StripePaymentHandler $stripePaymentHandler,
+        private readonly CodPaymentHandler $codPaymentHandler
+    ) {}
 
     /**
      * @return array<string, string>
@@ -35,6 +35,13 @@ final class PaymentProcessingService
             return $this->stripePaymentHandler->handleStripePayment(
                 $order,
                 $gateway
+            );
+        }
+
+        if ($gateway->driver === 'cod') {
+            return $this->codPaymentHandler->handleCodPayment(
+                $order,
+                $request
             );
         }
 
