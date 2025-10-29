@@ -188,7 +188,7 @@
                         <h3 class="panel-title">{{ __('Payment') }}</h3>
                         @foreach($gateways as $gw)
                         <label class="gateway-item">
-                            <input type="radio" name="gateway" value="{{ $gw->slug }}"
+                            <input type="radio" name="gateway" value="{{ $gw->slug }}" data-driver="{{ $gw->driver }}" data-requires-transfer-image="{{ $gw->requires_transfer_image ? '1' : '0' }}"
                                 {{ (old('gateway', ($loop->first ? $gw->slug : null)) == $gw->slug) ? 'checked' : '' }}>
                             <span class="gateway-name">{{ $gw->name }}
                                 @if($gw->driver==='offline')<small>({{ __('Offline') }})</small>@elseif($gw->driver==='cod')<small>({{ __('Cash on Delivery') }})</small>@endif</span>
@@ -197,9 +197,8 @@
                             @endif
                         </label>
                         @endforeach
-                        @if($gateways->where('driver', 'offline')->where('requires_transfer_image', true)->count() > 0)
                         {{-- Transfer image upload area (shown when offline gateway requires it) --}}
-                        <div id="transfer-image-area" class="mt-2">
+                        <div id="transfer-image-area" class="mt-2 hidden">
                             <label class="form-label">{{ __('Upload proof of transfer') }}</label>
                             <div class="small-muted mb-1">
                                 {{ __('If your chosen payment method requires a payment receipt, please upload an image here.') }}
@@ -208,7 +207,6 @@
                                 class="form-control-file">
                             @error('transfer_image') <div class="text-danger small">{{ $message }}</div> @enderror
                         </div>
-                        @endif
                         @if(!count($gateways))
                         <div class="alert alert-warning small">
                             {{ __('No payment gateways available') }}
