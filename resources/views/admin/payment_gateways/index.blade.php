@@ -68,10 +68,6 @@
                                     <input name="name" value="{{ old('name', $gateway->name) }}" class="admin-form-input" required>
                                 </div>
                                 <div class="admin-form-group">
-                                    <label class="admin-form-label">{{ __('Slug') }}</label>
-                                    <input name="slug" value="{{ old('slug', $gateway->slug) }}" class="admin-form-input">
-                                </div>
-                                <div class="admin-form-group">
                                     <div class="admin-checkbox">
                                         <input type="checkbox" name="enabled" value="1" id="enabled-{{ $gateway->id }}" class="admin-checkbox-input" {{ old('enabled', $gateway->enabled) ? 'checked' : '' }}>
                                         <label for="enabled-{{ $gateway->id }}" class="admin-checkbox-label">
