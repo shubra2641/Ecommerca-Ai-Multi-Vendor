@@ -162,70 +162,63 @@ class OrderController extends Controller
         ]);
     }
 
-    public function updateStatus(\App\Http\Requests\Admin\UpdateOrderStatusRequest $request, $orderId)
+    public function updateStatus(\App\Http\Requests\Admin\UpdateOrderStatusRequest $request, Order $order)
     {
-        $order = Order::findOrFail($orderId);
         $data = $request->validated();
 
-        $order->status = $data['status'];
-        $order->save();
-
-        $note = $data['note'] ?? null;
-        $order->statusHistory()->create([
-            'status' => $data['status'],
-            'note' => $note,
-        ]);
-
-        // Automatic stock operations depending on status transitions
-        if (in_array($data['status'], ['processing', 'completed']) && $order->payment_status === 'paid') {
-            event(new \App\Events\OrderPaid($order));
-        }
-        if ($data['status'] === 'cancelled') {
-            event(new \App\Events\OrderCancelled($order));
-        }
-        if ($data['status'] === 'refunded') {
-            event(new \App\Events\OrderRefunded($order));
-        }
-
-        // Notify customer about status change
         try {
-            if ($order->user) {
-                $tracking = null;
-                if ($data['status'] === 'shipped') {
-                    $tracking = [
-                        'tracking_number' => $data['tracking_number'] ?? null,
-                        'tracking_url' => $data['tracking_url'] ?? null,
-                        'carrier' => $data['carrier'] ?? null,
-                    ];
-                }
-                $order->user->notify(new \App\Notifications\UserOrderStatusUpdated($order, $data['status'], $tracking));
-            }
-        } catch (\Throwable $e) {
-            logger()->warning('Order status notification failed: ' . $e->getMessage());
-        }
+            $order->status = $data['status'];
+            $order->save();
 
-        // Notify vendors who have items in this order about the status change
-        try {
-            $order->load('items.product');
-            $itemsByVendor = [];
-            foreach ($order->items as $orderItem) {
-                $vendorId = $orderItem->product?->vendor_id;
-                if (! $vendorId) {
-                    continue;
-                }
-                $itemsByVendor[$vendorId][] = $orderItem;
-            }
-            foreach (array_keys($itemsByVendor) as $vendorId) {
-                $vendor = User::find($vendorId);
-                if ($vendor) {
-                    $vendor->notify(new \App\Notifications\VendorOrderStatusUpdated($order, $data['status']));
-                }
-            }
-        } catch (\Throwable $e) {
-            logger()->warning('Vendor order status notifications failed: ' . $e->getMessage());
-        }
+            $note = $data['note'] ?? null;
+            $order->statusHistory()->create([
+                'status' => $data['status'],
+                'note' => $note,
+            ]);
 
-        return redirect()->back()->with('success', __('Order status updated'));
+            // Automatic stock operations depending on status transitions
+            if (in_array($data['status'], ['processing', 'completed']) && $order->payment_status === 'paid') {
+                event(new \App\Events\OrderPaid($order));
+            }
+            if ($data['status'] === 'cancelled') {
+                event(new \App\Events\OrderCancelled($order));
+            }
+            if ($data['status'] === 'refunded') {
+                event(new \App\Events\OrderRefunded($order));
+            }
+
+            // Notify customer about status change
+            try {
+                if ($order->user) {
+                    $order->user->notify(new \App\Notifications\UserOrderStatusUpdated($order, $data['status']));
+                }
+            } catch (\Throwable $e) {
+                logger()->warning('Order status notification failed: ' . $e->getMessage());
+            }            // Notify vendors who have items in this order about the status change
+            try {
+                $order->load('items.product');
+                $itemsByVendor = [];
+                foreach ($order->items as $orderItem) {
+                    $vendorId = $orderItem->product?->vendor_id;
+                    if (! $vendorId) {
+                        continue;
+                    }
+                    $itemsByVendor[$vendorId][] = $orderItem;
+                }
+                foreach (array_keys($itemsByVendor) as $vendorId) {
+                    $vendor = User::find($vendorId);
+                    if ($vendor) {
+                        $vendor->notify(new \App\Notifications\VendorOrderStatusUpdated($order, $data['status']));
+                    }
+                }
+            } catch (\Throwable $e) {
+                logger()->warning('Vendor order status notifications failed: ' . $e->getMessage());
+            }
+
+            return redirect()->back()->with('success', __('Order status updated'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
     private function getCustomerStats(Order $order): ?array

@@ -229,6 +229,33 @@
                                 value="{{ old('shipping_city', old('city', $defaultAddress->city_id ?? optional(auth()->user())->city_id ?? '')) }}">
                             <input type="hidden" name="selected_address_id" id="selected-address-id"
                                 value="{{ old('selected_address_id', '') }}">
+                            <div class="panel-card">
+                                <h3 class="panel-title">{{ __('Payment Method') }}</h3>
+                                <div class="form-group">
+                                    <select name="gateway" class="form-control" required>
+                                        <option value="">{{ __('Select Payment Method') }}</option>
+                                        <option value="cod" {{ old('gateway', 'cod') == 'cod' ? 'selected' : '' }}>{{ __('Cash on Delivery') }}</option>
+                                        <option value="paypal" {{ old('gateway') == 'paypal' ? 'selected' : '' }}>{{ __('PayPal') }}</option>
+                                        <option value="stripe" {{ old('gateway') == 'stripe' ? 'selected' : '' }}>{{ __('Stripe') }}</option>
+                                        <option value="tap" {{ old('gateway') == 'tap' ? 'selected' : '' }}>{{ __('Tap') }}</option>
+                                        <option value="paymob" {{ old('gateway') == 'paymob' ? 'selected' : '' }}>{{ __('PayMob') }}</option>
+                                        <option value="hyperpay" {{ old('gateway') == 'hyperpay' ? 'selected' : '' }}>{{ __('HyperPay') }}</option>
+                                        <option value="kashier" {{ old('gateway') == 'kashier' ? 'selected' : '' }}>{{ __('Kashier') }}</option>
+                                        <option value="fawry" {{ old('gateway') == 'fawry' ? 'selected' : '' }}>{{ __('Fawry') }}</option>
+                                        <option value="thawani" {{ old('gateway') == 'thawani' ? 'selected' : '' }}>{{ __('Thawani') }}</option>
+                                        <option value="opay" {{ old('gateway') == 'opay' ? 'selected' : '' }}>{{ __('OPay') }}</option>
+                                        <option value="paymob_wallet" {{ old('gateway') == 'paymob_wallet' ? 'selected' : '' }}>{{ __('PayMob Wallet') }}</option>
+                                        <option value="paytabs" {{ old('gateway') == 'paytabs' ? 'selected' : '' }}>{{ __('PayTabs') }}</option>
+                                        <option value="binance" {{ old('gateway') == 'binance' ? 'selected' : '' }}>{{ __('Binance') }}</option>
+                                        <option value="nowpayments" {{ old('gateway') == 'nowpayments' ? 'selected' : '' }}>{{ __('NowPayments') }}</option>
+                                        <option value="payeer" {{ old('gateway') == 'payeer' ? 'selected' : '' }}>{{ __('Payeer') }}</option>
+                                        <option value="perfect_money" {{ old('gateway') == 'perfect_money' ? 'selected' : '' }}>{{ __('Perfect Money') }}</option>
+                                        <option value="telr" {{ old('gateway') == 'telr' ? 'selected' : '' }}>{{ __('Telr') }}</option>
+                                        <option value="clickpay" {{ old('gateway') == 'clickpay' ? 'selected' : '' }}>{{ __('ClickPay') }}</option>
+                                    </select>
+                                    @error('gateway') <div class="text-danger small">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
                             <button class="btn btn-primary btn-place" type="submit">{{ __('Place Order') }}</button>
                         </div>
                     </div>

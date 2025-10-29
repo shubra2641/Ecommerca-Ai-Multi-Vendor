@@ -7,14 +7,17 @@ namespace App\Http\Controllers;
 use App\Helpers\GlobalHelper;
 use App\Http\Requests\CheckoutRequest;
 use App\Http\Requests\CreateOrderRequest;
+use App\Events\OrderPaid;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Services\CheckoutViewBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Nafezly\Payments\Factories\PaymentFactory;
 
 class CheckoutController extends Controller
 {
@@ -61,12 +64,40 @@ class CheckoutController extends Controller
         $shippingPrice = (float) ($request->shipping_price ?? 0);
         $total = $subtotal + $shippingPrice - $discount;
 
-        try {
-            $order = $this->createOrder($request, $cart, $total, $subtotal, $shippingPrice, $discount);
-            session()->forget('cart');
-            return redirect()->route('orders.show', $order)->with('success', __('Order created successfully.'));
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
+        $gateway = $request->gateway;
+
+        if ($gateway === 'cod') {
+            // Cash on Delivery - create order directly
+            try {
+                $order = $this->createOrder($request, $cart, $total, $subtotal, $shippingPrice, $discount, 'cod', 'paid');
+
+                // Create payment record for COD
+                Payment::create([
+                    'order_id' => $order->id,
+                    'payment_id' => null,
+                    'amount' => $order->total,
+                    'currency' => $order->currency,
+                    'method' => 'cod',
+                    'status' => 'completed',
+                    'data' => null,
+                ]);
+
+                session()->forget('cart');
+                return redirect()->route('orders.show', $order)->with('success', __('Order created successfully.'));
+            } catch (\Exception $e) {
+                return back()->with('error', $e->getMessage());
+            }
+        } else {
+            // Online payment - create pending order and redirect to payment
+            try {
+                $order = $this->createOrder($request, $cart, $total, $subtotal, $shippingPrice, $discount, $gateway, 'pending');
+                session()->put('pending_order_id', $order->id);
+
+                // Redirect to payment gateway
+                return $this->redirectToPayment($gateway, $order);
+            } catch (\Exception $e) {
+                return back()->with('error', $e->getMessage());
+            }
         }
     }
 
@@ -101,7 +132,7 @@ class CheckoutController extends Controller
 
             $order = Order::create([
                 'user_id' => $user ? $user->id : null,
-                'status' => 'completed',
+                'status' => 'pending',
                 'total' => $total,
                 'items_subtotal' => $total,
                 'currency' => $orderCurrency,
@@ -132,26 +163,26 @@ class CheckoutController extends Controller
         }
     }
 
-    private function createOrder(Request $request, array $cart, float $total, float $subtotal, float $shippingPrice, float $discount): Order
+    private function createOrder(Request $request, array $cart, float $total, float $subtotal, float $shippingPrice, float $discount, string $paymentMethod = 'cod', string $paymentStatus = 'paid'): Order
     {
         $validated = $request->validated();
         $user = $request->user();
 
-        return DB::transaction(function () use ($user, $validated, $cart, $total, $subtotal, $shippingPrice, $discount) {
+        return DB::transaction(function () use ($user, $validated, $cart, $total, $subtotal, $shippingPrice, $discount, $paymentMethod, $paymentStatus) {
             $currencyContext = GlobalHelper::getCurrencyContext();
             $currentCurrency = $currencyContext['currentCurrency'];
             $orderCurrency = $currentCurrency ? $currentCurrency->code : config('app.currency', 'USD');
 
             $order = Order::create([
                 'user_id' => $user ? $user->id : null,
-                'status' => 'completed',
+                'status' => 'pending',
                 'total' => $total,
                 'items_subtotal' => $subtotal,
                 'shipping_price' => $shippingPrice,
                 'discount' => $discount,
                 'currency' => $orderCurrency,
-                'payment_method' => 'cod', // Default to COD for now
-                'payment_status' => 'paid',
+                'payment_method' => $paymentMethod,
+                'payment_status' => $paymentStatus,
                 'customer_name' => $validated['customer_name'] ?? null,
                 'customer_email' => $validated['customer_email'] ?? null,
                 'customer_phone' => $validated['customer_phone'] ?? null,
@@ -217,5 +248,84 @@ class CheckoutController extends Controller
             }
         }
         return (float) $discount;
+    }
+
+    private function redirectToPayment(string $gateway, Order $order)
+    {
+        $factory = new PaymentFactory();
+        $payment = $factory->get(ucfirst($gateway));
+
+        // Send full name for both first and last name
+        $customerName = $order->customer_name ?? 'Customer';
+        $customerEmail = $order->customer_email ?? 'customer@example.com';
+        $customerPhone = $order->customer_phone ?? '0000000000';
+
+        $response = $payment->pay(
+            $order->total,
+            $order->user_id,
+            $customerName, // Full name as first name
+            $customerName, // Full name as last name
+            $customerEmail,
+            $customerPhone,
+            'order_' . $order->id
+        );
+
+        // Handle the payment response
+        if (isset($response['redirect_url']) && $response['redirect_url']) {
+            return redirect($response['redirect_url']);
+        }
+
+        if (isset($response['html']) && $response['html']) {
+            return view('payment.form', ['html' => $response['html']]);
+        }
+
+        // If no redirect or html, return error
+        return back()->with('error', 'Payment gateway error');
+    }
+
+    public function verifyPayment(Request $request, $payment = null)
+    {
+        $factory = new PaymentFactory();
+        $paymentInstance = $factory->get(ucfirst($payment));
+
+        $result = $paymentInstance->verify($request);
+
+        if ($result['success']) {
+            // Update order status to paid using session
+            $orderId = session('pending_order_id');
+            if ($orderId) {
+                $order = Order::find($orderId);
+                if ($order) {
+                    $order->update(['payment_status' => 'paid']);
+
+                    // Create payment record
+                    Payment::create([
+                        'order_id' => $order->id,
+                        'payment_id' => $result['payment_id'] ?? null,
+                        'amount' => $order->total,
+                        'currency' => $order->currency,
+                        'method' => $payment,
+                        'status' => 'completed',
+                        'data' => $result['process_data'] ?? null,
+                    ]);
+
+                    // Fire OrderPaid event
+                    event(new OrderPaid($order));
+
+                    session()->forget('pending_order_id');
+                    return redirect()->route('orders.show', $orderId)->with('success', $result['message']);
+                }
+            }
+            // If order not found, redirect to home
+            return redirect()->route('home')->with('error', 'Order not found');
+        } else {
+            return redirect()->route('checkout.form')->with('error', $result['message']);
+        }
+    }
+
+    public function paymentWebhook(Request $request)
+    {
+        // Handle webhook if needed
+        return response()->json(['status' => 'ok']);
     }
 }

@@ -29,6 +29,8 @@ class CheckoutRequest extends FormRequest
             'shipping_price' => 'required|numeric|min:0',
             'selected_address_id' => 'nullable|integer|exists:addresses,id',
             'shipping_estimated_days' => 'nullable|integer|min:0',
+            // payment gateway
+            'gateway' => 'required|string|in:cod,paypal,stripe,tap,paymob,hyperpay,kashier,fawry,thawani,opay,paymob_wallet,paytabs,binance,nowpayments,payeer,perfect_money,telr,clickpay',
         ];
 
         return $rules;

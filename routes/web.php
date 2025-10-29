@@ -192,4 +192,8 @@ Route::prefix('vendor')->name('vendor.')->group(function (): void {
 });
 
 
+// Payment routes
+Route::get('/payments/verify/{payment?}', [CheckoutController::class, 'verifyPayment'])->name('verify-payment');
+Route::post('/payments/webhook', [CheckoutController::class, 'paymentWebhook'])->name('payment.webhook');
+
 // Simulated payment redirect routes for local/testing (accept POST for gateways that POST JSON)
