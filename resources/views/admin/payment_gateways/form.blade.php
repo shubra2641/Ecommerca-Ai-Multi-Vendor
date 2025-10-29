@@ -95,6 +95,14 @@
                                 </label>
                             </div>
                         </div>
+                        @if(!$gateway->exists)
+                        <div class="admin-form-group">
+                            <button type="submit" name="load_config" value="1" class="admin-btn admin-btn-secondary admin-btn-sm">
+                                <i class="fas fa-cog"></i>
+                                {{ __('Load Configuration') }}
+                            </button>
+                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -103,7 +111,7 @@
                 <hr>
 
                 <!-- Stripe Fields -->
-                <div id="driver-stripe" class="driver-fields envato-hidden">
+                <div id="driver-stripe" class="driver-fields {{ ($gateway->exists && $gateway->driver === 'stripe') || (!$gateway->exists && old('driver') === 'stripe') ? '' : 'envato-hidden' }}">
                     <h5 class="mt-2">Stripe</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -146,7 +154,7 @@
                 </div>
 
                 <!-- Offline Fields -->
-                <div id="driver-offline" class="driver-fields envato-hidden">
+                <div id="driver-offline" class="driver-fields {{ ($gateway->exists && $gateway->driver === 'offline') || (!$gateway->exists && old('driver') === 'offline') ? '' : 'envato-hidden' }}">
                     <h5 class="mt-2">{{ __('Offline / Bank Transfer') }}</h5>
                     <div class="row g-3">
                         <div class="col-md-12">
@@ -180,7 +188,7 @@
                     </div>
 
                     <!-- PayTabs Fields -->
-                    <div id="driver-paytabs" class="driver-fields envato-hidden">
+                    <div id="driver-paytabs" class="driver-fields {{ ($gateway->exists && $gateway->driver === 'paytabs') || (!$gateway->exists && old('driver') === 'paytabs') ? '' : 'envato-hidden' }}">
                         <div class="admin-card-header">
                             <h3 class="admin-card-title">
                                 <i class="fas fa-star"></i>
@@ -200,7 +208,7 @@
                     </div>
 
                     <!-- Tap Fields -->
-                    <div id="driver-tap" class="driver-fields envato-hidden">
+                    <div id="driver-tap" class="driver-fields {{ ($gateway->exists && $gateway->driver === 'tap') || (!$gateway->exists && old('driver') === 'tap') ? '' : 'envato-hidden' }}">
                         <div class="admin-card-header">
                             <h3 class="admin-card-title">
                                 <i class="fas fa-star"></i>
@@ -228,7 +236,7 @@
                     </div>
 
                     <!-- WeAccept Fields -->
-                    <div id="driver-weaccept" class="driver-fields envato-hidden">
+                    <div id="driver-weaccept" class="driver-fields {{ ($gateway->exists && $gateway->driver === 'weaccept') || (!$gateway->exists && old('driver') === 'weaccept') ? '' : 'envato-hidden' }}">
                         <div class="admin-card-header">
                             <h3 class="admin-card-title">
                                 <i class="fas fa-star"></i>
@@ -265,7 +273,7 @@
                     </div>
 
                     <!-- PayPal Fields -->
-                    <div id="driver-paypal" class="driver-fields envato-hidden">
+                    <div id="driver-paypal" class="driver-fields {{ ($gateway->exists && $gateway->driver === 'paypal') || (!$gateway->exists && old('driver') === 'paypal') ? '' : 'envato-hidden' }}">
                         <div class="admin-card-header">
                             <h3 class="admin-card-title">
                                 <i class="fas fa-star"></i>
@@ -292,7 +300,7 @@
                     </div>
 
                     <!-- Payeer Fields -->
-                    <div id="driver-payeer" class="driver-fields envato-hidden">
+                    <div id="driver-payeer" class="driver-fields {{ ($gateway->exists && $gateway->driver === 'payeer') || (!$gateway->exists && old('driver') === 'payeer') ? '' : 'envato-hidden' }}">
                         <div class="admin-card-header">
                             <h3 class="admin-card-title">
                                 <i class="fas fa-star"></i>
@@ -310,8 +318,6 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- Payrexx removed --}}
 
                     <div id="custom-rows" class="admin-form-grid">
                         {{-- legacy custom key/value rows may be appended here --}}

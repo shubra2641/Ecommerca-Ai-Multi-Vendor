@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             BlogSeeder::class,
             ProductDemoSeeder::class,
-            PaymentGatewaysNewSeeder::class,
             BrandSeeder::class,
             DefaultCurrencySeeder::class,
             LocationSeeder::class,

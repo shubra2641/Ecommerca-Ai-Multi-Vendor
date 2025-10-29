@@ -191,16 +191,15 @@
                             <input type="radio" name="gateway" value="{{ $gw->slug }}"
                                 {{ (old('gateway', ($loop->first ? $gw->slug : null)) == $gw->slug) ? 'checked' : '' }}>
                             <span class="gateway-name">{{ $gw->name }}
-                                @if($gw->driver==='offline')<small>({{ __('Offline') }})</small>@endif</span>
+                                @if($gw->driver==='offline')<small>({{ __('Offline') }})</small>@elseif($gw->driver==='cod')<small>({{ __('Cash on Delivery') }})</small>@endif</span>
                             @if($gw->driver === 'offline' && $gw->transfer_instructions)
                             <div class="gateway-instructions small-muted">{!! \App\Services\HtmlSanitizer::sanitizeEmbed($gw->transfer_instructions) !!}</div>
                             @endif
                         </label>
                         @endforeach
-                        {{-- Transfer image upload area (shown when selected gateway requires it) --}}
-                        <div id="transfer-image-area" class="mt-2 envato-hidden"
-                            data-requiring='{{ e(json_encode($gateways->filter(fn($g)=>$g->requires_transfer_image)->pluck('id'), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)) }}'
-                            slug'))'>
+                        @if($gateways->where('driver', 'offline')->where('requires_transfer_image', true)->count() > 0)
+                        {{-- Transfer image upload area (shown when offline gateway requires it) --}}
+                        <div id="transfer-image-area" class="mt-2">
                             <label class="form-label">{{ __('Upload proof of transfer') }}</label>
                             <div class="small-muted mb-1">
                                 {{ __('If your chosen payment method requires a payment receipt, please upload an image here.') }}
@@ -209,6 +208,7 @@
                                 class="form-control-file">
                             @error('transfer_image') <div class="text-danger small">{{ $message }}</div> @enderror
                         </div>
+                        @endif
                         @if(!count($gateways))
                         <div class="alert alert-warning small">
                             {{ __('No payment gateways available') }}

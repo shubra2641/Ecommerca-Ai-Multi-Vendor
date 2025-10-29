@@ -311,11 +311,10 @@ Route::middleware([
     });
 
     // Payment Gateways (rebuilt system)
-    Route::resource('payment-gateways', PaymentGatewayController::class, [
-        'parameters' => ['payment-gateways' => 'paymentGateway'],
-    ])->names('admin.payment-gateways');
-    Route::post('payment-gateways/{paymentGateway}/toggle', [PaymentGatewayController::class, 'toggle'])
-        ->name('admin.payment-gateways.toggle');
+    Route::get('payment-gateways', [PaymentGatewayController::class, 'index'])->name('admin.payment-gateways.index');
+    Route::put('payment-gateways/{paymentGateway}', [PaymentGatewayController::class, 'update'])->name('admin.payment-gateways.update');
+    Route::post('payment-gateways/{paymentGateway}/toggle', [PaymentGatewayController::class, 'toggle'])->name('admin.payment-gateways.toggle');
+    Route::post('payment-gateways/{paymentGateway}/toggle-transfer-image', [PaymentGatewayController::class, 'toggleTransferImageRequirement'])->name('admin.payment-gateways.toggle-transfer-image');
     Route::post('payment-gateways/{paymentGateway}/test-webhook', [PaymentGatewayController::class, 'testWebhook'])
         ->name('admin.payment-gateways.test-webhook');
 

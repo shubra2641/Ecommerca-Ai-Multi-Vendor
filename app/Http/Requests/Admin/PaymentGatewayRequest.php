@@ -19,11 +19,18 @@ class PaymentGatewayRequest extends FormRequest
         $paymentGateway = $this->route('paymentGateway');
         $ignoreId = $paymentGateway && isset($paymentGateway->id) ? $paymentGateway->id : null;
 
-        $slugUnique = 'unique:payment_gateways,slug'.($ignoreId ? ','.$ignoreId : '');
+        $slugUnique = 'unique:payment_gateways,slug' . ($ignoreId ? ',' . $ignoreId : '');
 
         // Allowed drivers expanded
         $allowedDrivers = [
-            'stripe', 'offline', 'paytabs', 'tap', 'weaccept', 'paypal', 'payeer',
+            'stripe',
+            'offline',
+            'cod',
+            'paytabs',
+            'tap',
+            'weaccept',
+            'paypal',
+            'payeer',
         ];
 
         return [

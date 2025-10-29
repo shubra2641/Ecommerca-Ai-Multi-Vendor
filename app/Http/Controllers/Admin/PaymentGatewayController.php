@@ -18,30 +18,6 @@ class PaymentGatewayController extends Controller
         return view('admin.payment_gateways.index', compact('gateways'));
     }
 
-    public function create()
-    {
-        return view('admin.payment_gateways.form', ['gateway' => new PaymentGateway()]);
-    }
-
-    public function store(PaymentGatewayRequest $request)
-    {
-        $data = $request->validated();
-        if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['name']);
-        }
-        $gateway = new PaymentGateway();
-        $this->fillGateway($gateway, $data);
-
-        $gateway->save();
-
-        return redirect()->route('admin.payment-gateways.index')->with('success', __('Gateway created'));
-    }
-
-    public function edit(PaymentGateway $paymentGateway)
-    {
-        return view('admin.payment_gateways.form', ['gateway' => $paymentGateway]);
-    }
-
     public function update(PaymentGatewayRequest $request, PaymentGateway $paymentGateway)
     {
         $data = $request->validated();
@@ -53,13 +29,6 @@ class PaymentGatewayController extends Controller
         $paymentGateway->save();
 
         return redirect()->route('admin.payment-gateways.index')->with('success', __('Gateway updated'));
-    }
-
-    public function destroy(PaymentGateway $paymentGateway)
-    {
-        $paymentGateway->delete();
-
-        return redirect()->route('admin.payment-gateways.index')->with('success', __('Gateway deleted'));
     }
 
     public function toggle(PaymentGateway $paymentGateway)
@@ -77,6 +46,23 @@ class PaymentGatewayController extends Controller
         }
 
         return back()->with('success', __('Gateway status updated'));
+    }
+
+    public function toggleTransferImageRequirement(PaymentGateway $paymentGateway)
+    {
+        $paymentGateway->requires_transfer_image = ! $paymentGateway->requires_transfer_image;
+        $paymentGateway->save();
+
+        // If this is an AJAX request, return JSON so frontend can handle it without redirect
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'requires_transfer_image' => $paymentGateway->requires_transfer_image,
+                'message' => __('Transfer image requirement updated'),
+            ]);
+        }
+
+        return back()->with('success', __('Transfer image requirement updated'));
     }
 
     // PayPal support removed: webhook test removed.
@@ -150,6 +136,9 @@ class PaymentGatewayController extends Controller
     private function configureExternalGateway(array &$cfg, array $data): void
     {
         switch ($data['driver']) {
+            case 'cod':
+                // No configuration needed for Cash on Delivery
+                break;
             case 'paytabs':
                 $this->configurePaytabsGateway($cfg, $data);
                 break;

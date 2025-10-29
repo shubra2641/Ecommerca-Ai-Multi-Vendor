@@ -129,12 +129,15 @@ class PaymentGateway extends Model
             return [];
         }
 
+        $stripe = $this->config['stripe'] ?? [];
+
         return [
-            'public_key' => $this->getCredential('public_key'),
-            'secret_key' => $this->getCredential('secret_key'),
-            'webhook_secret' => $this->getCredential('webhook_secret'),
-            'currency' => $this->getCredential('currency', 'usd'),
-            'sandbox_mode' => $this->getCredential('sandbox_mode', false),
+            'public_key' => $stripe['publishable_key'] ?? null,
+            'secret_key' => $stripe['secret_key'] ?? null,
+            'webhook_secret' => $stripe['webhook_secret'] ?? null,
+            'currency' => $stripe['currency'] ?? 'usd',
+            'mode' => $stripe['mode'] ?? 'test',
+            'sandbox_mode' => ($stripe['mode'] ?? 'test') === 'test',
         ];
     }
 
@@ -148,10 +151,10 @@ class PaymentGateway extends Model
         }
 
         return [
-            'client_id' => $this->getCredential('client_id'),
-            'client_secret' => $this->getCredential('client_secret'),
-            'mode' => $this->getCredential('mode', 'sandbox'),
-            'currency' => $this->getCredential('currency', 'USD'),
+            'client_id' => $this->config['paypal_client_id'] ?? null,
+            'client_secret' => $this->config['paypal_secret'] ?? null,
+            'mode' => $this->config['paypal_mode'] ?? 'sandbox',
+            'currency' => $this->config['paypal_currency'] ?? 'USD',
         ];
     }
 
