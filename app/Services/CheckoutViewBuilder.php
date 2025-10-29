@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\Models\Coupon;
 use App\Models\Currency;
-use App\Models\PaymentGateway;
 use App\Models\Product;
 use App\Models\ProductVariation;
 
@@ -23,7 +22,6 @@ class CheckoutViewBuilder
             $addresses = $user->addresses()->get();
         }
         $defaultAddress = $addresses->firstWhere('is_default', true);
-        $gateways = PaymentGateway::where('enabled', true)->get();
         $this->buildItemDetails($items);
         $checkoutConfig = [
             'baseTotal' => (float) $displayDiscountedTotal,
@@ -48,7 +46,6 @@ class CheckoutViewBuilder
             'items',
             'total',
             'displayTotal',
-            'gateways',
             'currency_symbol',
             'currentCurrency',
             'coupon',

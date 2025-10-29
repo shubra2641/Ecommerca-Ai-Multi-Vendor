@@ -765,38 +765,6 @@
         }
     };
 
-    // Gateway selector for transfer image
-    const GatewaySelector = {
-        init() {
-            const gatewayRadios = document.querySelectorAll('input[name="gateway"]');
-            if (gatewayRadios.length === 0) return;
-
-            gatewayRadios.forEach(radio => {
-                radio.addEventListener('change', () => this.onGatewayChange());
-            });
-
-            // Initial check
-            this.onGatewayChange();
-        },
-
-        onGatewayChange() {
-            const selectedRadio = document.querySelector('input[name="gateway"]:checked');
-            if (!selectedRadio) return;
-
-            const driver = selectedRadio.dataset.driver;
-            const requiresTransferImage = selectedRadio.dataset.requiresTransferImage === '1';
-
-            const transferArea = document.getElementById('transfer-image-area');
-            if (transferArea) {
-                if (driver === 'offline' && requiresTransferImage) {
-                    transferArea.style.display = 'block';
-                } else {
-                    transferArea.style.display = 'none';
-                }
-            }
-        }
-    };
-
     // Initialize all modules when DOM is ready
     function initializeApp() {
         DropdownManager.init();
@@ -806,7 +774,6 @@
         QuantitySelector.init();
         ProductVariations.init();
         CheckoutShipping.init();
-        GatewaySelector.init();
     }
 
     if (document.readyState === 'loading') {

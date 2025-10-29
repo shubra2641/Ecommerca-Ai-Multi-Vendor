@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Api\PaymentApiController;
 use App\Http\Controllers\Api\SystemController as ApiSystemController;
 use App\Http\Controllers\Api\Vendor\AuthController as ApiVendorAuthController;
 use App\Http\Controllers\Api\Vendor\DashboardController as ApiVendorDashboardController;
@@ -68,22 +67,6 @@ Route::prefix('vendor')->group(function (): void {
         Route::patch('/notifications/{id}/read', [ApiVendorNotificationsController::class, 'markAsRead']);
         Route::patch('/notifications/read-all', [ApiVendorNotificationsController::class, 'markAllAsRead']);
         Route::delete('/notifications/{id}', [ApiVendorNotificationsController::class, 'destroy']);
-    });
-});
-
-// Payment API routes
-Route::prefix('payments')->group(function (): void {
-    // Public routes
-    Route::get('/gateways', [PaymentApiController::class, 'getGateways']);
-    Route::any('/webhook', [PaymentApiController::class, 'webhook'])->name('payment.webhook');
-
-    // Protected routes (require authentication)
-    Route::middleware('auth:sanctum')->group(function (): void {
-        Route::post('/initialize', [PaymentApiController::class, 'initializePayment']);
-        Route::get('/{paymentId}/status', [PaymentApiController::class, 'getPaymentStatus']);
-        Route::post('/{paymentId}/verify', [PaymentApiController::class, 'verifyPayment']);
-        Route::post('/{paymentId}/cancel', [PaymentApiController::class, 'cancelPayment']);
-        Route::get('/analytics', [PaymentApiController::class, 'getAnalytics']);
     });
 });
 

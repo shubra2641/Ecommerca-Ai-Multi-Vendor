@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Http\Controllers\Admin\LocationController as AdminLocationController;
 use App\Http\Controllers\Ajax\CurrencyController;
 use App\Http\Controllers\Api\NewShippingController;
-use App\Http\Controllers\Api\PaymentGatewaysController;
 use App\Http\Controllers\Api\PushSubscriptionController;
 use App\Http\Controllers\Api\ShippingController;
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
@@ -18,10 +17,6 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\NotifyController;
 use App\Http\Controllers\OrderViewController;
-use App\Http\Controllers\PayeerController;
-use App\Http\Controllers\Payments\GatewayReturnController;
-use App\Http\Controllers\PaymentWebhookController;
-use App\Http\Controllers\PaypalController;
 use App\Http\Controllers\ProductCatalogController;
 use App\Http\Controllers\ProductNotificationController;
 use App\Http\Controllers\ProductReviewController;
@@ -104,37 +99,6 @@ Route::middleware(\App\Http\Middleware\CheckMaintenanceMode::class)->group(funct
         [CheckoutController::class, 'create']
     )->name('checkout.create')->middleware('auth');
 
-    Route::post(
-        '/checkout/{order}/offline',
-        [CheckoutController::class, 'submitOfflinePayment']
-    )->name('checkout.offline')->middleware('auth');
-
-    Route::post(
-        '/checkout/gateway/callback',
-        [CheckoutController::class, 'gatewayCallback']
-    )->name('checkout.gateway.callback');
-    Route::post(
-        '/checkout/{order}/start-gateway',
-        [CheckoutController::class, 'startGatewayPayment']
-    )->name('checkout.start.gateway')->middleware('auth');
-
-    Route::post(
-        '/webhooks/stripe',
-        [CheckoutController::class, 'stripeWebhook']
-    )->name('webhooks.stripe');
-
-    // PayPal webhook removed: PayPal gateway support has been removed.
-
-    // Success / Cancel pages for Stripe Checkout
-    Route::middleware('auth')
-        ->get('/checkout/success', [CheckoutController::class, 'checkoutSuccess'])
-        ->name('checkout.success');
-    Route::middleware('auth')
-        ->get('/checkout/cancel', [CheckoutController::class, 'checkoutCancel'])
-        ->name('checkout.cancel');
-
-    // Legacy external payment verification & start routes removed.
-
     // Wishlist & Compare (AJAX capable)
     Route::post(
         '/wishlist/toggle',
@@ -206,11 +170,6 @@ Route::middleware('auth')->group(function (): void {
 // Frontend order view (view own order)
 Route::middleware('auth')->get('/order/{order}', [OrderViewController::class, 'show'])->name('orders.show');
 
-// payment gateways API removed
-
-// Public enabled payment gateways list (for checkout UI)
-Route::get('/api/payment-gateways', [PaymentGatewaysController::class, 'index']);
-
 Route::middleware(['auth', 'can:access-user'])->prefix('user')->name('user.')->group(function (): void {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 });
@@ -234,36 +193,3 @@ Route::prefix('vendor')->name('vendor.')->group(function (): void {
 
 
 // Simulated payment redirect routes for local/testing (accept POST for gateways that POST JSON)
-Route::get('/payments/paypal/{payment}/return', [PaypalController::class, 'return'])
-    ->name('paypal.return');
-Route::get('/payments/paypal/{payment}/cancel', [PaypalController::class, 'cancel'])
-    ->name('paypal.cancel');
-Route::get('/payments/tap/{payment}/return', [GatewayReturnController::class, 'tapReturn'])
-    ->name('tap.return');
-
-// Generic return handlers for other redirect gateways
-Route::get('/payments/paytabs/{payment}/return', [GatewayReturnController::class, 'paytabsReturn'])
-    ->name('paytabs.return');
-
-Route::get('/payments/weaccept/{payment}/return', [GatewayReturnController::class, 'weacceptReturn'])
-    ->name('weaccept.return');
-
-Route::get('/payments/payeer/{payment}/return', [GatewayReturnController::class, 'payeerReturn'])
-    ->name('payeer.return');
-
-// Local iframe host for providers that return iframe URLs (e.g. PayMob/WeAccept)
-Route::middleware('auth')
-    ->get('/payments/iframe', [GatewayReturnController::class, 'iframeHost'])
-    ->name('payments.iframe');
-Route::middleware('auth')
-    ->get('/payments/iframe/{payment}', [GatewayReturnController::class, 'iframeForPayment'])
-    ->name('payments.iframe.payment');
-
-// Payrexx gateway removed from this deployment (route intentionally omitted)
-
-Route::post('/payments/payeer/callback', [PayeerController::class, 'callback'])
-    ->name('payeer.callback');
-
-// Webhook endpoint for external gateways, driver name in path
-Route::post('/webhooks/{driver}', [PaymentWebhookController::class, 'handle'])
-    ->name('webhooks.driver');

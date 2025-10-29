@@ -184,35 +184,6 @@
                             {{ __('Get it soon based on shipping option') }}
                         </div>
                     </div>
-                    <div class="panel-card">
-                        <h3 class="panel-title">{{ __('Payment') }}</h3>
-                        @foreach($gateways as $gw)
-                        <label class="gateway-item">
-                            <input type="radio" name="gateway" value="{{ $gw->slug }}" data-driver="{{ $gw->driver }}" data-requires-transfer-image="{{ $gw->requires_transfer_image ? '1' : '0' }}"
-                                {{ (old('gateway', ($loop->first ? $gw->slug : null)) == $gw->slug) ? 'checked' : '' }}>
-                            <span class="gateway-name">{{ $gw->name }}
-                                @if($gw->driver==='offline')<small>({{ __('Offline') }})</small>@elseif($gw->driver==='cod')<small>({{ __('Cash on Delivery') }})</small>@endif</span>
-                            @if($gw->driver === 'offline' && $gw->transfer_instructions)
-                            <div class="gateway-instructions small-muted">{!! \App\Services\HtmlSanitizer::sanitizeEmbed($gw->transfer_instructions) !!}</div>
-                            @endif
-                        </label>
-                        @endforeach
-                        {{-- Transfer image upload area (shown when offline gateway requires it) --}}
-                        <div id="transfer-image-area" class="mt-2 hidden">
-                            <label class="form-label">{{ __('Upload proof of transfer') }}</label>
-                            <div class="small-muted mb-1">
-                                {{ __('If your chosen payment method requires a payment receipt, please upload an image here.') }}
-                            </div>
-                            <input type="file" name="transfer_image" id="transfer_image" accept="image/*"
-                                class="form-control-file">
-                            @error('transfer_image') <div class="text-danger small">{{ $message }}</div> @enderror
-                        </div>
-                        @if(!count($gateways))
-                        <div class="alert alert-warning small">
-                            {{ __('No payment gateways available') }}
-                        </div>
-                        @endif
-                    </div>
                 </div>
                 <aside class="checkout-right">
                     <div class="summary-box panel-card">

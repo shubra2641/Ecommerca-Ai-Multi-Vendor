@@ -4,19 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Events\OrderPaid;
 use App\Helpers\GlobalHelper;
 use App\Http\Requests\CheckoutRequest;
 use App\Http\Requests\CreateOrderRequest;
-use App\Http\Requests\StartGatewayPaymentRequest;
-use App\Http\Requests\SubmitOfflinePaymentRequest;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Payment;
-use App\Models\PaymentGateway;
 use App\Models\Product;
-use App\Services\Checkout\CheckoutProcessor;
 use App\Services\CheckoutViewBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -64,14 +58,13 @@ class CheckoutController extends Controller
         // Calculate totals
         $subtotal = $this->computeSubtotal($cart);
         $discount = $this->computeDiscount($subtotal);
+        $shippingPrice = (float) ($request->shipping_price ?? 0);
+        $total = $subtotal + $shippingPrice - $discount;
 
         try {
-            $checkoutProcessor = app(CheckoutProcessor::class);
-            $checkoutData = $checkoutProcessor->processCheckout($request, $cart, $request->validated(), $discount);
-            $order = $checkoutProcessor->createOrder($checkoutData, $request);
-            $paymentResult = $checkoutProcessor->processPayment($order, $checkoutData['gateway'], $request);
-
-            return $this->handlePaymentResult($paymentResult, $request);
+            $order = $this->createOrder($request, $cart, $total, $subtotal, $shippingPrice, $discount);
+            session()->forget('cart');
+            return redirect()->route('orders.show', $order)->with('success', __('Order created successfully.'));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -108,12 +101,12 @@ class CheckoutController extends Controller
 
             $order = Order::create([
                 'user_id' => $user ? $user->id : null,
-                'status' => 'pending',
+                'status' => 'completed',
                 'total' => $total,
                 'items_subtotal' => $total,
                 'currency' => $orderCurrency,
-                'payment_method' => $data['payment_method'],
-                'payment_status' => 'pending',
+                'payment_method' => $data['payment_method'] ?? 'cod',
+                'payment_status' => 'paid',
             ]);
 
             foreach ($items as $item) {
@@ -127,169 +120,8 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            $payment = Payment::create([
-                'order_id' => $order->id,
-                'user_id' => $order->user_id,
-                'method' => $order->payment_method,
-                'amount' => $order->total,
-                'currency' => $order->currency,
-                'status' => 'pending',
-            ]);
-
-            return response()->json(['order_id' => $order->id, 'payment_id' => $payment->id], 201);
+            return response()->json(['order_id' => $order->id], 201);
         });
-    }
-
-    /**
-     * Submit offline payment proof
-     */
-    public function submitOfflinePayment(SubmitOfflinePaymentRequest $request, $orderId)
-    {
-        $order = Order::findOrFail($orderId);
-        $data = $request->validated();
-
-        return DB::transaction(function () use ($order, $data) {
-            $payment = $this->markOrderAsPaid($order, [
-                'method' => 'offline',
-                'amount' => $data['amount'],
-                'payload' => ['note' => $data['note'] ?? null],
-            ]);
-
-            return response()->json(['ok' => true, 'payment_id' => $payment->id]);
-        });
-    }
-
-    /**
-     * Gateway callback
-     */
-    public function gatewayCallback(Request $request)
-    {
-        $data = $request->all();
-        $orderId = $data['order_id'] ?? $request->query('order_id');
-        $status = $data['status'] ?? 'failed';
-
-        if (! $orderId) {
-            return response()->json(['error' => 'order_id required'], 400);
-        }
-
-        $order = Order::find($orderId);
-        if (! $order) {
-            return response()->json(['error' => 'order not found'], 404);
-        }
-
-        if ($status === 'paid') {
-            return $this->markOrderPaid($order, $data);
-        }
-
-        return response()->json(['ok' => false]);
-    }
-
-    /**
-     * Start gateway payment
-     */
-    public function startGatewayPayment(StartGatewayPaymentRequest $request, $orderId)
-    {
-        $order = Order::findOrFail($orderId);
-        $data = $request->validated();
-
-        $gateway = $this->findEnabledGateway($data['gateway'] ?? null);
-        if (! $gateway) {
-            return response()->json(['error' => 'no_enabled_gateway'], 422);
-        }
-
-        if ($gateway->driver === 'offline') {
-            return $this->startOfflinePayment($order, $gateway);
-        }
-
-        if ($gateway->driver === 'stripe') {
-            return $this->startStripePayment($order, $gateway);
-        }
-
-        if ($gateway->driver === 'cod') {
-            return $this->startCodPayment($order, $gateway);
-        }
-
-        return response()->json(['error' => 'unsupported_gateway_driver'], 422);
-    }
-
-    /**
-     * Stripe webhook handler
-     */
-    public function stripeWebhook(Request $request)
-    {
-        $payload = $request->getContent();
-        $event = json_decode($payload, true);
-
-        if (! $event) {
-            return response()->json(['error' => 'invalid_payload'], 400);
-        }
-
-        $type = $event['type'] ?? '';
-        if ($type === 'checkout.session.completed') {
-            $session = $event['data']['object'] ?? [];
-            $this->handleStripeSessionCompleted($session);
-        }
-
-        return response()->json(['ok' => true]);
-    }
-
-    /**
-     * Checkout success handler
-     */
-    public function checkoutSuccess(Request $request)
-    {
-        $orderId = $request->query('order');
-        $order = $orderId ? Order::find($orderId) : null;
-
-        if (! $order) {
-            $this->restoreStripePendingCart();
-
-            return view('payments.failure')
-                ->with('order', null)
-                ->with('payment', null)
-                ->with('error_message', __('Payment was canceled. Your cart has been restored.'));
-        }
-
-        if (Auth::id() !== $order->user_id) {
-            abort(403);
-        }
-
-        return redirect()->route('orders.show', $order)->with(
-            'info',
-            __('Payment completed but verification is pending. Check your order for updates.')
-        );
-    }
-
-    /**
-     * Checkout cancel handler
-     */
-    public function checkoutCancel(Request $request)
-    {
-        $orderId = $request->query('order');
-        $order = $orderId ? Order::find($orderId) : null;
-
-        if ($order) {
-            if (Auth::id() !== $order->user_id) {
-                abort(403);
-            }
-
-            if ($order->payment_status !== 'paid') {
-                $order->payment_status = 'cancelled';
-            }
-            if (! in_array($order->status, ['completed', 'refunded'])) {
-                $order->status = 'cancelled';
-            }
-            $order->save();
-        }
-
-        $this->restoreStripePendingCart();
-
-        $errorMessage = __('Payment was canceled. Your cart has been restored.');
-
-        return view('payments.failure')
-            ->with('order', $order)
-            ->with('payment', null)
-            ->with('error_message', $errorMessage);
     }
 
     /** Helpers extracted to reduce complexity and duplication */
@@ -300,32 +132,57 @@ class CheckoutController extends Controller
         }
     }
 
-    private function createPayment(array $paymentData): Payment
+    private function createOrder(Request $request, array $cart, float $total, float $subtotal, float $shippingPrice, float $discount): Order
     {
-        return Payment::create($paymentData);
-    }
+        $validated = $request->validated();
+        $user = $request->user();
 
-    private function markOrderAsPaid(Order $order, array $paymentData = []): Payment
-    {
-        $payment = $this->createPayment(array_merge([
-            'order_id' => $order->id,
-            'user_id' => $order->user_id,
-            'method' => $paymentData['method'] ?? 'gateway',
-            'amount' => $paymentData['amount'] ?? $order->total,
-            'currency' => $paymentData['currency'] ?? $order->currency,
-            'status' => 'completed',
-            'transaction_id' => $paymentData['transaction_id'] ?? null,
-            'payload' => $paymentData,
-        ], $paymentData));
+        return DB::transaction(function () use ($user, $validated, $cart, $total, $subtotal, $shippingPrice, $discount) {
+            $currencyContext = GlobalHelper::getCurrencyContext();
+            $currentCurrency = $currencyContext['currentCurrency'];
+            $orderCurrency = $currentCurrency ? $currentCurrency->code : config('app.currency', 'USD');
 
-        $order->payment_status = 'paid';
-        $order->status = 'completed';
-        $order->save();
+            $order = Order::create([
+                'user_id' => $user ? $user->id : null,
+                'status' => 'completed',
+                'total' => $total,
+                'items_subtotal' => $subtotal,
+                'shipping_price' => $shippingPrice,
+                'discount' => $discount,
+                'currency' => $orderCurrency,
+                'payment_method' => 'cod', // Default to COD for now
+                'payment_status' => 'paid',
+                'customer_name' => $validated['customer_name'] ?? null,
+                'customer_email' => $validated['customer_email'] ?? null,
+                'customer_phone' => $validated['customer_phone'] ?? null,
+                'customer_address' => $validated['customer_address'] ?? null,
+                'country_id' => $validated['country'] ?? null,
+                'governorate_id' => $validated['governorate'] ?? null,
+                'city_id' => $validated['city'] ?? null,
+                'notes' => $validated['notes'] ?? null,
+                'shipping_zone_id' => $validated['shipping_zone_id'] ?? null,
+                'shipping_estimated_days' => $validated['shipping_estimated_days'] ?? null,
+            ]);
 
-        // Dispatch OrderPaid event to trigger stock deduction
-        event(new OrderPaid($order));
+            foreach ($cart as $productId => $row) {
+                $product = Product::find($productId);
+                if (! $product) continue;
 
-        return $payment;
+                $qty = (int) ($row['qty'] ?? 1);
+                $price = (float) ($row['price'] ?? 0);
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'qty' => $qty,
+                    'price' => $price,
+                    'purchased_at' => now(),
+                ]);
+            }
+
+            return $order;
+        });
     }
 
     private function computeSubtotal(array $cart): float
@@ -360,207 +217,5 @@ class CheckoutController extends Controller
             }
         }
         return (float) $discount;
-    }
-
-    private function findEnabledGateway(?string $slug)
-    {
-        $query = PaymentGateway::query()->where('enabled', true);
-        if (! empty($slug)) {
-            $query->where('slug', $slug);
-        }
-        return $query->first();
-    }
-
-    private function startCodPayment(Order $order, PaymentGateway $gateway)
-    {
-        $payment = $this->createPayment([
-            'order_id' => $order->id,
-            'user_id' => $order->user_id,
-            'method' => 'cod',
-            'amount' => $order->total,
-            'currency' => $order->currency,
-            'status' => 'completed',
-        ]);
-
-        // Mark order as completed for COD
-        $order->payment_status = 'paid';
-        $order->status = 'completed';
-        $order->save();
-
-        // Dispatch OrderPaid event
-        event(new OrderPaid($order));
-
-        return response()->json([
-            'type' => 'cod',
-            'payment_id' => $payment->id,
-            'instructions' => 'Payment will be collected on delivery.',
-        ]);
-    }
-
-    private function startStripePayment(Order $order, PaymentGateway $gateway)
-    {
-        $stripeCfg = method_exists($gateway, 'getStripeConfig') ? $gateway->getStripeConfig() : [];
-        $secret = $stripeCfg['secret_key'] ?? null;
-        $publishable = $stripeCfg['publishable_key'] ?? null;
-
-        if (! $secret || ! $publishable) {
-            return response()->json(['error' => 'stripe_not_configured'], 422);
-        }
-
-        try {
-            if (! class_exists(\Stripe\Stripe::class)) {
-                return response()->json(['error' => 'stripe_library_missing'], 500);
-            }
-
-            \Stripe\Stripe::setApiKey($secret);
-            $currency = strtolower($order->currency ?? 'usd');
-
-            $session = \Stripe\Checkout\Session::create([
-                'mode' => 'payment',
-                'payment_method_types' => ['card'],
-                'line_items' => [
-                    [
-                        'price_data' => [
-                            'currency' => $currency,
-                            'product_data' => ['name' => 'Order #' . $order->id],
-                            'unit_amount' => GlobalHelper::toCents($order->total ?? 0),
-                        ],
-                        'quantity' => 1,
-                    ],
-                ],
-                'success_url' => url('/checkout/success?order=' . $order->id),
-                'cancel_url' => url('/checkout/cancel?order=' . $order->id),
-                'metadata' => ['order_id' => $order->id],
-            ]);
-
-            $payment = Payment::where('order_id', $order->id)
-                ->where('method', 'stripe')
-                ->where('status', 'pending')
-                ->first();
-
-            if (! $payment) {
-                $payment = $this->createPayment([
-                    'order_id' => $order->id,
-                    'user_id' => $order->user_id,
-                    'method' => 'stripe',
-                    'amount' => $order->total,
-                    'currency' => $order->currency,
-                    'status' => 'pending',
-                    'payload' => [],
-                ]);
-            }
-
-            $payload = $payment->payload ? $payment->payload : [];
-            $payload['stripe_session_id'] = $session->id;
-            $payment->payload = $payload;
-            $payment->save();
-
-            return response()->json([
-                'type' => 'stripe',
-                'publishable_key' => $publishable,
-                'checkout_url' => $session->url,
-                'session_id' => $session->id,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'stripe_error', 'message' => $e->getMessage()], 500);
-        }
-    }
-
-    private function handleStripeSessionCompleted(array $session): void
-    {
-        $orderId = $session['metadata']['order_id'] ?? null;
-        if (! $orderId) {
-            return;
-        }
-
-        $order = Order::find($orderId);
-        if (! $order) {
-            return;
-        }
-
-        $payment = Payment::where('order_id', $order->id)
-            ->where('method', 'stripe')
-            ->where('status', 'pending')
-            ->orderBy('id')
-            ->first();
-
-        $amount = GlobalHelper::fromCents($session['amount_total'] ?? $order->total * 100);
-        $currency = strtolower($session['currency'] ?? $order->currency);
-        $tx = $session['payment_intent'] ?? ($session['id'] ?? null);
-
-        if ($payment) {
-            $payment->status = 'completed';
-            $payment->amount = $amount;
-            $payment->currency = $currency;
-            $payment->transaction_id = $tx;
-            $payment->save();
-        } else {
-            $this->createPayment([
-                'order_id' => $order->id,
-                'user_id' => $order->user_id,
-                'method' => 'stripe',
-                'amount' => $amount,
-                'currency' => $currency,
-                'status' => 'completed',
-                'transaction_id' => $session['payment_intent'] ?? null,
-                'payload' => $session,
-            ]);
-        }
-
-        $this->markOrderAsPaid($order);
-    }
-
-    private function restoreStripePendingCart(): void
-    {
-        if (session()->has('stripe_pending_cart')) {
-            session()->put('cart', session('stripe_pending_cart'));
-            session()->forget('stripe_pending_cart');
-        }
-    }
-
-    private function markOrderPaid(Order $order, array $data)
-    {
-        return DB::transaction(function () use ($order, $data) {
-            return $this->markOrderAsPaid($order, $data);
-        });
-    }
-
-    /**
-     * Handle payment result
-     */
-    private function handlePaymentResult(array $paymentResult, Request $request)
-    {
-        switch ($paymentResult['type']) {
-            case 'redirect':
-                session()->forget('cart');
-                session()->flash('refresh_admin_notifications', true);
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => true,
-                        'redirect_url' => $paymentResult['redirect_url'],
-                        'payment_id' => $paymentResult['payment']?->id ?? null,
-                    ]);
-                }
-
-                return redirect()->away($paymentResult['redirect_url']);
-
-            case 'cod':
-                session()->forget('cart');
-
-                return redirect($paymentResult['redirect_url'])
-                    ->with('success', __('Order created successfully. Payment will be collected on delivery.'))
-                    ->with('refresh_admin_notifications', true);
-
-            case 'stripe':
-                session()->put('stripe_pending_cart', session('cart'));
-                session()->forget('cart');
-                session()->flash('refresh_admin_notifications', true);
-
-                return redirect()->away($paymentResult['redirect_url']);
-
-            default:
-                return back()->with('error', __('Unsupported payment method'));
-        }
     }
 }

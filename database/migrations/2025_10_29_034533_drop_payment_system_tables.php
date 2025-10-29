@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('payment_gateways', function (Blueprint $table) {
-            $table->text('description')->nullable()->after('slug');
-        });
+        Schema::dropIfExists('payment_attachments');
+        Schema::dropIfExists('payments');
+        Schema::dropIfExists('payment_gateways');
     }
 
     /**
@@ -21,8 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('payment_gateways', function (Blueprint $table) {
-            $table->dropColumn('description');
-        });
+        // No rollback as we're removing the system entirely
     }
 };

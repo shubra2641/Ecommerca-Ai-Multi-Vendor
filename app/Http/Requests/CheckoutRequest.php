@@ -24,27 +24,12 @@ class CheckoutRequest extends FormRequest
             'governorate' => 'nullable|integer',
             'city' => 'nullable|integer',
             'notes' => 'nullable|string|max:2000',
-            'gateway' => 'required|string',
             // shipping selection (required)
             'shipping_zone_id' => 'required|integer|exists:shipping_zones,id',
             'shipping_price' => 'required|numeric|min:0',
             'selected_address_id' => 'nullable|integer|exists:addresses,id',
             'shipping_estimated_days' => 'nullable|integer|min:0',
         ];
-
-        // Conditional: if selected gateway requires transfer_image, enforce upload
-        try {
-            $gw = $this->input('gateway');
-            if ($gw) {
-                $g = \App\Models\PaymentGateway::where('slug', $gw)->first();
-                if ($g && $g->requires_transfer_image) {
-                    $rules['transfer_image'] = 'required|image|mimes:jpg,jpeg,png|max:5120'; // max 5MB
-                }
-            }
-        } catch (\Throwable $e) {
-            /* fail silently; no extra rule applied */
-            null;
-        }
 
         return $rules;
     }

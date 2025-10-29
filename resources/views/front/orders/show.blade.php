@@ -153,34 +153,6 @@
                         @endif
                     </div>
 
-                    <!-- Payment Attachments -->
-                    @if(($ovbAttachments ?? collect())->count())
-                    <div class="modern-card">
-                        <div class="card-header-modern">
-                            <h3 class="card-title-modern">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                </svg>
-                                {{ __('Payment Attachments') }}
-                            </h3>
-                        </div>
-                        <div class="attachments-list-modern">
-                            @foreach($ovbAttachments as $att)
-                            <a href="{{ \App\Helpers\GlobalHelper::storageImageUrl($att['path']) }}" target="_blank" class="attachment-card-modern">
-                                <div class="attachment-icon-modern">📄</div>
-                                <div class="attachment-info-modern">
-                                    <div class="attachment-name-modern">{{ __('Payment Document') }} #{{ $att['id'] ?? '' }}</div>
-                                    <div class="attachment-type-modern">{{ strtoupper(pathinfo($att['path'], PATHINFO_EXTENSION)) }}</div>
-                                </div>
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                            </a>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
-
                 </div>
 
                 <!-- Right Column (Sidebar) -->

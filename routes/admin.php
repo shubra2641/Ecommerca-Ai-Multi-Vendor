@@ -22,7 +22,6 @@ use App\Http\Controllers\Admin\MaintenanceSettingsController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\NotifyController as AdminNotifyController;
 use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\PaymentGatewayController;
 use App\Http\Controllers\Admin\PostCategoryController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ProductApprovalController;
@@ -309,14 +308,6 @@ Route::middleware([
         Route::post('/bulk-approve', [UserController::class, 'bulkApprove'])->name('bulk-approve');
         Route::delete('/bulk-delete', [UserController::class, 'bulkDelete'])->name('bulk-delete');
     });
-
-    // Payment Gateways (rebuilt system)
-    Route::get('payment-gateways', [PaymentGatewayController::class, 'index'])->name('admin.payment-gateways.index');
-    Route::put('payment-gateways/{paymentGateway}', [PaymentGatewayController::class, 'update'])->name('admin.payment-gateways.update');
-    Route::post('payment-gateways/{paymentGateway}/toggle', [PaymentGatewayController::class, 'toggle'])->name('admin.payment-gateways.toggle');
-    Route::post('payment-gateways/{paymentGateway}/toggle-transfer-image', [PaymentGatewayController::class, 'toggleTransferImageRequirement'])->name('admin.payment-gateways.toggle-transfer-image');
-    Route::post('payment-gateways/{paymentGateway}/test-webhook', [PaymentGatewayController::class, 'testWebhook'])
-        ->name('admin.payment-gateways.test-webhook');
 
     // Coupons management (moved here so path is /admin/coupons)
     Route::prefix('coupons')->name('admin.coupons.')->group(function (): void {
