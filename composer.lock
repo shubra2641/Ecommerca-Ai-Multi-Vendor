@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d49d17753e7906b5ade082ea70b6d950",
+    "content-hash": "a692aa744e9fc855ef94002a1438ae82",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -3020,6 +3020,68 @@
                 }
             ],
             "time": "2025-03-24T10:02:05+00:00"
+        },
+        {
+            "name": "nafezly/payments",
+            "version": "v2.7.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Nafezly/payments.git",
+                "reference": "9c7aa308ac5fdfa2ee9f1cde9402f82aa97a3c4c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Nafezly/payments/zipball/9c7aa308ac5fdfa2ee9f1cde9402f82aa97a3c4c",
+                "reference": "9c7aa308ac5fdfa2ee9f1cde9402f82aa97a3c4c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "laravel/framework": ">=6.0",
+                "paypal/paypal-checkout-sdk": "1.0.2",
+                "php": ">=7.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "NafezlyPayments": "Nafezly\\Payments\\Facades"
+                    },
+                    "providers": [
+                        "Nafezly\\Payments\\NafezlyPaymentsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Nafezly\\Payments\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "nafezly.com",
+                    "email": "nafezly.com@gmail.com"
+                }
+            ],
+            "description": "Payment helper for Paypal, Paymob, Kashier, Hyperpay and Fawry",
+            "keywords": [
+                "fawry",
+                "hyperpay",
+                "kashier",
+                "online payments",
+                "paymob",
+                "paypal"
+            ],
+            "support": {
+                "issues": "https://github.com/Nafezly/payments/issues",
+                "source": "https://github.com/Nafezly/payments/tree/v2.7.4"
+            },
+            "time": "2023-08-31T23:37:48+00:00"
         },
         {
             "name": "nesbot/carbon",
