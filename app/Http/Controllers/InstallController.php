@@ -378,12 +378,40 @@ class InstallController extends Controller
 
         $envContent = file_get_contents($envPath);
 
+        // Detect current application URL from the incoming request (fallback to existing APP_URL or localhost)
+        $detectedUrl = null;
+        try {
+            // Prefer full scheme+host (with port) from the current request
+            if (app()->runningInConsole()) {
+                $detectedUrl = null; // avoid CLI ambiguity
+            } else {
+                $detectedUrl = rtrim(request()->getSchemeAndHttpHost(), '/');
+            }
+        } catch (\Throwable $e) {
+            $detectedUrl = null;
+        }
+        if (!$detectedUrl) {
+            $currentEnvUrl = env('APP_URL');
+            if (is_string($currentEnvUrl) && $currentEnvUrl !== '') {
+                $detectedUrl = rtrim($currentEnvUrl, '/');
+            } else {
+                $detectedUrl = 'http://localhost';
+            }
+        }
+
         // Update database configuration
         $envContent = preg_replace('/^DB_HOST=.*/m', 'DB_HOST=' . $dbConfig['host'], $envContent);
         $envContent = preg_replace('/^DB_PORT=.*/m', 'DB_PORT=' . $dbConfig['port'], $envContent);
         $envContent = preg_replace('/^DB_DATABASE=.*/m', 'DB_DATABASE=' . $dbConfig['database'], $envContent);
         $envContent = preg_replace('/^DB_USERNAME=.*/m', 'DB_USERNAME=' . $dbConfig['username'], $envContent);
         $envContent = preg_replace('/^DB_PASSWORD=.*/m', 'DB_PASSWORD=' . $dbConfig['password'], $envContent);
+
+        // Update APP_URL (add if missing)
+        if (preg_match('/^APP_URL=.*/m', $envContent)) {
+            $envContent = preg_replace('/^APP_URL=.*/m', 'APP_URL=' . $detectedUrl, $envContent);
+        } else {
+            $envContent .= "\nAPP_URL=" . $detectedUrl . "\n";
+        }
 
         file_put_contents($envPath, $envContent);
 
@@ -407,7 +435,6 @@ class InstallController extends Controller
             'font_family' => 'Inter',
             'auto_publish_reviews' => true,
             'ai_enabled' => false,
-            'enable_external_payment_redirect' => false,
             'recaptcha_enabled' => false,
         ]);
     }

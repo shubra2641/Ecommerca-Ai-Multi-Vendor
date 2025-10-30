@@ -151,14 +151,8 @@ class SettingsController extends Controller
             }
         }
 
-        // Prevent writing unknown columns (some installs may lack newly added columns)
-        if (Schema::hasColumn('settings', 'enable_external_payment_redirect')) {
-            $setting->fill($changedData);
-        } else {
-            // Remove the key to avoid QueryException when saving
-            unset($changedData['enable_external_payment_redirect']);
-            $setting->fill($changedData);
-        }
+        // Fill only changed attributes
+        $setting->fill($changedData);
         // AI settings handling - only update if changed
         if ($request->has('ai_enabled')) {
             $newAiEnabled = (bool) $request->input('ai_enabled');

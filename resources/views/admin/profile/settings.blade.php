@@ -126,39 +126,18 @@
                                     <div class="admin-text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                            </div>
-
-                            <div class="admin-form-group">
-                                <label class="admin-form-label">{{ __('Font Family') }}</label>
-                                <select name="font_family" class="admin-form-input js-preview-font @error('font_family') is-invalid @enderror">
-                                    @foreach(($profileAvailableFonts ?? []) as $font)
-                                    <option value="{{ $font }}" {{ old('font_family', $setting->font_family ?? 'Inter') === $font ? 'selected' : '' }}>{{ $font }}@if($font==='Inter') ({{ __('Default') }})@endif</option>
-                                    @endforeach
-                                </select>
-                                <div class="admin-text-muted small">{{ __('Only locally bundled fonts are listed to ensure CSP & SRI compliance.') }}</div>
-                                <input type="hidden" id="current_font_loaded" value="{{ old('font_family', $setting->font_family ?? 'Inter') }}">
-                                @error('font_family')
-                                <div class="admin-text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="font-preview-container envato-hidden">
-                                        <label class="form-label">{{ __('Font Preview') }}</label>
-                                        <div class="font-preview-text" id="fontPreview">
-                                            <p data-sample="label" class="mb-2 fs-16 fw-600">
-                                                {{ $setting->font_family ?? 'Inter' }} - {{ __('Font Preview') }}
-                                            </p>
-                                            <p data-sample="latin" class="mb-1 fs-14">The quick brown fox
-                                                jumps over the lazy dog 1234567890 !?&amp;*</p>
-                                            <p data-sample="arabic" class="mb-0 fs-14">نص عربي للتجربة يظهر
-                                                تنسيق الخط واختبار الحروف الموسعة</p>
-                                        </div>
-                                        <small
-                                            class="text-muted d-block mt-2">{{ __('Preview only. Click Save Settings to apply site-wide.') }}</small>
-                                    </div>
+                                <div class="admin-form-group">
+                                    <label class="admin-form-label">{{ __('Font Family') }}</label>
+                                    <select name="font_family" class="admin-form-input js-preview-font @error('font_family') is-invalid @enderror">
+                                        @foreach(($profileAvailableFonts ?? []) as $font)
+                                        <option value="{{ $font }}" {{ old('font_family', $setting->font_family ?? 'Inter') === $font ? 'selected' : '' }}>{{ $font }}@if($font==='Inter') ({{ __('Default') }})@endif</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="admin-text-muted small">{{ __('Only locally bundled fonts are listed to ensure CSP & SRI compliance.') }}</div>
+                                    <input type="hidden" id="current_font_loaded" value="{{ old('font_family', $setting->font_family ?? 'Inter') }}">
+                                    @error('font_family')
+                                    <div class="admin-text-danger">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
 
@@ -308,27 +287,7 @@
                                 </div>
                             </div>
 
-                            <hr />
-                            <h4 class="mt-4">{{ __('External Payment Settings') }}</h4>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group form-check">
-                                        <input type="hidden" name="enable_external_payment_redirect" value="0">
-                                        <input type="checkbox" id="enable_external_payment_redirect" name="enable_external_payment_redirect" value="1"
-                                            class="form-check-input"
-                                            {{ old('enable_external_payment_redirect', $setting->enable_external_payment_redirect ?? false) ? 'checked' : '' }}>
-                                        <label for="enable_external_payment_redirect"
-                                            class="form-check-label">{{ __('Enable External Payment Redirect') }}</label>
-                                        <small
-                                            class="form-text text-muted">{{ __('When enabled, customers will be redirected directly to external payment gateways instead of using the internal payment handler.') }}</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="alert alert-info py-2 px-3 w-100 mb-0 small">
-                                        <strong>{{ __('Note:') }}</strong> {{ __('This setting affects how payment gateways handle customer redirections. Enable for direct gateway integration.') }}
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <div class="admin-card-footer">
                                 <div class="admin-flex-end">

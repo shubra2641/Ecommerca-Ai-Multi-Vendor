@@ -102,8 +102,7 @@ class UpdateSettingsRequest extends FormRequest
             'ai_provider' => ['nullable', 'string', 'in:openai,grok,gemini'],
             // Accept typical key length; don't force pattern yet to allow different formats
             'ai_openai_api_key' => ['nullable', 'string', 'max:255'],
-            // External Payment settings
-            'enable_external_payment_redirect' => ['nullable', 'in:0,1'],
+
             // reCAPTCHA settings
             'recaptcha_enabled' => ['nullable', 'in:0,1'],
             'recaptcha_site_key' => ['nullable', 'string', 'max:255'],
