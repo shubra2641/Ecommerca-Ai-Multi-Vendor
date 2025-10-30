@@ -1,18 +1,41 @@
 <?php
 
-declare(strict_types=1);
-
 use App\Http\Controllers\InstallController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('install')->name('install.')->group(function (): void {
+/*
+|--------------------------------------------------------------------------
+| Installation Routes
+|--------------------------------------------------------------------------
+|
+| These routes handle the installation process for Easy Store.
+| They are only accessible when the system is not installed.
+|
+*/
+
+Route::prefix('install')->name('install.')->group(function () {
+    // Welcome page
     Route::get('/', [InstallController::class, 'welcome'])->name('welcome');
+
+    // Requirements check
     Route::get('/requirements', [InstallController::class, 'requirements'])->name('requirements');
-    Route::get('/database', [InstallController::class, 'databaseForm'])->name('database');
-    Route::post('/permissions', [InstallController::class, 'permissions'])->name('permissions');
-    Route::post('/test-db', [InstallController::class, 'testDb'])->name('testDb');
-    // Route to write DB settings to .env from the installer UI
-    Route::post('/save-db', [InstallController::class, 'saveDb'])->name('saveDb');
-    Route::post('/create-admin', [InstallController::class, 'createAdmin'])->name('createAdmin');
+
+    // Database configuration
+    Route::get('/database', [InstallController::class, 'database'])->name('database');
+    Route::post('/database', [InstallController::class, 'databaseStore'])->name('database.store');
+
+    // Admin account creation
+    Route::get('/admin', [InstallController::class, 'admin'])->name('admin');
+    Route::post('/admin', [InstallController::class, 'adminStore'])->name('admin.store');
+
+    // License verification
+    Route::get('/license', [InstallController::class, 'license'])->name('license');
+    Route::post('/license', [InstallController::class, 'licenseStore'])->name('license.store');
+
+    // Installation process
+    Route::get('/install', [InstallController::class, 'install'])->name('install');
+    Route::post('/process', [InstallController::class, 'installProcess'])->name('process');
+
+    // Installation complete
     Route::get('/complete', [InstallController::class, 'complete'])->name('complete');
 });

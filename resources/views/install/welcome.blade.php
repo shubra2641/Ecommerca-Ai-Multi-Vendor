@@ -1,13 +1,55 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
 
-@section('content')
-<div class="container mt-5">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h2 class="mb-3">Welcome</h2>
-            <p class="lead">This setup wizard will guide you through preparing the application for first use. Click continue to run a quick environment check.</p>
-            <a href="{{ route('install.requirements') }}" class="btn btn-primary">Continue</a>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Easy Store Installation</title>
+    <link href="{{ asset('assets/front/css/install.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome to Easy Store</h1>
+            <p>Let's get your marketplace up and running</p>
+        </div>
+
+        <div class="steps">
+            <div class="step current">
+                <div class="step-icon">1</div>
+                <div>Check Requirements</div>
+            </div>
+            <div class="step pending">
+                <div class="step-icon">2</div>
+                <div>Database Configuration</div>
+            </div>
+            <div class="step pending">
+                <div class="step-icon">3</div>
+                <div>Admin Account</div>
+            </div>
+            <div class="step pending">
+                <div class="step-icon">4</div>
+                <div>License Verification</div>
+            </div>
+            <div class="step pending">
+                <div class="step-icon">5</div>
+                <div>Installation</div>
+            </div>
+        </div>
+
+        <p style="color: #666; margin: 20px 0;">
+            This installation wizard will guide you through setting up your Easy Store marketplace.
+        </p>
+
+        <a href="{{ route('install.requirements') }}" class="btn btn-primary">
+            Start Installation
+        </a>
+
+        <div class="footer">
+            Easy Store Installation Wizard v1.0
         </div>
     </div>
-</div>
-@endsection
+</body>
+
+</html>

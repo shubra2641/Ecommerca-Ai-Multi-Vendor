@@ -1,32 +1,65 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
 
-@section('content')
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h3>System Requirements</h3>
-                    <p>PHP Version: <strong>{{ $phpVersion }}</strong></p>
-                    <ul>
-                        @foreach($extensions as $ext => $ok)
-                            <li class="mb-1">{{ $ext }}: <span class="badge {{ $ok ? 'bg-success' : 'bg-danger' }}">{{ $ok ? 'OK' : 'Missing' }}</span></li>
-                        @endforeach
-                    </ul>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requirements - Easy Store Installation</title>
+    <link href="{{ asset('assets/front/css/install.css') }}" rel="stylesheet">
+</head>
 
-                    <hr />
-                    <h5>Filesystem Permissions</h5>
-                    <p>Click the button below to verify writable paths required by the application.</p>
-                    <button id="checkPerms" class="btn btn-outline-primary">Check Permissions</button>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>System Requirements</h1>
+            <p>Let's check if your server meets the requirements</p>
+        </div>
 
-                    <div id="permResults" class="mt-3"></div>
+        <!-- PHP Version -->
+        <h3>PHP Version</h3>
+        <div class="requirement {{ $requirements['php_version'] ? 'success' : 'error' }}">
+            <span>PHP 8.1+ Required</span>
+            <span>{{ PHP_VERSION }}</span>
+        </div>
 
-                    <div class="mt-4">
-                        <a href="{{ route('install.database') }}" class="btn btn-primary">Next: Database</a>
-                    </div>
-                </div>
+        <!-- PHP Extensions -->
+        <h3>PHP Extensions</h3>
+        <div class="requirements">
+            @foreach($requirements['extensions'] as $extension => $status)
+            <div class="requirement {{ $status ? 'success' : 'error' }}">
+                <span>{{ $extension }}</span>
+                <span>{{ $status ? 'OK' : 'Missing' }}</span>
             </div>
+            @endforeach
+        </div>
+
+        <!-- Writable Directories -->
+        <h3>Writable Directories</h3>
+        <div class="requirements">
+            @foreach($requirements['writable_directories'] as $directory => $status)
+            <div class="requirement {{ $status ? 'success' : 'error' }}">
+                <span>{{ $directory }}</span>
+                <span>{{ $status ? 'Writable' : 'Not Writable' }}</span>
+            </div>
+            @endforeach
+        </div>
+
+        <div class="btn-group">
+            <a href="{{ route('install.welcome') }}" class="btn btn-secondary">
+                Back
+            </a>
+
+            @if($allRequirementsMet)
+            <a href="{{ route('install.database') }}" class="btn btn-primary">
+                Continue
+            </a>
+            @else
+            <button disabled class="btn" style="background: #6c757d; color: white; cursor: not-allowed;">
+                Fix Requirements First
+            </button>
+            @endif
         </div>
     </div>
- </div>
-@endsection
+</body>
+
+</html>
