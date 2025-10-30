@@ -14,16 +14,14 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $users = [
-            ['email' => 'admin@example.com', 'name' => 'Admin User', 'role' => 'admin', 'approved' => true, 'phone' => '1234567890'],
             ['email' => 'vendor@example.com', 'name' => 'Vendor User', 'role' => 'vendor', 'approved' => true, 'phone' => '0987654321'],
             ['email' => 'user@example.com', 'name' => 'Regular User', 'role' => 'user', 'approved' => false, 'phone' => '1122334455'],
         ];
         foreach ($users as $u) {
-            User::updateOrCreate(
+            $user = User::updateOrCreate(
                 ['email' => $u['email']],
                 [
                     'name' => $u['name'],
-                    'email_verified_at' => now(),
                     'password' => Hash::make('password'),
                     'role' => $u['role'],
                     'phone_number' => $u['phone'],
@@ -31,6 +29,11 @@ class UserSeeder extends Seeder
                     'approved_at' => $u['approved'] ? now() : null,
                 ]
             );
+
+            // Ensure email verification timestamp is persisted even though it's not fillable
+            if (empty($user->email_verified_at)) {
+                $user->forceFill(['email_verified_at' => now()])->save();
+            }
         }
     }
 }

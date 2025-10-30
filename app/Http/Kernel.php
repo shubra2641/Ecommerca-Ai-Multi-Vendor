@@ -8,8 +8,13 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
+    protected $middleware = [
+        \App\Http\Middleware\CheckInstallationMode::class,
+    ];
+
     protected $middlewareGroups = [
         'web' => [
+            \App\Http\Middleware\CheckInstallationMode::class,
             \App\Http\Middleware\CheckMaintenanceMode::class,
             // Laravel default web group is normally in parent; assuming sessions, cookies, etc auto-handled
             \App\Http\Middleware\SanitizeInput::class,

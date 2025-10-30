@@ -41,8 +41,6 @@ class Setting extends Model
         'ai_enabled',
         'ai_provider',
         'ai_openai_api_key',
-        // External Payment
-        'enable_external_payment_redirect',
         // reCAPTCHA
         'recaptcha_enabled',
         'recaptcha_site_key',
@@ -69,7 +67,6 @@ class Setting extends Model
         'rights_i18n' => 'array',
         'footer_labels' => 'array',
         'ai_enabled' => 'boolean',
-        'enable_external_payment_redirect' => 'boolean',
         'recaptcha_enabled' => 'boolean',
     ];
 
@@ -241,17 +238,7 @@ class Setting extends Model
         );
     }
 
-    /**
-     * Safe accessor for enable_external_payment_redirect when the column may be missing.
-     * Returns boolean false if attribute is not present in model attributes array.
-     */
-    protected function enableExternalPaymentRedirect(): Attribute
-    {
-        return Attribute::make(
-            get: fn($value) => isset($this->attributes['enable_external_payment_redirect']) ? (bool) $value : false,
-            set: fn($value) => (bool) $value
-        );
-    }
+
 
     /**
      * Validate and sanitize URL fields.
