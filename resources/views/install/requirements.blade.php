@@ -54,7 +54,7 @@
                 Continue
             </a>
             @else
-            <button disabled class="btn" style="background: #6c757d; color: white; cursor: not-allowed;">
+            <button disabled class="btn disabled">
                 Fix Requirements First
             </button>
             @endif

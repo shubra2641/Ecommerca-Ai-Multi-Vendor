@@ -52,7 +52,7 @@
         @if($errors->any())
         <div class="alert alert-error">
             <strong>Error:</strong>
-            <ul style="margin: 5px 0 0 20px;">
+            <ul class="list-compact">
                 @foreach($errors->all() as $error)
                 <li>{{ $error }}</li>
                 @endforeach
@@ -60,17 +60,17 @@
         </div>
         @endif
 
-        <div class="alert alert-warning" style="margin-top:16px;">
+        <div class="alert alert-warning mt-16">
             <strong>Note:</strong> Fresh install will drop all existing tables and recreate them.
         </div>
 
-        <div class="btn-group" style="gap:10px; flex-wrap: wrap;">
+        <div class="btn-group wrap">
             <a href="{{ route('install.license') }}" class="btn btn-secondary">
                 Back
             </a>
 
             <!-- Fresh install without demo data (no seeding) -->
-            <form method="POST" action="{{ route('install.process') }}" style="display:inline;">
+            <form method="POST" action="{{ route('install.process') }}">
                 @csrf
                 <input type="hidden" name="fresh" value="1">
                 <input type="hidden" name="seed" value="0">
@@ -80,7 +80,7 @@
             </form>
 
             <!-- Fresh install with demo/required data (run seeders) -->
-            <form method="POST" action="{{ route('install.process') }}" style="display:inline;">
+            <form method="POST" action="{{ route('install.process') }}">
                 @csrf
                 <input type="hidden" name="fresh" value="1">
                 <input type="hidden" name="seed" value="1">

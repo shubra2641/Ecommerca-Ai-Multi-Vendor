@@ -119,11 +119,41 @@ body {
     background: #545b62;
 }
 
+.btn-success { background: #28a745; color: #ffffff; }
+.btn-success:hover { background: #218838; }
+
 .btn-group {
     display: flex;
     justify-content: space-between;
     margin-top: 30px;
 }
+
+/* Variants & utilities */
+.btn-group.wrap {
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.btn:disabled,
+.btn.disabled {
+    background: #6c757d;
+    color: #ffffff;
+    cursor: not-allowed;
+    opacity: 0.85;
+}
+
+.mt-16 { margin-top: 16px; }
+.mt-30 { margin-top: 30px; }
+.mb-10 { margin-bottom: 10px; }
+.list-compact { margin: 5px 0 0 20px; padding: 0; }
+.hint { color: #666; font-size: 12px; }
+.text-muted { color: #666; }
+.my-20 { margin-top: 20px; margin-bottom: 20px; }
+.lh-16 { line-height: 1.6; }
+
+/* Inline form buttons inside groups (without inline styles) */
+.btn-group form { display: inline-block; }
 
 .btn-full {
     width: 100%;

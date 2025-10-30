@@ -20,7 +20,7 @@
         </div>
 
         <h3>What's Next?</h3>
-        <ul style="color: #666; line-height: 1.6;">
+        <ul class="text-muted lh-16">
             <li><strong>Configure Settings:</strong> Customize your marketplace settings, payment methods, and more.</li>
             <li><strong>Customize Design:</strong> Upload your logo, choose colors, and customize the appearance.</li>
             <li><strong>Add Vendors:</strong> Invite vendors to join your marketplace and start selling.</li>
@@ -30,8 +30,8 @@
             <strong>Important:</strong> For security reasons, please delete the installation files after completing the setup.
         </div>
 
-        <div style="margin-top: 30px;">
-            <a href="{{ route('admin.dashboard') }}" class="btn btn-primary" style="margin-bottom: 10px;">
+        <div class="mt-30">
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-primary mb-10">
                 Go to Admin Dashboard
             </a>
 

@@ -21,7 +21,7 @@
             @if($errors->any())
             <div class="alert alert-error">
                 <strong>Error:</strong>
-                <ul style="margin: 5px 0 0 20px;">
+                <ul class="list-compact">
                     @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                     @endforeach

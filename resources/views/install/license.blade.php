@@ -21,7 +21,7 @@
             @if($errors->any())
             <div class="alert alert-error">
                 <strong>Error:</strong>
-                <ul style="margin: 5px 0 0 20px;">
+                <ul class="list-compact">
                     @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                     @endforeach
@@ -40,7 +40,7 @@
                 @error('purchase_code')
                 <div class="error">{{ $message }}</div>
                 @enderror
-                <small style="color: #666; font-size: 12px;">You can find your purchase code in your account dashboard</small>
+                <small class="hint">You can find your purchase code in your account dashboard</small>
             </div>
 
             <div class="alert alert-info">

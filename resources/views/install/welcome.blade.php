@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        <p style="color: #666; margin: 20px 0;">
+        <p class="text-muted my-20">
             This installation wizard will guide you through setting up your Easy Store marketplace.
         </p>
 

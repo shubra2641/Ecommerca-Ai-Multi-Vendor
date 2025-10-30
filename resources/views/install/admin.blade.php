@@ -21,7 +21,7 @@
             @if($errors->any())
             <div class="alert alert-error">
                 <strong>Error:</strong>
-                <ul style="margin: 5px 0 0 20px;">
+                <ul class="list-compact">
                     @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                     @endforeach
@@ -62,7 +62,7 @@
                 @error('password')
                 <div class="error">{{ $message }}</div>
                 @enderror
-                <small style="color: #666; font-size: 12px;">Minimum 8 characters</small>
+                <small class="hint">Minimum 8 characters</small>
             </div>
 
             <div class="form-group">

@@ -16,10 +16,10 @@ class CheckInstallationMode
      */
     public function handle(Request $request, Closure $next): Response
     {
-    // Check if installed using storage marker only (authoritative)
-    // Storage::put('.installed') writes to storage/app/.installed by default on local driver
-    $installed = file_exists(storage_path('app/.installed'))
-        || file_exists(storage_path('.installed')); // fallback if some envs wrote directly to storage/.installed
+        // Check if installed using storage marker only (authoritative)
+        // Storage::put('.installed') writes to storage/app/.installed by default on local driver
+        $installed = file_exists(storage_path('app/.installed'))
+            || file_exists(storage_path('.installed')); // fallback if some envs wrote directly to storage/.installed
 
         // If not installed, redirect to install
         if (!$installed) {

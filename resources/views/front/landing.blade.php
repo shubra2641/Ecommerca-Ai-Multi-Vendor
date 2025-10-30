@@ -94,7 +94,8 @@
                         @if(!empty($post->featured_image))
                         <img loading="lazy" src="{{ $post->featured_image_url }}" alt="{{ $post->title }}" />
                         @else
-                        <img loading="lazy" src="{{ $post->featured_image_url }}" class="is-placeholder" alt="{{ $post->title }}" />
+                        @php($blogPlaceholder = asset('images/placeholder.png'))
+                        <img loading="lazy" src="{{ $blogPlaceholder }}" class="is-placeholder" alt="{{ $post->title }}" />
                         @endif
                     </a>
                     <div class="card-body">
