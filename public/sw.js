@@ -3,18 +3,11 @@
  * Ultra lightweight and reliable
  */
 
-const CACHE_NAME = 'ecommerce-store-v1';
+const CACHE_NAME = 'ecommerce-store-nocache-v1';
 const OFFLINE_URL = '/offline.html';
 
-// Essential files for caching
-const ESSENTIAL_FILES = [
-    '/',
-    '/offline.html',
-    '/manifest.json',
-    '/assets/front/css/front.css',
-    '/assets/front/js/front.js',
-    '/assets/front/js/pwa.js'
-];
+// Only cache the offline fallback page; everything else is network-first (no SW cache)
+const ESSENTIAL_FILES = [OFFLINE_URL];
 
 // Install Service Worker
 self.addEventListener('install', (event) => {
@@ -53,41 +46,23 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
-    // Skip non-GET requests
-    if (event.request.method !== 'GET') {
-        return;
-    }
+    // Only handle GET requests from same-origin
+    if (event.request.method !== 'GET') return;
+    if (!event.request.url.startsWith(self.location.origin)) return;
 
-    // Skip external requests
-    if (!event.request.url.startsWith(self.location.origin)) {
-        return;
-    }
-
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                // Return cached version or fetch from network
-                return response || fetch(event.request)
-                    .then(fetchResponse => {
-                        // Cache successful responses
-                        if (fetchResponse.status === 200) {
-                            const responseClone = fetchResponse.clone();
-                            caches.open(CACHE_NAME)
-                                .then(cache => {
-                                    cache.put(event.request, responseClone);
-                                });
-                        }
-                        return fetchResponse;
-                    })
-                    .catch(() => {
-                        // Return offline page for navigation requests
-                        if (event.request.mode === 'navigate') {
-                            return caches.match(OFFLINE_URL);
-                        }
-                        return new Response('Offline', { status: 503 });
-                    });
-            })
-    );
+    event.respondWith((async () => {
+        try {
+            // Always prefer fresh network response and bypass HTTP cache
+            return await fetch(event.request, { cache: 'no-store' });
+        } catch (err) {
+            // If offline and it's a navigation request, show offline page
+            if (event.request.mode === 'navigate') {
+                const cachedOffline = await caches.match(OFFLINE_URL);
+                if (cachedOffline) return cachedOffline;
+            }
+            return new Response('Offline', { status: 503 });
+        }
+    })());
 });
 
 // Handle messages from main thread
