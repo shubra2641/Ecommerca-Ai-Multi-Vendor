@@ -84,6 +84,10 @@ return [
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
+    // Whether to detect locale from the browser's Accept-Language on first visit
+    // Defaults to false so the site opens in the configured default locale (usually English)
+    'detect_locale_from_browser' => env('APP_DETECT_LOCALE', false),
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Key
