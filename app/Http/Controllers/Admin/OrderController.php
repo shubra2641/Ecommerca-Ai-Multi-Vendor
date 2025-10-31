@@ -27,14 +27,12 @@ class OrderController extends Controller
 
         $customerStats = $this->getCustomerStats($order);
         $addressText = $this->getAddressText($order);
-        $offlinePayments = $this->getOfflinePayments($order);
         $firstPaymentNote = $order->payments->first()?->note ?? null;
 
         return view('admin.orders.show', [
             'order' => $order,
             'customerStats' => $customerStats,
             'aovAddressText' => $addressText,
-            'aovOfflinePayments' => $offlinePayments,
             'aovFirstPaymentNote' => $firstPaymentNote,
         ]);
     }
@@ -65,7 +63,6 @@ class OrderController extends Controller
         // Notify user
         try {
             if ($order && $order->user) {
-                $order->user->notify(new \App\Notifications\UserPaymentStatusNotification($payment, 'accepted'));
                 $order->user->notify(new \App\Notifications\UserOrderStatusUpdated($order, $order->status));
             }
         } catch (\Throwable $e) {
@@ -96,7 +93,6 @@ class OrderController extends Controller
         }
         try {
             if ($order && $order->user) {
-                $order->user->notify(new \App\Notifications\UserPaymentStatusNotification($payment, 'rejected'));
                 $order->user->notify(new \App\Notifications\UserOrderStatusUpdated($order, $order->status));
             }
         } catch (\Throwable $e) {
@@ -290,40 +286,6 @@ class OrderController extends Controller
         return implode(', ', $parts);
     }
 
-    /**
-     * Build a lookup of offline payments for an order.
-     * Returns an array keyed by payment id => true for quick checks in views.
-     */
-    private function getOfflinePayments(Order $order): array
-    {
-        $result = [];
-
-        if (! $order->relationLoaded('payments')) {
-            $order->load('payments');
-        }
-
-        foreach ($order->payments as $payment) {
-            $method = strtolower($payment->method ?? '');
-
-            // Prefer the unified `data` column used across the app
-            $payload = $payment->data ?? [];
-            $gateway = '';
-            if (is_array($payload)) {
-                $gateway = strtolower((string)($payload['gateway'] ?? ($payload['provider'] ?? '')));
-            } elseif (is_string($payload) && $payload !== '') {
-                $decoded = json_decode($payload, true);
-                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                    $gateway = strtolower((string)($decoded['gateway'] ?? ($decoded['provider'] ?? '')));
-                }
-            }
-
-            if (str_contains($method, 'offline') || $method === 'offline' || $gateway === 'offline') {
-                $result[$payment->id] = true;
-            }
-        }
-
-        return $result;
-    }
 
     public function cancelBackorderItem(Order $order, OrderItem $item)
     {
