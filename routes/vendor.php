@@ -19,32 +19,32 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth', 'can:access-vendor', 'role:vendor'])->group(function () {
-    Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('vendor.dashboard');
+    Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
     // Vendor product management
-    Route::resource('products', \App\Http\Controllers\Admin\ProductController::class)->names('vendor.products');
+    Route::resource('products', \App\Http\Controllers\Admin\ProductController::class)->names('products');
     // Vendor media quick upload (reuse admin gallery controller for uploads)
     Route::post('gallery/quick-upload', [\App\Http\Controllers\Admin\GalleryController::class, 'quickStore'])
-        ->name('vendor.gallery.quick-upload');
+        ->name('gallery.quick-upload');
     // Vendor withdrawals
-    Route::get('withdrawals', [WithdrawalController::class, 'index'])->name('vendor.withdrawals.index');
-    Route::get('withdrawals/create', [WithdrawalController::class, 'create'])->name('vendor.withdrawals.create');
-    Route::post('withdrawals', [WithdrawalController::class, 'store'])->name('vendor.withdrawals.store');
+    Route::get('withdrawals', [WithdrawalController::class, 'index'])->name('withdrawals.index');
+    Route::get('withdrawals/create', [WithdrawalController::class, 'create'])->name('withdrawals.create');
+    Route::post('withdrawals', [WithdrawalController::class, 'store'])->name('withdrawals.store');
     Route::get('withdrawals/{withdrawal}/receipt', [WithdrawalController::class, 'receipt'])
-        ->name('vendor.withdrawals.receipt');
+        ->name('withdrawals.receipt');
     // Vendor orders
-    Route::get('orders', [\App\Http\Controllers\Admin\OrderController::class, 'vendorIndex'])->name('vendor.orders.index');
-    Route::get('orders/{orderItem}', [\App\Http\Controllers\Admin\OrderController::class, 'vendorShow'])->name('vendor.orders.show');
+    Route::get('orders', [\App\Http\Controllers\Admin\OrderController::class, 'vendorIndex'])->name('orders.index');
+    Route::get('orders/{orderItem}', [\App\Http\Controllers\Admin\OrderController::class, 'vendorShow'])->name('orders.show');
 
     // Vendor notifications (mirroring admin endpoints)
     Route::get('notifications/latest', [VendorNotificationController::class, 'latest'])
-        ->name('vendor.notifications.latest');
+        ->name('notifications.latest');
     Route::get('notifications/unread-count', [VendorNotificationController::class, 'unreadCount'])
-        ->name('vendor.notifications.unreadCount');
+        ->name('notifications.unreadCount');
     Route::post('notifications/{id}/read', [VendorNotificationController::class, 'markRead'])
-        ->name('vendor.notifications.read');
+        ->name('notifications.read');
     Route::post('notifications/mark-all-read', [VendorNotificationController::class, 'markAll'])
-        ->name('vendor.notifications.markAll');
-    Route::get('notifications', [VendorNotificationController::class, 'index'])->name('vendor.notifications.index');
+        ->name('notifications.markAll');
+    Route::get('notifications', [VendorNotificationController::class, 'index'])->name('notifications.index');
     // Active languages for multilingual product fields
     Route::get('languages', [VendorLanguagesController::class, 'index']);
 });
