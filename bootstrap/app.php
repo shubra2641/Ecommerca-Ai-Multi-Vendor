@@ -40,6 +40,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'payment.security' => \App\Http\Middleware\PaymentSecurityMiddleware::class,
             'sanitize' => \App\Http\Middleware\SanitizeInput::class,
         ]);
+
+        // Ensure installation check always executes before others when combined
+        $middleware->priority([
+            \App\Http\Middleware\CheckInstallationMode::class,
+            \App\Http\Middleware\CheckMaintenanceMode::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
