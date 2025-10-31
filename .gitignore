@@ -41,7 +41,7 @@ node_modules/
 
 # Storage and cache directories
 storage/
-bootstrap/
+bootstrap/cache/
 
 # Development and testing directories
 vendor/
