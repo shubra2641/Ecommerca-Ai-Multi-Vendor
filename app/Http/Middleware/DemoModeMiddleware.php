@@ -28,7 +28,7 @@ class DemoModeMiddleware
         // One-time info banner per session on first GET request
         if ($this->isReadOnlyMethod($request) && ! $request->session()->has('demo_notified')) {
             // Flash once per session; will appear on next navigation
-            $request->session()->flash('warning', 'النظام يعمل بوضع العرض (Demo). قد تكون بعض الإجراءات مقفلة.');
+            $request->session()->flash('warning', 'The system is running in Demo mode. Some actions are disabled.');
             $request->session()->put('demo_notified', true);
         }
 
@@ -52,7 +52,7 @@ class DemoModeMiddleware
         }
 
         // Block mutation attempts in demo
-        $message = 'النظام في وضع العرض (Demo). تم تعطيل عمليات الإضافة/التعديل/الحذف.';
+    $message = 'Demo mode is enabled. Create/Update/Delete actions are disabled.';
 
         if ($request->expectsJson() || $request->is('api/*')) {
             return new JsonResponse(['message' => $message], 403);
