@@ -44,5 +44,3 @@ require __DIR__ . '/vendor/autoload.php';
 | to this client's browser, allowing them to enjoy our application.
 |
 */
-
-require __DIR__ . '/run.php';
