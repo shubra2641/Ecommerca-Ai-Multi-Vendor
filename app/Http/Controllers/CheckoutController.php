@@ -266,7 +266,6 @@ class CheckoutController extends Controller
         $map = [
             'cod' => ['label' => __('Cash on Delivery'), 'require' => []],
             'paypal' => ['label' => 'PayPal', 'require' => ['PAYPAL_CLIENT_ID', 'PAYPAL_SECRET']],
-            'stripe' => ['label' => 'Stripe', 'require' => ['STRIPE_SECRET']],
             'tap' => ['label' => 'Tap', 'require' => ['TAP_SECRET_KEY', 'TAP_PUBLIC_KEY']],
             'paymob' => ['label' => 'PayMob', 'require' => ['PAYMOB_API_KEY', 'PAYMOB_INTEGRATION_ID', 'PAYMOB_HMAC']],
             'hyperpay' => ['label' => 'HyperPay', 'require' => ['HYPERPAY_TOKEN']],
@@ -289,7 +288,10 @@ class CheckoutController extends Controller
             $req = $def['require'] ?? [];
             $ok = true;
             foreach ($req as $var) {
-                if (! env($var)) { $ok = false; break; }
+                if (! env($var)) {
+                    $ok = false;
+                    break;
+                }
             }
             if ($ok) {
                 $enabled[$slug] = $def['label'];
@@ -300,8 +302,8 @@ class CheckoutController extends Controller
 
     private function redirectToPayment(string $gateway, Order $order)
     {
-        $factory = new PaymentFactory();
-        $payment = $factory->get(ucfirst($gateway));
+    $factory = new PaymentFactory();
+    $payment = $factory->get($this->factoryNameFor($gateway));
 
         // Send full name for both first and last name
         $customerName = $order->customer_name ?? 'Customer';
@@ -329,6 +331,30 @@ class CheckoutController extends Controller
 
         // If no redirect or html, return error
         return back()->with('error', 'Payment gateway error');
+    }
+
+    /** Map UI slug to Nafezly factory class prefix */
+    private function factoryNameFor(string $slug): string
+    {
+        $map = [
+            'paypal' => 'PayPal',
+            'paymob' => 'Paymob',
+            'paymob_wallet' => 'PaymobWallet',
+            'hyperpay' => 'HyperPay',
+            'kashier' => 'Kashier',
+            'fawry' => 'Fawry',
+            'thawani' => 'Thawani',
+            'tap' => 'Tap',
+            'opay' => 'Opay',
+            'paytabs' => 'Paytabs',
+            'binance' => 'Binance',
+            'nowpayments' => 'NowPayments',
+            'payeer' => 'Payeer',
+            'perfect_money' => 'PerfectMoney',
+            'telr' => 'Telr',
+            'clickpay' => 'ClickPay',
+        ];
+        return $map[$slug] ?? ucfirst($slug);
     }
 
     public function verifyPayment(Request $request, $payment = null)

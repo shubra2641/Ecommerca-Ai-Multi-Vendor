@@ -26,11 +26,13 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SanitizeInput::class,
             \App\Http\Middleware\ContentSecurityPolicy::class,
             \App\Http\Middleware\Localization::class,
+            \App\Http\Middleware\DemoModeMiddleware::class,
         ]);
 
         // API group middleware
         $middleware->appendToGroup('api', [
             'throttle:api',
+            \App\Http\Middleware\DemoModeMiddleware::class,
         ]);
 
         // Route middleware aliases migrated from Http Kernel
@@ -39,12 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'activated' => \App\Http\Middleware\EnsureEmailActivated::class,
             'payment.security' => \App\Http\Middleware\PaymentSecurityMiddleware::class,
             'sanitize' => \App\Http\Middleware\SanitizeInput::class,
-        ]);
-
-        // Ensure installation check always executes before others when combined
-        $middleware->priority([
-            \App\Http\Middleware\CheckInstallationMode::class,
-            \App\Http\Middleware\CheckMaintenanceMode::class,
+            'demo' => \App\Http\Middleware\DemoModeMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
