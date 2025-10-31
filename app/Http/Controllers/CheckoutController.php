@@ -43,6 +43,9 @@ class CheckoutController extends Controller
             session()->forget('applied_coupon_id');
         }
 
+        // Enabled payment gateways based on required env keys
+        $vm['gateways'] = $this->allowedGateways();
+
         return view('front.checkout.index', $vm);
     }
 
@@ -65,6 +68,10 @@ class CheckoutController extends Controller
         $total = $subtotal + $shippingPrice - $discount;
 
         $gateway = $request->gateway;
+        $allowed = array_keys($this->allowedGateways());
+        if (!in_array($gateway, $allowed, true)) {
+            return back()->with('error', __('Selected payment method is not available'));
+        }
 
         if ($gateway === 'cod') {
             // Cash on Delivery - create order directly
@@ -248,6 +255,47 @@ class CheckoutController extends Controller
             }
         }
         return (float) $discount;
+    }
+
+    /**
+     * Determine enabled payment gateways by checking required env keys.
+     * Returns [slug => label]. 'cod' is always enabled.
+     */
+    private function allowedGateways(): array
+    {
+        $map = [
+            'cod' => ['label' => __('Cash on Delivery'), 'require' => []],
+            'paypal' => ['label' => 'PayPal', 'require' => ['PAYPAL_CLIENT_ID', 'PAYPAL_SECRET']],
+            'stripe' => ['label' => 'Stripe', 'require' => ['STRIPE_SECRET']],
+            'tap' => ['label' => 'Tap', 'require' => ['TAP_SECRET_KEY', 'TAP_PUBLIC_KEY']],
+            'paymob' => ['label' => 'PayMob', 'require' => ['PAYMOB_API_KEY', 'PAYMOB_INTEGRATION_ID', 'PAYMOB_HMAC']],
+            'hyperpay' => ['label' => 'HyperPay', 'require' => ['HYPERPAY_TOKEN']],
+            'kashier' => ['label' => 'Kashier', 'require' => ['KASHIER_ACCOUNT_KEY', 'KASHIER_TOKEN']],
+            'fawry' => ['label' => 'Fawry', 'require' => ['FAWRY_SECRET', 'FAWRY_MERCHANT']],
+            'thawani' => ['label' => 'Thawani', 'require' => ['THAWANI_API_KEY', 'THAWANI_PUBLISHABLE_KEY']],
+            'opay' => ['label' => 'OPay', 'require' => ['OPAY_SECRET_KEY', 'OPAY_PUBLIC_KEY', 'OPAY_MERCHANT_ID']],
+            'paymob_wallet' => ['label' => 'PayMob Wallet', 'require' => ['PAYMOB_WALLET_INTEGRATION_ID', 'PAYMOB_API_KEY']],
+            'paytabs' => ['label' => 'PayTabs', 'require' => ['PAYTABS_PROFILE_ID', 'PAYTABS_SERVER_KEY']],
+            'binance' => ['label' => 'Binance', 'require' => ['BINANCE_API', 'BINANCE_SECRET']],
+            'nowpayments' => ['label' => 'NowPayments', 'require' => ['NOWPAYMENTS_API_KEY']],
+            'payeer' => ['label' => 'Payeer', 'require' => ['PAYEER_MERCHANT_ID', 'PAYEER_API_KEY']],
+            'perfect_money' => ['label' => 'Perfect Money', 'require' => ['PERFECT_MONEY_ID', 'PERFECT_MONEY_PASSPHRASE']],
+            'telr' => ['label' => 'Telr', 'require' => ['TELR_MERCHANT_ID', 'TELR_API_KEY']],
+            'clickpay' => ['label' => 'ClickPay', 'require' => ['CLICKPAY_SERVER_KEY', 'CLICKPAY_PROFILE_ID']],
+        ];
+
+        $enabled = [];
+        foreach ($map as $slug => $def) {
+            $req = $def['require'] ?? [];
+            $ok = true;
+            foreach ($req as $var) {
+                if (! env($var)) { $ok = false; break; }
+            }
+            if ($ok) {
+                $enabled[$slug] = $def['label'];
+            }
+        }
+        return $enabled;
     }
 
     private function redirectToPayment(string $gateway, Order $order)
