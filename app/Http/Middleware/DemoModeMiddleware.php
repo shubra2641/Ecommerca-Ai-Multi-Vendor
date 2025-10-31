@@ -52,7 +52,7 @@ class DemoModeMiddleware
         }
 
         // Block mutation attempts in demo
-    $message = 'Demo mode is enabled. Create/Update/Delete actions are disabled.';
+        $message = 'Demo mode is enabled. Create/Update/Delete actions are disabled.';
 
         if ($request->expectsJson() || $request->is('api/*')) {
             return new JsonResponse(['message' => $message], 403);

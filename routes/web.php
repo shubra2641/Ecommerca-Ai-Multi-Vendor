@@ -31,11 +31,11 @@ use App\Http\Controllers\User\ReturnsController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\CheckInstallationMode;
 use App\Http\Middleware\CheckMaintenanceMode;
 
 // Public routes wrapped in maintenance middleware. Admin routes and admin login are defined later
-// CheckInstallationMode is applied globally from bootstrap/app.php to run BEFORE everything
-Route::middleware([CheckMaintenanceMode::class])->group(function (): void {
+Route::middleware([CheckInstallationMode::class, CheckMaintenanceMode::class])->group(function (): void {
     Route::post('/language', [LanguageController::class, 'switchLang'])->name('language.switch');
     Route::post('/notify/product', [NotifyController::class, 'store'])->name('notify.product');
     Route::get('/notify/check', [NotifyController::class, 'check'])->name('notify.check');

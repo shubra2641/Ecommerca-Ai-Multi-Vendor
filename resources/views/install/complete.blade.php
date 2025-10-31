@@ -31,7 +31,7 @@
         </div>
 
         <div class="mt-30">
-            <a href="{{ route('admin.dashboard') }}" class="btn btn-primary mb-10">
+            <a href="{{ route('admin.login') }}" class="btn btn-primary mb-10">
                 Go to Admin Dashboard
             </a>
 

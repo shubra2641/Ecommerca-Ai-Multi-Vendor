@@ -32,4 +32,8 @@
 
 @endsection
 
+@section('scripts')
+    @include('admin.products.products._script')
+@endsection
+
 

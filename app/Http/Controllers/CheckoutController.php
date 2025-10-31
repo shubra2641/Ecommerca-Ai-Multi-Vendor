@@ -17,6 +17,7 @@ use App\Services\CheckoutViewBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Lang;
 use Nafezly\Payments\Factories\PaymentFactory;
 
 class CheckoutController extends Controller
@@ -264,23 +265,24 @@ class CheckoutController extends Controller
     private function allowedGateways(): array
     {
         $map = [
-            'cod' => ['label' => __('Cash on Delivery'), 'require' => []],
-            'paypal' => ['label' => 'PayPal', 'require' => ['PAYPAL_CLIENT_ID', 'PAYPAL_SECRET']],
-            'tap' => ['label' => 'Tap', 'require' => ['TAP_SECRET_KEY', 'TAP_PUBLIC_KEY']],
-            'paymob' => ['label' => 'PayMob', 'require' => ['PAYMOB_API_KEY', 'PAYMOB_INTEGRATION_ID', 'PAYMOB_HMAC']],
-            'hyperpay' => ['label' => 'HyperPay', 'require' => ['HYPERPAY_TOKEN']],
-            'kashier' => ['label' => 'Kashier', 'require' => ['KASHIER_ACCOUNT_KEY', 'KASHIER_TOKEN']],
-            'fawry' => ['label' => 'Fawry', 'require' => ['FAWRY_SECRET', 'FAWRY_MERCHANT']],
-            'thawani' => ['label' => 'Thawani', 'require' => ['THAWANI_API_KEY', 'THAWANI_PUBLISHABLE_KEY']],
-            'opay' => ['label' => 'OPay', 'require' => ['OPAY_SECRET_KEY', 'OPAY_PUBLIC_KEY', 'OPAY_MERCHANT_ID']],
-            'paymob_wallet' => ['label' => 'PayMob Wallet', 'require' => ['PAYMOB_WALLET_INTEGRATION_ID', 'PAYMOB_API_KEY']],
-            'paytabs' => ['label' => 'PayTabs', 'require' => ['PAYTABS_PROFILE_ID', 'PAYTABS_SERVER_KEY']],
-            'binance' => ['label' => 'Binance', 'require' => ['BINANCE_API', 'BINANCE_SECRET']],
-            'nowpayments' => ['label' => 'NowPayments', 'require' => ['NOWPAYMENTS_API_KEY']],
-            'payeer' => ['label' => 'Payeer', 'require' => ['PAYEER_MERCHANT_ID', 'PAYEER_API_KEY']],
-            'perfect_money' => ['label' => 'Perfect Money', 'require' => ['PERFECT_MONEY_ID', 'PERFECT_MONEY_PASSPHRASE']],
-            'telr' => ['label' => 'Telr', 'require' => ['TELR_MERCHANT_ID', 'TELR_API_KEY']],
-            'clickpay' => ['label' => 'ClickPay', 'require' => ['CLICKPAY_SERVER_KEY', 'CLICKPAY_PROFILE_ID']],
+            'cod' => ['label' => Lang::get('Cash on Delivery'), 'require' => []],
+            'paypal' => ['label' => Lang::get('PayPal'), 'require' => ['PAYPAL_CLIENT_ID', 'PAYPAL_SECRET']],
+            'stripe' => ['label' => Lang::get('Stripe'), 'require' => ['STRIPE_SECRET']],
+            'tap' => ['label' => Lang::get('Tap'), 'require' => ['TAP_SECRET_KEY', 'TAP_PUBLIC_KEY']],
+            'paymob' => ['label' => Lang::get('PayMob'), 'require' => ['PAYMOB_API_KEY', 'PAYMOB_INTEGRATION_ID', 'PAYMOB_HMAC']],
+            'hyperpay' => ['label' => Lang::get('HyperPay'), 'require' => ['HYPERPAY_TOKEN']],
+            'kashier' => ['label' => Lang::get('Kashier'), 'require' => ['KASHIER_ACCOUNT_KEY', 'KASHIER_TOKEN', 'KASHIER_IFRAME_KEY']],
+            'fawry' => ['label' => Lang::get('Fawry'), 'require' => ['FAWRY_SECRET', 'FAWRY_MERCHANT']],
+            'thawani' => ['label' => Lang::get('Thawani'), 'require' => ['THAWANI_API_KEY', 'THAWANI_PUBLISHABLE_KEY']],
+            'opay' => ['label' => Lang::get('OPay'), 'require' => ['OPAY_SECRET_KEY', 'OPAY_PUBLIC_KEY', 'OPAY_MERCHANT_ID']],
+            'paymob_wallet' => ['label' => Lang::get('PayMob Wallet'), 'require' => ['PAYMOB_WALLET_INTEGRATION_ID', 'PAYMOB_API_KEY']],
+            'paytabs' => ['label' => Lang::get('PayTabs'), 'require' => ['PAYTABS_PROFILE_ID', 'PAYTABS_SERVER_KEY']],
+            'binance' => ['label' => Lang::get('Binance'), 'require' => ['BINANCE_API', 'BINANCE_SECRET']],
+            'nowpayments' => ['label' => Lang::get('NowPayments'), 'require' => ['NOWPAYMENTS_API_KEY']],
+            'payeer' => ['label' => Lang::get('Payeer'), 'require' => ['PAYEER_MERCHANT_ID', 'PAYEER_API_KEY']],
+            'perfect_money' => ['label' => Lang::get('Perfect Money'), 'require' => ['PERFECT_MONEY_ID', 'PERFECT_MONEY_PASSPHRASE']],
+            'telr' => ['label' => Lang::get('Telr'), 'require' => ['TELR_MERCHANT_ID', 'TELR_API_KEY']],
+            'clickpay' => ['label' => Lang::get('ClickPay'), 'require' => ['CLICKPAY_SERVER_KEY', 'CLICKPAY_PROFILE_ID']],
         ];
 
         $enabled = [];
@@ -302,8 +304,8 @@ class CheckoutController extends Controller
 
     private function redirectToPayment(string $gateway, Order $order)
     {
-    $factory = new PaymentFactory();
-    $payment = $factory->get($this->factoryNameFor($gateway));
+        $factory = new PaymentFactory();
+        $payment = $factory->get(ucfirst($gateway));
 
         // Send full name for both first and last name
         $customerName = $order->customer_name ?? 'Customer';
@@ -331,30 +333,6 @@ class CheckoutController extends Controller
 
         // If no redirect or html, return error
         return back()->with('error', 'Payment gateway error');
-    }
-
-    /** Map UI slug to Nafezly factory class prefix */
-    private function factoryNameFor(string $slug): string
-    {
-        $map = [
-            'paypal' => 'PayPal',
-            'paymob' => 'Paymob',
-            'paymob_wallet' => 'PaymobWallet',
-            'hyperpay' => 'HyperPay',
-            'kashier' => 'Kashier',
-            'fawry' => 'Fawry',
-            'thawani' => 'Thawani',
-            'tap' => 'Tap',
-            'opay' => 'Opay',
-            'paytabs' => 'Paytabs',
-            'binance' => 'Binance',
-            'nowpayments' => 'NowPayments',
-            'payeer' => 'Payeer',
-            'perfect_money' => 'PerfectMoney',
-            'telr' => 'Telr',
-            'clickpay' => 'ClickPay',
-        ];
-        return $map[$slug] ?? ucfirst($slug);
     }
 
     public function verifyPayment(Request $request, $payment = null)

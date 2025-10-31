@@ -6,6 +6,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 
 class ContentSecurityPolicy
@@ -70,6 +72,21 @@ class ContentSecurityPolicy
             'https://www.sandbox.paypal.com',
         ];
 
+        // Relax image sources in non-production to include common local origins
+        if (App::environment() !== 'production') {
+            $devImgHosts = [
+                'https://localhost',
+                'http://localhost',
+                'https://127.0.0.1',
+                'http://127.0.0.1',
+                'https://localhost:8000',
+                'http://localhost:8000',
+                'https://127.0.0.1:8000',
+                'http://127.0.0.1:8000',
+            ];
+            $imgHosts = array_values(array_unique(array_merge($imgHosts, $devImgHosts)));
+        }
+
         $scriptHosts = [
             "'self'",
             'https://www.paypal.com',
@@ -110,23 +127,23 @@ class ContentSecurityPolicy
         $cspEnforced = [
             "default-src 'self'",
             "base-uri 'self'",
-            'form-action '.implode(' ', $formActionHosts),
-            'img-src '.implode(' ', $imgHosts),
+            'form-action ' . implode(' ', $formActionHosts),
+            'img-src ' . implode(' ', $imgHosts),
             "font-src 'self' data:",
-            'script-src '.implode(' ', $scriptHosts),
+            'script-src ' . implode(' ', $scriptHosts),
             "style-src 'self'",
             "frame-ancestors 'self'",
-            'frame-src '.implode(' ', $frameHosts),
+            'frame-src ' . implode(' ', $frameHosts),
             "object-src 'none'",
-            'connect-src '.implode(' ', $connectHosts),
+            'connect-src ' . implode(' ', $connectHosts),
             'upgrade-insecure-requests',
         ];
         // Report-Only variant (exclude upgrade-insecure-requests to avoid warning)
-        $cspReportOnly = array_filter($cspEnforced, fn ($d) => $d !== 'upgrade-insecure-requests');
+        $cspReportOnly = array_filter($cspEnforced, fn($d) => $d !== 'upgrade-insecure-requests');
 
         $response->headers->set('Content-Security-Policy', implode('; ', $cspEnforced));
         // Reporting endpoints (Report-To & legacy report-uri)
-        $reportEndpoint = url('/csp-report');
+        $reportEndpoint = URL::to('/csp-report');
         $reportTo = [
             'group' => 'csp-endpoint',
             'max_age' => 10800,
@@ -134,10 +151,10 @@ class ContentSecurityPolicy
             'include_subdomains' => false,
         ];
         $response->headers->set('Report-To', json_encode($reportTo, JSON_UNESCAPED_SLASHES));
-        $response->headers->set('Reporting-Endpoints', 'csp-endpoint="'.$reportEndpoint.'"');
+        $response->headers->set('Reporting-Endpoints', 'csp-endpoint="' . $reportEndpoint . '"');
         $response->headers->set(
             'Content-Security-Policy-Report-Only',
-            implode('; ', $cspReportOnly).'; report-to csp-endpoint; report-uri '.$reportEndpoint
+            implode('; ', $cspReportOnly) . '; report-to csp-endpoint; report-uri ' . $reportEndpoint
         );
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('X-Content-Type-Options', 'nosniff');

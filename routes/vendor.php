@@ -22,6 +22,9 @@ Route::middleware(['auth', 'can:access-vendor', 'role:vendor'])->group(function 
     Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('vendor.dashboard');
     // Vendor product management
     Route::resource('products', \App\Http\Controllers\Admin\ProductController::class)->names('vendor.products');
+    // Vendor media quick upload (reuse admin gallery controller for uploads)
+    Route::post('gallery/quick-upload', [\App\Http\Controllers\Admin\GalleryController::class, 'quickStore'])
+        ->name('vendor.gallery.quick-upload');
     // Vendor withdrawals
     Route::get('withdrawals', [WithdrawalController::class, 'index'])->name('vendor.withdrawals.index');
     Route::get('withdrawals/create', [WithdrawalController::class, 'create'])->name('vendor.withdrawals.create');

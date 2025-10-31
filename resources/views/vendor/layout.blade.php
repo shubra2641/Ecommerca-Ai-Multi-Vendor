@@ -21,7 +21,7 @@
     @yield('styles')
 </head>
 
-<body class="body" data-font-active="{{ $selectedFont }}" data-admin-base="{{ url('') }}" @if(session()->pull('refresh_admin_notifications')) data-refresh-admin-notifications="1" @endif>
+<body class="body" data-font-active="{{ $selectedFont }}" data-admin-base="{{ url('') }}" data-storage-base="{{ asset('storage') }}" @if(session()->pull('refresh_admin_notifications')) data-refresh-admin-notifications="1" @endif>
 
     <!-- Sidebar -->
     @include('vendor.partials.sidebar')
@@ -39,6 +39,31 @@
 
     </main>
     @yield('scripts')
+    <div class="modal fade" id="mediaUploadModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="mediaUploadForm" action="{{ route('vendor.gallery.quick-upload') }}" method="post" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" data-media-title>{{ __('Upload Media') }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label" for="mediaUploadInput">{{ __('Select file(s)') }}</label>
+                            <input class="form-control" id="mediaUploadInput" type="file" accept="image/*">
+                            <div class="form-text" data-media-hint>{{ __('Accepted formats: JPG, PNG, WEBP. Max size 4 MB each.') }}</div>
+                        </div>
+                        <div class="alert alert-danger py-2 px-3 d-none" role="alert" data-media-error></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="submit" class="btn btn-primary" data-media-submit>{{ __('Upload') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <!-- Essential Dependencies -->
     <script src="{{ asset('vendor/jquery/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('vendor/chart.js/chart.min.js') }}"></script>

@@ -236,7 +236,7 @@
                                         <option value="">{{ __('Select Payment Method') }}</option>
                                         @php $oldGw = old('gateway'); @endphp
                                         @foreach(($gateways ?? []) as $slug => $label)
-                                            <option value="{{ $slug }}" {{ ($oldGw ? $oldGw === $slug : $loop->first) ? 'selected' : '' }}>{{ __($label) }}</option>
+                                        <option value="{{ $slug }}" {{ ($oldGw ? $oldGw === $slug : $loop->first) ? 'selected' : '' }}>{{ __($label) }}</option>
                                         @endforeach
                                     </select>
                                     @error('gateway') <div class="text-danger small">{{ $message }}</div> @enderror
