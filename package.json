@@ -3,13 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "vendor:sync": "node scripts/copy-vendor-assets.js",
-        "lint": "eslint public/**/*.js",
-        "lint:fix": "eslint public/**/*.js --fix",
-        "stylelint": "stylelint \"**/*.{css,scss,sass}\"",
-        "stylelint:fix": "stylelint \"**/*.{css,scss,sass}\" --fix",
-        "lint:all": "npm run lint && npm run stylelint",
-        "lint:all:fix": "npm run lint:fix && npm run stylelint:fix"
+        "vendor:sync": "node scripts/copy-vendor-assets.js"
     },
     "devDependencies": {
         "@fontsource/cairo": "^5.0.12",
@@ -21,14 +15,10 @@
         "bootstrap": "^5.3.3",
         "chart.js": "^4.4.0",
         "concurrently": "^9.0.1",
-        "eslint": "^9.38.0",
         "intl-tel-input": "^18.5.3",
         "jquery": "^3.7.1",
         "postcss": "^8.4.31",
-        "sortablejs": "^1.15.2",
-        "stylelint": "^16.25.0",
-        "stylelint-config-standard": "^39.0.1",
-        "stylelint-config-standard-scss": "^16.0.0"
+        "sortablejs": "^1.15.2"
     },
     "dependencies": {
         "node-fetch": "^3.3.2"
