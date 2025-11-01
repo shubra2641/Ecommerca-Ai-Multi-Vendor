@@ -172,22 +172,7 @@ class InstallController extends Controller
             $purchaseCode = $request->input('purchase_code');
             $domain = $request->getHost();
 
-            // Dev bypass: accept 123456 in non-production to speed up testing
-            if ($purchaseCode === '123456' && !app()->environment('production')) {
-                session(['install.license' => [
-                    'purchase_code' => $purchaseCode,
-                    'domain' => $domain,
-                    'valid' => true,
-                    'message' => 'Development test license accepted',
-                ]]);
-
-                return $this->verificationResponse(
-                    $request,
-                    true,
-                    'License verified successfully (dev bypass)',
-                    ['purchase_code' => $purchaseCode, 'domain' => $domain]
-                );
-            }
+            // Note: Dev bypass removed for production readiness
 
             // Use the actual LicenseVerifier
             $verifier = new LicenseVerifier();
