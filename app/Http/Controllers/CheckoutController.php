@@ -9,6 +9,9 @@ use App\Http\Requests\CheckoutRequest;
 use App\Http\Requests\CreateOrderRequest;
 use App\Events\OrderPaid;
 use App\Models\Coupon;
+use App\Models\Country;
+use App\Models\Governorate;
+use App\Models\City;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
@@ -181,6 +184,20 @@ class CheckoutController extends Controller
             $currentCurrency = $currencyContext['currentCurrency'];
             $orderCurrency = $currentCurrency ? $currentCurrency->code : config('app.currency', 'USD');
 
+            // Resolve readable shipping parts for legacy JSON column
+            $country = ($validated['country'] ?? null) ? Country::find($validated['country']) : null;
+            $governorate = ($validated['governorate'] ?? null) ? Governorate::find($validated['governorate']) : null;
+            $city = ($validated['city'] ?? null) ? City::find($validated['city']) : null;
+
+            $shippingAddressPayload = [
+                'customer_name' => $validated['customer_name'] ?? null,
+                'customer_phone' => $validated['customer_phone'] ?? null,
+                'customer_address' => $validated['customer_address'] ?? null,
+                'country' => $country?->name,
+                'governorate' => $governorate?->name,
+                'city' => $city?->name,
+            ];
+
             $order = Order::create([
                 'user_id' => $user ? $user->id : null,
                 'status' => 'pending',
@@ -202,6 +219,11 @@ class CheckoutController extends Controller
                 'shipping_zone_id' => $validated['shipping_zone_id'] ?? null,
                 'shipping_estimated_days' => $validated['shipping_estimated_days'] ?? null,
             ]);
+
+            // Persist normalized legacy payload for display paths expecting shipping_address without mass-assignment risks
+            $order->shipping_address = $shippingAddressPayload;
+            $order->shipping_address_id = $validated['selected_address_id'] ?? null;
+            $order->save();
 
             foreach ($cart as $productId => $row) {
                 $product = Product::find($productId);

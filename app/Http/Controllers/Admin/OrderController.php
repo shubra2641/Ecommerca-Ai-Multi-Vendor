@@ -286,6 +286,86 @@ class OrderController extends Controller
         return implode(', ', $parts);
     }
 
+    /**
+     * Extract a gateway/provider name from a mixed payload (array|object|string|null).
+     */
+    private function extractGatewayFromPayload($payload): string
+    {
+        // Normalize payload to array when possible
+        $data = null;
+        if (is_array($payload)) {
+            $data = $payload;
+        } elseif (is_object($payload)) {
+            // Cast object to array safely
+            $data = (array) $payload;
+        } elseif (is_string($payload) && $payload !== '') {
+            $decoded = json_decode($payload, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $data = $decoded;
+            }
+        }
+
+        if (! is_array($data)) {
+            return '';
+        }
+
+        $raw = $data['gateway'] ?? ($data['provider'] ?? null);
+
+        // If it's already a string, return it
+        if (is_string($raw)) {
+            return $raw;
+        }
+
+        // If it's an array, try to pick sensible string fields
+        if (is_array($raw)) {
+            $candidate = $raw['name'] ?? ($raw['code'] ?? ($raw['provider'] ?? null));
+            return is_string($candidate) ? $candidate : '';
+        }
+
+        // If it's an object, look for common properties
+        if (is_object($raw)) {
+            if (isset($raw->name) && is_string($raw->name)) {
+                return $raw->name;
+            }
+            if (isset($raw->code) && is_string($raw->code)) {
+                return $raw->code;
+            }
+            if (isset($raw->provider) && is_string($raw->provider)) {
+                return $raw->provider;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Build a lookup of offline payments for an order.
+     * Returns an array keyed by payment id => true for quick checks in views.
+     */
+    private function getOfflinePayments(Order $order): array
+    {
+        $result = [];
+
+        // Ensure payments relationship is loaded
+        if (! $order->relationLoaded('payments')) {
+            $order->load('payments');
+        }
+
+        foreach ($order->payments as $payment) {
+            $method = strtolower((string) ($payment->method ?? ''));
+
+            // Prefer the unified `data` column (cast to array) but handle other shapes
+            $payload = $payment->data ?? null;
+            $gateway = strtolower($this->extractGatewayFromPayload($payload));
+
+            if (str_contains($method, 'offline') || $method === 'offline' || $gateway === 'offline') {
+                $result[$payment->id] = true;
+            }
+        }
+
+        return $result;
+    }
+
 
     public function cancelBackorderItem(Order $order, OrderItem $item)
     {
