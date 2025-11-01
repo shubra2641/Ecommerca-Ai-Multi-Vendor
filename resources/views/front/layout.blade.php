@@ -44,6 +44,7 @@
     <main class="site-main">
         @yield('content')
     </main>
+    @include('front.partials.mobile-bottom-nav')
     @includeWhen(View::exists('front.partials.footer_extended'),'front.partials.footer_extended')
     @yield('modals')
     @if(request()->routeIs('products.index') || request()->routeIs('products.category') ||

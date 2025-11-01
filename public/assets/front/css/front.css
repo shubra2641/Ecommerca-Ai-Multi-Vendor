@@ -660,6 +660,49 @@
     .easy-cats .cat-list {
         gap: .8rem;
     }
+
+    /* Hide desktop header controls on mobile */
+    .easy-search,
+    .easy-cats,
+    .easy-actions .act-account,
+    .easy-actions .act-wishlist,
+    .easy-actions .act-compare,
+    .easy-actions .act-cart,
+    .easy-actions .act-lang-curr,
+    .easy-left .easy-pages { display: none !important; }
+
+    /* Reserve space for bottom nav */
+    body { padding-bottom: 64px; }
+}
+
+/* Mobile bottom navigation */
+.mobile-bottom-nav {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 56px;
+    background: #fff;
+    border-top: 1px solid var(--border-primary);
+    display: none;
+    z-index: var(--z-fixed);
+}
+.mobile-bottom-nav .mbn-item {
+    flex: 1 1 20%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: #111;
+    text-decoration: none;
+    font-size: 11px;
+}
+.mobile-bottom-nav .mbn-item i { font-size: 18px; }
+.mobile-bottom-nav .mbn-item button {
+    background: none; border: 0; padding: 0; color: inherit; font: inherit;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+@media (max-width:900px) {
+    .mobile-bottom-nav { display: flex; }
 }
 
 /* --- End Easy style header overhaul --- */
