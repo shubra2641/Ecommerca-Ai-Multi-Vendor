@@ -54,7 +54,11 @@
         </div>
     </div>
     <div class="product-content product-card-body">
-        <div class="product-category"><a href="{{ route('products.category',$product->category->slug) }}">{{ $product->category->name }}</a></div>
+        @if($product->category)
+        <div class="product-category"><a href="{{ route('products.category', $product->category->slug) }}">{{ $product->category->name }}</a></div>
+        @else
+        <div class="product-category"><span class="text-muted">{{ __('Uncategorized') }}</span></div>
+        @endif
         <h3 class="product-title"><a href="{{ route('products.show',$product->slug) }}">{{ $product->name }}</a></h3>
         <div class="product-rating">
             <span class="stars">

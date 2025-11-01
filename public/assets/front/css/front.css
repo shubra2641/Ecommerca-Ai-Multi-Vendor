@@ -9815,4 +9815,59 @@ th{background:#f5f5f5}
     background-color: #f3f4f6;
 }
 
+/* ===== IMAGE LIGHTBOX ===== */
+#imageLightboxModal .modal-content {
+    background-color: rgba(0, 0, 0, 0.9);
+    border: none;
+    border-radius: 0;
+}
+
+#imageLightboxModal .modal-header {
+    border-bottom: none;
+    padding: 1rem;
+}
+
+#imageLightboxModal .modal-header .btn-close {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    opacity: 1;
+    filter: invert(1);
+}
+
+#imageLightboxModal .modal-header .btn-close:hover {
+    background-color: rgba(255, 255, 255, 1);
+}
+
+#imageLightboxModal .modal-body {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+}
+
+#lightboxImage {
+    cursor: zoom-out;
+    transition: transform 0.3s ease;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#lightboxImage:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive adjustments for lightbox */
+@media (max-width: 768px) {
+    #imageLightboxModal .modal-body {
+        min-height: 40vh;
+    }
+
+    #lightboxImage {
+        max-height: 70vh;
+    }
+}
+
 

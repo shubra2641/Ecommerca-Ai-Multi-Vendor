@@ -8,6 +8,7 @@ use App\Helpers\GlobalHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Payment;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -16,7 +17,10 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $ordersQuery = Order::where('user_id', $user->id);
-        $paymentsQuery = Payment::where('user_id', $user->id);
+        // Payments table does not have a user_id column; payments belong to the user's orders
+        $paymentsQuery = Payment::query()->whereHas('order', function (Builder $q) use ($user) {
+            $q->where('user_id', $user->id);
+        });
         $recentOrders = (clone $ordersQuery)->latest()->with('items')->limit(5)->get();
         $recentPayments = (clone $paymentsQuery)->latest()->limit(5)->get();
 
@@ -45,10 +49,10 @@ class DashboardController extends Controller
                 2
             ),
             'profile_completion' => $user->profile_completion,
-            'last_order_date' => optional($recentOrders->first())->created_at,
+            'last_order_date' => \optional($recentOrders->first())->created_at,
         ];
         $addresses = $user->addresses()->get();
 
-        return view('front.account.dashboard', compact('stats', 'recentOrders', 'recentPayments', 'addresses', 'user', 'currencySymbol'));
+        return \view('front.account.dashboard', compact('stats', 'recentOrders', 'recentPayments', 'addresses', 'user', 'currencySymbol'));
     }
 }

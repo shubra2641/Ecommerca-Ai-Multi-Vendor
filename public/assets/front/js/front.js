@@ -765,6 +765,55 @@
         }
     };
 
+    // Image Lightbox Module
+    const ImageLightbox = {
+        init() {
+            this.bindImageClicks();
+        },
+
+        bindImageClicks() {
+            // Bind click events to all images that should open in lightbox
+            document.addEventListener('click', (e) => {
+                const target = e.target;
+
+                // Check if clicked element is an img tag
+                if (target.tagName === 'IMG') {
+                    // Skip images that shouldn't open in lightbox
+                    const skipClasses = ['hero-slide-img', 'banner-img', 'app-badge-img', 'is-placeholder'];
+                    const hasSkipClass = skipClasses.some(cls => target.classList.contains(cls));
+
+                    // Skip images in certain containers
+                    const skipContainers = ['.navbar', '.footer', '.admin-', '.modal'];
+                    const isInSkipContainer = skipContainers.some(selector =>
+                        target.closest(selector)
+                    );
+
+                    // Skip if image is too small (likely icons)
+                    const isTooSmall = target.naturalWidth < 100 || target.naturalHeight < 100;
+
+                    if (!hasSkipClass && !isInSkipContainer && !isTooSmall) {
+                        e.preventDefault();
+                        this.openLightbox(target.src, target.alt);
+                    }
+                }
+            });
+        },
+
+        openLightbox(src, alt) {
+            const modal = $('#imageLightboxModal');
+            const lightboxImage = $('#lightboxImage');
+
+            if (modal && lightboxImage) {
+                lightboxImage.src = src;
+                lightboxImage.alt = alt || '';
+
+                // Use Bootstrap's modal API
+                const bsModal = new bootstrap.Modal(modal);
+                bsModal.show();
+            }
+        }
+    };
+
     // Initialize all modules when DOM is ready
     function initializeApp() {
         DropdownManager.init();
@@ -774,6 +823,7 @@
         QuantitySelector.init();
         ProductVariations.init();
         CheckoutShipping.init();
+        ImageLightbox.init();
     }
 
     if (document.readyState === 'loading') {

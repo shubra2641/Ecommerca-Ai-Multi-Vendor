@@ -51,6 +51,7 @@
     request()->routeIs('products.tag'))
     @include('front.partials.notify-modal')
     @endif
+    @include('front.partials.image-lightbox-modal')
     <!-- Removed local toast test button now that unified notification system is stable -->
     <!-- Essential Dependencies -->
     <script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}" defer></script>
