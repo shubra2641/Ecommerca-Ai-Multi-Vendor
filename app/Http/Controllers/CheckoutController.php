@@ -193,6 +193,10 @@ class CheckoutController extends Controller
                 'customer_name' => $validated['customer_name'] ?? null,
                 'customer_phone' => $validated['customer_phone'] ?? null,
                 'customer_address' => $validated['customer_address'] ?? null,
+                // store both ids and readable names for robustness
+                'country_id' => $validated['country'] ?? null,
+                'governorate_id' => $validated['governorate'] ?? null,
+                'city_id' => $validated['city'] ?? null,
                 'country' => $country?->name,
                 'governorate' => $governorate?->name,
                 'city' => $city?->name,
@@ -220,9 +224,9 @@ class CheckoutController extends Controller
                 'shipping_estimated_days' => $validated['shipping_estimated_days'] ?? null,
             ]);
 
-            // Persist normalized legacy payload for display paths expecting shipping_address without mass-assignment risks
+            // Persist normalized legacy payload for display paths expecting shipping_address only
             $order->shipping_address = $shippingAddressPayload;
-            $order->shipping_address_id = $validated['selected_address_id'] ?? null;
+            // Do not touch shipping_address_id here (requested to save address only in shipping_address column)
             $order->save();
 
             foreach ($cart as $productId => $row) {
